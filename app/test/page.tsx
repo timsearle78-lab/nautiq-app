@@ -44,21 +44,47 @@ export default function TestPage() {
     else setBoats(data ?? []);
   };
 
-  const createBoat = async () => {
-    setStatus("Creating boat...");
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData.user;
-    if (!user) return setStatus("Not logged in.");
+	const createBoat = async () => {
+	  setStatus("Creating boat...");
 
-    const { error } = await supabase.from("boats").insert({
-      user_id: user.id,
-      name: boatName,
-      type: "Sailboat",
-    });
+	  const { data: userData } = await supabase.auth.getUser();
+	  const user = userData.user;
 
-    setStatus(error ? `Error: ${error.message}` : "Boat created.");
-    if (!error) fetchBoats();
-  };
+	  if (!user) {
+		setStatus("Not logged in.");
+		return;
+	  }
+
+	  // 1️⃣ Create boat
+	  const { data: boatData, error: boatError } = await supabase
+		.from("boats")
+		.insert({
+		  user_id: user.id,
+		  name: boatName,
+		  type: "Sailboat",
+		})
+		.select()
+		.single();
+
+	  if (boatError) {
+		setStatus(`Boat error: ${boatError.message}`);
+		return;
+	  }
+
+	  // 2️⃣ Call RPC to seed systems/components
+	  const { error: seedError } = await supabase.rpc(
+		"seed_boat_templates",
+		{ p_boat_id: boatData.id }
+	  );
+
+	  if (seedError) {
+		setStatus(`Seed error: ${seedError.message}`);
+		return;
+	  }
+
+	  setStatus("Boat created + templates seeded.");
+	  fetchBoats();
+	};
 
   return (
     <div style={{ padding: 24, maxWidth: 720 }}>
