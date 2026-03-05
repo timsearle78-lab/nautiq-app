@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const PROTECTED_PREFIXES = ["/dashboard", "/onboarding"];
+
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -22,8 +24,17 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Refreshes auth state in cookies for SSR consistency
-  await supabase.auth.getClaims();
+  const pathname = request.nextUrl.pathname;
+  const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
+
+  const { data } = await supabase.auth.getUser();
+
+  if (isProtected && !data.user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("next", pathname);
+    return NextResponse.redirect(url);
+  }
 
   return response;
 }
