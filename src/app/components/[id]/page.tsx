@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import type { MaintenanceHistoryRow } from "@/lib/components/queries";
+
 import {
   getComponentDetail,
   getComponentMaintenanceHistory,
@@ -171,7 +173,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {history.map((row) => (
+                {history.map((row: MaintenanceHistoryRow) => (
                     <tr key={row.id} className="border-b align-top">
                       <td className="py-3 pr-4">
                         {row.performed_at
