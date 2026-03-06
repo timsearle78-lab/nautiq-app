@@ -182,9 +182,6 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                       </td>
                       <td className="py-3 pr-4">
                         <div className="font-medium">{row.work_done ?? "Maintenance"}</div>
-                        {row.notes ? (
-                          <div className="mt-1 text-xs text-neutral-500">{row.notes}</div>
-                        ) : null}
                       </td>
                       <td className="py-3 pr-4">{row.engine_hours_at_service ?? "—"}</td>
                       <td className="py-3 pr-4">{row.vendor ?? "—"}</td>
