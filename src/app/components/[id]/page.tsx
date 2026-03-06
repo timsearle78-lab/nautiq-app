@@ -126,8 +126,8 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           <div className="text-sm text-neutral-500">Service interval</div>
           <div className="mt-2 text-sm font-medium">
             {component.interval_months
-              ? `${component.interval_months} days`
-              : "No day interval"}
+              ? `${component.interval_months} months`
+              : "No month interval"}
             <br />
             {component.interval_hours
               ? `${component.interval_hours} engine hours`
@@ -183,7 +183,6 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                       <td className="py-3 pr-4">
                         <div className="font-medium">{row.work_done ?? "Maintenance"}</div>
                       </td>
-                      <td className="py-3 pr-4">{row.engine_hours_at_service ?? "—"}</td>
                       <td className="py-3 pr-4">{row.vendor ?? "—"}</td>
                     </tr>
                   ))}
