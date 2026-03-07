@@ -8,7 +8,12 @@ type ComponentOption = {
   name: string;
 };
 
-const initialState = {};
+type ActionState = {
+  error?: string;
+  success?: string;
+};
+
+const initialState: ActionState = {};
 
 export function AddInventoryItemForm({
   boatId,
@@ -17,7 +22,10 @@ export function AddInventoryItemForm({
   boatId: string;
   components: ComponentOption[];
 }) {
-  const [state, formAction, pending] = useActionState(createInventoryItem, initialState);
+  const [state, formAction, pending] = useActionState(
+    createInventoryItem,
+    initialState
+  );
 
   return (
     <section className="rounded-xl border p-4">
@@ -45,9 +53,15 @@ export function AddInventoryItemForm({
               placeholder="Engine"
             />
           </div>
+
           <div>
-            <label className="mb-1 block text-sm font-medium">Linked component</label>
-            <select name="component_id" className="w-full rounded-md border px-3 py-2 text-sm">
+            <label className="mb-1 block text-sm font-medium">
+              Linked component
+            </label>
+            <select
+              name="component_id"
+              className="w-full rounded-md border px-3 py-2 text-sm"
+            >
               <option value="">None</option>
               {components.map((component) => (
                 <option key={component.id} value={component.id}>
@@ -71,8 +85,11 @@ export function AddInventoryItemForm({
               className="w-full rounded-md border px-3 py-2 text-sm"
             />
           </div>
+
           <div>
-            <label className="mb-1 block text-sm font-medium">Minimum qty</label>
+            <label className="mb-1 block text-sm font-medium">
+              Minimum qty
+            </label>
             <input
               name="minimum_quantity"
               type="number"
@@ -81,6 +98,7 @@ export function AddInventoryItemForm({
               className="w-full rounded-md border px-3 py-2 text-sm"
             />
           </div>
+
           <div>
             <label className="mb-1 block text-sm font-medium">Unit</label>
             <input
@@ -93,15 +111,20 @@ export function AddInventoryItemForm({
 
         <div className="grid gap-3 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium">Storage location</label>
+            <label className="mb-1 block text-sm font-medium">
+              Storage location
+            </label>
             <input
               name="storage_location"
               className="w-full rounded-md border px-3 py-2 text-sm"
               placeholder="Starboard locker"
             />
           </div>
+
           <div>
-            <label className="mb-1 block text-sm font-medium">Manufacturer</label>
+            <label className="mb-1 block text-sm font-medium">
+              Manufacturer
+            </label>
             <input
               name="manufacturer"
               className="w-full rounded-md border px-3 py-2 text-sm"
@@ -134,8 +157,13 @@ export function AddInventoryItemForm({
           Mark as critical spare
         </label>
 
-        {state?.error ? <p className="text-sm text-red-600">{state.error}</p> : null}
-        {state?.success ? <p className="text-sm text-green-700">{state.success}</p> : null}
+        {state.error ? (
+          <p className="text-sm text-red-600">{state.error}</p>
+        ) : null}
+
+        {state.success ? (
+          <p className="text-sm text-green-700">{state.success}</p>
+        ) : null}
 
         <button
           type="submit"
