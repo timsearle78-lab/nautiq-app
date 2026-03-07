@@ -25,6 +25,7 @@ export type MaintenanceHistoryRow = {
   id: string;
   performed_at: string | null;
   work_done: string | null;
+  notes: string | null;
   cost: number | null;
   currency: string | null;
   vendor: string | null;
@@ -87,6 +88,7 @@ export async function getComponentMaintenanceHistory(componentId: string): Promi
       id,
       performed_at,
       work_done,
+      notes,
       cost,
       currency,
       vendor,
