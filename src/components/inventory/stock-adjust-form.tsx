@@ -3,7 +3,12 @@
 import { useActionState } from "react";
 import { adjustInventoryStock } from "@/lib/inventory/actions";
 
-const initialState = {};
+type ActionState = {
+  error?: string;
+  success?: string;
+};
+
+const initialState: ActionState = {};
 
 export function StockAdjustForm({
   boatId,
@@ -12,7 +17,10 @@ export function StockAdjustForm({
   boatId: string;
   inventoryItemId: string;
 }) {
-  const [state, formAction, pending] = useActionState(adjustInventoryStock, initialState);
+  const [state, formAction, pending] = useActionState(
+    adjustInventoryStock,
+    initialState
+  );
 
   return (
     <form action={formAction} className="flex flex-wrap items-center gap-2">
@@ -52,7 +60,13 @@ export function StockAdjustForm({
         {pending ? "..." : "Update"}
       </button>
 
-      {state?.error ? <span className="text-xs text-red-600">{state.error}</span> : null}
+      {state.error ? (
+        <span className="text-xs text-red-600">{state.error}</span>
+      ) : null}
+
+      {state.success ? (
+        <span className="text-xs text-green-700">{state.success}</span>
+      ) : null}
     </form>
   );
 }
