@@ -78,7 +78,7 @@ export async function getComponentDetail(componentId: string) {
   return data as ComponentDetail;
 }
 
-export async function getComponentMaintenanceHistory(componentId: string) {
+export async function getComponentMaintenanceHistory(componentId: string): Promise<MaintenanceHistoryRow[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -104,7 +104,7 @@ export async function getComponentMaintenanceHistory(componentId: string) {
   return (data ?? []) as MaintenanceHistoryRow[];
 }
 
-export async function getLinkedInventory(componentId: string) {
+export async function getLinkedInventory(componentId: string): Promise<LinkedInventoryRow[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase

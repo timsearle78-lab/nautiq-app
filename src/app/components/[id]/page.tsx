@@ -2,7 +2,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { MaintenanceHistoryRow } from "@/lib/components/queries";
+import type {
+    MaintenanceHistoryRow,
+    LinkedInventoryRow,
+} from "@/lib/components/queries";
 
 import {
   getComponentDetail,
@@ -209,7 +212,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
             </p>
           ) : (
             <ul className="mt-4 space-y-3">
-              {linkedInventory.map((item) => {
+                {linkedInventory.map((item: LinkedInventoryRow) => {
                 const low =
                   item.minimum_quantity != null &&
                   Number(item.quantity) < Number(item.minimum_quantity);
