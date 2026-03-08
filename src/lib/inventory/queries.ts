@@ -17,10 +17,33 @@ export type InventoryItemRow = {
   is_critical: boolean;
   created_at: string;
   updated_at: string;
-  component?: {
+  component: {
     id: string;
     name: string;
   } | null;
+};
+
+type InventoryItemQueryRow = {
+  id: string;
+  user_id: string;
+  boat_id: string;
+  component_id: string | null;
+  name: string;
+  category: string | null;
+  sku: string | null;
+  manufacturer: string | null;
+  quantity: number;
+  minimum_quantity: number | null;
+  unit: string | null;
+  storage_location: string | null;
+  notes: string | null;
+  is_critical: boolean;
+  created_at: string;
+  updated_at: string;
+  component:
+    | { id: string; name: string }
+    | { id: string; name: string }[]
+    | null;
 };
 
 export type MissingCriticalSpareRow = {
@@ -47,7 +70,13 @@ export type ActivityFeedRow = {
   created_at: string;
 };
 
-export async function getInventoryItems(boatId: string) {
+export async function getInventoryItems(
+  boatId: string
+): Promise<InventoryItemRow[]> {
+  if (!boatId) {
+    throw new Error("getInventoryItems requires a boatId");
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -82,7 +111,29 @@ export async function getInventoryItems(boatId: string) {
     throw new Error(`Failed to load inventory: ${error.message}`);
   }
 
-  return (data ?? []) as InventoryItemRow[];
+  const rows = (data ?? []) as InventoryItemQueryRow[];
+
+  return rows.map((row) => ({
+    id: row.id,
+    user_id: row.user_id,
+    boat_id: row.boat_id,
+    component_id: row.component_id,
+    name: row.name,
+    category: row.category,
+    sku: row.sku,
+    manufacturer: row.manufacturer,
+    quantity: row.quantity,
+    minimum_quantity: row.minimum_quantity,
+    unit: row.unit,
+    storage_location: row.storage_location,
+    notes: row.notes,
+    is_critical: row.is_critical,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    component: Array.isArray(row.component)
+      ? row.component[0] ?? null
+      : row.component ?? null,
+  }));
 }
 
 export async function getBoatComponents(boatId: string) {

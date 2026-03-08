@@ -1,4 +1,7 @@
-import type { ComponentDetail, MaintenanceHistoryRow } from "@/lib/components/queries";
+import type {
+  ComponentDetail,
+  MaintenanceHistoryRow,
+} from "@/lib/components/queries";
 
 export type ComponentHealthSummary = {
   status: "ok" | "due_soon" | "overdue" | "unknown";
@@ -23,7 +26,8 @@ export function getComponentHealthSummary(
 ): ComponentHealthSummary {
   const latestService = maintenanceHistory[0] ?? null;
   const lastServiceDate = latestService?.performed_at ?? null;
-  const lastServiceEngineHours = latestService?.engine_hours_at_service ?? null;
+  const lastServiceEngineHours =
+    latestService?.engine_hours_at_service ?? null;
 
   const daysSinceService =
     lastServiceDate ? daysBetween(lastServiceDate) : null;

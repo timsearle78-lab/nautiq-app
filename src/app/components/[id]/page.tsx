@@ -128,12 +128,12 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
         <div className="rounded-xl border p-4">
           <div className="text-sm text-neutral-500">Service interval</div>
           <div className="mt-2 text-sm font-medium">
-            {component.interval_months
-              ? `${component.interval_months} months`
-              : "No month interval"}
+            {component.service_interval_days
+              ? `${component.service_interval_days} days`
+              : "No day interval"}
             <br />
-            {component.interval_hours
-              ? `${component.interval_hours} engine hours`
+            {component.service_interval_engine_hours
+              ? `${component.service_interval_engine_hours} engine hours`
               : "No hour interval"}
           </div>
         </div>

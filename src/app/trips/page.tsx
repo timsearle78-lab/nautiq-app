@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function TripsPage() {
+function TripsPageInner() {
   const supabase = createClient();
   const searchParams = useSearchParams();
   const selectedBoatId = searchParams.get("boat");
@@ -16,13 +17,16 @@ export default function TripsPage() {
   const logTrip = async () => {
     setStatus("Logging trip...");
 
-    const { data: userData, error: userError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
     if (userError) {
       setStatus(`User error: ${userError.message}`);
       return;
     }
 
-    const user = userData.user;
     if (!user) {
       setStatus("Not logged in.");
       return;
@@ -74,14 +78,17 @@ export default function TripsPage() {
 
   return (
     <div style={{ padding: 24, maxWidth: 600 }}>
-        <a href={`/dashboard?boat=${selectedBoatId}`}>Back to Dashboard</a>
-		<h1>Log Trip</h1>
+      <Link href={selectedBoatId ? `/dashboard?boat=${selectedBoatId}` : "/dashboard"}>
+        Back to Dashboard
+      </Link>
 
-        <p>
-            Active boat ID: <code>{selectedBoatId ?? "none selected"}</code>
-        </p>
+      <h1>Log Trip</h1>
 
-        <div style={{ display: "grid", gap: 10, marginTop: 16 }}>
+      <p>
+        Active boat ID: <code>{selectedBoatId ?? "none selected"}</code>
+      </p>
+
+      <div style={{ display: "grid", gap: 10, marginTop: 16 }}>
         <input
           placeholder="Engine hours"
           value={engineHours}
@@ -102,5 +109,13 @@ export default function TripsPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function TripsPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 24 }}>Loading trip form...</div>}>
+      <TripsPageInner />
+    </Suspense>
   );
 }
