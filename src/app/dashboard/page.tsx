@@ -28,6 +28,25 @@ type HealthRow = {
   months_until_due: number | null;
 };
 
+type SparePredictionRow = {
+  inventory_item_id: string;
+  component_id: string | null;
+  component_name: string | null;
+  system_name: string | null;
+  item_name: string;
+  category: string | null;
+  manufacturer: string | null;
+  sku: string | null;
+  quantity: number | null;
+  minimum_quantity: number | null;
+  shortage: number | null;
+  predicted_status: "missing" | "low" | "needed_soon" | "ok";
+  maintenance_status: string | null;
+  predicted_due_date: string | null;
+  recommendation: string | null;
+  sort_rank: number;
+};
+
 type TripRow = {
   started_at: string;
   engine_hours_delta: number | null;
@@ -63,10 +82,11 @@ export default async function DashboardPage({
 
   if (!user) redirect("/login?next=/dashboard");
 
-  const { data: boatsData, error: boatsError } = await supabase
-    .from("boats")
-    .select("id,name,type,created_at")
-    .order("created_at", { ascending: false });
+    const { data: boatsData, error: boatsError } = await supabase
+      .from("boats")
+      .select("id,name,type,created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
   if (boatsError) {
     return (
@@ -83,26 +103,69 @@ export default async function DashboardPage({
 
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const [{ data: healthData }, { data: tripsData }, { data: totalEngineHoursData }] =
-    await Promise.all([
-      supabase.rpc("get_boat_health", {
-        p_boat_id: boat.id,
-      }),
-      supabase
-        .from("trips")
-        .select("started_at, engine_hours_delta, notes")
-        .eq("boat_id", boat.id)
-        .order("started_at", { ascending: false })
-        .limit(5),
-      supabase.rpc("get_boat_engine_hours", {
-        p_boat_id: boat.id,
-      }),
-    ]);
+  const [
+    { data: healthData },
+    { data: tripsData },
+    { data: totalEngineHoursData },
+    { data: timelineData },
+    { data: sparesPredictionData },
+  ] = await Promise.all([
+    supabase.rpc("get_boat_health", {
+      p_boat_id: boat.id,
+    }),
+    supabase
+      .from("trips")
+      .select("started_at, engine_hours_delta, notes")
+      .eq("boat_id", boat.id)
+      .order("started_at", { ascending: false })
+      .limit(5),
+    supabase.rpc("get_boat_engine_hours", {
+      p_boat_id: boat.id,
+    }),
+    supabase.rpc("get_boat_maintenance_timeline", {
+      p_boat_id: boat.id,
+      p_horizon_days: 90,
+    }),
+    supabase.rpc("get_boat_critical_spares_prediction", {
+      p_boat_id: boat.id,
+      p_horizon_days: 90,
+    }),
+  ]);
+  
+  const timeline = (timelineData ?? []) as Array<{
+    component_id: string;
+    component_name: string;
+    system_name: string | null;
+    predicted_due_date: string | null;
+    status: "overdue" | "due_soon" | "planned" | "later" | "unknown";
+  }>;
+
+  const predictiveItems = timeline
+    .filter((row) => row.status === "overdue" || row.status === "due_soon" || row.status === "planned")
+    .slice(0, 3);  
 
   const health = (healthData ?? []) as HealthRow[];
+  const sortedHealth = [...health].sort((a, b) => {
+    return Number(b.risk_score ?? 0) - Number(a.risk_score ?? 0);
+  });
   const trips = (tripsData ?? []) as TripRow[];
   const totalEngineHours = Number(totalEngineHoursData ?? 0);
 
+  const sparePredictions =
+    (sparesPredictionData ?? []) as SparePredictionRow[];
+
+  const missingSpares = sparePredictions.filter(
+    (row) => row.predicted_status === "missing"
+  );
+
+  const lowSpares = sparePredictions.filter(
+    (row) => row.predicted_status === "low"
+  );
+
+  const neededSoonSpares = sparePredictions.filter(
+    (row) => row.predicted_status === "needed_soon"
+  );
+  
   const avgRisk =
     health.length > 0
       ? health.reduce((sum: number, row: HealthRow) => {
@@ -113,11 +176,8 @@ export default async function DashboardPage({
   const boatHealthScore = Math.max(0, Math.round(100 - avgRisk));
   const lastTrip = trips.length > 0 ? trips[0] : null;
 
-  const upcomingMaintenance = health
-    .filter(
-      (row: HealthRow) =>
-        (row.months_until_due ?? 0) > 0 || (row.hours_until_due ?? 0) > 0
-    )
+const upcomingMaintenance = sortedHealth
+    .filter((row: HealthRow) => row.status?.toLowerCase() !== "ok")
     .sort((a: HealthRow, b: HealthRow) => {
       const aDue =
         a.hours_until_due !== null
@@ -155,9 +215,17 @@ export default async function DashboardPage({
         ))}
       </div>
 
-      <p>
-        <Link href={`/trips?boat=${boat.id}`}>Log Trip</Link>
-      </p>
+<p>
+  <Link href={`/trips?boat=${boat.id}`}>Trips</Link>
+  {" · "}
+  <Link href={`/trips/log?boat=${boat.id}`}>Quick Log Trip</Link>
+  {" · "}
+  <Link href={`/maintenance?boat=${boat.id}`}>Maintenance Overview</Link>
+  {" · "}
+  <Link href={`/planner?boat=${boat.id}`}>Maintenance Planner</Link>
+  {" · "}
+  <Link href={`/components?boat=${boat.id}`}>Components</Link>
+</p>
 
       <div
         style={{
@@ -195,9 +263,9 @@ export default async function DashboardPage({
             </div>
             <div>
               <strong>Status:</strong>{" "}
-              {boatHealthScore > 80
+              {boatHealthScore >= 80
                 ? "Healthy"
-                : boatHealthScore > 60
+                : boatHealthScore >= 60
                 ? "Needs attention soon"
                 : "Needs attention"}
             </div>
@@ -210,10 +278,119 @@ export default async function DashboardPage({
         <MissingCriticalSparesCard boatId={boat.id} />
       </div>
 
+      <div
+        style={{
+          padding: 16,
+          border: "1px solid #ddd",
+          borderRadius: 12,
+          marginBottom: 24,
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h3 style={{ margin: 0 }}>Critical Spares Prediction</h3>
+          <Link href={`/inventory?boat=${boat.id}`}>Open inventory</Link>
+        </div>
+
+        <div style={{ display: "grid", gap: 16, marginTop: 16 }}>
+          <div>
+            <strong>Missing now:</strong> {missingSpares.length}
+
+            {missingSpares.length > 0 && (
+              <ul style={{ marginTop: 8 }}>
+                {missingSpares.slice(0, 3).map((row) => (
+                  <li key={row.inventory_item_id}>
+                    <Link href={`/inventory?boat=${boat.id}`}>
+                      {row.item_name}
+                    </Link>
+                    {row.component_name ? ` — ${row.component_name}` : ""}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div>
+            <strong>Low stock:</strong> {lowSpares.length}
+
+            {lowSpares.length > 0 && (
+              <ul style={{ marginTop: 8 }}>
+                {lowSpares.slice(0, 3).map((row) => (
+                  <li key={row.inventory_item_id}>
+                    <Link href={`/inventory?boat=${boat.id}`}>
+                      {row.item_name}
+                    </Link>
+                    {row.quantity != null && row.minimum_quantity != null
+                      ? ` (${row.quantity}/${row.minimum_quantity})`
+                      : ""}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div>
+            <strong>Needed soon:</strong> {neededSoonSpares.length}
+
+            {neededSoonSpares.length > 0 && (
+              <ul style={{ marginTop: 8 }}>
+                {neededSoonSpares.slice(0, 3).map((row) => (
+                  <li key={row.inventory_item_id}>
+                    <Link href={`/inventory?boat=${boat.id}`}>
+                      {row.item_name}
+                    </Link>
+                    {row.predicted_due_date
+                      ? ` • by ${new Date(row.predicted_due_date).toLocaleDateString()}`
+                      : ""}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      <div
+        style={{
+          padding: 16,
+          border: "1px solid #ddd",
+          borderRadius: 12,
+          marginBottom: 24,
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h3 style={{ margin: 0 }}>Predictive Maintenance</h3>
+          <Link href={`/maintenance?boat=${boat.id}`}>View all</Link>
+        </div>
+
+        {predictiveItems.length > 0 ? (
+          <ul style={{ marginTop: 12 }}>
+            {predictiveItems.map((row) => (
+              <li key={row.component_id} style={{ marginBottom: 10 }}>
+                <Link href={`/components/${row.component_id}`}>
+                  {(row.system_name ?? "System") + " — " + row.component_name}
+                </Link>
+                <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
+                  {row.status === "overdue"
+                    ? "Overdue"
+                    : row.status === "due_soon"
+                    ? "Due soon"
+                    : "Planned"}
+                  {row.predicted_due_date
+                    ? ` • ${new Date(row.predicted_due_date).toLocaleDateString()}`
+                    : ""}
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p style={{ marginTop: 12 }}>No predictive maintenance items.</p>
+        )}
+      </div>      
+
       <h3>Top Risks</h3>
       {health.length > 0 ? (
         <ul>
-          {health.slice(0, 10).map((row: HealthRow) => (
+            {sortedHealth.slice(0, 10).map((row: HealthRow) => (
             <li key={row.component_id} style={{ marginBottom: 12 }}>
               <div>
                 {row.system_name ?? "System"} — {row.component_name}

@@ -6,7 +6,6 @@ import type {
     MaintenanceHistoryRow,
     LinkedInventoryRow,
 } from "@/lib/components/queries";
-
 import {
   getComponentDetail,
   getComponentMaintenanceHistory,
@@ -14,6 +13,7 @@ import {
   getLinkedInventory,
 } from "@/lib/components/queries";
 import { getComponentHealthSummary } from "@/lib/components/health";
+import { LogMaintenanceForm } from "@/components/components/log-maintenance-form";
 
 type ComponentPageProps = {
   params: Promise<{ id: string }>;
@@ -148,6 +148,17 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
         </ul>
       </section>
 
+    <LogMaintenanceForm
+      componentId={component.id}
+      boatId={component.boat_id}
+      inventoryOptions={linkedInventory.map((item) => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        unit: item.unit,
+      }))}
+    />
+
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl border p-4">
           <div className="flex items-center justify-between">
@@ -186,6 +197,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                       <td className="py-3 pr-4">
                         <div className="font-medium">{row.work_done ?? "Maintenance"}</div>
                       </td>
+                      <td className="py-3 pr-4">{row.engine_hours_at_service ?? "—"}</td>
                       <td className="py-3 pr-4">{row.vendor ?? "—"}</td>
                     </tr>
                   ))}
