@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
             {
               type: "input_image",
               image_url: dataUrl,
+              detail: "auto",
             },
           ],
         },
