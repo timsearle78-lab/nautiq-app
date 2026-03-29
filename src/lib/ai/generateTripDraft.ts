@@ -1,9 +1,5 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 const tripDraftSchema = {
   name: "trip_draft",
   schema: {
@@ -43,6 +39,10 @@ export async function generateTripDraftFromAI(rawInput: string) {
     throw new Error("OPENAI_API_KEY is missing.");
   }
 
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+  
   const response = await openai.responses.create({
     model: "gpt-5-mini",
     input: [

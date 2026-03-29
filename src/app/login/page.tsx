@@ -6,5 +6,6 @@ export default function LoginPage() {
     <Suspense fallback={<div style={{ padding: 24 }}>Loading...</div>}>
       <LoginForm />
     </Suspense>
+    
   );
 }
