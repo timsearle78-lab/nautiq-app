@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
+import { getBoatHealth } from "@/lib/components/health";
 
 export const dynamic = "force-dynamic";
 
@@ -121,18 +122,9 @@ export default async function ComponentsPage({
   const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const { data: healthData, error: healthError } = await supabase.rpc(
-    "get_boat_health",
-    {
-      p_boat_id: boat.id,
-    }
-  );
+  const healthData = await getBoatHealth(boat.id);
 
-  if (healthError) {
-    throw new Error(`Failed to load component data: ${healthError.message}`);
-  }
-
-  const allRows = ((healthData ?? []) as HealthRow[]).sort((a, b) => {
+  const allRows = (healthData as HealthRow[]).sort((a, b) => {
     const systemCompare = (a.system_name ?? "").localeCompare(b.system_name ?? "");
     if (systemCompare !== 0) return systemCompare;
 

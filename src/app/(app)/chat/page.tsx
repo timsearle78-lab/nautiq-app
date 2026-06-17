@@ -2,17 +2,11 @@ import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
+import { getBoatHealth } from "@/lib/components/health";
 import ChatInterface from "@/components/chat/chat-interface";
 
 export const dynamic = "force-dynamic";
 
-type HealthRow = {
-  component_id: string;
-  component_name: string;
-  system_name: string | null;
-  risk_score: number | null;
-  status: string | null;
-};
 type TimelineRow = {
   component_id: string;
   component_name: string;
@@ -47,18 +41,18 @@ export default async function ChatPage() {
   const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const [engineHoursRes, healthRes, timelineRes] = await Promise.all([
+  const [engineHoursRes, health, timelineRes] = await Promise.all([
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
-    supabase.rpc("get_boat_health", { p_boat_id: boat.id }),
+    getBoatHealth(boat.id),
     supabase.rpc("get_boat_maintenance_timeline", { p_boat_id: boat.id, p_horizon_days: 90 }),
   ]);
 
   const engineHours = (engineHoursRes.data as number) ?? 0;
-  const health = (healthRes.data ?? []) as HealthRow[];
   const timeline = (timelineRes.data ?? []) as TimelineRow[];
 
-  const avgRisk = health.length > 0
-    ? health.reduce((s, c) => s + (c.risk_score ?? 0), 0) / health.length
+  const knownHealth = health.filter((r) => r.risk_score != null);
+  const avgRisk = knownHealth.length > 0
+    ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
     : 0;
   const healthScore = Math.max(0, Math.round(100 - avgRisk));
 

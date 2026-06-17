@@ -1,3 +1,4 @@
+import { createClient } from "@/lib/supabase/server";
 import type {
   ComponentDetail,
   MaintenanceHistoryRow,
@@ -99,4 +100,112 @@ export function getComponentHealthSummary(
     daysSinceService,
     reasons: reasons.length ? reasons : ["Within service interval."],
   };
+}
+
+// ---------------------------------------------------------------------------
+// Boat-level health — replaces the get_boat_health RPC so all pages use the
+// same algorithm as the component detail page.
+// ---------------------------------------------------------------------------
+
+export type BoatHealthRow = {
+  component_id: string;
+  component_name: string;
+  system_name: string | null;
+  risk_score: number | null;
+  status: string | null;
+  hours_since_service: number | null;
+  hours_until_due: number | null;
+  months_until_due: number | null;
+};
+
+export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
+  const supabase = await createClient();
+
+  const [{ data: componentsData }, { data: engineHoursData }] = await Promise.all([
+    supabase
+      .from("components")
+      .select("id, name, service_interval_days, service_interval_engine_hours, system:systems(id, name)")
+      .eq("boat_id", boatId)
+      .order("name"),
+    supabase.rpc("get_boat_engine_hours", { p_boat_id: boatId }),
+  ]);
+
+  if (!componentsData || componentsData.length === 0) return [];
+
+  const componentIds = componentsData.map((c: Record<string, unknown>) => c.id as string);
+  const latestBoatEngineHours = (engineHoursData as number | null) ?? null;
+
+  // Fetch latest maintenance event per component in one query
+  const { data: eventsData } = await supabase
+    .from("maintenance_events")
+    .select("component_id, performed_at, engine_hours_at_service")
+    .in("component_id", componentIds)
+    .order("performed_at", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: false });
+
+  type EventRow = { component_id: string; performed_at: string | null; engine_hours_at_service: number | null };
+  const latestEvent = new Map<string, EventRow>();
+  for (const e of ((eventsData ?? []) as EventRow[])) {
+    if (!latestEvent.has(e.component_id)) latestEvent.set(e.component_id, e);
+  }
+
+  return (componentsData as Record<string, unknown>[]).map((c) => {
+    const systemArr = c.system as { id: string; name: string }[] | { id: string; name: string } | null;
+    const system = Array.isArray(systemArr) ? systemArr[0] : systemArr;
+
+    const event = latestEvent.get(c.id as string) ?? null;
+    const lastServiceDate = event?.performed_at ?? null;
+    const lastServiceEngineHours = event?.engine_hours_at_service ?? null;
+
+    const daysSinceService = lastServiceDate ? daysBetween(lastServiceDate) : null;
+    const hoursSinceService =
+      latestBoatEngineHours != null && lastServiceEngineHours != null
+        ? Math.max(0, latestBoatEngineHours - lastServiceEngineHours)
+        : null;
+
+    const dayInterval = (c.service_interval_days as number | null) ?? null;
+    const hourInterval = (c.service_interval_engine_hours as number | null) ?? null;
+
+    let dayRatio: number | null = null;
+    let hourRatio: number | null = null;
+    if (dayInterval && dayInterval > 0 && daysSinceService != null) dayRatio = daysSinceService / dayInterval;
+    if (hourInterval && hourInterval > 0 && hoursSinceService != null) hourRatio = hoursSinceService / hourInterval;
+
+    const maxRatio = Math.max(dayRatio ?? 0, hourRatio ?? 0);
+
+    let status: string;
+    let risk_score: number | null;
+
+    if (!lastServiceDate && lastServiceEngineHours == null) {
+      status = "unknown";
+      risk_score = null;
+    } else if (maxRatio >= 1) {
+      status = "overdue";
+      risk_score = Math.round(maxRatio * 100);
+    } else if (maxRatio >= 0.85) {
+      status = "due soon";
+      risk_score = Math.round(maxRatio * 100);
+    } else {
+      status = "ok";
+      risk_score = maxRatio > 0 ? Math.round(maxRatio * 100) : 0;
+    }
+
+    const hours_until_due =
+      hourInterval != null && hoursSinceService != null ? hourInterval - hoursSinceService : null;
+    const months_until_due =
+      dayInterval != null && daysSinceService != null
+        ? Math.ceil((dayInterval - daysSinceService) / 30)
+        : null;
+
+    return {
+      component_id: c.id as string,
+      component_name: c.name as string,
+      system_name: system?.name ?? null,
+      risk_score,
+      status,
+      hours_since_service: hoursSinceService,
+      hours_until_due,
+      months_until_due,
+    };
+  });
 }

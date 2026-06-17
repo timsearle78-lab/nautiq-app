@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
+import { getBoatHealth } from "@/lib/components/health";
 
 export const dynamic = "force-dynamic";
 
@@ -242,26 +243,20 @@ export default async function MaintenancePage({
   const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const [{ data: healthData, error: healthError }, { data: timelineData, error: timelineError }] =
+  const [allHealthRaw, { data: timelineData, error: timelineError }] =
     await Promise.all([
-      supabase.rpc("get_boat_health", {
-        p_boat_id: boat.id,
-      }),
+      getBoatHealth(boat.id),
       supabase.rpc("get_boat_maintenance_timeline", {
         p_boat_id: boat.id,
         p_horizon_days: selectedHorizon,
       }),
     ]);
 
-  if (healthError) {
-    throw new Error(`Failed to load maintenance data: ${healthError.message}`);
-  }
-
   if (timelineError) {
     throw new Error(`Failed to load predictive timeline: ${timelineError.message}`);
   }
 
-  const allHealth = ((healthData ?? []) as HealthRow[]).sort((a, b) => {
+  const allHealth = (allHealthRaw as HealthRow[]).sort((a, b) => {
     const statusCompare = statusRank(a.status) - statusRank(b.status);
     if (statusCompare !== 0) return statusCompare;
 

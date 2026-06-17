@@ -2,9 +2,8 @@ import Image from "next/image";
 import { Anchor } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
+import { getBoatHealth } from "@/lib/components/health";
 import BoatSelector from "./boat-selector";
-
-type HealthRow = { risk_score: number | null; status: string | null };
 
 function normalizeStatus(s: string | null) {
   const v = (s ?? "").toLowerCase();
@@ -37,19 +36,14 @@ export default async function AppHeader() {
   const selectedId = await getSelectedBoatId();
   const activeBoat = boats.find((b) => b.id === selectedId) ?? boats[0];
 
-  const { data: healthData } = await supabase.rpc("get_boat_health", {
-    p_boat_id: activeBoat.id,
-  });
-
-  const health = (healthData ?? []) as HealthRow[];
+  const health = await getBoatHealth(activeBoat.id);
+  const knownHealth = health.filter((r) => r.risk_score != null);
   const avgRisk =
-    health.length > 0
-      ? health.reduce((s, c) => s + (c.risk_score ?? 0), 0) / health.length
+    knownHealth.length > 0
+      ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
       : 0;
   const healthScore = Math.max(0, Math.round(100 - avgRisk));
-  const overdueCount = health.filter(
-    (r) => normalizeStatus(r.status) === "overdue"
-  ).length;
+  const overdueCount = health.filter((r) => normalizeStatus(r.status) === "overdue").length;
 
   return (
     <header className="h-14 shrink-0 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-30">

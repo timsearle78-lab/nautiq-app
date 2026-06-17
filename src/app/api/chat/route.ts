@@ -3,6 +3,7 @@ import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { generateTripDraftFromAI } from "@/lib/ai/generateTripDraft";
+import { getBoatHealth } from "@/lib/components/health";
 
 export async function POST(req: Request) {
   const { messages, boatId } = await req.json();
@@ -47,8 +48,8 @@ Keep responses short and practical. After calling any draft tool, tell the owner
         description: "Get boat health score, engine hours, and most urgent maintenance",
         inputSchema: zodSchema(z.object({})),
         execute: async () => {
-          const [healthRes, hoursRes, timelineRes] = await Promise.all([
-            supabase.rpc("get_boat_health", { p_boat_id: boatId }),
+          const [health, hoursRes, timelineRes] = await Promise.all([
+            getBoatHealth(boatId),
             supabase.rpc("get_boat_engine_hours", { p_boat_id: boatId }),
             supabase.rpc("get_boat_maintenance_timeline", {
               p_boat_id: boatId,
@@ -56,10 +57,10 @@ Keep responses short and practical. After calling any draft tool, tell the owner
             }),
           ]);
 
-          const components = (healthRes.data ?? []) as { risk_score?: number }[];
+          const knownHealth = health.filter((c) => c.risk_score != null);
           const avgRisk =
-            components.length > 0
-              ? components.reduce((s, c) => s + (c.risk_score ?? 0), 0) / components.length
+            knownHealth.length > 0
+              ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
               : 0;
           const healthScore = Math.max(0, Math.round(100 - avgRisk));
           const timeline = (timelineRes.data ?? []) as { status: string; component_name: string }[];
@@ -68,12 +69,12 @@ Keep responses short and practical. After calling any draft tool, tell the owner
             boatName: boat.name,
             engineHours: hoursRes.data ?? 0,
             healthScore,
-            overdueCount: timeline.filter((t) => t.status === "overdue").length,
-            dueSoonCount: timeline.filter((t) => t.status === "due_soon").length,
-            urgentItems: timeline
-              .filter((t) => t.status === "overdue")
+            overdueCount: health.filter((c) => c.status === "overdue").length,
+            dueSoonCount: health.filter((c) => c.status === "due soon").length,
+            urgentItems: health
+              .filter((c) => c.status === "overdue")
               .slice(0, 3)
-              .map((t) => t.component_name),
+              .map((c) => c.component_name),
           };
         },
       },
