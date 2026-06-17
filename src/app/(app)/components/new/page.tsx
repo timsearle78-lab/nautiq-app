@@ -9,17 +9,32 @@ type NewComponentPageProps = {
   searchParams: Promise<{ boat?: string }>;
 };
 
-type BoatRow = { id: string; name: string; type: string | null; created_at: string };
-type SystemRow = { id: string; name: string };
+type BoatRow = {
+  id: string;
+  name: string;
+  type: string | null;
+  created_at: string;
+};
 
-export default async function NewComponentPage({ searchParams }: NewComponentPageProps) {
+type SystemRow = {
+  id: string;
+  name: string;
+};
+
+export default async function NewComponentPage({
+  searchParams,
+}: NewComponentPageProps) {
   noStore();
 
   const params = await searchParams;
   const selectedBoatId = params.boat;
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) redirect("/login?next=/components/new");
 
   const { data: boatsData, error: boatsError } = await supabase
@@ -27,10 +42,15 @@ export default async function NewComponentPage({ searchParams }: NewComponentPag
     .select("id,name,type,created_at")
     .order("created_at", { ascending: false });
 
-  if (boatsError) throw new Error(`Failed to load boats: ${boatsError.message}`);
+  if (boatsError) {
+    throw new Error(`Failed to load boats: ${boatsError.message}`);
+  }
 
   const boats = (boatsData ?? []) as BoatRow[];
-  if (boats.length === 0) redirect("/onboarding");
+
+  if (boats.length === 0) {
+    redirect("/onboarding");
+  }
 
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
@@ -40,15 +60,19 @@ export default async function NewComponentPage({ searchParams }: NewComponentPag
     .eq("boat_id", boat.id)
     .order("name", { ascending: true });
 
-  if (systemsError) throw new Error(`Failed to load systems: ${systemsError.message}`);
+  if (systemsError) {
+    throw new Error(`Failed to load systems: ${systemsError.message}`);
+  }
 
   const systems = (systemsData ?? []) as SystemRow[];
 
   return (
-    <main className="px-4 py-6 space-y-5 max-w-2xl mx-auto">
+    <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
       <div>
         <h1 className="text-xl font-semibold text-slate-800">New Component</h1>
-        <p className="mt-1 text-sm text-slate-500">Adding to {boat.name}</p>
+        <p className="mt-1 text-sm text-slate-500">
+          Add a component for {boat.name}.
+        </p>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-4">
