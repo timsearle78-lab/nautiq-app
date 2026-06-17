@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
-  const { boatId, name, category, unit, quantity } = await req.json();
+  const { boatId, name, category, unit, quantity, componentId } = await req.json();
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -25,6 +25,7 @@ export async function POST(req: Request) {
       unit: String(unit ?? "").trim() || null,
       quantity: Number(quantity) || 0,
       minimum_quantity: 0,
+      component_id: componentId || null,
       is_critical: false,
     })
     .select("id, name, quantity")

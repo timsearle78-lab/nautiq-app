@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PackagePlus, PackageMinus } from "lucide-react";
 
 interface InventoryItem {
@@ -41,9 +41,20 @@ function CreateItemCard({
   const [category, setCategory] = useState("General");
   const [unit, setUnit] = useState("");
   const [qty, setQty] = useState(initialQty);
+  const [componentId, setComponentId] = useState("");
+  const [components, setComponents] = useState<{ id: string; name: string; system_name: string | null }[]>([]);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(`/api/boats/${boatId}/components`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setComponents(data);
+      })
+      .catch(() => {});
+  }, [boatId]);
 
   async function handleCreate() {
     setSaving(true);
@@ -52,7 +63,14 @@ function CreateItemCard({
       const res = await fetch("/api/inventory/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ boatId, name, category, unit, quantity: qty }),
+        body: JSON.stringify({
+          boatId,
+          name,
+          category,
+          unit,
+          quantity: qty,
+          componentId: componentId || null,
+        }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -102,6 +120,17 @@ function CreateItemCard({
         <div>
           <label className="block text-xs font-medium text-slate-500 mb-1">Initial quantity</label>
           <input type="number" min="0" step="0.01" value={qty} onChange={(e) => setQty(parseFloat(e.target.value) || 0)} className={inputCls} />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">Linked component <span className="font-normal text-slate-400">(optional)</span></label>
+          <select value={componentId} onChange={(e) => setComponentId(e.target.value)} className={inputCls}>
+            <option value="">— None —</option>
+            {components.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}{c.system_name ? ` (${c.system_name})` : ""}
+              </option>
+            ))}
+          </select>
         </div>
         {error && <p className="text-xs text-red-600">{error}</p>}
       </div>
