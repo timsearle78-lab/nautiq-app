@@ -106,7 +106,7 @@ export default async function ComponentsPage({
   const { data: boatsData, error: boatsError } = await supabase
     .from("boats")
     .select("id,name,type,created_at")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
 
   if (boatsError) {
     throw new Error(`Failed to load boats: ${boatsError.message}`);

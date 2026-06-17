@@ -227,7 +227,7 @@ export default async function MaintenancePage({
     .from("boats")
     .select("id,name,type,created_at")
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
 
   if (boatsError) {
     throw new Error(`Failed to load boats: ${boatsError.message}`);
