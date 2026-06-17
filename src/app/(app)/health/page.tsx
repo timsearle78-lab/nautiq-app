@@ -3,6 +3,8 @@ export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getBoatHealth } from "@/lib/components/health";
+import { getSelectedBoatId } from "@/lib/selected-boat";
 import { AlertTriangle, CheckCircle, Clock, HelpCircle } from "lucide-react";
 
 type BoatRow = { id: string; name: string; type: string | null };
@@ -52,15 +54,15 @@ export default async function HealthPage() {
   const boats = (boatsData ?? []) as BoatRow[];
   if (boats.length === 0) redirect("/onboarding");
 
-  const boat = boats[0];
+  const selectedBoatId = await getSelectedBoatId();
+  const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const [healthRes, timelineRes, engineHoursRes] = await Promise.all([
-    supabase.rpc("get_boat_health", { p_boat_id: boat.id }),
+  const [health, timelineRes, engineHoursRes] = await Promise.all([
+    getBoatHealth(boat.id),
     supabase.rpc("get_boat_maintenance_timeline", { p_boat_id: boat.id, p_horizon_days: 90 }),
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
   ]);
 
-  const health = (healthRes.data ?? []) as HealthRow[];
   const timeline = (timelineRes.data ?? []) as TimelineRow[];
   const engineHours = (engineHoursRes.data as number) ?? 0;
 
@@ -69,20 +71,19 @@ export default async function HealthPage() {
   const ok = health.filter((r) => normalizeStatus(r.status) === "ok");
   const unknown = health.filter((r) => normalizeStatus(r.status) === "unknown");
 
-  const avgRisk = health.length > 0
-    ? health.reduce((s, c) => s + (c.risk_score ?? 0), 0) / health.length
+  const knownHealth = health.filter((r) => r.risk_score != null);
+  const avgRisk = knownHealth.length > 0
+    ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
     : 0;
   const healthScore = Math.max(0, Math.round(100 - avgRisk));
 
   const urgent = timeline.filter((r) => r.status === "overdue" || r.status === "due_soon");
 
-  const scoreColor =
-    healthScore >= 80 ? "text-green-600" :
-    healthScore >= 50 ? "text-amber-600" : "text-red-600";
+  const isRed = overdue.length > 0 || healthScore < 50;
+  const isAmber = !isRed && healthScore < 75;
 
-  const scoreBg =
-    healthScore >= 80 ? "bg-green-50 border-green-200" :
-    healthScore >= 50 ? "bg-amber-50 border-amber-200" : "bg-red-50 border-red-200";
+  const scoreColor = isRed ? "text-red-600" : isAmber ? "text-amber-600" : "text-green-600";
+  const scoreBg = isRed ? "bg-red-50 border-red-200" : isAmber ? "bg-amber-50 border-amber-200" : "bg-green-50 border-green-200";
 
   return (
     <main className="px-4 py-6 space-y-5 max-w-2xl mx-auto">
