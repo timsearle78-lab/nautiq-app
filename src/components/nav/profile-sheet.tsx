@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { X, LogOut } from "lucide-react";
+import { X, LogOut, Settings } from "lucide-react";
 
 interface ProfileSheetProps {
   email: string;
@@ -43,7 +44,15 @@ export default function ProfileSheet({ email, initials, onClose }: ProfileSheetP
             <p className="text-sm font-medium text-slate-800 truncate">{email}</p>
           </div>
         </div>
-        <div className="px-5 pb-6">
+        <div className="px-5 pb-6 space-y-3">
+          <Link
+            href="/settings"
+            onClick={onClose}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium text-sm hover:bg-slate-50 transition-colors"
+          >
+            <Settings size={18} className="text-slate-400" />
+            Settings
+          </Link>
           <button
             onClick={handleSignOut}
             disabled={loading}
