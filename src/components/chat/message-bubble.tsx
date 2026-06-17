@@ -3,6 +3,7 @@
 import type { UIMessage } from "ai";
 import TripDraftCard from "./trip-draft-card";
 import InventoryAdjustCard from "./inventory-adjust-card";
+import { MaintenanceListCard, InventoryListCard, TripHistoryCard, BoatSummaryCard } from "./data-cards";
 
 interface MessageBubbleProps {
   message: UIMessage;
@@ -79,6 +80,42 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
               transactionType={(output.transactionType as "add" | "consume") ?? "consume"}
               reason={String(output.reason ?? "")}
               boatId={boatId}
+            />
+          );
+        }
+
+        if (toolName === "getUpcomingMaintenance") {
+          return (
+            <MaintenanceListCard
+              key={i}
+              items={(output as unknown as Parameters<typeof MaintenanceListCard>[0]["items"])}
+            />
+          );
+        }
+
+        if (toolName === "getInventoryStatus") {
+          return (
+            <InventoryListCard
+              key={i}
+              items={(output as unknown as Parameters<typeof InventoryListCard>[0]["items"])}
+            />
+          );
+        }
+
+        if (toolName === "getTripHistory") {
+          return (
+            <TripHistoryCard
+              key={i}
+              trips={(output as unknown as Parameters<typeof TripHistoryCard>[0]["trips"])}
+            />
+          );
+        }
+
+        if (toolName === "getBoatSummary") {
+          return (
+            <BoatSummaryCard
+              key={i}
+              summary={(output as unknown as Parameters<typeof BoatSummaryCard>[0]["summary"])}
             />
           );
         }

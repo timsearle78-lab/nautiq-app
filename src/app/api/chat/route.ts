@@ -37,9 +37,12 @@ Your job:
 1. When the owner describes a trip, call draftTripLog immediately.
 2. When the owner mentions USING or CONSUMING a spare part, call draftInventoryAdjustment.
 3. When the owner mentions BUYING, PURCHASING, or RESTOCKING parts, call draftInventoryAdd.
-4. For maintenance questions, call getUpcomingMaintenance.
-5. For inventory/spares questions, call getInventoryStatus.
+4. For maintenance questions or "what do I need to do", call getUpcomingMaintenance.
+5. For inventory/spares questions or "show my inventory", call getInventoryStatus.
 6. For general boat health, call getBoatSummary.
+7. For trip history questions or "show my trips", call getTripHistory.
+
+The UI renders tool results as formatted cards/lists automatically — do NOT repeat the data as text after calling a data tool (getUpcomingMaintenance, getInventoryStatus, getBoatSummary, getTripHistory). Just call the tool; the results are shown visually. Only add a short sentence if there's something worth highlighting.
 
 Keep responses short and practical. After calling any draft tool, tell the owner the draft is ready to review.`,
     messages: modelMessages,
@@ -83,29 +86,25 @@ Keep responses short and practical. After calling any draft tool, tell the owner
         description: "Get upcoming and overdue maintenance items",
         inputSchema: zodSchema(
           z.object({
-            horizonDays: z.number().optional().describe("Days to look ahead, default 90"),
+            overdueOnly: z.boolean().optional().describe("If true, return only overdue items"),
           })
         ),
-        execute: async ({ horizonDays = 90 }: { horizonDays?: number }) => {
-          const { data } = await supabase.rpc("get_boat_maintenance_timeline", {
-            p_boat_id: boatId,
-            p_horizon_days: horizonDays,
-          });
-
-          type TimelineRow = {
-            component_name: string;
-            system_name: string;
-            status: string;
-            predicted_due_date: string;
-            explanation: string;
-          };
-
-          return ((data ?? []) as TimelineRow[]).slice(0, 8).map((t) => ({
-            component: t.component_name,
-            system: t.system_name,
-            status: t.status,
-            dueDate: t.predicted_due_date,
-            explanation: t.explanation,
+        execute: async ({ overdueOnly = false }: { overdueOnly?: boolean }) => {
+          const health = await getBoatHealth(boatId);
+          const filtered = health
+            .filter((r) => {
+              const s = (r.status ?? "").toLowerCase();
+              if (overdueOnly) return s === "overdue";
+              return s === "overdue" || s === "due soon";
+            })
+            .sort((a, b) => (b.risk_score ?? 0) - (a.risk_score ?? 0));
+          return filtered.map((r) => ({
+            component: r.component_name,
+            system: r.system_name,
+            status: r.status,
+            monthsUntilDue: r.months_until_due,
+            hoursUntilDue: r.hours_until_due,
+            riskScore: r.risk_score,
           }));
         },
       },
@@ -235,6 +234,40 @@ Keep responses short and practical. After calling any draft tool, tell the owner
             reason,
             boatId,
           };
+        },
+      },
+
+      getTripHistory: {
+        description: "Get recent trip logs for the boat",
+        inputSchema: zodSchema(
+          z.object({
+            limit: z.number().optional().describe("Number of trips to return, default 10"),
+          })
+        ),
+        execute: async ({ limit: n = 10 }: { limit?: number }) => {
+          const { data } = await supabase
+            .from("trips")
+            .select("id, started_at, ended_at, engine_hours_delta, fuel_added_litres, notes")
+            .eq("boat_id", boatId)
+            .order("started_at", { ascending: false, nullsFirst: false })
+            .limit(n);
+
+          type TripRow = {
+            id: string;
+            started_at: string | null;
+            ended_at: string | null;
+            engine_hours_delta: number | null;
+            fuel_added_litres: number | null;
+            notes: string | null;
+          };
+
+          return ((data ?? []) as TripRow[]).map((t) => ({
+            id: t.id,
+            date: t.started_at ? t.started_at.slice(0, 10) : null,
+            engineHours: t.engine_hours_delta,
+            fuelLitres: t.fuel_added_litres,
+            notes: t.notes,
+          }));
         },
       },
     },
