@@ -37,6 +37,8 @@ export async function POST(req: Request) {
       transaction_type: transactionType === "add" ? "added" : "consumed",
       quantity_delta: transactionType === "add" ? delta : -delta,
       notes: reason ?? (transactionType === "add" ? "Restocked" : "Used"),
+      user_id: user.id,
+      boat_id: item.boat_id,
     }),
   ]);
 
