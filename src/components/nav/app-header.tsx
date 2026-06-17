@@ -20,17 +20,29 @@ function scorePillCls(score: number, overdueCount: number) {
 }
 
 export default async function AppHeader() {
+  try {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data } = await supabase
+  // Try to include image_url; fall back if the column doesn't exist yet
+  const { data, error: boatErr } = await supabase
     .from("boats")
     .select("id, name, image_url")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
-  const boats = (data ?? []) as { id: string; name: string; image_url: string | null }[];
+  let rawBoats = data ?? [];
+  if (boatErr) {
+    const { data: fallback } = await supabase
+      .from("boats")
+      .select("id, name")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true });
+    rawBoats = (fallback ?? []).map((b) => ({ ...b, image_url: null }));
+  }
+
+  const boats = rawBoats as { id: string; name: string; image_url: string | null }[];
   if (boats.length === 0) return null;
 
   const selectedId = await getSelectedBoatId();
@@ -91,4 +103,15 @@ export default async function AppHeader() {
       </div>
     </header>
   );
+  } catch {
+    // Fallback minimal header so the app remains usable
+    return (
+      <header className="h-14 shrink-0 bg-white border-b border-slate-200 flex items-center px-4 z-30">
+        <div className="flex items-center gap-2">
+          <Anchor size={17} className="text-ocean-600" strokeWidth={2} />
+          <span className="text-sm font-semibold text-ocean-800 tracking-tight">NautIQ</span>
+        </div>
+      </header>
+    );
+  }
 }

@@ -18,13 +18,24 @@ export default async function SettingsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: boatsData } = await supabase
+  const { data: boatsData, error: boatsErr } = await supabase
     .from("boats")
     .select("id,name,type,image_url")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
-  const boats = (boatsData ?? []) as BoatRow[];
+  // image_url column may not exist yet — fall back to query without it
+  let boats: BoatRow[];
+  if (boatsErr) {
+    const { data: fallback } = await supabase
+      .from("boats")
+      .select("id,name,type")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true });
+    boats = ((fallback ?? []) as Omit<BoatRow, "image_url">[]).map((b) => ({ ...b, image_url: null }));
+  } else {
+    boats = (boatsData ?? []) as BoatRow[];
+  }
 
   const boatIds = boats.map((b) => b.id);
 
