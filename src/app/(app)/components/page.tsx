@@ -285,7 +285,9 @@ export default async function ComponentsPage({
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="font-medium text-slate-800">{row.component_name}</div>
+                      <Link href={`/components/${row.component_id}`} className="font-medium text-ocean-600 hover:text-ocean-700">
+                        {row.component_name}
+                      </Link>
                       <div className="text-xs text-slate-500 mt-0.5">{row.system_name ?? "No system"}</div>
                     </div>
                     <span
@@ -316,14 +318,6 @@ export default async function ComponentsPage({
                       </div>
                     </div>
                   </div>
-                  <div className="mt-3 flex gap-4 text-sm">
-                    <Link href={`/components/${row.component_id}`} className="text-ocean-600 hover:text-ocean-700 font-medium">
-                      Open
-                    </Link>
-                    <Link href={`/components/${row.component_id}#log-maintenance`} className="text-slate-500 hover:text-slate-700">
-                      Log maintenance
-                    </Link>
-                  </div>
                 </div>
               ))}
             </div>
@@ -340,13 +334,16 @@ export default async function ComponentsPage({
                     <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Hrs since</th>
                     <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Hrs until due</th>
                     <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Months until due</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredRows.map((row) => (
                     <tr key={row.component_id} className="border-b border-slate-100 hover:bg-slate-50 align-top">
-                      <td className="py-3 pr-4 font-medium text-slate-800">{row.component_name}</td>
+                      <td className="py-3 pr-4">
+                        <Link href={`/components/${row.component_id}`} className="font-medium text-ocean-600 hover:text-ocean-700">
+                          {row.component_name}
+                        </Link>
+                      </td>
                       <td className="py-3 pr-4 text-slate-600">{row.system_name ?? "—"}</td>
                       <td className={`py-3 pr-4 font-medium ${statusColor(row.status)}`}>{statusLabel(row.status)}</td>
                       <td className="py-3 pr-4 text-slate-600">{Math.round(Number(row.risk_score ?? 0))}</td>
@@ -358,16 +355,6 @@ export default async function ComponentsPage({
                       </td>
                       <td className="py-3 pr-4 text-slate-600">
                         {row.months_until_due != null ? row.months_until_due : "—"}
-                      </td>
-                      <td className="py-3 pr-4">
-                        <div className="flex flex-col gap-1">
-                          <Link href={`/components/${row.component_id}`} className="text-ocean-600 hover:text-ocean-700 font-medium">
-                            Open
-                          </Link>
-                          <Link href={`/components/${row.component_id}#log-maintenance`} className="text-slate-500 hover:text-slate-700 text-xs">
-                            Log maintenance
-                          </Link>
-                        </div>
                       </td>
                     </tr>
                   ))}
