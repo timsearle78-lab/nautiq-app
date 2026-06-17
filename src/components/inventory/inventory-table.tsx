@@ -39,7 +39,12 @@ export function InventoryTable({
                 <div key={item.id} className="px-4 py-4">
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="min-w-0">
-                      <div className="font-medium text-sm text-slate-800 truncate">{item.name}</div>
+                      <Link
+                        href={`/inventory/${item.id}`}
+                        className="font-medium text-sm text-slate-800 hover:text-ocean-600 truncate block"
+                      >
+                        {item.name}
+                      </Link>
                       <div className="text-xs text-slate-400 mt-0.5">
                         {item.category ?? "Uncategorised"}
                         {item.is_critical ? " · Critical" : ""}
@@ -60,42 +65,40 @@ export function InventoryTable({
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />
-                    <Link href={`/inventory/${item.id}`} className="text-xs text-slate-400 hover:text-ocean-600 whitespace-nowrap">
-                      Edit
-                    </Link>
-                  </div>
+                  <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />
                 </div>
               );
             })}
           </div>
 
-          {/* Desktop: table */}
-          <div className="hidden lg:block overflow-x-auto">
-            <table className="min-w-full text-sm">
+          {/* Desktop: table — 5 columns, no horizontal scroll */}
+          <div className="hidden lg:block">
+            <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-left">
                   <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Item</th>
                   <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Component</th>
-                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Qty</th>
-                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Min</th>
-                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Location</th>
+                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Qty · Min</th>
                   <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Status</th>
                   <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Adjust</th>
-                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide"></th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item) => {
                   const status = getStatus(item);
                   return (
-                    <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 align-top">
+                    <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 align-middle">
                       <td className="px-4 py-3">
-                        <div className="font-medium text-slate-800">{item.name}</div>
+                        <Link
+                          href={`/inventory/${item.id}`}
+                          className="font-medium text-slate-800 hover:text-ocean-600"
+                        >
+                          {item.name}
+                        </Link>
                         <div className="text-xs text-slate-400 mt-0.5">
                           {item.category ?? "Uncategorised"}
                           {item.is_critical ? " · Critical" : ""}
+                          {item.storage_location ? ` · ${item.storage_location}` : ""}
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -104,17 +107,15 @@ export function InventoryTable({
                             {item.component.name}
                           </Link>
                         ) : (
-                          <span className="text-slate-400">—</span>
+                          <span className="text-slate-300">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-slate-700 font-medium">
-                        {item.quantity}{item.unit ? ` ${item.unit}` : ""}
-                      </td>
-                      <td className="px-4 py-3 text-slate-500">
-                        {item.minimum_quantity ?? <span className="text-slate-300">—</span>}
-                      </td>
-                      <td className="px-4 py-3 text-slate-500">
-                        {item.storage_location ?? <span className="text-slate-300">—</span>}
+                      <td className="px-4 py-3 text-slate-700">
+                        <span className="font-medium">{item.quantity}</span>
+                        {item.unit ? ` ${item.unit}` : ""}
+                        {item.minimum_quantity != null && (
+                          <span className="text-slate-400"> · {item.minimum_quantity}</span>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${status.badgeCls}`}>
@@ -123,11 +124,6 @@ export function InventoryTable({
                       </td>
                       <td className="px-4 py-3">
                         <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />
-                      </td>
-                      <td className="px-4 py-3">
-                        <Link href={`/inventory/${item.id}`} className="text-sm text-slate-400 hover:text-ocean-600 font-medium">
-                          Edit
-                        </Link>
                       </td>
                     </tr>
                   );
