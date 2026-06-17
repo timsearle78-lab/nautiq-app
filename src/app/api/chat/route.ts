@@ -34,12 +34,13 @@ Engine hours: ${engineHours ?? 0}h.
 
 Your job:
 1. When the owner describes a trip, call draftTripLog immediately.
-2. When the owner mentions using a spare part, call draftInventoryAdjustment.
-3. For maintenance questions, call getUpcomingMaintenance.
-4. For inventory/spares questions, call getInventoryStatus.
-5. For general boat health, call getBoatSummary.
+2. When the owner mentions USING or CONSUMING a spare part, call draftInventoryAdjustment.
+3. When the owner mentions BUYING, PURCHASING, or RESTOCKING parts, call draftInventoryAdd.
+4. For maintenance questions, call getUpcomingMaintenance.
+5. For inventory/spares questions, call getInventoryStatus.
+6. For general boat health, call getBoatSummary.
 
-Keep responses short and practical. After calling draftTripLog or draftInventoryAdjustment, tell the owner the draft is ready to review.`,
+Keep responses short and practical. After calling any draft tool, tell the owner the draft is ready to review.`,
     messages: modelMessages,
     tools: {
       getBoatSummary: {
@@ -165,7 +166,7 @@ Keep responses short and practical. After calling draftTripLog or draftInventory
       },
 
       draftInventoryAdjustment: {
-        description: "Find an inventory item and prepare a quantity reduction for the user to confirm",
+        description: "Find an inventory item and prepare a quantity reduction (consume) for the user to confirm",
         inputSchema: zodSchema(
           z.object({
             itemName: z.string().describe("Name of the item used or consumed"),
@@ -192,7 +193,44 @@ Keep responses short and practical. After calling draftTripLog or draftInventory
           return {
             searchTerm: itemName,
             matches: items ?? [],
-            quantityUsed,
+            quantity: quantityUsed,
+            transactionType: "consume",
+            reason,
+            boatId,
+          };
+        },
+      },
+
+      draftInventoryAdd: {
+        description: "Find an inventory item and prepare a quantity increase (restock/purchase) for the user to confirm",
+        inputSchema: zodSchema(
+          z.object({
+            itemName: z.string().describe("Name of the item purchased or restocked"),
+            quantityAdded: z.number().describe("How many were bought or added (positive number)"),
+            reason: z.string().describe("Context, e.g. 'Purchased at marine store'"),
+          })
+        ),
+        execute: async ({
+          itemName,
+          quantityAdded,
+          reason,
+        }: {
+          itemName: string;
+          quantityAdded: number;
+          reason: string;
+        }) => {
+          const { data: items } = await supabase
+            .from("inventory_items")
+            .select("id, name, quantity, minimum_quantity, unit, category")
+            .eq("boat_id", boatId)
+            .ilike("name", `%${itemName}%`)
+            .limit(5);
+
+          return {
+            searchTerm: itemName,
+            matches: items ?? [],
+            quantity: quantityAdded,
+            transactionType: "add",
             reason,
             boatId,
           };

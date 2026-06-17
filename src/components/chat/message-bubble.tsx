@@ -69,13 +69,14 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
           );
         }
 
-        if (toolName === "draftInventoryAdjustment") {
+        if (toolName === "draftInventoryAdjustment" || toolName === "draftInventoryAdd") {
           return (
             <InventoryAdjustCard
               key={i}
               searchTerm={String(output.searchTerm ?? "")}
               matches={(output.matches ?? []) as Parameters<typeof InventoryAdjustCard>[0]["matches"]}
-              quantityUsed={Number(output.quantityUsed ?? 1)}
+              quantity={Number(output.quantity ?? 1)}
+              transactionType={(output.transactionType as "add" | "consume") ?? "consume"}
               reason={String(output.reason ?? "")}
               boatId={boatId}
             />

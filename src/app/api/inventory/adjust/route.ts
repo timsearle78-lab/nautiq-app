@@ -1,12 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
-  const { itemId, quantityUsed, reason } = await req.json();
+  const { itemId, quantity, transactionType = "consume", reason } = await req.json();
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return new Response("Unauthorized", { status: 401 });
 
   const { data: item } = await supabase
@@ -26,18 +24,19 @@ export async function POST(req: Request) {
 
   if (!boat) return Response.json({ error: "Unauthorized" }, { status: 403 });
 
-  const newQuantity = Math.max(0, item.quantity - quantityUsed);
+  const delta = Number(quantity) || 1;
+  const newQuantity =
+    transactionType === "add"
+      ? item.quantity + delta
+      : Math.max(0, item.quantity - delta);
 
   const [updateRes, txRes] = await Promise.all([
-    supabase
-      .from("inventory_items")
-      .update({ quantity: newQuantity })
-      .eq("id", itemId),
+    supabase.from("inventory_items").update({ quantity: newQuantity }).eq("id", itemId),
     supabase.from("inventory_transactions").insert({
       inventory_item_id: itemId,
-      transaction_type: "consumed",
-      quantity_delta: -quantityUsed,
-      notes: reason ?? "Used during trip",
+      transaction_type: transactionType === "add" ? "added" : "consumed",
+      quantity_delta: transactionType === "add" ? delta : -delta,
+      notes: reason ?? (transactionType === "add" ? "Restocked" : "Used"),
     }),
   ]);
 

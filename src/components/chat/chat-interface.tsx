@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Mic, Send, Camera, Wrench, Plus, AlertTriangle, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Mic, Send, Camera, Wrench, Plus, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, PackagePlus, PackageMinus, ScanLine } from "lucide-react";
 import Link from "next/link";
 import MessageBubble from "./message-bubble";
 import LogTripSheet from "./log-trip-sheet";
@@ -123,6 +123,8 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const inventoryScanRef = useRef<HTMLInputElement>(null);
+  const [scanningInventory, setScanningInventory] = useState(false);
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
@@ -212,6 +214,31 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
+  async function handleInventoryScan(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setScanningInventory(true);
+    const fd = new FormData();
+    fd.append("image", file);
+    try {
+      const res = await fetch("/api/ai/inventory-scan", { method: "POST", body: fd });
+      const data = await res.json();
+      if (res.ok && !data.error) {
+        const action = data.transactionType === "add" ? "bought" : "used";
+        const unitStr = data.unit ? ` ${data.unit}` : "";
+        const msg = `I ${action} ${data.quantity}${unitStr} of ${data.itemName}${data.notes ? ` (${data.notes})` : ""}`;
+        sendMessage({ text: msg });
+      } else {
+        sendMessage({ text: "I just scanned a spare part — can you help me update inventory?" });
+      }
+    } catch {
+      sendMessage({ text: "I just scanned a spare part — can you help me update inventory?" });
+    } finally {
+      setScanningInventory(false);
+      if (inventoryScanRef.current) inventoryScanRef.current.value = "";
+    }
+  }
+
   const quickPrompts = [
     { label: "What's due?", text: "What maintenance is coming up?" },
     { label: "Spares check", text: "What spares am I low on?" },
@@ -239,6 +266,14 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             capture="environment"
             className="hidden"
             onChange={handlePhotoCapture}
+          />
+          <input
+            ref={inventoryScanRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handleInventoryScan}
           />
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -410,12 +445,28 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           </button>
         </div>
 
+        {/* Inventory quick actions */}
         <div className="mt-2 flex gap-2 overflow-x-auto pb-0.5">
           <button
-            onClick={() => sendMessage({ text: "I used a spare part during a trip" })}
-            className="flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-500 hover:bg-slate-50"
+            onClick={() => inventoryScanRef.current?.click()}
+            disabled={scanningInventory}
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50 disabled:opacity-50"
           >
-            <Wrench size={12} />
+            <ScanLine size={12} />
+            {scanningInventory ? "Scanning…" : "Scan item"}
+          </button>
+          <button
+            onClick={() => sendMessage({ text: "I just bought some spare parts" })}
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1.5 text-xs text-green-700 hover:bg-green-100"
+          >
+            <PackagePlus size={12} />
+            Bought parts
+          </button>
+          <button
+            onClick={() => sendMessage({ text: "I just used a spare part" })}
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50"
+          >
+            <PackageMinus size={12} />
             Used a part
           </button>
         </div>
