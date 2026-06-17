@@ -34,20 +34,11 @@ type TimelineRow = {
   component_id: string;
   component_name: string;
   system_name: string | null;
-  last_serviced_at: string | null;
-  last_serviced_hours: number | null;
-  interval_months: number | null;
-  interval_hours: number | null;
-  current_engine_hours: number | null;
   hours_since_service: number | null;
   hours_until_due: number | null;
   predicted_due_date: string | null;
-  predicted_due_hours: number | null;
-  prediction_basis: "time" | "hours" | "both" | "unknown";
   status: "overdue" | "due_soon" | "planned" | "later" | "unknown";
   risk_score: number | null;
-  explanation: string | null;
-  sort_date: string | null;
 };
 
 type StatusFilter = "all" | "overdue" | "due_soon" | "ok" | "unknown";
@@ -90,19 +81,6 @@ function timelineStatusColor(status: TimelineRow["status"]) {
       return "text-slate-500 bg-slate-50 border-slate-200";
     default:
       return "text-slate-500 bg-slate-50 border-slate-200";
-  }
-}
-
-function timelineBasisLabel(basis: TimelineRow["prediction_basis"]) {
-  switch (basis) {
-    case "both":
-      return "Time + hours";
-    case "time":
-      return "Time";
-    case "hours":
-      return "Hours";
-    default:
-      return "Unknown";
   }
 }
 
@@ -167,11 +145,6 @@ function formatDate(value: string | null) {
 function formatPredictedDue(value: string | null) {
   if (!value) return "—";
   return new Date(value).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
-}
-
-function formatHours(value: number | null, digits = 0) {
-  if (value == null || Number.isNaN(value)) return "—";
-  return `${value.toFixed(digits)} hrs`;
 }
 
 function maintenanceUrgency(
@@ -244,31 +217,39 @@ export default async function MaintenancePage({
   const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const [allHealthRaw, { data: timelineData, error: timelineError }] =
-    await Promise.all([
-      getBoatHealth(boat.id),
-      supabase.rpc("get_boat_maintenance_timeline", {
-        p_boat_id: boat.id,
-        p_horizon_days: selectedHorizon,
-      }),
-    ]);
-
-  if (timelineError) {
-    throw new Error(`Failed to load predictive timeline: ${timelineError.message}`);
-  }
+  const allHealthRaw = await getBoatHealth(boat.id);
 
   const allHealth = (allHealthRaw as HealthRow[]).sort((a, b) => {
     const statusCompare = statusRank(a.status) - statusRank(b.status);
     if (statusCompare !== 0) return statusCompare;
-
     return Number(b.risk_score ?? 0) - Number(a.risk_score ?? 0);
   });
 
-  const timeline = (timelineData ?? []) as TimelineRow[];
+  const horizonDate = new Date();
+  horizonDate.setDate(horizonDate.getDate() + selectedHorizon);
+  const horizonStr = horizonDate.toISOString().slice(0, 10);
+  function toTimelineStatus(row: HealthRow): TimelineRow["status"] {
+    const s = normalizeStatus(row.status);
+    if (s === "overdue") return "overdue";
+    if (s === "due_soon") return "due_soon";
+    if (s === "unknown") return "unknown";
+    // "ok" — check if predicted_due_date falls within the horizon
+    if (row.predicted_due_date && row.predicted_due_date <= horizonStr) return "planned";
+    return "later";
+  }
 
-  const timelineByComponent = new Map(
-    timeline.map((row) => [row.component_id, row] as const)
-  );
+  const timeline: TimelineRow[] = allHealth
+    .map((row) => ({
+      component_id: row.component_id,
+      component_name: row.component_name,
+      system_name: row.system_name,
+      hours_since_service: row.hours_since_service,
+      hours_until_due: row.hours_until_due,
+      predicted_due_date: row.predicted_due_date,
+      status: toTimelineStatus(row),
+      risk_score: row.risk_score,
+    }))
+    .filter((row) => row.status !== "later");
 
   const overdueCount = allHealth.filter(
     (row) => normalizeStatus(row.status) === "overdue"
@@ -456,7 +437,7 @@ export default async function MaintenancePage({
                   </div>
                 </div>
 
-                <div className="mt-4 grid gap-3 md:grid-cols-4">
+                <div className="mt-4 grid gap-3 md:grid-cols-3">
                   <div className="rounded-lg bg-slate-50 p-3">
                     <div className="text-xs uppercase tracking-wide text-slate-500">
                       Predicted due
@@ -468,10 +449,10 @@ export default async function MaintenancePage({
 
                   <div className="rounded-lg bg-slate-50 p-3">
                     <div className="text-xs uppercase tracking-wide text-slate-500">
-                      Due hours
+                      Hours since service
                     </div>
                     <div className="mt-1 font-medium text-slate-800">
-                      {formatHours(row.predicted_due_hours)}
+                      {row.hours_since_service != null ? Math.round(row.hours_since_service) : "—"}
                     </div>
                   </div>
 
@@ -480,26 +461,12 @@ export default async function MaintenancePage({
                       Hours until due
                     </div>
                     <div className="mt-1 font-medium text-slate-800">
-                      {formatHours(row.hours_until_due)}
-                    </div>
-                  </div>
-
-                  <div className="rounded-lg bg-slate-50 p-3">
-                    <div className="text-xs uppercase tracking-wide text-slate-500">
-                      Basis
-                    </div>
-                    <div className="mt-1 font-medium text-slate-800">
-                      {timelineBasisLabel(row.prediction_basis)}
+                      {row.hours_until_due != null ? Math.round(row.hours_until_due) : "—"}
                     </div>
                   </div>
                 </div>
 
-                <p className="mt-3 text-sm text-slate-500">
-                  {row.explanation ?? "No explanation available."}
-                </p>
-
                 <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-500">
-                  <span>Last serviced: {formatDate(row.last_serviced_at)}</span>
                   <span>Risk: {Math.round(Number(row.risk_score ?? 0))}</span>
                 </div>
 
