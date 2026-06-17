@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { logMaintenance, type MaintenanceActionState } from "@/app/(app)/components/[id]/actions";
 
 type InventoryOption = {
@@ -25,6 +26,11 @@ export function LogMaintenanceForm({
   inventoryOptions: InventoryOption[];
 }) {
   const [state, formAction, pending] = useActionState(logMaintenance, initialState);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.success) router.refresh();
+  }, [state.success, router]);
 
   return (
     <section id="log-maintenance" className="rounded-xl border border-slate-200 bg-white overflow-hidden">

@@ -49,10 +49,12 @@ export function getComponentHealthSummary(
   const daysSinceService =
     lastServiceDate ? daysBetween(lastServiceDate) : null;
 
-  // Sum engine hours from trips logged on or after the last service date.
-  const hoursSinceService = lastServiceDate
+  // Sum engine hours from trips on or after the last service date.
+  // Slice to YYYY-MM-DD to handle full ISO timestamps vs bare date strings.
+  const serviceDay = lastServiceDate?.slice(0, 10) ?? null;
+  const hoursSinceService = serviceDay != null
     ? trips
-        .filter((t) => t.started_at != null && t.started_at >= lastServiceDate!)
+        .filter((t) => t.started_at != null && t.started_at.slice(0, 10) >= serviceDay)
         .reduce((sum, t) => sum + (t.engine_hours_delta ?? 0), 0)
     : null;
 
