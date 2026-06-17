@@ -329,9 +329,9 @@ export default async function MaintenancePage({
           <div className="mt-3 flex gap-2">
             <Link
               href="/components/new"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-ocean-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-ocean-700"
+              className="rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ocean-700"
             >
-              + Add component
+              Add component
             </Link>
             <Link
               href="/components"

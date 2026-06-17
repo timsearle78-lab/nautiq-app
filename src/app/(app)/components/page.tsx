@@ -200,9 +200,9 @@ export default async function ComponentsPage({
 
         <Link
           href="/components/new"
-          className="rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-ocean-700 transition-colors"
+          className="rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ocean-700"
         >
-          + Add component
+          Add component
         </Link>
       </section>
 
