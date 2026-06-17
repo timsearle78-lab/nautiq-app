@@ -325,12 +325,20 @@ export default async function MaintenancePage({
           <p className="mt-1 text-sm text-slate-500">
             Track what is overdue, due soon, and healthy across your boat.
           </p>
-          <Link
-            href={`/components/new?boat=${boat.id}`}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-ocean-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-ocean-700"
-          >
-            + Add component
-          </Link>
+          <div className="mt-3 flex gap-2">
+            <Link
+              href={`/components/new?boat=${boat.id}`}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-ocean-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-ocean-700"
+            >
+              + Add component
+            </Link>
+            <Link
+              href="/components"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              All components
+            </Link>
+          </div>
         </div>
 
         <form method="get">
