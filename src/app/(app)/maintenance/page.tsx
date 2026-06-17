@@ -580,7 +580,9 @@ export default async function MaintenancePage({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <div className="font-medium text-slate-800">{row.component_name}</div>
+                        <Link href={`/components/${row.component_id}`} className="font-medium text-ocean-600 hover:text-ocean-700">
+                          {row.component_name}
+                        </Link>
                         <div className="text-sm text-slate-500">
                           {row.system_name ?? "—"}
                         </div>
@@ -653,22 +655,6 @@ export default async function MaintenancePage({
                       </div>
                     </div>
 
-                    <div className="mt-4 flex gap-4 text-sm">
-                      <Link
-                        href={`/components/${row.component_id}`}
-                        className="text-ocean-600 hover:text-ocean-700 font-medium"
-                      >
-                        Open
-                      </Link>
-                      <Link
-                        href={`/components/${row.component_id}#log-maintenance`}
-                        className="text-slate-500 hover:text-slate-700"
-                      >
-                        {normalizeStatus(row.status) === "ok"
-                          ? "View form"
-                          : "Log maintenance"}
-                      </Link>
-                    </div>
                   </div>
                 );
               })}
@@ -686,7 +672,6 @@ export default async function MaintenancePage({
                     <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Hours until due</th>
                     <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Months until due</th>
                     <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Predicted due</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -695,8 +680,10 @@ export default async function MaintenancePage({
                       key={row.component_id}
                       className="border-b border-slate-100 hover:bg-slate-50 align-top"
                     >
-                      <td className="py-3 pr-4 font-medium text-slate-800">
-                        {row.component_name}
+                      <td className="py-3 pr-4">
+                        <Link href={`/components/${row.component_id}`} className="font-medium text-ocean-600 hover:text-ocean-700">
+                          {row.component_name}
+                        </Link>
                       </td>
                       <td className="py-3 pr-4 text-slate-600">{row.system_name ?? "—"}</td>
                       <td
@@ -741,25 +728,6 @@ export default async function MaintenancePage({
                               ?.predicted_due_date ?? null
                           )}
                         </span>
-                      </td>
-                      <td className="py-3 pr-4">
-                        <div className="flex flex-col gap-1">
-                          <Link
-                            href={`/components/${row.component_id}`}
-                            className="text-ocean-600 hover:text-ocean-700 font-medium"
-                          >
-                            Open
-                          </Link>
-
-                          <Link
-                            href={`/components/${row.component_id}#log-maintenance`}
-                            className="text-slate-500 hover:text-slate-700 text-xs"
-                          >
-                            {normalizeStatus(row.status) === "ok"
-                              ? "View form"
-                              : "Log maintenance"}
-                          </Link>
-                        </div>
                       </td>
                     </tr>
                   ))}
