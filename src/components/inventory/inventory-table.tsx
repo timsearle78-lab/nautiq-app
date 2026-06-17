@@ -60,7 +60,12 @@ export function InventoryTable({
                       </span>
                     </div>
                   </div>
-                  <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />
+                  <div className="flex items-center gap-3">
+                    <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />
+                    <Link href={`/inventory/${item.id}`} className="text-xs text-slate-400 hover:text-ocean-600 whitespace-nowrap">
+                      Edit
+                    </Link>
+                  </div>
                 </div>
               );
             })}
@@ -78,6 +83,7 @@ export function InventoryTable({
                   <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Location</th>
                   <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Status</th>
                   <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Adjust</th>
+                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide"></th>
                 </tr>
               </thead>
               <tbody>
@@ -117,6 +123,11 @@ export function InventoryTable({
                       </td>
                       <td className="px-4 py-3">
                         <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />
+                      </td>
+                      <td className="px-4 py-3">
+                        <Link href={`/inventory/${item.id}`} className="text-sm text-slate-400 hover:text-ocean-600 font-medium">
+                          Edit
+                        </Link>
                       </td>
                     </tr>
                   );
