@@ -57,14 +57,14 @@ export default function EnginePanelUpload({ onHoursDetected }: Props) {
           const file = e.dataTransfer.files?.[0];
           if (file) processFile(file);
         }}
-        className="rounded-xl border-2 border-dashed p-4 text-center transition hover:bg-gray-50"
+        className="rounded-xl border-2 border-dashed border-slate-200 p-4 text-center transition hover:bg-slate-50"
       >
         <div className="flex flex-col items-center gap-2">
           <div className="text-sm font-medium">
             📷 Upload or drop engine panel photo
           </div>
 
-          <label className="cursor-pointer text-sm text-blue-600 underline">
+          <label className="cursor-pointer text-sm text-ocean-600 hover:text-ocean-700 underline">
             Choose file
             <input
               type="file"
@@ -78,11 +78,11 @@ export default function EnginePanelUpload({ onHoursDetected }: Props) {
           </label>
 
           {selectedFileName && (
-            <div className="text-xs text-gray-500">{selectedFileName}</div>
+            <div className="text-xs text-slate-500">{selectedFileName}</div>
           )}
 
           {uploading && (
-            <div className="text-xs text-gray-400">Processing image…</div>
+            <div className="text-xs text-slate-400">Processing image…</div>
           )}
         </div>
       </div>

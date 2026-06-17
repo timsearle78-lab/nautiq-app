@@ -3,6 +3,24 @@ import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import BoatSelector from "./boat-selector";
 
+type HealthRow = { risk_score: number | null; status: string | null };
+
+function normalizeStatus(s: string | null) {
+  const v = (s ?? "").toLowerCase();
+  if (v === "overdue") return "overdue";
+  if (v === "due soon" || v === "due_soon") return "due_soon";
+  if (v === "ok") return "ok";
+  return "unknown";
+}
+
+function scorePillCls(score: number, overdueCount: number) {
+  if (overdueCount > 0 || score < 50)
+    return "bg-red-50 text-red-600 border-red-200";
+  if (score < 75)
+    return "bg-amber-50 text-amber-600 border-amber-200";
+  return "bg-green-50 text-green-600 border-green-200";
+}
+
 export default async function AppHeader() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -18,7 +36,21 @@ export default async function AppHeader() {
   if (boats.length === 0) return null;
 
   const selectedId = await getSelectedBoatId();
-  const activeBout = boats.find((b) => b.id === selectedId) ?? boats[0];
+  const activeBoat = boats.find((b) => b.id === selectedId) ?? boats[0];
+
+  const { data: healthData } = await supabase.rpc("get_boat_health", {
+    p_boat_id: activeBoat.id,
+  });
+
+  const health = (healthData ?? []) as HealthRow[];
+  const avgRisk =
+    health.length > 0
+      ? health.reduce((s, c) => s + (c.risk_score ?? 0), 0) / health.length
+      : 0;
+  const healthScore = Math.max(0, Math.round(100 - avgRisk));
+  const overdueCount = health.filter(
+    (r) => normalizeStatus(r.status) === "overdue"
+  ).length;
 
   return (
     <header className="h-14 shrink-0 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-30">
@@ -26,7 +58,27 @@ export default async function AppHeader() {
         <Anchor size={17} className="text-ocean-600" strokeWidth={2} />
         <span className="text-sm font-semibold text-ocean-800 tracking-tight">NautIQ</span>
       </div>
-      <BoatSelector boats={boats} selectedBoatId={activeBout.id} />
+
+      <div className="flex items-center gap-3">
+        {health.length > 0 && (
+          <div
+            className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${scorePillCls(healthScore, overdueCount)}`}
+            title={`Boat health score: ${healthScore}/100${overdueCount > 0 ? ` · ${overdueCount} overdue` : ""}`}
+          >
+            <span
+              className={`inline-block h-1.5 w-1.5 rounded-full ${
+                overdueCount > 0 || healthScore < 50
+                  ? "bg-red-500"
+                  : healthScore < 75
+                  ? "bg-amber-500"
+                  : "bg-green-500"
+              }`}
+            />
+            <span>{healthScore}</span>
+          </div>
+        )}
+        <BoatSelector boats={boats} selectedBoatId={activeBoat.id} />
+      </div>
     </header>
   );
 }
