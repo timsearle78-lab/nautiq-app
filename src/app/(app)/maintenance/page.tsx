@@ -342,7 +342,6 @@ export default async function MaintenancePage({
           </div>
         </div>
 
-        <p className="text-sm text-slate-500">{boat.name}</p>
       </section>
 
       <section className="grid gap-4 md:grid-cols-4">
