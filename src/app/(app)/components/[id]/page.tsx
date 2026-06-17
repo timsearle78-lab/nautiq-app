@@ -74,7 +74,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       <section className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="text-sm text-neutral-500">
-            <Link href={`/dashboard?boat=${component.boat_id}`} className="underline">
+            <Link href="/components" className="underline">
               {component.boat?.name ?? "Boat"}
             </Link>
             {" / "}

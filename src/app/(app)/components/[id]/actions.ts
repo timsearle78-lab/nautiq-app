@@ -127,10 +127,6 @@ export async function logMaintenance(
     revalidatePath("/components");
     revalidatePath(`/maintenance?boat=${boatId}`);
     revalidatePath("/maintenance");
-    revalidatePath(`/dashboard?boat=${boatId}`);
-    revalidatePath("/dashboard");
-    revalidatePath(`/activity?boat=${boatId}`);
-    revalidatePath("/activity");
     revalidatePath(`/inventory?boat=${boatId}`);
     revalidatePath("/inventory");
 

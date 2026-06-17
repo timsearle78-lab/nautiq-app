@@ -36,7 +36,7 @@ export default function OnboardingPage() {
     if (seedError) return setStatus(`Seed error: ${seedError.message}`);
 
     setStatus("Done. Redirecting...");
-    router.push("/dashboard");
+    router.push("/chat");
     router.refresh();
   };
 

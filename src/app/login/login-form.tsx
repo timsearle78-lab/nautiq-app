@@ -28,7 +28,7 @@ export default function LoginForm() {
       }
 
       setStatus("Signed in successfully.");
-      window.location.href = "/dashboard";
+      window.location.href = "/chat";
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Failed to sign in.");
     } finally {

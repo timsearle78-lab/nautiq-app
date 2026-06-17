@@ -566,9 +566,6 @@ export default async function MaintenancePage({
             ) : null}
           </h2>
 
-          <Link href={`/dashboard?boat=${boat.id}`} className="text-sm underline">
-            Back to dashboard
-          </Link>
         </div>
 
         {filteredHealth.length === 0 ? (
