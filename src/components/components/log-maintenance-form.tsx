@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { logMaintenance, type MaintenanceActionState } from "@/app/components/[id]/actions";
+import { logMaintenance, type MaintenanceActionState } from "@/app/(app)/components/[id]/actions";
 
 type InventoryOption = {
   id: string;

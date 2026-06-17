@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import {
   createComponent,
   type AddComponentActionState,
-} from "@/app/components/new/actions";
+} from "@/app/(app)/components/new/actions";
 
 type SystemOption = {
   id: string;
