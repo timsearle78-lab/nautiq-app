@@ -54,7 +54,7 @@ export function getComponentHealthSummary(
   const serviceDay = lastServiceDate?.slice(0, 10) ?? null;
   const hoursSinceService = serviceDay != null
     ? trips
-        .filter((t) => t.started_at != null && t.started_at.slice(0, 10) >= serviceDay)
+        .filter((t) => t.started_at != null && t.started_at.slice(0, 10) > serviceDay)
         .reduce((sum, t) => sum + (t.engine_hours_delta ?? 0), 0)
     : null;
 
