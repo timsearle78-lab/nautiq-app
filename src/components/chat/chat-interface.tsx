@@ -124,7 +124,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const inventoryScanRef = useRef<HTMLInputElement>(null);
   const [scanningInventory, setScanningInventory] = useState(false);
 
-  const { messages, sendMessage, status } = useChat({
+  const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
       body: { boatId: boat.id },
@@ -395,6 +395,14 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                   <span className="h-2 w-2 rounded-full bg-slate-300 animate-bounce [animation-delay:0ms]" />
                   <span className="h-2 w-2 rounded-full bg-slate-300 animate-bounce [animation-delay:150ms]" />
                   <span className="h-2 w-2 rounded-full bg-slate-300 animate-bounce [animation-delay:300ms]" />
+                </div>
+              )}
+              {error && (
+                <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                  <AlertTriangle size={16} className="mt-0.5 shrink-0 text-red-500" />
+                  <div className="text-sm text-red-700">
+                    <span className="font-medium">Something went wrong.</span> I wasn&apos;t able to respond — please try again in a moment.
+                  </div>
                 </div>
               )}
               <div ref={messagesEndRef} />
