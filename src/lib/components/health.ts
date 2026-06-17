@@ -133,6 +133,7 @@ export type BoatHealthRow = {
   hours_since_service: number | null;
   hours_until_due: number | null;
   months_until_due: number | null;
+  predicted_due_date: string | null;
 };
 
 export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
@@ -219,6 +220,14 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
         ? Math.ceil((dayInterval - daysSinceService) / 30)
         : null;
 
+    // Predicted due date: last service date + total day interval
+    let predicted_due_date: string | null = null;
+    if (lastServiceDate && dayInterval != null) {
+      const due = new Date(lastServiceDate);
+      due.setDate(due.getDate() + dayInterval);
+      predicted_due_date = due.toISOString().slice(0, 10);
+    }
+
     return {
       component_id: c.id as string,
       component_name: c.name as string,
@@ -228,6 +237,7 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
       hours_since_service: hoursSinceService,
       hours_until_due,
       months_until_due,
+      predicted_due_date,
     };
   });
 }

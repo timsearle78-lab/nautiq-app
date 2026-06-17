@@ -27,6 +27,7 @@ type HealthRow = {
   hours_since_service: number | null;
   hours_until_due: number | null;
   months_until_due: number | null;
+  predicted_due_date: string | null;
 };
 
 type TimelineRow = {
@@ -565,8 +566,6 @@ export default async function MaintenancePage({
           <>
             <div className="mt-4 space-y-3 lg:hidden">
               {filteredHealth.map((row) => {
-                const timelineItem = timelineByComponent.get(row.component_id);
-
                 return (
                   <div
                     key={row.component_id}
@@ -596,10 +595,7 @@ export default async function MaintenancePage({
                               : "text-slate-500"
                           }`}
                         >
-                          {maintenanceUrgency(
-                            timelineItem?.predicted_due_date ?? null,
-                            row.hours_until_due
-                          )}
+                          {maintenanceUrgency(row.predicted_due_date ?? null, row.hours_until_due)}
                         </div>
                       </div>
 
@@ -623,16 +619,14 @@ export default async function MaintenancePage({
                         <span className="text-slate-500">Predicted due</span>
                         <span
                           className={
-                            timelineItem?.status === "overdue"
+                            normalizeStatus(row.status) === "overdue"
                               ? "font-medium text-red-600"
-                              : timelineItem?.status === "due_soon"
+                              : normalizeStatus(row.status) === "due_soon"
                               ? "font-medium text-amber-600"
                               : "font-medium text-slate-800"
                           }
                         >
-                          {formatPredictedDue(
-                            timelineItem?.predicted_due_date ?? null
-                          )}
+                          {formatPredictedDue(row.predicted_due_date ?? null)}
                         </span>
                       </div>
 
@@ -714,19 +708,14 @@ export default async function MaintenancePage({
                       <td className="py-3 pr-4">
                         <span
                           className={
-                            timelineByComponent.get(row.component_id)?.status ===
-                            "overdue"
+                            normalizeStatus(row.status) === "overdue"
                               ? "font-medium text-red-600"
-                              : timelineByComponent.get(row.component_id)
-                                  ?.status === "due_soon"
+                              : normalizeStatus(row.status) === "due_soon"
                               ? "font-medium text-amber-600"
                               : "text-slate-600"
                           }
                         >
-                          {formatPredictedDue(
-                            timelineByComponent.get(row.component_id)
-                              ?.predicted_due_date ?? null
-                          )}
+                          {formatPredictedDue(row.predicted_due_date ?? null)}
                         </span>
                       </td>
                     </tr>
