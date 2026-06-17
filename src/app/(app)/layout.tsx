@@ -16,10 +16,13 @@ export default async function AppLayout({
 
   if (!user) redirect("/login");
 
+  const email = user.email ?? "";
+  const initials = email.slice(0, 2).toUpperCase();
+
   return (
     <div className="flex flex-col min-h-[100dvh] bg-slate-50">
       <main className="flex-1 overflow-y-auto pb-16">{children}</main>
-      <BottomNav />
+      <BottomNav userEmail={email} userInitials={initials} />
     </div>
   );
 }
