@@ -3,14 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageCircle, Wrench, Package, Settings } from "lucide-react";
+import { MessageCircle, Wrench, Package, Activity } from "lucide-react";
 import ProfileSheet from "./profile-sheet";
 
 const tabs = [
   { href: "/chat", icon: MessageCircle, label: "Chat" },
+  { href: "/health", icon: Activity, label: "Health" },
   { href: "/maintenance", icon: Wrench, label: "Maintain" },
   { href: "/inventory", icon: Package, label: "Inventory" },
-  { href: "/components", icon: Settings, label: "Parts" },
 ];
 
 interface BottomNavProps {

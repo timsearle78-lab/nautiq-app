@@ -17,16 +17,8 @@ export default function LoginForm() {
 
     try {
       const supabase = createClient();
-
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        throw error;
-      }
-
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
       setStatus("Signed in successfully.");
       window.location.href = "/chat";
     } catch (error) {
@@ -36,127 +28,104 @@ export default function LoginForm() {
     }
   }
 
-  const isError =
-    status &&
-    status !== "Signed in successfully.";
+  const isError = status && status !== "Signed in successfully.";
 
   return (
-    <div className="min-h-screen bg-neutral-50 px-4 py-10">
-      <div className="mx-auto flex max-w-5xl items-center justify-center">
-        <div className="grid w-full max-w-4xl overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm md:grid-cols-2">
-          <div className="hidden border-r border-neutral-200 bg-neutral-900 p-10 text-white md:block">
-            <div className="flex h-full flex-col justify-between">
-              <div>
-                <div className="text-sm font-medium uppercase tracking-[0.2em] text-neutral-400">
-                  NautIQ
-                </div>
-                <h1 className="mt-6 text-3xl font-semibold leading-tight">
-                  Predictive maintenance for real boat ownership.
-                </h1>
-                <p className="mt-4 max-w-sm text-sm leading-6 text-neutral-300">
-                  Track trips, maintenance, spares, and engine hours in one place.
-                  Stay ahead of service needs instead of reacting late.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-neutral-300">
-                Keep your boat ready, your records clean, and your maintenance
-                forecast visible.
-              </div>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm grid md:grid-cols-2">
+        <div className="hidden md:flex flex-col justify-between bg-ocean-900 p-10 text-white">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-ocean-200">
+              NautIQ
             </div>
+            <h1 className="mt-6 text-3xl font-semibold leading-tight">
+              Predictive maintenance for real boat ownership.
+            </h1>
+            <p className="mt-4 max-w-sm text-sm leading-6 text-ocean-100/80">
+              Track trips, maintenance, spares, and engine hours in one place.
+              Stay ahead of service needs instead of reacting late.
+            </p>
           </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-ocean-100/70">
+            Keep your boat ready, your records clean, and your maintenance forecast visible.
+          </div>
+        </div>
 
-          <div className="p-6 sm:p-10">
-            <div className="mx-auto max-w-sm">
+        <div className="p-6 sm:p-10">
+          <div className="mx-auto max-w-sm">
+            <h2 className="text-2xl font-semibold text-slate-900">Sign in</h2>
+            <p className="mt-2 text-sm text-slate-500">
+              Access your boat and maintenance planner.
+            </p>
+
+            <form onSubmit={handleLogin} className="mt-8 space-y-5">
               <div>
-                <h2 className="text-2xl font-semibold text-neutral-950">
-                  Sign in
-                </h2>
-                <p className="mt-2 text-sm text-neutral-600">
-                  Access your boat dashboard and maintenance planner.
-                </p>
+                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
+                  placeholder="you@example.com"
+                  required
+                />
               </div>
 
-              <form onSubmit={handleLogin} className="mt-8 space-y-5">
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="mb-1.5 block text-sm font-medium text-neutral-800"
-                  >
-                    Email
+              <div>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+                    Password
                   </label>
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-neutral-900 focus:ring-2 focus:ring-neutral-200"
-                    placeholder="you@example.com"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <div className="mb-1.5 flex items-center justify-between">
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium text-neutral-800"
-                    >
-                      Password
-                    </label>
-
-                    <Link
-                      href="/forgot-password"
-                      className="text-sm text-neutral-600 underline-offset-4 hover:text-neutral-900 hover:underline"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-
-                  <input
-                    id="password"
-                    type="password"
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-neutral-900 focus:ring-2 focus:ring-neutral-200"
-                    placeholder="Enter your password"
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="inline-flex w-full items-center justify-center rounded-xl bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {loading ? "Signing in..." : "Sign in"}
-                </button>
-
-                {status ? (
-                  <div
-                    className={`rounded-xl border px-4 py-3 text-sm ${
-                      isError
-                        ? "border-red-200 bg-red-50 text-red-700"
-                        : "border-green-200 bg-green-50 text-green-700"
-                    }`}
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm text-slate-500 hover:text-ocean-600 transition-colors"
                   >
-                    {status}
-                  </div>
-                ) : null}
-              </form>
+                    Forgot password?
+                  </Link>
+                </div>
+                <input
+                  id="password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
 
-              <p className="mt-6 text-sm text-neutral-600">
-                New to NautIQ?{" "}
-                <Link
-                  href="/signup"
-                  className="font-medium text-neutral-900 underline-offset-4 hover:underline"
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? "Signing in…" : "Sign in"}
+              </button>
+
+              {status ? (
+                <div
+                  className={`rounded-xl border px-4 py-3 text-sm ${
+                    isError
+                      ? "border-red-200 bg-red-50 text-red-700"
+                      : "border-green-200 bg-green-50 text-green-700"
+                  }`}
                 >
-                  Create an account
-                </Link>
-              </p>
-            </div>
+                  {status}
+                </div>
+              ) : null}
+            </form>
+
+            <p className="mt-6 text-sm text-slate-500">
+              New to NautIQ?{" "}
+              <Link href="/signup" className="font-medium text-ocean-600 hover:text-ocean-700">
+                Create an account
+              </Link>
+            </p>
           </div>
         </div>
       </div>
