@@ -26,12 +26,105 @@ interface InventoryAdjustCardProps {
 const inputCls =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-ocean-500 focus:ring-1 focus:ring-ocean-100";
 
+function CreateItemCard({
+  searchTerm,
+  quantity: initialQty,
+  boatId,
+  onSaved,
+}: {
+  searchTerm: string;
+  quantity: number;
+  boatId: string;
+  onSaved?: (itemName: string) => void;
+}) {
+  const [name, setName] = useState(searchTerm);
+  const [category, setCategory] = useState("General");
+  const [unit, setUnit] = useState("");
+  const [qty, setQty] = useState(initialQty);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleCreate() {
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/inventory/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ boatId, name, category, unit, quantity: qty }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSaved(true);
+        onSaved?.(data.item.name);
+      } else {
+        setError(data.error ?? "Failed to create item");
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (saved) {
+    return (
+      <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 flex items-center gap-2">
+        <span>✓</span>
+        <span>"{name}" added to inventory</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-2 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="flex items-center gap-2 border-b border-slate-100 bg-green-50 px-4 py-2.5">
+        <PackagePlus size={16} className="text-green-600" />
+        <span className="text-sm font-semibold text-slate-800">Create New Inventory Item</span>
+      </div>
+      <div className="p-4 space-y-3">
+        <p className="text-xs text-slate-500">
+          "{searchTerm}" wasn't found in your inventory. Fill in the details to create it.
+        </p>
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">Item name</label>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Category</label>
+            <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} className={inputCls} placeholder="e.g. Safety, Engine" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Unit</label>
+            <input type="text" value={unit} onChange={(e) => setUnit(e.target.value)} className={inputCls} placeholder="e.g. L, units, m" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">Initial quantity</label>
+          <input type="number" min="0" step="0.01" value={qty} onChange={(e) => setQty(parseFloat(e.target.value) || 0)} className={inputCls} />
+        </div>
+        {error && <p className="text-xs text-red-600">{error}</p>}
+      </div>
+      <div className="border-t border-slate-100 px-4 py-3">
+        <button
+          onClick={handleCreate}
+          disabled={saving || !name.trim()}
+          className="w-full rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+        >
+          {saving ? "Creating…" : "Create & add to inventory"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function InventoryAdjustCard({
   searchTerm,
   matches,
   quantity: initialQty,
   transactionType,
   reason,
+  boatId,
   onSaved,
   onDismiss,
 }: InventoryAdjustCardProps) {
@@ -91,9 +184,12 @@ export default function InventoryAdjustCard({
 
   if (matches.length === 0) {
     return (
-      <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-        No inventory item found matching "{searchTerm}". Add it in the Inventory tab first.
-      </div>
+      <CreateItemCard
+        searchTerm={searchTerm}
+        quantity={initialQty}
+        boatId={boatId}
+        onSaved={onSaved}
+      />
     );
   }
 
@@ -188,3 +284,14 @@ export default function InventoryAdjustCard({
     </div>
   );
 }
+
+
+interface InventoryItem {
+  id: string;
+  name: string;
+  quantity: number;
+  minimum_quantity: number;
+  unit?: string;
+  category?: string;
+}
+
