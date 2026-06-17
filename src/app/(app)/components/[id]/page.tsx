@@ -149,14 +149,19 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
 
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <div className="text-sm text-slate-500">Service interval</div>
-          <div className="mt-2 text-sm font-medium text-slate-800">
-            {component.service_interval_days
-              ? `${component.service_interval_days} days`
-              : "No day interval"}
-            <br />
+          <div className="mt-2 text-sm font-medium text-slate-800 space-y-0.5">
+            {(() => {
+              const parts = [];
+              if (component.service_interval_years) parts.push(`${component.service_interval_years}y`);
+              if (component.service_interval_months) parts.push(`${component.service_interval_months}mo`);
+              if (component.service_interval_days) parts.push(`${component.service_interval_days}d`);
+              return parts.length > 0
+                ? <div>{parts.join(" ")}</div>
+                : <div className="text-slate-400">No time interval</div>;
+            })()}
             {component.service_interval_engine_hours
-              ? `${component.service_interval_engine_hours} engine hours`
-              : "No hour interval"}
+              ? <div>{component.service_interval_engine_hours} hrs</div>
+              : <div className="text-slate-400">No hour interval</div>}
           </div>
         </div>
       </section>
@@ -272,6 +277,8 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
         systemId={component.system_id}
         systems={systems}
         installDate={component.install_date}
+        serviceIntervalYears={component.service_interval_years}
+        serviceIntervalMonths={component.service_interval_months}
         serviceIntervalDays={component.service_interval_days}
         serviceIntervalEngineHours={component.service_interval_engine_hours}
         notes={component.notes}

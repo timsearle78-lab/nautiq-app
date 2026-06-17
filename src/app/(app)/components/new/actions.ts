@@ -36,12 +36,10 @@ export async function createComponent(
   const name = String(formData.get("name") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim() || null;
   const installDate = String(formData.get("install_date") ?? "").trim() || null;
-  const serviceIntervalDays = parseOptionalNumber(
-    formData.get("service_interval_days")
-  );
-  const serviceIntervalEngineHours = parseOptionalNumber(
-    formData.get("service_interval_engine_hours")
-  );
+  const serviceIntervalYears = parseOptionalNumber(formData.get("service_interval_years"));
+  const serviceIntervalMonths = parseOptionalNumber(formData.get("service_interval_months"));
+  const serviceIntervalDays = parseOptionalNumber(formData.get("service_interval_days"));
+  const serviceIntervalEngineHours = parseOptionalNumber(formData.get("service_interval_engine_hours"));
 
   if (!boatId) {
     return { error: "Boat is required." };
@@ -60,6 +58,8 @@ export async function createComponent(
       name,
       notes,
       install_date: installDate,
+      service_interval_years: serviceIntervalYears,
+      service_interval_months: serviceIntervalMonths,
       service_interval_days: serviceIntervalDays,
       service_interval_engine_hours: serviceIntervalEngineHours,
     })

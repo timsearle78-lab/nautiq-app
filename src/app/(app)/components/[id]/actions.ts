@@ -163,6 +163,8 @@ export async function updateComponent(
     return Number.isFinite(n) ? n : null;
   }
 
+  const service_interval_years = parseOpt(formData.get("service_interval_years"));
+  const service_interval_months = parseOpt(formData.get("service_interval_months"));
   const service_interval_days = parseOpt(formData.get("service_interval_days"));
   const service_interval_engine_hours = parseOpt(formData.get("service_interval_engine_hours"));
 
@@ -170,7 +172,7 @@ export async function updateComponent(
 
   const { error } = await supabase
     .from("components")
-    .update({ name, system_id, install_date, notes, service_interval_days, service_interval_engine_hours })
+    .update({ name, system_id, install_date, notes, service_interval_years, service_interval_months, service_interval_days, service_interval_engine_hours })
     .eq("id", id)
     .eq("user_id", user.id);
 

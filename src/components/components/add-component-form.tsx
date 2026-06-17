@@ -54,39 +54,39 @@ export function AddComponentForm({
         </select>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Install date</label>
-          <input name="install_date" type="date" className={inputCls} />
-        </div>
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">Install date</label>
+        <input name="install_date" type="date" className={inputCls} />
+      </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Service interval (days)
-          </label>
-          <input
-            name="service_interval_days"
-            type="number"
-            min="0"
-            step="1"
-            className={inputCls}
-            placeholder="365"
-          />
+      <fieldset>
+        <legend className="mb-2 text-sm font-medium text-slate-700">Service interval (time-based)</legend>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className="mb-1 block text-xs text-slate-500">Years</label>
+            <input name="service_interval_years" type="number" min="0" step="1" className={inputCls} placeholder="0" />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-slate-500">Months</label>
+            <input name="service_interval_months" type="number" min="0" step="1" className={inputCls} placeholder="0" />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-slate-500">Days</label>
+            <input name="service_interval_days" type="number" min="0" step="1" className={inputCls} placeholder="0" />
+          </div>
         </div>
+      </fieldset>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Service interval (hours)
-          </label>
-          <input
-            name="service_interval_engine_hours"
-            type="number"
-            min="0"
-            step="0.1"
-            className={inputCls}
-            placeholder="200"
-          />
-        </div>
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">Service interval (engine hours)</label>
+        <input
+          name="service_interval_engine_hours"
+          type="number"
+          min="0"
+          step="0.1"
+          className={inputCls}
+          placeholder="200"
+        />
       </div>
 
       <div>

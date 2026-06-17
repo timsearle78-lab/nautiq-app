@@ -14,6 +14,8 @@ type Props = {
   systemId?: string | null;
   systems: System[];
   installDate?: string | null;
+  serviceIntervalYears?: number | null;
+  serviceIntervalMonths?: number | null;
   serviceIntervalDays?: number | null;
   serviceIntervalEngineHours?: number | null;
   notes?: string | null;
@@ -25,6 +27,8 @@ export function EditComponentForm({
   systemId,
   systems,
   installDate,
+  serviceIntervalYears,
+  serviceIntervalMonths,
   serviceIntervalDays,
   serviceIntervalEngineHours,
   notes,
@@ -79,18 +83,49 @@ export function EditComponentForm({
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Service interval (days)
-            </label>
-            <input
-              type="number"
-              name="service_interval_days"
-              defaultValue={serviceIntervalDays ?? ""}
-              min={0}
-              className={inputCls}
-            />
-          </div>
+          <fieldset>
+            <legend className="block text-sm font-medium text-slate-700 mb-2">
+              Service interval (time-based)
+            </legend>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="mb-1 block text-xs text-slate-500">Years</label>
+                <input
+                  type="number"
+                  name="service_interval_years"
+                  defaultValue={serviceIntervalYears ?? ""}
+                  min={0}
+                  step={1}
+                  className={inputCls}
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-slate-500">Months</label>
+                <input
+                  type="number"
+                  name="service_interval_months"
+                  defaultValue={serviceIntervalMonths ?? ""}
+                  min={0}
+                  step={1}
+                  className={inputCls}
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-slate-500">Days</label>
+                <input
+                  type="number"
+                  name="service_interval_days"
+                  defaultValue={serviceIntervalDays ?? ""}
+                  min={0}
+                  step={1}
+                  className={inputCls}
+                  placeholder="0"
+                />
+              </div>
+            </div>
+          </fieldset>
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">

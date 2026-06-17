@@ -20,6 +20,17 @@ function daysBetween(fromIso: string, toDate = new Date()) {
   return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
 }
 
+// Convert years + months + days into a total day count for ratio calculations.
+function totalIntervalDays(
+  years: number | null,
+  months: number | null,
+  days: number | null
+): number | null {
+  const total =
+    (years ?? 0) * 365 + (months ?? 0) * 30 + (days ?? 0);
+  return total > 0 ? total : null;
+}
+
 export function getComponentHealthSummary(
   component: ComponentDetail,
   maintenanceHistory: MaintenanceHistoryRow[],
@@ -40,7 +51,11 @@ export function getComponentHealthSummary(
 
   const reasons: string[] = [];
 
-  const dayInterval = component.service_interval_days;
+  const dayInterval = totalIntervalDays(
+    component.service_interval_years ?? null,
+    component.service_interval_months ?? null,
+    component.service_interval_days
+  );
   const hourInterval = component.service_interval_engine_hours;
 
   let dayRatio: number | null = null;
@@ -124,7 +139,7 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
   const [{ data: componentsData }, { data: engineHoursData }] = await Promise.all([
     supabase
       .from("components")
-      .select("id, name, service_interval_days, service_interval_engine_hours, system:systems(id, name)")
+      .select("id, name, service_interval_years, service_interval_months, service_interval_days, service_interval_engine_hours, system:systems(id, name)")
       .eq("boat_id", boatId)
       .order("name"),
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boatId }),
@@ -163,7 +178,11 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
         ? Math.max(0, latestBoatEngineHours - lastServiceEngineHours)
         : null;
 
-    const dayInterval = (c.service_interval_days as number | null) ?? null;
+    const dayInterval = totalIntervalDays(
+      (c.service_interval_years as number | null) ?? null,
+      (c.service_interval_months as number | null) ?? null,
+      (c.service_interval_days as number | null) ?? null
+    );
     const hourInterval = (c.service_interval_engine_hours as number | null) ?? null;
 
     let dayRatio: number | null = null;
