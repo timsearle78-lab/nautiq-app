@@ -46,12 +46,10 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
 }) {
   const [expanded, setExpanded] = useState(false);
 
-  const scoreColor =
-    healthScore >= 80 ? "text-green-600" :
-    healthScore >= 50 ? "text-amber-600" : "text-red-600";
-  const scoreBorder =
-    healthScore >= 80 ? "border-green-200 bg-green-50" :
-    healthScore >= 50 ? "border-amber-200 bg-amber-50" : "border-red-200 bg-red-50";
+  const isRed = overdueCount > 0 || healthScore < 50;
+  const isAmber = !isRed && healthScore < 75;
+  const scoreColor = isRed ? "text-red-600" : isAmber ? "text-amber-600" : "text-green-600";
+  const scoreBorder = isRed ? "border-red-200 bg-red-50" : isAmber ? "border-amber-200 bg-amber-50" : "border-green-200 bg-green-50";
 
   return (
     <div className={`rounded-xl border mx-1 mb-1 overflow-hidden ${scoreBorder}`}>
@@ -245,12 +243,10 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     { label: "Boat health", text: "How's the boat doing overall?" },
   ];
 
-  const scoreColor =
-    healthScore >= 80 ? "text-green-600" :
-    healthScore >= 50 ? "text-amber-600" : "text-red-600";
-  const scoreBg =
-    healthScore >= 80 ? "bg-green-50 border-green-200" :
-    healthScore >= 50 ? "bg-amber-50 border-amber-200" : "bg-red-50 border-red-200";
+  const isRed = overdueCount > 0 || healthScore < 50;
+  const isAmber = !isRed && healthScore < 75;
+  const scoreColor = isRed ? "text-red-600" : isAmber ? "text-amber-600" : "text-green-600";
+  const scoreBg = isRed ? "bg-red-50 border-red-200" : isAmber ? "bg-amber-50 border-amber-200" : "bg-green-50 border-green-200";
 
   return (
     // h-[100dvh] minus AppHeader (h-14=3.5rem) minus BottomNav (h-16=4rem)
