@@ -34,7 +34,7 @@ interface ChatInterfaceProps {
 
 function formatDate(v: string | null) {
   if (!v) return null;
-  return new Date(v).toLocaleDateString("en-AU", { day: "numeric", month: "short" });
+  return new Date(v).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
 function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgentItems }: {

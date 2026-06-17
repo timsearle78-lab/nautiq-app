@@ -37,7 +37,7 @@ function normalizeStatus(s: string | null) {
 
 function formatDate(v: string | null) {
   if (!v) return "—";
-  return new Date(v).toLocaleDateString("en-AU", { day: "numeric", month: "short" });
+  return new Date(v).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
 export default async function HealthPage() {

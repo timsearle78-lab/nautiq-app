@@ -157,7 +157,7 @@ export function TripHistoryCard({ trips }: { trips: TripItem[] }) {
               <div className="min-w-0">
                 <div className="text-sm font-medium text-slate-800">
                   {trip.date
-                    ? new Date(trip.date).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })
+                    ? new Date(trip.date).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
                     : "Unknown date"}
                 </div>
                 {trip.notes && (

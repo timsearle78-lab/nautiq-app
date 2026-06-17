@@ -32,10 +32,12 @@ function totalIntervalDays(
   return total > 0 ? total : null;
 }
 
+type TripForHealth = { started_at: string | null; engine_hours_delta: number };
+
 export function getComponentHealthSummary(
   component: ComponentDetail,
   maintenanceHistory: MaintenanceHistoryRow[],
-  latestBoatEngineHours: number | null
+  trips: TripForHealth[]
 ): ComponentHealthSummary {
   const latestService = maintenanceHistory[0] ?? null;
   // Fall back to install_date when no maintenance has been recorded yet,
@@ -47,10 +49,12 @@ export function getComponentHealthSummary(
   const daysSinceService =
     lastServiceDate ? daysBetween(lastServiceDate) : null;
 
-  const hoursSinceService =
-    latestBoatEngineHours != null && lastServiceEngineHours != null
-      ? Math.max(0, latestBoatEngineHours - lastServiceEngineHours)
-      : null;
+  // Sum engine hours from trips logged on or after the last service date.
+  const hoursSinceService = lastServiceDate
+    ? trips
+        .filter((t) => t.started_at != null && t.started_at >= lastServiceDate!)
+        .reduce((sum, t) => sum + (t.engine_hours_delta ?? 0), 0)
+    : null;
 
   const reasons: string[] = [];
 
@@ -165,19 +169,26 @@ export type BoatHealthRow = {
 export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
   const supabase = await createClient();
 
-  const [{ data: componentsData }, { data: engineHoursData }] = await Promise.all([
+  const [{ data: componentsData }, { data: tripsData }] = await Promise.all([
     supabase
       .from("components")
       .select("id, name, install_date, service_interval_years, service_interval_months, service_interval_days, service_interval_engine_hours, system:systems(id, name)")
       .eq("boat_id", boatId)
       .order("name"),
-    supabase.rpc("get_boat_engine_hours", { p_boat_id: boatId }),
+    supabase
+      .from("trips")
+      .select("started_at, engine_hours_delta")
+      .eq("boat_id", boatId)
+      .not("engine_hours_delta", "is", null)
+      .order("started_at", { ascending: true }),
   ]);
 
   if (!componentsData || componentsData.length === 0) return [];
 
   const componentIds = componentsData.map((c: Record<string, unknown>) => c.id as string);
-  const latestBoatEngineHours = (engineHoursData as number | null) ?? null;
+
+  type TripRow = { started_at: string | null; engine_hours_delta: number };
+  const trips = (tripsData ?? []) as TripRow[];
 
   // Fetch latest maintenance event per component in one query
   const { data: eventsData } = await supabase
@@ -200,13 +211,15 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
     const event = latestEvent.get(c.id as string) ?? null;
     // Fall back to install_date when no maintenance has been recorded yet.
     const lastServiceDate = event?.performed_at ?? (c.install_date as string | null) ?? null;
-    const lastServiceEngineHours = event?.engine_hours_at_service ?? null;
 
     const daysSinceService = lastServiceDate ? daysBetween(lastServiceDate) : null;
-    const hoursSinceService =
-      latestBoatEngineHours != null && lastServiceEngineHours != null
-        ? Math.max(0, latestBoatEngineHours - lastServiceEngineHours)
-        : null;
+
+    // Sum engine hours from trips logged on or after the last service date.
+    const hoursSinceService = lastServiceDate
+      ? trips
+          .filter((t) => t.started_at != null && t.started_at >= lastServiceDate!)
+          .reduce((sum, t) => sum + (t.engine_hours_delta ?? 0), 0)
+      : null;
 
     const dayInterval = totalIntervalDays(
       (c.service_interval_years as number | null) ?? null,
@@ -225,7 +238,7 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
     let status: string;
     let risk_score: number | null;
 
-    if (!lastServiceDate && lastServiceEngineHours == null) {
+    if (!lastServiceDate) {
       status = "unknown";
       risk_score = null;
     } else if (maxRatio >= 1) {

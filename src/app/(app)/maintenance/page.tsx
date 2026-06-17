@@ -161,12 +161,12 @@ function parseHorizon(value: string | undefined) {
 
 function formatDate(value: string | null) {
   if (!value) return "—";
-  return new Date(value).toLocaleDateString();
+  return new Date(value).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
 function formatPredictedDue(value: string | null) {
   if (!value) return "—";
-  return new Date(value).toLocaleDateString();
+  return new Date(value).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
 function formatHours(value: number | null, digits = 0) {

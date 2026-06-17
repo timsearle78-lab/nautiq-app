@@ -9,7 +9,6 @@ import type {
 import {
   getComponentDetail,
   getComponentMaintenanceHistory,
-  getLatestBoatEngineHours,
   getLinkedInventory,
   getBoatInventory,
 } from "@/lib/components/queries";
@@ -69,11 +68,17 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     notFound();
   }
 
-  const [history, linkedInventory, boatInventory, latestBoatEngineHours] = await Promise.all([
+  const [history, linkedInventory, boatInventory, tripsData] = await Promise.all([
     getComponentMaintenanceHistory(component.id),
     getLinkedInventory(component.id),
     getBoatInventory(component.boat_id),
-    getLatestBoatEngineHours(component.boat_id),
+    supabase
+      .from("trips")
+      .select("started_at, engine_hours_delta")
+      .eq("boat_id", component.boat_id)
+      .not("engine_hours_delta", "is", null)
+      .order("started_at", { ascending: true })
+      .then((r) => (r.data ?? []) as { started_at: string | null; engine_hours_delta: number }[]),
   ]);
 
   const { data: systemsData } = await supabase
@@ -86,7 +91,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const health = getComponentHealthSummary(
     component,
     history,
-    latestBoatEngineHours
+    tripsData
   );
 
   const status = statusLabel(health.status);
@@ -128,7 +133,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           <div className="text-sm text-slate-500">Last service date</div>
           <div className="mt-2 text-2xl font-semibold text-slate-800">
             {health.lastServiceDate
-              ? new Date(health.lastServiceDate).toLocaleDateString()
+              ? new Date(health.lastServiceDate).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
               : "—"}
           </div>
         </div>
@@ -151,7 +156,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           <div className="rounded-xl border border-slate-200 bg-white p-4">
             <div className="text-sm text-slate-500">Next service due</div>
             <div className="mt-2 text-lg font-semibold text-slate-800">
-              {new Date(health.predictedDueDate).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}
+              {new Date(health.predictedDueDate).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
             </div>
             <div className="mt-0.5 text-xs text-slate-400">earliest of time or hours</div>
           </div>
@@ -220,7 +225,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                     <tr key={row.id} className="border-b border-slate-100 hover:bg-slate-50 align-top">
                       <td className="py-3 pr-4">
                         {row.performed_at
-                          ? new Date(row.performed_at).toLocaleDateString()
+                          ? new Date(row.performed_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
                           : "—"}
                       </td>
                       <td className="py-3 pr-4">
