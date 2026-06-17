@@ -37,7 +37,9 @@ export function getComponentHealthSummary(
   latestBoatEngineHours: number | null
 ): ComponentHealthSummary {
   const latestService = maintenanceHistory[0] ?? null;
-  const lastServiceDate = latestService?.performed_at ?? null;
+  // Fall back to install_date when no maintenance has been recorded yet,
+  // so the service interval counts from when the component was fitted.
+  const lastServiceDate = latestService?.performed_at ?? component.install_date ?? null;
   const lastServiceEngineHours =
     latestService?.engine_hours_at_service ?? null;
 
@@ -79,7 +81,7 @@ export function getComponentHealthSummary(
       lastServiceEngineHours: null,
       hoursSinceService,
       daysSinceService,
-      reasons: ["No service history recorded yet."],
+      reasons: ["No service history or install date recorded yet."],
     };
   }
 
@@ -139,7 +141,7 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
   const [{ data: componentsData }, { data: engineHoursData }] = await Promise.all([
     supabase
       .from("components")
-      .select("id, name, service_interval_years, service_interval_months, service_interval_days, service_interval_engine_hours, system:systems(id, name)")
+      .select("id, name, install_date, service_interval_years, service_interval_months, service_interval_days, service_interval_engine_hours, system:systems(id, name)")
       .eq("boat_id", boatId)
       .order("name"),
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boatId }),
@@ -169,7 +171,8 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
     const system = Array.isArray(systemArr) ? systemArr[0] : systemArr;
 
     const event = latestEvent.get(c.id as string) ?? null;
-    const lastServiceDate = event?.performed_at ?? null;
+    // Fall back to install_date when no maintenance has been recorded yet.
+    const lastServiceDate = event?.performed_at ?? (c.install_date as string | null) ?? null;
     const lastServiceEngineHours = event?.engine_hours_at_service ?? null;
 
     const daysSinceService = lastServiceDate ? daysBetween(lastServiceDate) : null;
