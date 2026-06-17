@@ -7,14 +7,6 @@ import ChatInterface from "@/components/chat/chat-interface";
 
 export const dynamic = "force-dynamic";
 
-type TimelineRow = {
-  component_id: string;
-  component_name: string;
-  system_name: string | null;
-  predicted_due_date: string | null;
-  status: "overdue" | "due_soon" | "planned" | "later" | "unknown";
-};
-
 function normalizeStatus(s: string | null) {
   const v = (s ?? "").toLowerCase();
   if (v === "overdue") return "overdue";
@@ -41,14 +33,12 @@ export default async function ChatPage() {
   const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const [engineHoursRes, health, timelineRes] = await Promise.all([
+  const [engineHoursRes, health] = await Promise.all([
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
     getBoatHealth(boat.id),
-    supabase.rpc("get_boat_maintenance_timeline", { p_boat_id: boat.id, p_horizon_days: 90 }),
   ]);
 
   const engineHours = (engineHoursRes.data as number) ?? 0;
-  const timeline = (timelineRes.data ?? []) as TimelineRow[];
 
   const knownHealth = health.filter((r) => r.risk_score != null);
   const avgRisk = knownHealth.length > 0
@@ -60,7 +50,11 @@ export default async function ChatPage() {
   const dueSoonCount = health.filter((r) => normalizeStatus(r.status) === "due_soon").length;
   const okCount = health.filter((r) => normalizeStatus(r.status) === "ok").length;
 
-  const urgent = timeline.filter((r) => r.status === "overdue" || r.status === "due_soon");
+  // Build urgent list from getBoatHealth() so it uses the same accurate data
+  // as the rest of the page, not the stale timeline RPC.
+  const urgent = health
+    .filter((r) => normalizeStatus(r.status) === "overdue" || normalizeStatus(r.status) === "due_soon")
+    .map((r) => ({ component_id: r.component_id, component_name: r.component_name, system_name: r.system_name, predicted_due_date: null, status: normalizeStatus(r.status) as "overdue" | "due_soon" }));
 
   return (
     <ChatInterface
