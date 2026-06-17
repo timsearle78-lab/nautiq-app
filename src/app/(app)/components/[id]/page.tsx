@@ -11,6 +11,7 @@ import {
   getComponentMaintenanceHistory,
   getLatestBoatEngineHours,
   getLinkedInventory,
+  getBoatInventory,
 } from "@/lib/components/queries";
 import { getComponentHealthSummary } from "@/lib/components/health";
 import { LogMaintenanceForm } from "@/components/components/log-maintenance-form";
@@ -67,9 +68,10 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     notFound();
   }
 
-  const [history, linkedInventory, latestBoatEngineHours] = await Promise.all([
+  const [history, linkedInventory, boatInventory, latestBoatEngineHours] = await Promise.all([
     getComponentMaintenanceHistory(component.id),
     getLinkedInventory(component.id),
+    getBoatInventory(component.boat_id),
     getLatestBoatEngineHours(component.boat_id),
   ]);
 
@@ -163,7 +165,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       <LogMaintenanceForm
         componentId={component.id}
         boatId={component.boat_id}
-        inventoryOptions={linkedInventory.map((item) => ({
+        inventoryOptions={boatInventory.map((item) => ({
           id: item.id,
           name: item.name,
           quantity: item.quantity,

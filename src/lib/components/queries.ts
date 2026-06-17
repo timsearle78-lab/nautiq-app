@@ -172,6 +172,19 @@ export async function getLinkedInventory(componentId: string): Promise<LinkedInv
   return (data ?? []) as LinkedInventoryRow[];
 }
 
+export async function getBoatInventory(boatId: string): Promise<LinkedInventoryRow[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("inventory_items")
+    .select("id, name, category, quantity, minimum_quantity, unit, storage_location, is_critical")
+    .eq("boat_id", boatId)
+    .order("name", { ascending: true });
+
+  if (error) throw new Error(`Failed to load inventory: ${error.message}`);
+  return (data ?? []) as LinkedInventoryRow[];
+}
+
 export async function getLatestBoatEngineHours(boatId: string) {
   const supabase = await createClient();
 

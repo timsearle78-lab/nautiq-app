@@ -304,72 +304,112 @@ export default async function ComponentsPage({
             No components match this filter.
           </p>
         ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-200 text-left">
-                  <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Component</th>
-                  <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">System</th>
-                  <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Status</th>
-                  <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Risk</th>
-                  <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Hours since</th>
-                  <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Hours until due</th>
-                  <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Months until due</th>
-                  <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRows.map((row) => (
-                  <tr
-                    key={row.component_id}
-                    className="border-b border-slate-100 hover:bg-slate-50 align-top"
-                  >
-                    <td className="py-3 pr-4 font-medium text-slate-800">
-                      {row.component_name}
-                    </td>
-                    <td className="py-3 pr-4 text-slate-600">
-                      {row.system_name ?? "—"}
-                    </td>
-                    <td className={`py-3 pr-4 font-medium ${statusColor(row.status)}`}>
+          <>
+            {/* Mobile: card list */}
+            <div className="mt-4 space-y-3 lg:hidden">
+              {filteredRows.map((row) => (
+                <div
+                  key={row.component_id}
+                  className={`rounded-xl border p-4 ${
+                    normalizeStatus(row.status) === "overdue"
+                      ? "border-red-200 bg-red-50"
+                      : normalizeStatus(row.status) === "due_soon"
+                      ? "border-amber-200 bg-amber-50"
+                      : "border-slate-200 bg-white"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-medium text-slate-800">{row.component_name}</div>
+                      <div className="text-xs text-slate-500 mt-0.5">{row.system_name ?? "No system"}</div>
+                    </div>
+                    <span
+                      className={`flex-shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+                        normalizeStatus(row.status) === "overdue"
+                          ? "text-red-600 bg-red-50 border-red-200"
+                          : normalizeStatus(row.status) === "due_soon"
+                          ? "text-amber-600 bg-amber-50 border-amber-200"
+                          : normalizeStatus(row.status) === "ok"
+                          ? "text-green-600 bg-green-50 border-green-200"
+                          : "text-slate-500 bg-slate-50 border-slate-200"
+                      }`}
+                    >
                       {statusLabel(row.status)}
-                    </td>
-                    <td className="py-3 pr-4 text-slate-600">
-                      {Math.round(Number(row.risk_score ?? 0))}
-                    </td>
-                    <td className="py-3 pr-4 text-slate-600">
-                      {row.hours_since_service != null
-                        ? Math.round(row.hours_since_service)
-                        : "—"}
-                    </td>
-                    <td className="py-3 pr-4 text-slate-600">
-                      {row.hours_until_due != null
-                        ? Math.round(row.hours_until_due)
-                        : "—"}
-                    </td>
-                    <td className="py-3 pr-4 text-slate-600">
-                      {row.months_until_due != null ? row.months_until_due : "—"}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <div className="flex flex-col gap-1">
-                        <Link
-                          href={`/components/${row.component_id}`}
-                          className="text-ocean-600 hover:text-ocean-700 font-medium"
-                        >
-                          Open
-                        </Link>
-                        <Link
-                          href={`/components/${row.component_id}#log-maintenance`}
-                          className="text-slate-500 hover:text-slate-700 text-xs"
-                        >
-                          Log maintenance
-                        </Link>
+                    </span>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-slate-500">Hrs since service</span>
+                      <div className="font-medium text-slate-800">
+                        {row.hours_since_service != null ? Math.round(row.hours_since_service) : "—"}
                       </div>
-                    </td>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Hrs until due</span>
+                      <div className="font-medium text-slate-800">
+                        {row.hours_until_due != null ? Math.round(row.hours_until_due) : "—"}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex gap-4 text-sm">
+                    <Link href={`/components/${row.component_id}`} className="text-ocean-600 hover:text-ocean-700 font-medium">
+                      Open
+                    </Link>
+                    <Link href={`/components/${row.component_id}#log-maintenance`} className="text-slate-500 hover:text-slate-700">
+                      Log maintenance
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="mt-4 hidden lg:block overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 text-left">
+                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Component</th>
+                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">System</th>
+                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Status</th>
+                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Risk</th>
+                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Hrs since</th>
+                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Hrs until due</th>
+                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Months until due</th>
+                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {filteredRows.map((row) => (
+                    <tr key={row.component_id} className="border-b border-slate-100 hover:bg-slate-50 align-top">
+                      <td className="py-3 pr-4 font-medium text-slate-800">{row.component_name}</td>
+                      <td className="py-3 pr-4 text-slate-600">{row.system_name ?? "—"}</td>
+                      <td className={`py-3 pr-4 font-medium ${statusColor(row.status)}`}>{statusLabel(row.status)}</td>
+                      <td className="py-3 pr-4 text-slate-600">{Math.round(Number(row.risk_score ?? 0))}</td>
+                      <td className="py-3 pr-4 text-slate-600">
+                        {row.hours_since_service != null ? Math.round(row.hours_since_service) : "—"}
+                      </td>
+                      <td className="py-3 pr-4 text-slate-600">
+                        {row.hours_until_due != null ? Math.round(row.hours_until_due) : "—"}
+                      </td>
+                      <td className="py-3 pr-4 text-slate-600">
+                        {row.months_until_due != null ? row.months_until_due : "—"}
+                      </td>
+                      <td className="py-3 pr-4">
+                        <div className="flex flex-col gap-1">
+                          <Link href={`/components/${row.component_id}`} className="text-ocean-600 hover:text-ocean-700 font-medium">
+                            Open
+                          </Link>
+                          <Link href={`/components/${row.component_id}#log-maintenance`} className="text-slate-500 hover:text-slate-700 text-xs">
+                            Log maintenance
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </section>
     </main>
