@@ -11,6 +11,7 @@ export type ComponentHealthSummary = {
   lastServiceEngineHours: number | null;
   hoursSinceService: number | null;
   daysSinceService: number | null;
+  predictedDueDate: string | null;
   reasons: string[];
 };
 
@@ -81,6 +82,7 @@ export function getComponentHealthSummary(
       lastServiceEngineHours: null,
       hoursSinceService,
       daysSinceService,
+      predictedDueDate: null,
       reasons: ["No service history or install date recorded yet."],
     };
   }
@@ -108,6 +110,29 @@ export function getComponentHealthSummary(
     score = 100;
   }
 
+  // Predicted due date: whichever threshold (time or hours) is reached first.
+  let predictedDueDate: string | null = null;
+  if (lastServiceDate && dayInterval && dayInterval > 0) {
+    const due = new Date(lastServiceDate);
+    due.setDate(due.getDate() + dayInterval);
+    predictedDueDate = due.toISOString().slice(0, 10);
+  }
+  if (
+    hourInterval && hourInterval > 0 &&
+    hoursSinceService != null && hoursSinceService > 0 &&
+    daysSinceService != null && daysSinceService > 0
+  ) {
+    const hoursRemaining = hourInterval - hoursSinceService;
+    const hoursPerDay = hoursSinceService / daysSinceService;
+    const daysUntil = Math.round(hoursRemaining / hoursPerDay);
+    const hoursBased = new Date();
+    hoursBased.setDate(hoursBased.getDate() + daysUntil);
+    const hoursBasedStr = hoursBased.toISOString().slice(0, 10);
+    if (predictedDueDate === null || hoursBasedStr < predictedDueDate) {
+      predictedDueDate = hoursBasedStr;
+    }
+  }
+
   return {
     status,
     score,
@@ -115,6 +140,7 @@ export function getComponentHealthSummary(
     lastServiceEngineHours,
     hoursSinceService,
     daysSinceService,
+    predictedDueDate,
     reasons: reasons.length ? reasons : ["Within service interval."],
   };
 }
@@ -220,12 +246,33 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
         ? Math.ceil((dayInterval - daysSinceService) / 30)
         : null;
 
-    // Predicted due date: last service date + total day interval
+    // Predicted due date: whichever threshold (time or hours) is reached first.
     let predicted_due_date: string | null = null;
+
+    // Time-based: last service date + day interval
     if (lastServiceDate && dayInterval != null) {
       const due = new Date(lastServiceDate);
       due.setDate(due.getDate() + dayInterval);
       predicted_due_date = due.toISOString().slice(0, 10);
+    }
+
+    // Hours-based: extrapolate from current usage rate (hours/day since last service)
+    // Rate = hoursSinceService / daysSinceService → daysUntilDue = hoursUntilDue / rate
+    if (
+      hourInterval != null &&
+      hours_until_due != null &&
+      hoursSinceService != null && hoursSinceService > 0 &&
+      daysSinceService != null && daysSinceService > 0
+    ) {
+      const hoursPerDay = hoursSinceService / daysSinceService;
+      const daysUntilHoursDue = Math.round(hours_until_due / hoursPerDay);
+      const hoursBased = new Date();
+      hoursBased.setDate(hoursBased.getDate() + daysUntilHoursDue);
+      const hoursBasedStr = hoursBased.toISOString().slice(0, 10);
+      // Use whichever date comes sooner
+      if (predicted_due_date === null || hoursBasedStr < predicted_due_date) {
+        predicted_due_date = hoursBasedStr;
+      }
     }
 
     return {

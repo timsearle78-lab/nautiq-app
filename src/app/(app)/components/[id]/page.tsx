@@ -147,6 +147,16 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           </div>
         </div>
 
+        {health.predictedDueDate && (
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
+            <div className="text-sm text-slate-500">Next service due</div>
+            <div className="mt-2 text-lg font-semibold text-slate-800">
+              {new Date(health.predictedDueDate).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}
+            </div>
+            <div className="mt-0.5 text-xs text-slate-400">earliest of time or hours</div>
+          </div>
+        )}
+
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <div className="text-sm text-slate-500">Service interval</div>
           <div className="mt-2 text-sm font-medium text-slate-800 space-y-0.5">
