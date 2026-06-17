@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     supabase.from("inventory_items").update({ quantity: newQuantity }).eq("id", itemId),
     supabase.from("inventory_transactions").insert({
       inventory_item_id: itemId,
-      transaction_type: transactionType === "add" ? "added" : "consumed",
+      transaction_type: transactionType === "add" ? "add" : "consume",
       quantity_delta: transactionType === "add" ? delta : -delta,
       notes: reason ?? (transactionType === "add" ? "Restocked" : "Used"),
       user_id: user.id,
