@@ -64,7 +64,7 @@ export async function addSystem(_prev: ActionState, formData: FormData): Promise
 
   const { error } = await supabase
     .from("systems")
-    .insert({ boat_id: boatId, name });
+    .insert({ boat_id: boatId, name, user_id: user.id });
 
   if (error) return { error: error.message };
 
