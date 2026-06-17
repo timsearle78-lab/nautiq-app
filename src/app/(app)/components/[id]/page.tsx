@@ -15,6 +15,7 @@ import {
 } from "@/lib/components/queries";
 import { getComponentHealthSummary } from "@/lib/components/health";
 import { LogMaintenanceForm } from "@/components/components/log-maintenance-form";
+import { EditComponentForm } from "@/components/components/edit-component-form";
 
 type ComponentPageProps = {
   params: Promise<{ id: string }>;
@@ -74,6 +75,13 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     getBoatInventory(component.boat_id),
     getLatestBoatEngineHours(component.boat_id),
   ]);
+
+  const { data: systemsData } = await supabase
+    .from("systems")
+    .select("id,name")
+    .eq("boat_id", component.boat_id)
+    .order("name", { ascending: true });
+  const systems = (systemsData ?? []) as { id: string; name: string }[];
 
   const health = getComponentHealthSummary(
     component,
@@ -257,6 +265,17 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           )}
         </div>
       </section>
+
+      <EditComponentForm
+        id={component.id}
+        name={component.name}
+        systemId={component.system_id}
+        systems={systems}
+        installDate={component.install_date}
+        serviceIntervalDays={component.service_interval_days}
+        serviceIntervalEngineHours={component.service_interval_engine_hours}
+        notes={component.notes}
+      />
     </main>
   );
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export type MaintenanceActionState = {
@@ -137,4 +138,69 @@ export async function logMaintenance(
         error instanceof Error ? error.message : "Failed to log maintenance.",
     };
   }
+}
+
+export type ComponentActionState = { error?: string; success?: string };
+
+export async function updateComponent(
+  _prev: ComponentActionState,
+  formData: FormData
+): Promise<ComponentActionState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const id = String(formData.get("id") ?? "").trim();
+  const name = String(formData.get("name") ?? "").trim();
+  const system_id = String(formData.get("system_id") ?? "").trim() || null;
+  const install_date = String(formData.get("install_date") ?? "").trim() || null;
+  const notes = String(formData.get("notes") ?? "").trim() || null;
+
+  function parseOpt(val: FormDataEntryValue | null): number | null {
+    const t = String(val ?? "").trim();
+    if (!t) return null;
+    const n = Number(t);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  const service_interval_days = parseOpt(formData.get("service_interval_days"));
+  const service_interval_engine_hours = parseOpt(formData.get("service_interval_engine_hours"));
+
+  if (!name) return { error: "Component name is required." };
+
+  const { error } = await supabase
+    .from("components")
+    .update({ name, system_id, install_date, notes, service_interval_days, service_interval_engine_hours })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/components/${id}`);
+  revalidatePath("/components");
+  revalidatePath("/maintenance");
+  return { success: "Component updated." };
+}
+
+export async function deleteComponent(
+  _prev: ComponentActionState,
+  formData: FormData
+): Promise<ComponentActionState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  const { error } = await supabase
+    .from("components")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/components");
+  revalidatePath("/maintenance");
+  redirect("/components");
 }
