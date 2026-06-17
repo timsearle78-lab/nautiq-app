@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Mic, Send, Camera, Wrench, Plus } from "lucide-react";
+import { Mic, Send, Camera, Wrench, Plus, AlertTriangle, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
+import Link from "next/link";
 import MessageBubble from "./message-bubble";
 import LogTripSheet from "./log-trip-sheet";
 
@@ -13,12 +14,106 @@ interface Boat {
   type?: string;
 }
 
+type UrgentItem = {
+  component_id: string;
+  component_name: string;
+  system_name: string | null;
+  predicted_due_date: string | null;
+  status: "overdue" | "due_soon" | "planned" | "later" | "unknown";
+};
+
 interface ChatInterfaceProps {
   boat: Boat;
   engineHours: number;
+  healthScore: number;
+  overdueCount: number;
+  dueSoonCount: number;
+  okCount: number;
+  urgentItems: UrgentItem[];
 }
 
-export default function ChatInterface({ boat, engineHours }: ChatInterfaceProps) {
+function formatDate(v: string | null) {
+  if (!v) return null;
+  return new Date(v).toLocaleDateString("en-AU", { day: "numeric", month: "short" });
+}
+
+function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgentItems }: {
+  healthScore: number;
+  overdueCount: number;
+  dueSoonCount: number;
+  okCount: number;
+  urgentItems: UrgentItem[];
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  const scoreColor =
+    healthScore >= 80 ? "text-green-600" :
+    healthScore >= 50 ? "text-amber-600" : "text-red-600";
+  const scoreBorder =
+    healthScore >= 80 ? "border-green-200 bg-green-50" :
+    healthScore >= 50 ? "border-amber-200 bg-amber-50" : "border-red-200 bg-red-50";
+
+  return (
+    <div className={`rounded-xl border mx-1 mb-1 overflow-hidden ${scoreBorder}`}>
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left"
+      >
+        <div className="flex items-center gap-4">
+          <div>
+            <span className={`text-2xl font-bold ${scoreColor}`}>{healthScore}</span>
+            <span className="text-xs text-slate-500 ml-1">/ 100</span>
+          </div>
+          <div className="flex gap-3 text-xs">
+            {overdueCount > 0 && <span className="font-medium text-red-600">{overdueCount} overdue</span>}
+            {dueSoonCount > 0 && <span className="font-medium text-amber-600">{dueSoonCount} due soon</span>}
+            <span className="text-green-600">{okCount} healthy</span>
+          </div>
+        </div>
+        {expanded ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
+      </button>
+
+      {expanded && (
+        <div className="border-t border-slate-200 bg-white">
+          {urgentItems.length === 0 ? (
+            <div className="flex items-center gap-2 px-4 py-3">
+              <CheckCircle size={16} className="text-green-500 flex-shrink-0" />
+              <span className="text-sm text-green-700">All clear — no overdue or upcoming maintenance.</span>
+            </div>
+          ) : (
+            urgentItems.map((item) => {
+              const isOverdue = item.status === "overdue";
+              const due = formatDate(item.predicted_due_date);
+              return (
+                <Link
+                  key={item.component_id}
+                  href={`/components/${item.component_id}`}
+                  className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50"
+                >
+                  <AlertTriangle size={15} className={isOverdue ? "text-red-500 flex-shrink-0" : "text-amber-500 flex-shrink-0"} />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium text-slate-800 truncate">{item.component_name}</div>
+                    <div className="text-xs text-slate-400">{item.system_name ?? "—"}</div>
+                  </div>
+                  <span className={`text-xs font-medium flex-shrink-0 ${isOverdue ? "text-red-600" : "text-amber-600"}`}>
+                    {isOverdue ? "Overdue" : due ? `Due ${due}` : "Due soon"}
+                  </span>
+                </Link>
+              );
+            })
+          )}
+          <div className="px-4 py-2 border-t border-slate-100">
+            <Link href="/maintenance" className="text-xs text-ocean-600 hover:text-ocean-700 font-medium">
+              Full maintenance view →
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -69,32 +164,26 @@ export default function ChatInterface({ boat, engineHours }: ChatInterfaceProps)
       setIsRecording(false);
       return;
     }
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
       audioChunksRef.current = [];
-
       recorder.ondataavailable = (e) => audioChunksRef.current.push(e.data);
       recorder.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
         const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         const formData = new FormData();
         formData.append("audio", blob, "recording.webm");
-
         try {
           const res = await fetch("/api/ai/transcribe", { method: "POST", body: formData });
           if (res.ok) {
             const { transcript } = await res.json();
-            if (transcript) {
-              sendMessage({ text: transcript });
-            }
+            if (transcript) sendMessage({ text: transcript });
           }
         } catch (err) {
           console.error("Transcription failed", err);
         }
       };
-
       recorder.start();
       mediaRecorderRef.current = recorder;
       setIsRecording(true);
@@ -106,10 +195,8 @@ export default function ChatInterface({ boat, engineHours }: ChatInterfaceProps)
   async function handlePhotoCapture(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const formData = new FormData();
     formData.append("image", file);
-
     try {
       const res = await fetch("/api/ai/engine-hours", { method: "POST", body: formData });
       if (res.ok) {
@@ -122,8 +209,6 @@ export default function ChatInterface({ boat, engineHours }: ChatInterfaceProps)
     } catch (err) {
       console.error("Engine hours extraction failed", err);
     }
-
-    // Reset input
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -132,6 +217,13 @@ export default function ChatInterface({ boat, engineHours }: ChatInterfaceProps)
     { label: "Spares check", text: "What spares am I low on?" },
     { label: "Boat health", text: "How's the boat doing overall?" },
   ];
+
+  const scoreColor =
+    healthScore >= 80 ? "text-green-600" :
+    healthScore >= 50 ? "text-amber-600" : "text-red-600";
+  const scoreBg =
+    healthScore >= 80 ? "bg-green-50 border-green-200" :
+    healthScore >= 50 ? "bg-amber-50 border-amber-200" : "bg-red-50 border-red-200";
 
   return (
     <div className="flex flex-col h-[100dvh]">
@@ -142,7 +234,6 @@ export default function ChatInterface({ boat, engineHours }: ChatInterfaceProps)
           <p className="text-xs text-slate-400">{engineHours.toFixed(1)}h engine hours</p>
         </div>
         <div className="flex gap-2">
-          {/* Photo input (hidden) */}
           <input
             ref={fileInputRef}
             type="file"
@@ -168,48 +259,119 @@ export default function ChatInterface({ boat, engineHours }: ChatInterfaceProps)
         </div>
       </header>
 
-      {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-        {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full gap-6 text-center pb-12">
-            <div className="text-4xl">⚓</div>
-            <div>
-              <p className="text-base font-semibold text-slate-800">Hey, what&apos;s up?</p>
-              <p className="text-sm text-slate-400 mt-1">
-                Log a trip, check maintenance, or ask anything.
-              </p>
+      {/* Messages / health area */}
+      <div className="flex-1 overflow-y-auto">
+        {messages.length === 0 ? (
+          /* Empty state: full health summary */
+          <div className="px-4 pt-5 pb-4 space-y-4">
+            {/* Health score card */}
+            <div className={`rounded-xl border p-5 ${scoreBg}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-medium text-slate-600">Health score</div>
+                  <div className={`text-5xl font-bold mt-1 ${scoreColor}`}>{healthScore}</div>
+                  <div className="text-xs text-slate-500 mt-1">out of 100</div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-center">
+                  <div className="rounded-lg bg-white/80 px-3 py-2">
+                    <div className="text-lg font-semibold text-red-600">{overdueCount}</div>
+                    <div className="text-xs text-slate-500">Overdue</div>
+                  </div>
+                  <div className="rounded-lg bg-white/80 px-3 py-2">
+                    <div className="text-lg font-semibold text-amber-600">{dueSoonCount}</div>
+                    <div className="text-xs text-slate-500">Due soon</div>
+                  </div>
+                  <div className="rounded-lg bg-white/80 px-3 py-2">
+                    <div className="text-lg font-semibold text-green-600">{okCount}</div>
+                    <div className="text-xs text-slate-500">Healthy</div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {quickPrompts.map(({ label, text }) => (
-                <button
-                  key={label}
-                  onClick={() => sendMessage({ text })}
-                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 shadow-sm"
-                >
-                  {label}
-                </button>
+
+            {/* Urgent items or all clear */}
+            {urgentItems.length > 0 ? (
+              <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                  <h2 className="text-sm font-semibold text-slate-800">Needs attention</h2>
+                  <Link href="/maintenance" className="text-xs text-ocean-600 hover:text-ocean-700 font-medium">View all →</Link>
+                </div>
+                {urgentItems.map((item) => {
+                  const isOverdue = item.status === "overdue";
+                  const due = formatDate(item.predicted_due_date);
+                  return (
+                    <Link
+                      key={item.component_id}
+                      href={`/components/${item.component_id}`}
+                      className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50"
+                    >
+                      <AlertTriangle size={16} className={`flex-shrink-0 ${isOverdue ? "text-red-500" : "text-amber-500"}`} />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium text-slate-800 truncate">{item.component_name}</div>
+                        <div className="text-xs text-slate-400">{item.system_name ?? "—"}</div>
+                      </div>
+                      <span className={`text-xs font-medium flex-shrink-0 rounded-full border px-2 py-0.5 ${
+                        isOverdue ? "text-red-600 bg-red-50 border-red-200" : "text-amber-600 bg-amber-50 border-amber-200"
+                      }`}>
+                        {isOverdue ? "Overdue" : due ? `Due ${due}` : "Due soon"}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 flex items-center gap-3">
+                <CheckCircle size={18} className="text-green-600 flex-shrink-0" />
+                <div>
+                  <div className="text-sm font-medium text-green-800">All clear</div>
+                  <div className="text-xs text-green-700">No overdue or upcoming maintenance in the next 90 days.</div>
+                </div>
+              </div>
+            )}
+
+            {/* Quick prompts */}
+            <div className="pt-2 text-center space-y-3">
+              <p className="text-sm font-medium text-slate-600">Ask the assistant</p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {quickPrompts.map(({ label, text }) => (
+                  <button
+                    key={label}
+                    onClick={() => sendMessage({ text })}
+                    className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 shadow-sm"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Active chat: compact health banner + messages */
+          <div className="flex flex-col">
+            <div className="px-3 pt-3">
+              <HealthBanner
+                healthScore={healthScore}
+                overdueCount={overdueCount}
+                dueSoonCount={dueSoonCount}
+                okCount={okCount}
+                urgentItems={urgentItems}
+              />
+            </div>
+            <div className="px-4 py-3 space-y-3">
+              {messages.map((message) => (
+                <MessageBubble key={message.id} message={message} boatId={boat.id} />
               ))}
+              {isLoading && (
+                <div className="flex gap-1 px-4 py-3">
+                  <span className="h-2 w-2 rounded-full bg-slate-300 animate-bounce [animation-delay:0ms]" />
+                  <span className="h-2 w-2 rounded-full bg-slate-300 animate-bounce [animation-delay:150ms]" />
+                  <span className="h-2 w-2 rounded-full bg-slate-300 animate-bounce [animation-delay:300ms]" />
+                </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
           </div>
         )}
-
-        {messages.map((message) => (
-          <MessageBubble
-            key={message.id}
-            message={message}
-            boatId={boat.id}
-          />
-        ))}
-
-        {isLoading && (
-          <div className="flex gap-1 px-4 py-3">
-            <span className="h-2 w-2 rounded-full bg-slate-300 animate-bounce [animation-delay:0ms]" />
-            <span className="h-2 w-2 rounded-full bg-slate-300 animate-bounce [animation-delay:150ms]" />
-            <span className="h-2 w-2 rounded-full bg-slate-300 animate-bounce [animation-delay:300ms]" />
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input bar */}
@@ -236,7 +398,7 @@ export default function ChatInterface({ boat, engineHours }: ChatInterfaceProps)
             value={input}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
-            placeholder="Message or describe a trip…"
+            placeholder="Ask anything or describe a trip…"
             className="flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-ocean-500 focus:bg-white focus:outline-none"
             style={{ minHeight: "40px", maxHeight: "120px" }}
           />
@@ -250,7 +412,6 @@ export default function ChatInterface({ boat, engineHours }: ChatInterfaceProps)
           </button>
         </div>
 
-        {/* Quick used-a-part shortcut */}
         <div className="mt-2 flex gap-2 overflow-x-auto pb-0.5">
           <button
             onClick={() => sendMessage({ text: "I used a spare part during a trip" })}
@@ -262,15 +423,11 @@ export default function ChatInterface({ boat, engineHours }: ChatInterfaceProps)
         </div>
       </div>
 
-      {/* Log Trip bottom sheet */}
       {showTripSheet && (
         <LogTripSheet
           boatId={boat.id}
           prefillEngineHours={tripSheetEngineHours}
-          onClose={() => {
-            setShowTripSheet(false);
-            setTripSheetEngineHours(null);
-          }}
+          onClose={() => { setShowTripSheet(false); setTripSheetEngineHours(null); }}
           onSaved={() => {
             setShowTripSheet(false);
             setTripSheetEngineHours(null);

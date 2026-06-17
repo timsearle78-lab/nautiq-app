@@ -3,12 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageCircle, Wrench, Package, Activity } from "lucide-react";
+import { Home, Wrench, Package } from "lucide-react";
 import ProfileSheet from "./profile-sheet";
 
 const tabs = [
-  { href: "/chat", icon: MessageCircle, label: "Chat" },
-  { href: "/health", icon: Activity, label: "Health" },
+  { href: "/chat", icon: Home, label: "Home" },
   { href: "/maintenance", icon: Wrench, label: "Maintain" },
   { href: "/inventory", icon: Package, label: "Inventory" },
 ];
