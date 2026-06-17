@@ -7,19 +7,19 @@ import {
   getInventoryItems,
   getMissingCriticalSpares,
 } from "@/lib/inventory/queries";
+import { getSelectedBoatId } from "@/lib/selected-boat";
 
 import { AddInventoryItemForm } from "@/components/inventory/add-inventory-item-form";
 import { InventoryTable } from "@/components/inventory/inventory-table";
 
 type InventoryPageProps = {
-  searchParams: Promise<{ boat?: string; low?: string }>;
+  searchParams: Promise<{ low?: string }>;
 };
 
 export default async function InventoryPage({ searchParams }: InventoryPageProps) {
   noStore();
 
   const params = await searchParams;
-  const selectedBoatId = params.boat;
   const lowOnly = params.low === "1";
 
   const supabase = await createClient();
@@ -54,7 +54,10 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     );
   }
 
-  const activeBoatId = selectedBoatId ?? boats[0].id;
+  const selectedBoatId = await getSelectedBoatId();
+  const activeBoatId = (selectedBoatId && boats.some(b => b.id === selectedBoatId))
+    ? selectedBoatId
+    : boats[0].id;
 
   const [inventoryItems, components, missingCriticalSpares] = await Promise.all([
     getInventoryItems(activeBoatId),
@@ -71,35 +74,21 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
 
   return (
     <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
-      <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold text-slate-800">Inventory</h1>
           <p className="mt-1 text-sm text-slate-500">
             Manage onboard spares, consumables, and critical maintenance items.
           </p>
         </div>
-
-        <form method="get" className="flex flex-wrap gap-3">
-          <select
-            name="boat"
-            defaultValue={activeBoatId}
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
-          >
-            {boats.map((boat) => (
-              <option key={boat.id} value={boat.id}>
-                {boat.name}
-              </option>
-            ))}
-          </select>
-
+        <form method="get" className="flex items-center gap-2">
           <label className="flex items-center gap-2 text-sm text-slate-700">
             <input type="checkbox" name="low" value="1" defaultChecked={lowOnly} />
             Low stock only
           </label>
-
           <button
             type="submit"
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
           >
             Apply
           </button>

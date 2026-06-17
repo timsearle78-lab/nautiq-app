@@ -1,13 +1,10 @@
 import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getSelectedBoatId } from "@/lib/selected-boat";
 import { AddComponentForm } from "@/components/components/add-component-form";
 
 export const dynamic = "force-dynamic";
-
-type NewComponentPageProps = {
-  searchParams: Promise<{ boat?: string }>;
-};
 
 type BoatRow = {
   id: string;
@@ -21,13 +18,8 @@ type SystemRow = {
   name: string;
 };
 
-export default async function NewComponentPage({
-  searchParams,
-}: NewComponentPageProps) {
+export default async function NewComponentPage() {
   noStore();
-
-  const params = await searchParams;
-  const selectedBoatId = params.boat;
 
   const supabase = await createClient();
 
@@ -52,6 +44,7 @@ export default async function NewComponentPage({
     redirect("/onboarding");
   }
 
+  const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
   const { data: systemsData, error: systemsError } = await supabase

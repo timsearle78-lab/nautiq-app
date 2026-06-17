@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getSelectedBoatId } from "@/lib/selected-boat";
 
 export const dynamic = "force-dynamic";
 
@@ -211,7 +212,6 @@ export default async function MaintenancePage({
   noStore();
 
   const params = await searchParams;
-  const selectedBoatId = params.boat;
   const selectedStatus = parseStatusFilter(params.status);
   const selectedHorizon = parseHorizon(params.horizon);
 
@@ -239,6 +239,7 @@ export default async function MaintenancePage({
     redirect("/onboarding");
   }
 
+  const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
   const [{ data: healthData, error: healthError }, { data: timelineData, error: timelineError }] =
@@ -327,7 +328,7 @@ export default async function MaintenancePage({
           </p>
           <div className="mt-3 flex gap-2">
             <Link
-              href={`/components/new?boat=${boat.id}`}
+              href="/components/new"
               className="inline-flex items-center gap-1.5 rounded-xl bg-ocean-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-ocean-700"
             >
               + Add component
@@ -341,28 +342,7 @@ export default async function MaintenancePage({
           </div>
         </div>
 
-        <form method="get">
-          <input type="hidden" name="status" value={selectedStatus} />
-          <input type="hidden" name="horizon" value={selectedHorizon} />
-          <select
-            name="boat"
-            defaultValue={boat.id}
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
-          >
-            {boats.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.name}
-              </option>
-            ))}
-          </select>
-
-          <button
-            type="submit"
-            className="ml-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-          >
-            Go
-          </button>
-        </form>
+        <p className="text-sm text-slate-500">{boat.name}</p>
       </section>
 
       <section className="grid gap-4 md:grid-cols-4">
@@ -404,7 +384,7 @@ export default async function MaintenancePage({
 
           <div className="flex gap-2">
             {HORIZONS.map((days) => {
-              const href = `/maintenance?boat=${boat.id}&status=${selectedStatus}&horizon=${days}`;
+              const href = `/maintenance?status=${selectedStatus}&horizon=${days}`;
               const active = selectedHorizon === days;
 
               return (
@@ -552,8 +532,8 @@ export default async function MaintenancePage({
         {statusLinks.map((tab) => {
           const href =
             tab.key === "all"
-              ? `/maintenance?boat=${boat.id}&horizon=${selectedHorizon}`
-              : `/maintenance?boat=${boat.id}&status=${tab.key}&horizon=${selectedHorizon}`;
+              ? `/maintenance?horizon=${selectedHorizon}`
+              : `/maintenance?status=${tab.key}&horizon=${selectedHorizon}`;
 
           const active = selectedStatus === tab.key;
 

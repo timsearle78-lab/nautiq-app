@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getSelectedBoatId } from "@/lib/selected-boat";
 import ChatInterface from "@/components/chat/chat-interface";
 
 export const dynamic = "force-dynamic";
@@ -43,7 +44,8 @@ export default async function ChatPage() {
 
   if (!boats || boats.length === 0) redirect("/onboarding");
 
-  const boat = boats[0];
+  const selectedBoatId = await getSelectedBoatId();
+  const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
   const [engineHoursRes, healthRes, timelineRes] = await Promise.all([
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),

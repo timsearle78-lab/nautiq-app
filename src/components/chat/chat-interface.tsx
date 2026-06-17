@@ -226,13 +226,11 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     healthScore >= 50 ? "bg-amber-50 border-amber-200" : "bg-red-50 border-red-200";
 
   return (
-    <div className="flex flex-col h-[100dvh]">
-      {/* Header */}
-      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 shrink-0">
-        <div>
-          <h1 className="text-base font-semibold text-slate-900">{boat.name}</h1>
-          <p className="text-xs text-slate-400">{engineHours.toFixed(1)}h engine hours</p>
-        </div>
+    // h-[100dvh] minus AppHeader (h-14=3.5rem) minus BottomNav (h-16=4rem)
+    <div className="flex flex-col h-[calc(100dvh-3.5rem-4rem)]">
+      {/* Sub-header: engine hours + quick actions */}
+      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2.5 shrink-0">
+        <p className="text-xs text-slate-500 font-medium">{engineHours.toFixed(1)}h engine hours</p>
         <div className="flex gap-2">
           <input
             ref={fileInputRef}

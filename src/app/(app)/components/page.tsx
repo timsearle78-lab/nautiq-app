@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getSelectedBoatId } from "@/lib/selected-boat";
 
 export const dynamic = "force-dynamic";
 
@@ -91,7 +92,6 @@ export default async function ComponentsPage({
   noStore();
 
   const params = await searchParams;
-  const selectedBoatId = params.boat;
   const selectedStatus = parseStatusFilter(params.status);
   const selectedSystem = (params.system ?? "").trim();
 
@@ -118,6 +118,7 @@ export default async function ComponentsPage({
     redirect("/onboarding");
   }
 
+  const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
   const { data: healthData, error: healthError } = await supabase.rpc(
@@ -197,46 +198,20 @@ export default async function ComponentsPage({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <form method="get" className="flex flex-wrap gap-2">
-            <input type="hidden" name="status" value={selectedStatus} />
-            <input type="hidden" name="system" value={selectedSystem} />
-
-            <select
-              name="boat"
-              defaultValue={boat.id}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
-            >
-              {boats.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-
-            <button
-              type="submit"
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-            >
-              Go
-            </button>
-          </form>
-
-          <Link
-            href={`/components/new?boat=${boat.id}`}
-            className="rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-ocean-700 transition-colors"
-          >
-            Add component
-          </Link>
-        </div>
+        <Link
+          href="/components/new"
+          className="rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-ocean-700 transition-colors"
+        >
+          + Add component
+        </Link>
       </section>
 
       <section className="flex flex-wrap gap-2">
         {statusLinks.map((tab) => {
           const href =
             tab.key === "all"
-              ? `/components?boat=${boat.id}${selectedSystem ? `&system=${encodeURIComponent(selectedSystem)}` : ""}`
-              : `/components?boat=${boat.id}&status=${tab.key}${selectedSystem ? `&system=${encodeURIComponent(selectedSystem)}` : ""}`;
+              ? `/components${selectedSystem ? `?system=${encodeURIComponent(selectedSystem)}` : ""}`
+              : `/components?status=${tab.key}${selectedSystem ? `&system=${encodeURIComponent(selectedSystem)}` : ""}`;
 
           const active = selectedStatus === tab.key;
 
@@ -258,7 +233,7 @@ export default async function ComponentsPage({
 
       <section className="flex flex-wrap gap-2">
         <Link
-          href={`/components?boat=${boat.id}${selectedStatus !== "all" ? `&status=${selectedStatus}` : ""}`}
+          href={`/components${selectedStatus !== "all" ? `?status=${selectedStatus}` : ""}`}
           className={
             selectedSystem === ""
               ? "rounded-full bg-ocean-600 px-3.5 py-1.5 text-sm font-medium text-white"
@@ -269,9 +244,7 @@ export default async function ComponentsPage({
         </Link>
 
         {systems.map((system) => {
-          const href = `/components?boat=${boat.id}${
-            selectedStatus !== "all" ? `&status=${selectedStatus}` : ""
-          }&system=${encodeURIComponent(system)}`;
+          const href = `/components?${selectedStatus !== "all" ? `status=${selectedStatus}&` : ""}system=${encodeURIComponent(system)}`;
 
           return (
             <Link

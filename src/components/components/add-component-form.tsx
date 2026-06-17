@@ -25,103 +25,91 @@ export function AddComponentForm({
     initialState
   );
 
+  const inputCls =
+    "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100";
+
   return (
-    <section className="rounded-xl border p-4">
-      <h1 className="text-2xl font-semibold">Add Component</h1>
-      <p className="mt-1 text-sm text-neutral-600">
-        Add a serviceable component to this boat.
-      </p>
+    <form action={formAction} className="space-y-4">
+      <input type="hidden" name="boat_id" value={boatId} />
 
-      <form action={formAction} className="mt-4 space-y-4">
-        <input type="hidden" name="boat_id" value={boatId} />
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">Component name</label>
+        <input
+          name="name"
+          required
+          className={inputCls}
+          placeholder="Raw water pump"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">System</label>
+        <select name="system_id" className={inputCls} defaultValue="">
+          <option value="">None</option>
+          {systems.map((system) => (
+            <option key={system.id} value={system.id}>
+              {system.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Install date</label>
+          <input name="install_date" type="date" className={inputCls} />
+        </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">Component name</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Service interval (days)
+          </label>
           <input
-            name="name"
-            required
-            className="w-full rounded-md border px-3 py-2 text-sm"
-            placeholder="Raw water pump"
+            name="service_interval_days"
+            type="number"
+            min="0"
+            step="1"
+            className={inputCls}
+            placeholder="365"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">System</label>
-          <select
-            name="system_id"
-            className="w-full rounded-md border px-3 py-2 text-sm"
-            defaultValue=""
-          >
-            <option value="">None</option>
-            {systems.map((system) => (
-              <option key={system.id} value={system.id}>
-                {system.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          <div>
-            <label className="mb-1 block text-sm font-medium">Install date</label>
-            <input
-              name="install_date"
-              type="date"
-              className="w-full rounded-md border px-3 py-2 text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Service interval (days)
-            </label>
-            <input
-              name="service_interval_days"
-              type="number"
-              min="0"
-              step="1"
-              className="w-full rounded-md border px-3 py-2 text-sm"
-              placeholder="365"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Service interval (engine hours)
-            </label>
-            <input
-              name="service_interval_engine_hours"
-              type="number"
-              min="0"
-              step="0.1"
-              className="w-full rounded-md border px-3 py-2 text-sm"
-              placeholder="200"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">Notes</label>
-          <textarea
-            name="notes"
-            rows={4}
-            className="w-full rounded-md border px-3 py-2 text-sm"
-            placeholder="Optional notes"
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Service interval (hours)
+          </label>
+          <input
+            name="service_interval_engine_hours"
+            type="number"
+            min="0"
+            step="0.1"
+            className={inputCls}
+            placeholder="200"
           />
         </div>
+      </div>
 
-        {state.error ? (
-          <p className="text-sm text-red-600">{state.error}</p>
-        ) : null}
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">Notes</label>
+        <textarea
+          name="notes"
+          rows={4}
+          className={inputCls}
+          placeholder="Optional notes"
+        />
+      </div>
 
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-md border px-4 py-2 text-sm disabled:opacity-50"
-        >
-          {pending ? "Saving..." : "Create component"}
-        </button>
-      </form>
-    </section>
+      {state.error ? (
+        <p className="text-sm text-red-600">{state.error}</p>
+      ) : null}
+
+      <button
+        type="submit"
+        disabled={pending}
+        className="w-full rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ocean-700 disabled:opacity-60"
+      >
+        {pending ? "Saving..." : "Create component"}
+      </button>
+    </form>
   );
 }

@@ -53,7 +53,7 @@ export async function updateInventoryItem(
   if (error) return { error: error.message };
 
   revalidatePath("/inventory");
-  redirect(`/inventory?boat=${boat_id}`);
+  redirect("/inventory");
 }
 
 export async function deleteInventoryItem(
@@ -76,5 +76,5 @@ export async function deleteInventoryItem(
   if (error) return { error: error.message };
 
   revalidatePath("/inventory");
-  redirect(`/inventory?boat=${boat_id}`);
+  redirect("/inventory");
 }

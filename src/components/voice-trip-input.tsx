@@ -83,7 +83,7 @@ export default function VoiceTripInput({
           <button
             type="button"
             onClick={startRecording}
-            className="rounded-md border px-3 py-2 text-sm"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
           >
             🎤 Record
           </button>
@@ -91,7 +91,7 @@ export default function VoiceTripInput({
           <button
             type="button"
             onClick={stopRecording}
-            className="rounded-md border bg-red-600 px-3 py-2 text-sm text-white"
+            className="rounded-xl border border-red-200 bg-red-600 px-3 py-2 text-sm text-white transition hover:bg-red-700"
           >
             Stop
           </button>
