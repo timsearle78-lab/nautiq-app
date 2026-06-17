@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Anchor } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
@@ -14,10 +15,8 @@ function normalizeStatus(s: string | null) {
 }
 
 function scorePillCls(score: number, overdueCount: number) {
-  if (overdueCount > 0 || score < 50)
-    return "bg-red-50 text-red-600 border-red-200";
-  if (score < 75)
-    return "bg-amber-50 text-amber-600 border-amber-200";
+  if (overdueCount > 0 || score < 50) return "bg-red-50 text-red-600 border-red-200";
+  if (score < 75) return "bg-amber-50 text-amber-600 border-amber-200";
   return "bg-green-50 text-green-600 border-green-200";
 }
 
@@ -28,11 +27,11 @@ export default async function AppHeader() {
 
   const { data } = await supabase
     .from("boats")
-    .select("id, name")
+    .select("id, name, image_url")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
-  const boats = (data ?? []) as { id: string; name: string }[];
+  const boats = (data ?? []) as { id: string; name: string; image_url: string | null }[];
   if (boats.length === 0) return null;
 
   const selectedId = await getSelectedBoatId();
@@ -77,6 +76,23 @@ export default async function AppHeader() {
             <span>{healthScore}</span>
           </div>
         )}
+
+        {/* Boat avatar thumbnail */}
+        <div className="h-7 w-7 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex-shrink-0 flex items-center justify-center">
+          {activeBoat.image_url ? (
+            <Image
+              src={activeBoat.image_url}
+              alt={activeBoat.name}
+              width={28}
+              height={28}
+              className="object-cover h-full w-full"
+              unoptimized
+            />
+          ) : (
+            <span className="text-sm leading-none select-none">⛵</span>
+          )}
+        </div>
+
         <BoatSelector boats={boats} selectedBoatId={activeBoat.id} />
       </div>
     </header>

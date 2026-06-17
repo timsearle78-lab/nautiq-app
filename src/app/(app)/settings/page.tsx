@@ -4,10 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 import { EditBoatForm } from "@/components/settings/edit-boat-form";
 import { AddBoatForm } from "@/components/settings/add-boat-form";
 import { SystemsManager } from "@/components/settings/systems-manager";
+import { BoatImageUpload } from "@/components/settings/boat-image-upload";
 
 export const dynamic = "force-dynamic";
 
-type BoatRow = { id: string; name: string; type: string | null };
+type BoatRow = { id: string; name: string; type: string | null; image_url: string | null };
 type SystemRow = { id: string; name: string; boat_id: string };
 
 export default async function SettingsPage() {
@@ -19,7 +20,7 @@ export default async function SettingsPage() {
 
   const { data: boatsData } = await supabase
     .from("boats")
-    .select("id,name,type")
+    .select("id,name,type,image_url")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
@@ -59,7 +60,8 @@ export default async function SettingsPage() {
             <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
               <span className="text-sm font-semibold text-slate-700">{boat.name}</span>
             </div>
-            <div className="px-4 py-4">
+            <div className="px-4 py-4 space-y-4">
+              <BoatImageUpload boatId={boat.id} imageUrl={boat.image_url} />
               <EditBoatForm boatId={boat.id} name={boat.name} type={boat.type} />
             </div>
           </div>
