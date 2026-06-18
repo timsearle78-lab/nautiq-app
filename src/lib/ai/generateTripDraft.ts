@@ -60,6 +60,7 @@ export async function generateTripDraftFromAI(
       "IMPORTANT: If the user mentions a departure or start time, set started_at to a full ISO datetime using today's date. " +
       "IMPORTANT: If the user mentions an arrival, return, or end time, set ended_at to a full ISO datetime using today's date. " +
       "Always use today's date when no explicit date is given. " +
+      "Use 24-hour time in ISO strings: 1pm = 13:00, 2pm = 14:00, 3pm = 15:00, 12pm = 12:00, 12am = 00:00. " +
       "Do not fabricate timestamps, hour readings, or fuel values. " +
       "Summarise the trip cleanly in notes while preserving the factual meaning of the input.",
     prompt: rawInput,
