@@ -56,9 +56,10 @@ export async function generateTripDraftFromAI(
       "Only return engine_hours_start or engine_hours_end if an actual meter reading is clearly present. " +
       "Only return engine_hours_delta if motoring duration is explicit or strongly implied. " +
       "If start and end readings are both present, return both plus the delta. " +
-      "If the user provides times but no date, assume today's date in the user's local timezone. " +
       `Today's date is ${currentDate}. The user's timezone is ${timezone}. ` +
-      "Return ISO datetime strings when a time can be inferred confidently. " +
+      "IMPORTANT: If the user mentions a departure or start time, set started_at to a full ISO datetime using today's date. " +
+      "IMPORTANT: If the user mentions an arrival, return, or end time, set ended_at to a full ISO datetime using today's date. " +
+      "Always use today's date when no explicit date is given. " +
       "Do not fabricate timestamps, hour readings, or fuel values. " +
       "Summarise the trip cleanly in notes while preserving the factual meaning of the input.",
     prompt: rawInput,
