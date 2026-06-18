@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Mic, Send, Camera, Wrench, Plus, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, PackagePlus, PackageMinus, ScanLine } from "lucide-react";
@@ -122,6 +123,9 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inventoryScanRef = useRef<HTMLInputElement>(null);
   const [scanningInventory, setScanningInventory] = useState(false);
+
+  const router = useRouter();
+  const onTripSaved = useCallback(() => router.refresh(), [router]);
 
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
