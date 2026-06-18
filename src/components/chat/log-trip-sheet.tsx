@@ -36,6 +36,8 @@ export default function LogTripSheet({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const [saved, setSaved] = useState(false);
+
   async function handleSave() {
     const hours = parseFloat(engineHours);
     if (!hours || hours <= 0) {
@@ -63,7 +65,8 @@ export default function LogTripSheet({
       });
 
       if (res.ok) {
-        onSaved();
+        setSaved(true);
+        setTimeout(() => onSaved(), 1500);
       } else {
         const data = await res.json().catch(() => ({}));
         setError(data.error ?? `Server error ${res.status}. Try again.`);
@@ -73,6 +76,24 @@ export default function LogTripSheet({
     } finally {
       setSaving(false);
     }
+  }
+
+  if (saved) {
+    return (
+      <>
+        <div className="fixed inset-0 z-40 bg-black/30" />
+        <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl animate-in slide-in-from-bottom duration-200">
+          <div className="flex flex-col items-center justify-center gap-3 px-4 py-12">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">
+              <svg className="h-7 w-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p className="text-base font-semibold text-slate-900">Trip saved!</p>
+          </div>
+        </div>
+      </>
+    );
   }
 
   return (
