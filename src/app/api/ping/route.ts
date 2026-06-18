@@ -1,5 +1,6 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function GET() {
-  return new Response(JSON.stringify({ ok: true, groqKey: !!process.env.GROQ_API_KEY }), {
-    headers: { "Content-Type": "application/json" },
-  });
+  return Response.json({ ok: true, groqKey: !!process.env.GROQ_API_KEY, ts: Date.now() });
 }
