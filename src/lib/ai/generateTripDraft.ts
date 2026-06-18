@@ -25,7 +25,7 @@ export type TripDraft = z.infer<typeof aiOutputSchema> & {
 // Models often return 1pm as T01: instead of T13: — fix it using PM hints from the raw input
 function fixPmTimes(draft: TripDraft, rawInput: string): TripDraft {
   const pmHours = new Set<number>();
-  const pmRe = /\b(\d{1,2})\s*(?:p\.m\.?|pm)\b/gi;
+  const pmRe = /\b(\d{1,2})\s*(?:p\.m\.|p\.m|pm)(?!\w)/gi;
   let m;
   while ((m = pmRe.exec(rawInput)) !== null) {
     const h = parseInt(m[1]);
