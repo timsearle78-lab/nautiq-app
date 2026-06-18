@@ -29,6 +29,7 @@ function buildIso(date: string, time: string) {
 export default function TripDraftCard({ draft, boatId, onSaved, onDismiss }: TripDraftCardProps) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
 
   const today = new Date().toISOString().slice(0, 10);
   const [date, setDate] = useState(toDateValue(draft.started_at) || today);
@@ -63,6 +64,8 @@ export default function TripDraftCard({ draft, boatId, onSaved, onDismiss }: Tri
       setSaving(false);
     }
   }
+
+  if (dismissed) return null;
 
   if (saved) {
     return (
@@ -179,7 +182,7 @@ export default function TripDraftCard({ draft, boatId, onSaved, onDismiss }: Tri
           {saving ? "Saving…" : "Save Trip"}
         </button>
         <button
-          onClick={onDismiss}
+          onClick={() => { setDismissed(true); onDismiss?.(); }}
           className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
         >
           Dismiss
