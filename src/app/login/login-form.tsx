@@ -31,7 +31,7 @@ export default function LoginForm() {
   const isError = status && status !== "Signed in successfully.";
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-10">
       <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm grid md:grid-cols-2">
         <div className="hidden md:flex flex-col justify-between bg-ocean-900 p-10 text-white">
           <div>
@@ -129,6 +129,14 @@ export default function LoginForm() {
           </div>
         </div>
       </div>
+      {process.env.NEXT_PUBLIC_BUILD_TIME && (
+        <p className="mt-4 text-xs text-slate-400">
+          v{new Date(process.env.NEXT_PUBLIC_BUILD_TIME).toLocaleString(undefined, {
+            year: "numeric", month: "short", day: "numeric",
+            hour: "2-digit", minute: "2-digit",
+          })}
+        </p>
+      )}
     </div>
   );
 }
