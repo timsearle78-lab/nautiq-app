@@ -38,6 +38,7 @@ export default function LogTripSheet({
       const res = await fetch("/api/trips/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(15000),
         body: JSON.stringify({
           boatId,
           engine_hours_delta: hours,
@@ -50,8 +51,11 @@ export default function LogTripSheet({
       if (res.ok) {
         onSaved();
       } else {
-        setError("Failed to save trip. Try again.");
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? `Server error ${res.status}. Try again.`);
       }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Network error. Try again.");
     } finally {
       setSaving(false);
     }
