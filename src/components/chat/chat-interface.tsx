@@ -488,7 +488,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           onSaved={() => {
             setShowTripSheet(false);
             setTripSheetEngineHours(null);
-            sendMessage({ text: "I just logged a trip." });
+            onTripSaved();
           }}
         />
       )}

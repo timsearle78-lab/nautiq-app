@@ -22,6 +22,31 @@ export type TripDraft = z.infer<typeof aiOutputSchema> & {
   source: "ai_quick_log";
 };
 
+// Models often return 1pm as T01: instead of T13: — fix it using PM hints from the raw input
+function fixPmTimes(draft: TripDraft, rawInput: string): TripDraft {
+  const pmHours = new Set<number>();
+  const pmRe = /\b(\d{1,2})\s*(?:p\.m\.?|pm)\b/gi;
+  let m;
+  while ((m = pmRe.exec(rawInput)) !== null) {
+    const h = parseInt(m[1]);
+    if (h >= 1 && h <= 11) pmHours.add(h);
+  }
+  if (pmHours.size === 0) return draft;
+
+  function fixIso(iso: string | null): string | null {
+    if (!iso) return iso;
+    const hourMatch = iso.match(/T(\d{2}):/);
+    if (!hourMatch) return iso;
+    const hour = parseInt(hourMatch[1]);
+    if (pmHours.has(hour)) {
+      return iso.replace(`T${hourMatch[1]}:`, `T${String(hour + 12).padStart(2, "0")}:`);
+    }
+    return iso;
+  }
+
+  return { ...draft, started_at: fixIso(draft.started_at), ended_at: fixIso(draft.ended_at) };
+}
+
 function normaliseTripDraft(draft: TripDraft): TripDraft {
   let engineHoursDelta = draft.engine_hours_delta;
   if (
@@ -66,5 +91,6 @@ export async function generateTripDraftFromAI(
     prompt: rawInput,
   });
 
-  return normaliseTripDraft({ ...object, raw_input: rawInput, source: "ai_quick_log" });
+  const base: TripDraft = { ...object, raw_input: rawInput, source: "ai_quick_log" };
+  return normaliseTripDraft(fixPmTimes(base, rawInput));
 }
