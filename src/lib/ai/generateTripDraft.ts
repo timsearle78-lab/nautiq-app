@@ -47,7 +47,7 @@ export async function generateTripDraftFromAI(
     providerOptions: { groq: { structuredOutputs: false } },
     schema: tripDraftSchema,
     system:
-      "You extract structured boat trip logs from user notes. " +
+      "You extract structured boat trip logs from user notes and respond with valid JSON. " +
       "Be conservative. Never invent values. " +
       "If a value is unclear, return null. " +
       "Fuel added means fuel topped up, not fuel consumed. " +
