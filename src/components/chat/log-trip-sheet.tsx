@@ -39,6 +39,10 @@ export default function LogTripSheet({
   const [saved, setSaved] = useState(false);
 
   async function handleSave() {
+    if (!date) {
+      setError("Enter a date for this trip");
+      return;
+    }
     const hours = parseFloat(engineHours);
     if (!hours || hours <= 0) {
       setError("Enter engine hours for this trip");
@@ -119,7 +123,7 @@ export default function LogTripSheet({
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Date</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Date <span className="text-red-500">*</span></label>
             <input
               type="date"
               value={date}
