@@ -1,4 +1,4 @@
-import { streamText, zodSchema, convertToModelMessages } from "ai";
+import { streamText, zodSchema, convertToModelMessages, stepCountIs } from "ai";
 import { createGroq } from "@ai-sdk/groq";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -55,6 +55,7 @@ export async function POST(req: Request) {
 
     const result = streamText({
       model: createGroq({ apiKey: process.env.GROQ_API_KEY })("llama-3.3-70b-versatile"),
+      stopWhen: stepCountIs(2),
       system: `You are NautIQ, a practical boat assistant for "${boat.name}".
 Engine hours: ${engineHours ?? 0}h.
 
@@ -198,11 +199,17 @@ After calling draftTripLog or any draft tool, tell the owner the draft is ready 
             })
           ),
           execute: async ({ description }: { description: string }) => {
-            const draft = await generateTripDraftFromAI(description, {
-              currentDate: new Date().toISOString().slice(0, 10),
-              timezone: "UTC",
-            });
-            return { draft, boatId };
+            try {
+              const draft = await generateTripDraftFromAI(description, {
+                currentDate: new Date().toISOString().slice(0, 10),
+                timezone: "UTC",
+              });
+              return { draft, boatId };
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : String(err);
+              await logChatError(supabase, { userId, boatId, message: `draftTripLog: ${msg}` });
+              return { error: msg, boatId };
+            }
           },
         },
 
