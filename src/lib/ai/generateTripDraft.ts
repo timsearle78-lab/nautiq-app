@@ -4,21 +4,23 @@ import { z } from "zod";
 
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
-const tripDraftSchema = z.object({
-  started_at: z.string().nullable(),
-  ended_at: z.string().nullable(),
-  engine_hours_delta: z.number().nullable(),
-  engine_hours_start: z.number().nullable(),
-  engine_hours_end: z.number().nullable(),
-  fuel_added_litres: z.number().nullable(),
-  notes: z.string(),
-  raw_input: z.string(),
-  issues_observed: z.array(z.string()),
-  source: z.literal("ai_quick_log"),
-  confidence: z.number().min(0).max(1),
+// Schema for what the model actually generates — no derived/constant fields
+const aiOutputSchema = z.object({
+  started_at: z.string().nullable().default(null),
+  ended_at: z.string().nullable().default(null),
+  engine_hours_delta: z.number().nullable().default(null),
+  engine_hours_start: z.number().nullable().default(null),
+  engine_hours_end: z.number().nullable().default(null),
+  fuel_added_litres: z.number().nullable().default(null),
+  notes: z.string().default(""),
+  issues_observed: z.array(z.string()).default([]),
+  confidence: z.number().min(0).max(1).default(0.5),
 });
 
-export type TripDraft = z.infer<typeof tripDraftSchema>;
+export type TripDraft = z.infer<typeof aiOutputSchema> & {
+  raw_input: string;
+  source: "ai_quick_log";
+};
 
 function normaliseTripDraft(draft: TripDraft): TripDraft {
   let engineHoursDelta = draft.engine_hours_delta;
@@ -45,9 +47,9 @@ export async function generateTripDraftFromAI(
   const { object } = await generateObject({
     model: groq("llama-3.3-70b-versatile"),
     providerOptions: { groq: { structuredOutputs: false } },
-    schema: tripDraftSchema,
+    schema: aiOutputSchema,
     system:
-      "You extract structured boat trip logs from user notes and respond with valid JSON. " +
+      "You extract structured boat trip logs from user notes. Respond with valid json. " +
       "Be conservative. Never invent values. " +
       "If a value is unclear, return null. " +
       "Fuel added means fuel topped up, not fuel consumed. " +
