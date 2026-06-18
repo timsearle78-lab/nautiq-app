@@ -1,11 +1,10 @@
-import { generateObject } from "ai";
+import { generateText } from "ai";
 import { createGroq } from "@ai-sdk/groq";
 import { z } from "zod";
 
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
-// Schema for what the model actually generates — no derived/constant fields
-const aiOutputSchema = z.object({
+const tripDraftSchema = z.object({
   started_at: z.string().nullable().default(null),
   ended_at: z.string().nullable().default(null),
   engine_hours_delta: z.number().nullable().default(null),
@@ -17,35 +16,10 @@ const aiOutputSchema = z.object({
   confidence: z.number().min(0).max(1).default(0.5),
 });
 
-export type TripDraft = z.infer<typeof aiOutputSchema> & {
+export type TripDraft = z.infer<typeof tripDraftSchema> & {
   raw_input: string;
   source: "ai_quick_log";
 };
-
-// Models often return 1pm as T01: instead of T13: — fix it using PM hints from the raw input
-function fixPmTimes(draft: TripDraft, rawInput: string): TripDraft {
-  const pmHours = new Set<number>();
-  const pmRe = /\b(\d{1,2})\s*(?:p\.m\.|p\.m|pm)(?!\w)/gi;
-  let m;
-  while ((m = pmRe.exec(rawInput)) !== null) {
-    const h = parseInt(m[1]);
-    if (h >= 1 && h <= 11) pmHours.add(h);
-  }
-  if (pmHours.size === 0) return draft;
-
-  function fixIso(iso: string | null): string | null {
-    if (!iso) return iso;
-    const hourMatch = iso.match(/T(\d{2}):/);
-    if (!hourMatch) return iso;
-    const hour = parseInt(hourMatch[1]);
-    if (pmHours.has(hour)) {
-      return iso.replace(`T${hourMatch[1]}:`, `T${String(hour + 12).padStart(2, "0")}:`);
-    }
-    return iso;
-  }
-
-  return { ...draft, started_at: fixIso(draft.started_at), ended_at: fixIso(draft.ended_at) };
-}
 
 function normaliseTripDraft(draft: TripDraft): TripDraft {
   let engineHoursDelta = draft.engine_hours_delta;
@@ -69,28 +43,35 @@ export async function generateTripDraftFromAI(
   const currentDate = context?.currentDate ?? new Date().toISOString().slice(0, 10);
   const timezone = context?.timezone ?? "Pacific/Auckland";
 
-  const { object } = await generateObject({
+  const { text } = await generateText({
     model: groq("llama-3.3-70b-versatile"),
-    providerOptions: { groq: { structuredOutputs: false } },
-    schema: aiOutputSchema,
     system:
-      "You extract structured boat trip logs from user notes. Respond with valid json. " +
-      "Be conservative. Never invent values. " +
-      "If a value is unclear, return null. " +
-      "Fuel added means fuel topped up, not fuel consumed. " +
-      "Only return engine_hours_start or engine_hours_end if an actual meter reading is clearly present. " +
-      "Only return engine_hours_delta if motoring duration is explicit or strongly implied. " +
-      "If start and end readings are both present, return both plus the delta. " +
-      `Today's date is ${currentDate}. The user's timezone is ${timezone}. ` +
-      "IMPORTANT: If the user mentions a departure or start time, set started_at to a full ISO datetime using today's date. " +
-      "IMPORTANT: If the user mentions an arrival, return, or end time, set ended_at to a full ISO datetime using today's date. " +
-      "Always use today's date when no explicit date is given. " +
-      "Use 24-hour time in ISO strings: 1pm = 13:00, 2pm = 14:00, 3pm = 15:00, 12pm = 12:00, 12am = 00:00. " +
-      "Do not fabricate timestamps, hour readings, or fuel values. " +
-      "Summarise the trip cleanly in notes while preserving the factual meaning of the input.",
+      `You extract structured boat trip logs from user notes. Today is ${currentDate} (${timezone}).` +
+      "\n\nRules:" +
+      "\n- Convert all times to 24-hour ISO 8601. 1pm = 13:00, 3pm = 15:00, 12pm = 12:00, 12am = 00:00." +
+      "\n- Use today's date for started_at/ended_at when no explicit date is given." +
+      "\n- Only set engine_hours_delta when motoring duration is explicit (e.g. '30 minutes motoring' = 0.5)." +
+      "\n- fuel_added_litres means fuel topped up, not consumed. Null if not mentioned." +
+      "\n- Never invent values. Use null when uncertain." +
+      "\n- Write a concise notes summary." +
+      "\n\nRespond with ONLY a JSON object — no explanation, no markdown fences:" +
+      "\n{" +
+      "\n  \"started_at\": \"<ISO datetime or null>\"," +
+      "\n  \"ended_at\": \"<ISO datetime or null>\"," +
+      "\n  \"engine_hours_delta\": <number or null>," +
+      "\n  \"engine_hours_start\": <number or null>," +
+      "\n  \"engine_hours_end\": <number or null>," +
+      "\n  \"fuel_added_litres\": <number or null>," +
+      "\n  \"notes\": \"<summary>\"," +
+      "\n  \"issues_observed\": [\"<issue>\"]," +
+      "\n  \"confidence\": <0-1>" +
+      "\n}",
     prompt: rawInput,
   });
 
-  const base: TripDraft = { ...object, raw_input: rawInput, source: "ai_quick_log" };
-  return normaliseTripDraft(fixPmTimes(base, rawInput));
+  // Strip markdown fences if model wraps in ```json...```
+  const json = text.trim().replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim();
+  const parsed = tripDraftSchema.parse(JSON.parse(json));
+
+  return normaliseTripDraft({ ...parsed, raw_input: rawInput, source: "ai_quick_log" });
 }
