@@ -118,8 +118,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const [tripSheetEngineHours, setTripSheetEngineHours] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inventoryScanRef = useRef<HTMLInputElement>(null);
   const [scanningInventory, setScanningInventory] = useState(false);
@@ -158,38 +157,38 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
   }
 
-  async function handleVoice() {
+  function handleVoice() {
     if (isRecording) {
-      mediaRecorderRef.current?.stop();
+      recognitionRef.current?.stop();
       setIsRecording(false);
       return;
     }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      audioChunksRef.current = [];
-      recorder.ondataavailable = (e) => audioChunksRef.current.push(e.data);
-      recorder.onstop = async () => {
-        stream.getTracks().forEach((t) => t.stop());
-        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-        const formData = new FormData();
-        formData.append("audio", blob, "recording.webm");
-        try {
-          const res = await fetch("/api/ai/transcribe", { method: "POST", body: formData });
-          if (res.ok) {
-            const { transcript } = await res.json();
-            if (transcript) sendMessage({ text: transcript });
-          }
-        } catch (err) {
-          console.error("Transcription failed", err);
-        }
-      };
-      recorder.start();
-      mediaRecorderRef.current = recorder;
-      setIsRecording(true);
-    } catch (err) {
-      console.error("Mic access denied", err);
+
+    const SpeechRecognition = window.SpeechRecognition ?? window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice input isn't supported in this browser. Try Chrome or Safari.");
+      return;
     }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = navigator.language || "en-NZ";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (e) => {
+      const transcript = e.results[0]?.[0]?.transcript?.trim();
+      if (transcript) sendMessage({ text: transcript });
+    };
+    recognition.onerror = (e) => {
+      console.error("Speech recognition error", e.error);
+    };
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognition.start();
+    recognitionRef.current = recognition;
+    setIsRecording(true);
   }
 
   async function handlePhotoCapture(e: React.ChangeEvent<HTMLInputElement>) {
