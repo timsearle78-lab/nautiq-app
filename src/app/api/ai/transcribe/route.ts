@@ -1,9 +1,21 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import OpenAI from "openai";
 
-// Voice transcription requires an audio-capable API not currently configured.
-export async function POST() {
-  return NextResponse.json(
-    { error: "Voice input is not available at this time." },
-    { status: 501 }
-  );
+export async function POST(req: NextRequest) {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  try {
+    const formData = await req.formData();
+    const audioFile = formData.get("audio");
+    if (!audioFile || !(audioFile instanceof File)) {
+      return NextResponse.json({ error: "Audio file missing" }, { status: 400 });
+    }
+    const transcription = await openai.audio.transcriptions.create({
+      file: audioFile,
+      model: "whisper-1",
+    });
+    return NextResponse.json({ transcript: transcription.text });
+  } catch (error) {
+    console.error("Transcription error", error);
+    return NextResponse.json({ error: "Failed to transcribe audio" }, { status: 500 });
+  }
 }
