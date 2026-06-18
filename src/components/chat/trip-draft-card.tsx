@@ -76,9 +76,15 @@ export default function TripDraftCard({ draft, boatId, onSaved, onDismiss }: Tri
 
   return (
     <div className="mt-2 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div className="flex items-center gap-2 border-b border-slate-100 bg-slate-50 px-4 py-2.5">
-        <span className="text-base">⚓</span>
-        <span className="text-sm font-semibold text-slate-800">Trip Draft</span>
+      <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5">
+        <div className="flex items-center gap-2">
+          <span className="text-base">⚓</span>
+          <span className="text-sm font-semibold text-slate-800">Trip Draft</span>
+        </div>
+        <span className="text-xs font-medium text-ocean-600 bg-ocean-50 border border-ocean-200 rounded-full px-2 py-0.5">AI extracted</span>
+      </div>
+      <div className="px-4 pt-3 pb-0">
+        <p className="text-xs text-slate-500">Review the details below and edit anything before saving.</p>
       </div>
 
       <div className="p-4 space-y-3">
