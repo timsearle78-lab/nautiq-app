@@ -55,7 +55,7 @@ export async function POST(req: Request) {
 
     const result = streamText({
       model: createGroq({ apiKey: process.env.GROQ_API_KEY })("llama-3.3-70b-versatile"),
-      stopWhen: stepCountIs(2),
+      stopWhen: stepCountIs(1),
       system: `You are NautIQ, a practical boat assistant for "${boat.name}".
 Engine hours: ${engineHours ?? 0}h.
 
