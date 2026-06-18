@@ -304,7 +304,8 @@ After calling draftTripLog or any draft tool, tell the owner the draft is ready 
 
             return ((data ?? []) as TripRow[]).map((t) => ({
               id: t.id,
-              date: t.started_at ? t.started_at.slice(0, 10) : null,
+              startedAt: t.started_at,
+              endedAt: t.ended_at,
               engineHours: t.engine_hours_delta,
               fuelLitres: t.fuel_added_litres,
               notes: t.notes,
