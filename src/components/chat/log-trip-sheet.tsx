@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Mic, Camera } from "lucide-react";
+import { X } from "lucide-react";
 
 interface LogTripSheetProps {
   boatId: string;
@@ -10,17 +10,29 @@ interface LogTripSheetProps {
   onSaved: () => void;
 }
 
+function todayLocal() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function buildIso(date: string, time: string) {
+  if (!date || !time) return null;
+  return new Date(`${date}T${time}:00`).toISOString();
+}
+
 export default function LogTripSheet({
   boatId,
   prefillEngineHours,
   onClose,
   onSaved,
 }: LogTripSheetProps) {
+  const [date, setDate] = useState(todayLocal());
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [engineHours, setEngineHours] = useState(
     prefillEngineHours?.toString() ?? ""
   );
-  const [notes, setNotes] = useState("");
   const [fuelLitres, setFuelLitres] = useState("");
+  const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -41,6 +53,8 @@ export default function LogTripSheet({
         signal: AbortSignal.timeout(15000),
         body: JSON.stringify({
           boatId,
+          started_at: buildIso(date, startTime),
+          ended_at: buildIso(date, endTime),
           engine_hours_delta: hours,
           fuel_added_litres: fuelLitres ? parseFloat(fuelLitres) : null,
           notes: notes || null,
@@ -63,14 +77,9 @@ export default function LogTripSheet({
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40 bg-black/30"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 z-40 bg-black/30" onClick={onClose} />
 
-      {/* Sheet */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl animate-in slide-in-from-bottom duration-200">
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl animate-in slide-in-from-bottom duration-200 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
           <h2 className="text-base font-semibold text-slate-900">Log Trip</h2>
           <button
@@ -89,6 +98,37 @@ export default function LogTripSheet({
           )}
 
           <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Date</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Departure</label>
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Return</label>
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Engine hours <span className="text-red-500">*</span>
             </label>
@@ -100,7 +140,6 @@ export default function LogTripSheet({
               onChange={(e) => setEngineHours(e.target.value)}
               placeholder="e.g. 2.5"
               className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
-              autoFocus
             />
           </div>
 
