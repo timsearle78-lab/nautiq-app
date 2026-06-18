@@ -167,27 +167,22 @@ export function TripHistoryCard({ trips }: { trips: TripItem[] }) {
           const start = fmtTime(trip.startedAt);
           const end = fmtTime(trip.endedAt);
           return (
-            <li key={trip.id} className="px-4 py-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-sm font-medium text-slate-800">
-                    {date ?? "Unknown date"}
-                    {(start || end) && (
-                      <span className="ml-2 text-slate-500 font-normal">
-                        {start ?? "?"}
-                        {end ? ` – ${end}` : ""}
-                      </span>
-                    )}
-                  </div>
-                  {trip.notes && (
-                    <div className="text-xs text-slate-500 mt-0.5 truncate max-w-xs">{trip.notes}</div>
-                  )}
-                </div>
-                <div className="flex-shrink-0 text-right text-xs text-slate-500 space-y-0.5">
-                  {trip.engineHours != null && <div>{trip.engineHours}h engine</div>}
-                  {trip.fuelLitres != null && <div>{trip.fuelLitres}L fuel</div>}
-                </div>
+            <li key={trip.id} className="px-4 py-3 space-y-1">
+              <div className="text-sm font-semibold text-slate-800">{date ?? "Unknown date"}</div>
+              <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-slate-500">
+                {(start || end) && (
+                  <span>Departed {start ?? "—"}{end ? ` · Returned ${end}` : ""}</span>
+                )}
+                {trip.engineHours != null && (
+                  <span>{trip.engineHours}h engine</span>
+                )}
+                {trip.fuelLitres != null && (
+                  <span>{trip.fuelLitres}L fuel</span>
+                )}
               </div>
+              {trip.notes && (
+                <div className="text-xs text-slate-400 truncate">{trip.notes}</div>
+              )}
             </li>
           );
         })}
