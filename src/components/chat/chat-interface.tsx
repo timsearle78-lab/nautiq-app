@@ -387,7 +387,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             </div>
             <div className="px-4 py-3 space-y-3">
               {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} boatId={boat.id} />
+                <MessageBubble key={message.id} message={message} boatId={boat.id} onTripSaved={onTripSaved} />
               ))}
               {isLoading && (
                 <div className="flex gap-1 px-4 py-3">
