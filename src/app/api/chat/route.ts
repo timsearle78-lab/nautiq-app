@@ -75,9 +75,7 @@ TOOL SELECTION RULES — follow these exactly:
 
 7. BOAT HEALTH: General health questions → call getBoatSummary.
 
-The UI renders tool results as formatted cards automatically — do NOT repeat data as text after calling any tool. Just call the tool and add one short sentence if needed.
-
-After calling draftTripLog or any draft tool, tell the owner the draft is ready to review.`,
+The UI renders tool results as formatted cards automatically — do NOT add any text after calling any tool. The card is the response.`,
       messages: modelMessages,
       onError: async (event) => {
         const err = event.error as Error | undefined;

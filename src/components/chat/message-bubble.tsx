@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { UIMessage } from "ai";
 import TripDraftCard from "./trip-draft-card";
 import InventoryAdjustCard from "./inventory-adjust-card";
@@ -13,6 +14,7 @@ interface MessageBubbleProps {
 
 export default function MessageBubble({ message, boatId, onTripSaved }: MessageBubbleProps) {
   const isUser = message.role === "user";
+  const [tripDone, setTripDone] = useState(false);
 
   if (isUser) {
     const text = message.parts
@@ -29,6 +31,9 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
     );
   }
 
+  // If this message contains a trip draft, suppress all text parts once done
+  const hasTripDraft = message.parts.some((p) => (p as { type: string }).type === "tool-draftTripLog");
+
   // Assistant message — render parts
   return (
     <div className="flex flex-col gap-1 max-w-[92%]">
@@ -36,6 +41,8 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
         if (part.type === "text") {
           const text = (part as { type: "text"; text: string }).text;
           if (!text.trim()) return null;
+          if (hasTripDraft && tripDone) return null;
+          if (hasTripDraft) return null; // text is redundant alongside the card
           return (
             <div
               key={i}
@@ -74,7 +81,8 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
                 key={i}
                 draft={output.draft as Parameters<typeof TripDraftCard>[0]["draft"]}
                 boatId={boatId}
-                onSaved={onTripSaved}
+                onSaved={() => { setTripDone(true); onTripSaved?.(); }}
+                onDismiss={() => setTripDone(true)}
               />
             );
           }
