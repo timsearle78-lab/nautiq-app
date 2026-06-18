@@ -1,21 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  try {
-    const formData = await req.formData();
-    const audioFile = formData.get("audio");
-    if (!audioFile || !(audioFile instanceof File)) {
-      return NextResponse.json({ error: "Audio file missing" }, { status: 400 });
-    }
-    const transcription = await openai.audio.transcriptions.create({
-      file: audioFile,
-      model: "whisper-1",
-    });
-    return NextResponse.json({ transcript: transcription.text });
-  } catch (error) {
-    console.error("Transcription error", error);
-    return NextResponse.json({ error: "Failed to transcribe audio" }, { status: 500 });
-  }
+// Voice input uses the browser Web Speech API — this route is not called.
+export async function POST() {
+  return NextResponse.json(
+    { error: "Voice transcription endpoint not in use." },
+    { status: 501 }
+  );
 }
