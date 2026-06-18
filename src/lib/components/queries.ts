@@ -7,6 +7,8 @@ export type ComponentDetail = {
   system_id: string | null;
   name: string;
   notes: string | null;
+  service_interval_years: number | null;
+  service_interval_months: number | null;
   service_interval_days: number | null;
   service_interval_engine_hours: number | null;
   install_date: string | null;
@@ -30,6 +32,8 @@ type ComponentDetailRow = {
   system_id: string | null;
   name: string;
   notes: string | null;
+  service_interval_years: number | null;
+  service_interval_months: number | null;
   service_interval_days: number | null;
   service_interval_engine_hours: number | null;
   install_date: string | null;
@@ -77,6 +81,8 @@ export async function getComponentDetail(
       system_id,
       name,
       notes,
+      service_interval_years,
+      service_interval_months,
       service_interval_days,
       service_interval_engine_hours,
       install_date,
@@ -108,6 +114,8 @@ export async function getComponentDetail(
     system_id: row.system_id,
     name: row.name,
     notes: row.notes,
+    service_interval_years: row.service_interval_years,
+    service_interval_months: row.service_interval_months,
     service_interval_days: row.service_interval_days,
     service_interval_engine_hours: row.service_interval_engine_hours,
     install_date: row.install_date,
@@ -169,6 +177,19 @@ export async function getLinkedInventory(componentId: string): Promise<LinkedInv
     throw new Error(`Failed to load linked inventory: ${error.message}`);
   }
 
+  return (data ?? []) as LinkedInventoryRow[];
+}
+
+export async function getBoatInventory(boatId: string): Promise<LinkedInventoryRow[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("inventory_items")
+    .select("id, name, category, quantity, minimum_quantity, unit, storage_location, is_critical")
+    .eq("boat_id", boatId)
+    .order("name", { ascending: true });
+
+  if (error) throw new Error(`Failed to load inventory: ${error.message}`);
   return (data ?? []) as LinkedInventoryRow[];
 }
 

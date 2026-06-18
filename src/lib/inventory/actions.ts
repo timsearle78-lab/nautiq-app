@@ -83,11 +83,6 @@ export async function createInventoryItem(
 
     revalidatePath(`/inventory?boat=${boat_id}`);
     revalidatePath("/inventory");
-    revalidatePath(`/dashboard?boat=${boat_id}`);
-    revalidatePath("/dashboard");
-    revalidatePath(`/activity?boat=${boat_id}`);
-    revalidatePath("/activity");
-
     return { success: "Inventory item created." };
   } catch (error) {
     return {
@@ -131,11 +126,6 @@ export async function adjustInventoryStock(
 
     revalidatePath(`/inventory?boat=${boat_id}`);
     revalidatePath("/inventory");
-    revalidatePath(`/dashboard?boat=${boat_id}`);
-    revalidatePath("/dashboard");
-    revalidatePath(`/activity?boat=${boat_id}`);
-    revalidatePath("/activity");
-
     return { success: "Stock updated." };
   } catch (error) {
     return {

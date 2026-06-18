@@ -4,17 +4,12 @@ import Link from "next/link";
 
 function getStatus(item: InventoryItemRow) {
   if (item.is_critical && Number(item.quantity) <= 0) {
-    return { label: "Missing critical", className: "text-red-700" };
+    return { label: "Missing", badgeCls: "bg-red-50 text-red-600 border-red-200" };
   }
-
-  if (
-    item.minimum_quantity != null &&
-    Number(item.quantity) < Number(item.minimum_quantity)
-  ) {
-    return { label: "Low stock", className: "text-amber-700" };
+  if (item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity)) {
+    return { label: "Low", badgeCls: "bg-amber-50 text-amber-600 border-amber-200" };
   }
-
-  return { label: "OK", className: "text-green-700" };
+  return { label: "OK", badgeCls: "bg-green-50 text-green-600 border-green-200" };
 }
 
 export function InventoryTable({
@@ -25,68 +20,118 @@ export function InventoryTable({
   items: InventoryItemRow[];
 }) {
   return (
-    <section className="rounded-xl border p-4">
-      <h2 className="text-lg font-semibold">Inventory list</h2>
+    <section className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div className="px-4 py-3 border-b border-slate-100">
+        <h2 className="text-base font-semibold text-slate-800">
+          Inventory <span className="ml-1.5 text-sm font-normal text-slate-400">({items.length})</span>
+        </h2>
+      </div>
 
       {items.length === 0 ? (
-        <p className="mt-4 text-sm text-neutral-600">No inventory items found.</p>
+        <p className="px-4 py-6 text-sm text-slate-500">No inventory items found.</p>
       ) : (
-        <div className="mt-4 overflow-x-auto">
-          <table className="min-w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b text-left">
-                <th className="py-2 pr-4">Item</th>
-                <th className="py-2 pr-4">Component</th>
-                <th className="py-2 pr-4">Qty</th>
-                <th className="py-2 pr-4">Min</th>
-                <th className="py-2 pr-4">Location</th>
-                <th className="py-2 pr-4">Status</th>
-                <th className="py-2 pr-4">Adjust</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => {
-                const status = getStatus(item);
-
-                return (
-                  <tr key={item.id} className="border-b align-top">
-                    <td className="py-3 pr-4">
-                      <div className="font-medium">{item.name}</div>
-                      <div className="text-xs text-neutral-500">
+        <>
+          {/* Mobile: card list */}
+          <div className="divide-y divide-slate-100 lg:hidden">
+            {items.map((item) => {
+              const status = getStatus(item);
+              return (
+                <div key={item.id} className="px-4 py-4">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/inventory/${item.id}`}
+                        className="font-medium text-sm text-slate-800 hover:text-ocean-600 truncate block"
+                      >
+                        {item.name}
+                      </Link>
+                      <div className="text-xs text-slate-400 mt-0.5">
                         {item.category ?? "Uncategorised"}
                         {item.is_critical ? " · Critical" : ""}
+                        {item.storage_location ? ` · ${item.storage_location}` : ""}
                       </div>
-                    </td>
-                    <td className="py-3 pr-4">
+                      {item.component && (
+                        <Link href={`/components/${item.component.id}`} className="text-xs text-ocean-600 hover:text-ocean-700 font-medium mt-0.5 inline-block">
+                          {item.component.name}
+                        </Link>
+                      )}
+                    </div>
+                    <div className="flex-shrink-0 flex flex-col items-end gap-1">
+                      <span className="text-sm font-semibold text-slate-800">
+                        {item.quantity}{item.unit ? ` ${item.unit}` : ""}
+                      </span>
+                      <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${status.badgeCls}`}>
+                        {status.label}
+                      </span>
+                    </div>
+                  </div>
+                  <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop: table — 5 columns, no horizontal scroll */}
+          <div className="hidden lg:block">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 text-left">
+                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Item</th>
+                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Component</th>
+                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Qty · Min</th>
+                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Status</th>
+                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Adjust</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item) => {
+                  const status = getStatus(item);
+                  return (
+                    <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 align-middle">
+                      <td className="px-4 py-3">
+                        <Link
+                          href={`/inventory/${item.id}`}
+                          className="font-medium text-slate-800 hover:text-ocean-600"
+                        >
+                          {item.name}
+                        </Link>
+                        <div className="text-xs text-slate-400 mt-0.5">
+                          {item.category ?? "Uncategorised"}
+                          {item.is_critical ? " · Critical" : ""}
+                          {item.storage_location ? ` · ${item.storage_location}` : ""}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
                         {item.component ? (
-                          <Link href={`/components/${item.component.id}`} className="underline">
+                          <Link href={`/components/${item.component.id}`} className="text-ocean-600 hover:text-ocean-700 font-medium">
                             {item.component.name}
                           </Link>
                         ) : (
-                          <span className="text-neutral-400">—</span>
+                          <span className="text-slate-300">—</span>
                         )}
-                    </td>
-                    <td className="py-3 pr-4">
-                      {item.quantity} {item.unit ?? ""}
-                    </td>
-                    <td className="py-3 pr-4">
-                      {item.minimum_quantity ?? <span className="text-neutral-400">—</span>}
-                    </td>
-                    <td className="py-3 pr-4">
-                      {item.storage_location ?? <span className="text-neutral-400">—</span>}
-                    </td>
-                    <td className={`py-3 pr-4 font-medium ${status.className}`}>
-                      {status.label}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+                      <td className="px-4 py-3 text-slate-700">
+                        <span className="font-medium">{item.quantity}</span>
+                        {item.unit ? ` ${item.unit}` : ""}
+                        {item.minimum_quantity != null && (
+                          <span className="text-slate-400"> · {item.minimum_quantity}</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${status.badgeCls}`}>
+                          {status.label}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </section>
   );

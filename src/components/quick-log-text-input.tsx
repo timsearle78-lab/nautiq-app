@@ -34,7 +34,7 @@ export default function QuickLogTextInput({
           onChange={(e) => setValue(e.target.value)}
           rows={6}
           placeholder="Example: Wednesday night race, motored about 1 hour at 3000 rpm, topped up diesel 3 litres, no issues."
-          className="w-full rounded-md border px-3 py-2 text-sm"
+          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
           required
         />
       </div>
@@ -50,7 +50,7 @@ export default function QuickLogTextInput({
           name="engine_hours_end"
           value={engineHours}
           onChange={(e) => setEngineHours(e.target.value)}
-          className="w-full rounded-md border px-3 py-2 text-sm"
+          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
         />
       </div> 
       

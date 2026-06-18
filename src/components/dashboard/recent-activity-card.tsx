@@ -44,7 +44,7 @@ export async function RecentActivityCard({
                   </div>
                 </div>
                 <div className="text-xs text-neutral-500">
-                  {new Date(item.event_at).toLocaleDateString()}
+                  {new Date(item.event_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
                 </div>
               </div>
 
