@@ -20,6 +20,10 @@ async function logChatError(
 }
 
 export async function POST(req: Request) {
+  if (!process.env.GROQ_API_KEY) {
+    return Response.json({ error: "GROQ_API_KEY is not configured on the server." }, { status: 500 });
+  }
+
   const supabase = await createClient();
   let boatId: string | undefined;
   let userId: string | undefined;
