@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import OpenAI from "openai";
-
-const openai = new OpenAI();
+import { generateText } from "ai";
+import { anthropic } from "@ai-sdk/anthropic";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -15,21 +14,23 @@ export async function POST(req: NextRequest) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
   const base64 = buffer.toString("base64");
-  const mimeType = file.type || "image/jpeg";
+  const mediaType = file.type || "image/jpeg";
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [
-      {
-        role: "user",
-        content: [
-          {
-            type: "image_url",
-            image_url: { url: `data:${mimeType};base64,${base64}`, detail: "low" },
-          },
-          {
-            type: "text",
-            text: `You are scanning a boat parts / marine supplies photo. This could be:
+  try {
+    const { text } = await generateText({
+      model: anthropic("claude-haiku-4-5-20251001"),
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              image: base64,
+              mediaType,
+            },
+            {
+              type: "text",
+              text: `You are scanning a boat parts / marine supplies photo. This could be:
 - A product label or packaging
 - A receipt or invoice
 - A physical item
@@ -45,19 +46,17 @@ Extract inventory information and respond with ONLY valid JSON:
 }
 
 If you cannot identify a marine spare part or supply, return: {"error": "not_recognized"}`,
-          },
-        ],
-      },
-    ],
-    max_tokens: 200,
-  });
+            },
+          ],
+        },
+      ],
+      maxOutputTokens: 200,
+    });
 
-  const raw = response.choices[0]?.message?.content?.trim() ?? "";
-
-  try {
+    const raw = text.trim();
     const parsed = JSON.parse(raw.replace(/```json\n?|```/g, "").trim());
     return NextResponse.json(parsed);
   } catch {
-    return NextResponse.json({ error: "parse_failed", raw });
+    return NextResponse.json({ error: "parse_failed" });
   }
 }

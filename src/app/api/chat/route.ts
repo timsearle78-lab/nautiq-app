@@ -1,5 +1,5 @@
 import { streamText, zodSchema, convertToModelMessages } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { generateTripDraftFromAI } from "@/lib/ai/generateTripDraft";
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     const modelMessages = await convertToModelMessages(messages);
 
     const result = streamText({
-      model: openai("gpt-4o"),
+      model: anthropic("claude-sonnet-4-6"),
       system: `You are NautIQ, a practical boat assistant for "${boat.name}".
 Engine hours: ${engineHours ?? 0}h.
 
