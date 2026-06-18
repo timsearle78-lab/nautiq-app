@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
 
     const { object } = await generateObject({
       model: groq("meta-llama/llama-4-scout-17b-16e-instruct"),
+      providerOptions: { groq: { structuredOutputs: false } },
       schema,
       messages: [
         {

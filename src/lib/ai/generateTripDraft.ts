@@ -43,7 +43,8 @@ export async function generateTripDraftFromAI(
   const timezone = context?.timezone ?? "Pacific/Auckland";
 
   const { object } = await generateObject({
-    model: groq("llama-3.1-8b-instant"),
+    model: groq("llama-3.3-70b-versatile"),
+    providerOptions: { groq: { structuredOutputs: false } },
     schema: tripDraftSchema,
     system:
       "You extract structured boat trip logs from user notes. " +
