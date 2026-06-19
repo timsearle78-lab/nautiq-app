@@ -29,7 +29,10 @@ export function LogMaintenanceForm({
   const router = useRouter();
 
   useEffect(() => {
-    if (state.success) router.refresh();
+    if (state.success) {
+      const t = setTimeout(() => router.refresh(), 1500);
+      return () => clearTimeout(t);
+    }
   }, [state.success, router]);
 
   return (

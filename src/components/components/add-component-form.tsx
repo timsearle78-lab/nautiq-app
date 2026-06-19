@@ -30,7 +30,10 @@ export function AddComponentForm({
   );
 
   useEffect(() => {
-    if (state.componentId) onSuccess?.(state.componentId);
+    if (state.componentId) {
+      const t = setTimeout(() => onSuccess?.(state.componentId!), 1200);
+      return () => clearTimeout(t);
+    }
   }, [state.componentId, onSuccess]);
 
   const inputCls =
@@ -108,16 +111,22 @@ export function AddComponentForm({
         />
       </div>
 
-      {state.error ? (
-        <p className="text-sm text-red-600">{state.error}</p>
-      ) : null}
+      {state.error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{state.error}</div>
+      )}
+      {state.componentId && (
+        <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 flex items-center gap-2">
+          <svg className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+          Component created
+        </div>
+      )}
 
       <button
         type="submit"
-        disabled={pending}
-        className="w-full rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ocean-700 disabled:opacity-60"
+        disabled={pending || !!state.componentId}
+        className="w-full rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-ocean-700 disabled:opacity-60"
       >
-        {pending ? "Saving..." : "Create component"}
+        {pending ? "Saving…" : "Create component"}
       </button>
     </form>
   );

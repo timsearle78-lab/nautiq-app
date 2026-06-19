@@ -52,8 +52,9 @@ export async function updateInventoryItem(
 
   if (error) return { error: error.message };
 
+  revalidatePath(`/inventory/${id}`);
   revalidatePath("/inventory");
-  redirect("/inventory");
+  return { success: "Changes saved" };
 }
 
 export async function deleteInventoryItem(

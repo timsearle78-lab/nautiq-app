@@ -24,7 +24,10 @@ export function AddInventoryItemForm({
   const [state, formAction, pending] = useActionState(createInventoryItem, initialState);
 
   useEffect(() => {
-    if (state.success) onSuccess?.();
+    if (state.success) {
+      const t = setTimeout(() => onSuccess?.(), 1200);
+      return () => clearTimeout(t);
+    }
   }, [state.success, onSuccess]);
 
   return (
