@@ -65,7 +65,22 @@ export function AddInventoryItemForm({
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Unit</label>
-            <input name="unit" className={inputCls} placeholder="ea / L" />
+            <select name="unit" className={inputCls}>
+              <option value="">— select —</option>
+              <option value="ea">ea (each)</option>
+              <option value="L">L (litres)</option>
+              <option value="mL">mL (millilitres)</option>
+              <option value="kg">kg (kilograms)</option>
+              <option value="g">g (grams)</option>
+              <option value="m">m (metres)</option>
+              <option value="pair">pair</option>
+              <option value="set">set</option>
+              <option value="roll">roll</option>
+              <option value="box">box</option>
+              <option value="can">can</option>
+              <option value="tube">tube</option>
+              <option value="bottle">bottle</option>
+            </select>
           </div>
         </div>
 
