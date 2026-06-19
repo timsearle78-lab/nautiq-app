@@ -32,7 +32,7 @@ export default function BottomNav({ userEmail, userInitials }: BottomNavProps) {
               <Link
                 key={href}
                 href={href}
-                className={`flex flex-1 flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors ${
+                className={`relative flex flex-1 flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors ${
                   active
                     ? "text-ocean-600"
                     : "text-slate-400 hover:text-slate-600"
@@ -40,6 +40,7 @@ export default function BottomNav({ userEmail, userInitials }: BottomNavProps) {
               >
                 <Icon size={22} strokeWidth={active ? 2.5 : 1.75} />
                 <span>{label}</span>
+                {active && <span className="absolute bottom-1 h-1 w-1 rounded-full bg-ocean-600" />}
               </Link>
             );
           })}

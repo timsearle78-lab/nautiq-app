@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Mic, Send, Camera, Wrench, Plus, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, PackagePlus, PackageMinus, ScanLine } from "lucide-react";
+import { Mic, Send, Camera, Plus, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, PackagePlus, PackageMinus, ScanLine } from "lucide-react";
+import { HealthGauge } from "@/components/ui/health-gauge";
 import Link from "next/link";
 import MessageBubble from "./message-bubble";
 import LogTripSheet from "./log-trip-sheet";
@@ -246,17 +247,11 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     { label: "Boat health", text: "How's the boat doing overall?" },
   ];
 
-  const isRed = overdueCount > 0 || healthScore < 50;
-  const isAmber = !isRed && healthScore < 75;
-  const scoreColor = isRed ? "text-red-600" : isAmber ? "text-amber-600" : "text-green-600";
-  const scoreBg = isRed ? "bg-red-50 border-red-200" : isAmber ? "bg-amber-50 border-amber-200" : "bg-green-50 border-green-200";
-
   return (
     // h-[100dvh] minus AppHeader (h-14=3.5rem) minus BottomNav (h-16=4rem)
     <div className="flex flex-col h-[calc(100dvh-3.5rem-4rem)]">
-      {/* Sub-header: engine hours + quick actions */}
-      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2.5 shrink-0">
-        <p className="text-xs text-slate-500 font-medium">{engineHours.toFixed(1)}h engine hours</p>
+      {/* Sub-header: quick actions */}
+      <header className="flex items-center justify-end border-b border-slate-200 bg-white px-4 py-2.5 shrink-0">
         <div className="flex gap-2">
           <input
             ref={fileInputRef}
@@ -294,28 +289,28 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       {/* Messages / health area */}
       <div className="flex-1 overflow-y-auto">
         {messages.length === 0 ? (
-          /* Empty state: full health summary */
+          /* Empty state: gauge + stats + maintenance */
           <div className="px-4 pt-5 pb-4 space-y-4">
-            {/* Health score card */}
-            <div className={`rounded-xl border p-5 ${scoreBg}`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium text-slate-600">Health score</div>
-                  <div className={`text-5xl font-bold mt-1 ${scoreColor}`}>{healthScore}</div>
-                  <div className="text-xs text-slate-500 mt-1">out of 100</div>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-center">
-                  <div className="rounded-lg bg-white/80 px-3 py-2">
-                    <div className="text-lg font-semibold text-red-600">{overdueCount}</div>
-                    <div className="text-xs text-slate-500">Overdue</div>
+            {/* Health score card with gauge */}
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+              <div className="flex items-center justify-between gap-4">
+                <HealthGauge score={healthScore} overdueCount={overdueCount} size={130} />
+                <div className="flex-1 grid grid-cols-2 gap-2">
+                  <div className="rounded-xl bg-red-50 border border-red-100 px-3 py-3 text-center">
+                    <div className="text-xl font-bold text-red-600">{overdueCount}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Overdue</div>
                   </div>
-                  <div className="rounded-lg bg-white/80 px-3 py-2">
-                    <div className="text-lg font-semibold text-amber-600">{dueSoonCount}</div>
-                    <div className="text-xs text-slate-500">Due soon</div>
+                  <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center">
+                    <div className="text-xl font-bold text-amber-600">{dueSoonCount}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Due soon</div>
                   </div>
-                  <div className="rounded-lg bg-white/80 px-3 py-2">
-                    <div className="text-lg font-semibold text-green-600">{okCount}</div>
-                    <div className="text-xs text-slate-500">Healthy</div>
+                  <div className="rounded-xl bg-green-50 border border-green-100 px-3 py-3 text-center">
+                    <div className="text-xl font-bold text-green-600">{okCount}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Healthy</div>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-3 text-center">
+                    <div className="text-xl font-bold text-slate-500">{engineHours.toFixed(1)}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Engine hrs</div>
                   </div>
                 </div>
               </div>
@@ -323,7 +318,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
 
             {/* Urgent items or all clear */}
             {urgentItems.length > 0 ? (
-              <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
                 <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
                   <h2 className="text-sm font-semibold text-slate-800">Needs attention</h2>
                   <Link href="/maintenance" className="text-xs text-ocean-600 hover:text-ocean-700 font-medium">View all →</Link>
@@ -335,9 +330,9 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                     <Link
                       key={item.component_id}
                       href={`/components/${item.component_id}`}
-                      className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50"
+                      className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 active:bg-slate-50"
                     >
-                      <AlertTriangle size={16} className={`flex-shrink-0 ${isOverdue ? "text-red-500" : "text-amber-500"}`} />
+                      <AlertTriangle size={15} className={`flex-shrink-0 ${isOverdue ? "text-red-500" : "text-amber-500"}`} />
                       <div className="min-w-0 flex-1">
                         <div className="text-sm font-medium text-slate-800 truncate">{item.component_name}</div>
                         <div className="text-xs text-slate-400">{item.system_name ?? "—"}</div>
@@ -352,24 +347,24 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 })}
               </div>
             ) : (
-              <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 flex items-center gap-3">
+              <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3.5 flex items-center gap-3">
                 <CheckCircle size={18} className="text-green-600 flex-shrink-0" />
                 <div>
-                  <div className="text-sm font-medium text-green-800">All clear</div>
-                  <div className="text-xs text-green-700">No overdue or upcoming maintenance in the next 90 days.</div>
+                  <div className="text-sm font-semibold text-green-800">All clear</div>
+                  <div className="text-xs text-green-700 mt-0.5">No overdue or upcoming maintenance in the next 90 days.</div>
                 </div>
               </div>
             )}
 
             {/* Quick prompts */}
-            <div className="pt-2 text-center space-y-3">
-              <p className="text-sm font-medium text-slate-600">Ask the assistant</p>
+            <div className="pt-1 text-center space-y-3">
+              <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Ask the assistant</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {quickPrompts.map(({ label, text }) => (
                   <button
                     key={label}
                     onClick={() => sendMessage({ text })}
-                    className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 shadow-sm"
+                    className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 active:bg-slate-50 shadow-sm"
                   >
                     {label}
                   </button>

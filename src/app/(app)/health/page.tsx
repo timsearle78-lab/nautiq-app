@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getBoatHealth } from "@/lib/components/health";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { AlertTriangle, CheckCircle, Clock, HelpCircle } from "lucide-react";
+import { HealthGauge } from "@/components/ui/health-gauge";
 
 type BoatRow = { id: string; name: string; type: string | null };
 type HealthRow = {
@@ -79,12 +80,6 @@ export default async function HealthPage() {
 
   const urgent = timeline.filter((r) => r.status === "overdue" || r.status === "due_soon");
 
-  const isRed = overdue.length > 0 || healthScore < 50;
-  const isAmber = !isRed && healthScore < 75;
-
-  const scoreColor = isRed ? "text-red-600" : isAmber ? "text-amber-600" : "text-green-600";
-  const scoreBg = isRed ? "bg-red-50 border-red-200" : isAmber ? "bg-amber-50 border-amber-200" : "bg-green-50 border-green-200";
-
   return (
     <main className="px-4 py-6 space-y-5 max-w-2xl mx-auto">
       <div>
@@ -92,30 +87,26 @@ export default async function HealthPage() {
         <p className="text-sm text-slate-500">{boat.name} · {engineHours}h engine hours</p>
       </div>
 
-      {/* Health score */}
-      <div className={`rounded-xl border p-5 ${scoreBg}`}>
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-sm font-medium text-slate-600">Overall health score</div>
-            <div className={`text-5xl font-bold mt-1 ${scoreColor}`}>{healthScore}</div>
-            <div className="text-xs text-slate-500 mt-1">out of 100</div>
-          </div>
-          <div className="grid grid-cols-2 gap-3 text-center">
-            <div className="rounded-lg bg-white/80 px-3 py-2">
-              <div className="text-lg font-semibold text-red-600">{overdue.length}</div>
-              <div className="text-xs text-slate-500">Overdue</div>
+      {/* Health score with gauge */}
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+        <div className="flex items-center justify-between gap-4">
+          <HealthGauge score={healthScore} overdueCount={overdue.length} size={140} />
+          <div className="flex-1 grid grid-cols-2 gap-2">
+            <div className="rounded-xl bg-red-50 border border-red-100 px-3 py-3 text-center">
+              <div className="text-2xl font-bold text-red-600">{overdue.length}</div>
+              <div className="text-xs text-slate-500 mt-0.5">Overdue</div>
             </div>
-            <div className="rounded-lg bg-white/80 px-3 py-2">
-              <div className="text-lg font-semibold text-amber-600">{dueSoon.length}</div>
-              <div className="text-xs text-slate-500">Due soon</div>
+            <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center">
+              <div className="text-2xl font-bold text-amber-600">{dueSoon.length}</div>
+              <div className="text-xs text-slate-500 mt-0.5">Due soon</div>
             </div>
-            <div className="rounded-lg bg-white/80 px-3 py-2">
-              <div className="text-lg font-semibold text-green-600">{ok.length}</div>
-              <div className="text-xs text-slate-500">Healthy</div>
+            <div className="rounded-xl bg-green-50 border border-green-100 px-3 py-3 text-center">
+              <div className="text-2xl font-bold text-green-600">{ok.length}</div>
+              <div className="text-xs text-slate-500 mt-0.5">Healthy</div>
             </div>
-            <div className="rounded-lg bg-white/80 px-3 py-2">
-              <div className="text-lg font-semibold text-slate-500">{unknown.length}</div>
-              <div className="text-xs text-slate-500">Unknown</div>
+            <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-3 text-center">
+              <div className="text-2xl font-bold text-slate-600">{engineHours}</div>
+              <div className="text-xs text-slate-500 mt-0.5">Engine hrs</div>
             </div>
           </div>
         </div>
