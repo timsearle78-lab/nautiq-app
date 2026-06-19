@@ -12,7 +12,7 @@ const tripDraftSchema = z.object({
   engine_hours_end: z.number().nullable().default(null),
   fuel_added_litres: z.number().nullable().default(null),
   notes: z.string().default(""),
-  issues_observed: z.array(z.string()).default([]),
+  issues_observed: z.array(z.string()).nullable().default([]).transform(v => v ?? []),
   confidence: z.number().min(0).max(1).default(0.5),
 });
 
