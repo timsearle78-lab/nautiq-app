@@ -13,9 +13,11 @@ const inputCls =
 export function AddInventoryItemForm({
   boatId,
   components,
+  categories = [],
 }: {
   boatId: string;
   components: ComponentOption[];
+  categories?: string[];
 }) {
   const [state, formAction, pending] = useActionState(createInventoryItem, initialState);
 
@@ -36,7 +38,10 @@ export function AddInventoryItemForm({
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Category</label>
-            <input name="category" className={inputCls} placeholder="Engine" />
+            <input name="category" list="category-options" className={inputCls} placeholder="Engine" autoComplete="off" />
+            <datalist id="category-options">
+              {categories.map((c) => <option key={c} value={c} />)}
+            </datalist>
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Linked component</label>

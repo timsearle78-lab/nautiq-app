@@ -27,9 +27,11 @@ const inputCls =
 export function EditInventoryItemForm({
   item,
   components,
+  categories = [],
 }: {
   item: Item;
   components: ComponentOption[];
+  categories?: string[];
 }) {
   const [saveState, saveAction, savePending] = useActionState(updateInventoryItem, {});
   const [deleteState, deleteAction, deletePending] = useActionState(deleteInventoryItem, {});
@@ -53,7 +55,10 @@ export function EditInventoryItemForm({
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-slate-700">Category</label>
-              <input name="category" defaultValue={item.category ?? ""} className={inputCls} placeholder="Engine" />
+              <input name="category" list="category-options" defaultValue={item.category ?? ""} className={inputCls} placeholder="Engine" autoComplete="off" />
+              <datalist id="category-options">
+                {categories.map((c) => <option key={c} value={c} />)}
+              </datalist>
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-slate-700">Linked component</label>

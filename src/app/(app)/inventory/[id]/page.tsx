@@ -27,13 +27,19 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
 
   if (!itemData || itemData.user_id !== user.id) notFound();
 
-  const { data: componentsData } = await supabase
-    .from("components")
-    .select("id, name")
-    .eq("boat_id", itemData.boat_id)
-    .order("name", { ascending: true });
+  const [componentsRes, categoriesRes] = await Promise.all([
+    supabase.from("components").select("id, name").eq("boat_id", itemData.boat_id).order("name"),
+    supabase.from("inventory_items").select("category").eq("boat_id", itemData.boat_id).not("category", "is", null),
+  ]);
 
-  const components = (componentsData ?? []) as ComponentOption[];
+  const components = (componentsRes.data ?? []) as ComponentOption[];
+  const existingCategories = [
+    ...new Set(
+      (categoriesRes.data ?? [])
+        .map((r: { category: string | null }) => r.category)
+        .filter(Boolean) as string[]
+    ),
+  ].sort();
 
   return (
     <main className="px-4 py-6 space-y-5 max-w-2xl mx-auto">
@@ -45,7 +51,7 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
         <p className="mt-1 text-sm text-slate-500">{itemData.name}</p>
       </div>
 
-      <EditInventoryItemForm item={itemData} components={components} />
+      <EditInventoryItemForm item={itemData} components={components} categories={existingCategories} />
     </main>
   );
 }

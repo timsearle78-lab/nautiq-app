@@ -59,11 +59,24 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     ? selectedBoatId
     : boats[0].id;
 
-  const [inventoryItems, components, missingCriticalSpares] = await Promise.all([
+  const [inventoryItems, components, missingCriticalSpares, categoriesRes] = await Promise.all([
     getInventoryItems(activeBoatId),
     getBoatComponents(activeBoatId),
     getMissingCriticalSpares(activeBoatId),
+    supabase
+      .from("inventory_items")
+      .select("category")
+      .eq("boat_id", activeBoatId)
+      .not("category", "is", null),
   ]);
+
+  const existingCategories = [
+    ...new Set(
+      (categoriesRes.data ?? [])
+        .map((r: { category: string | null }) => r.category)
+        .filter(Boolean) as string[]
+    ),
+  ].sort();
 
   const filteredItems = lowOnly
     ? inventoryItems.filter(
@@ -121,7 +134,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.2fr_2fr]">
-        <AddInventoryItemForm boatId={activeBoatId} components={components} />
+        <AddInventoryItemForm boatId={activeBoatId} components={components} categories={existingCategories} />
         <InventoryTable boatId={activeBoatId} items={filteredItems} />
       </section>
     </main>
