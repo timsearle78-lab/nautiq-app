@@ -67,7 +67,7 @@ TOOL SELECTION RULES — follow these exactly:
 
 3. USING A PART: If the owner mentions using/consuming a spare part → call draftInventoryAdjustment.
 
-4. BUYING A PART: If the owner mentions buying/purchasing/restocking parts → call draftInventoryAdd.
+4. ADDING/BUYING A PART: If the owner wants to add a new item to inventory, restock, buy, or purchase parts (e.g. "add 5m of rope", "I bought a new filter", "add dyneema rope to inventory") → call draftInventoryAdd.
 
 5. MAINTENANCE QUESTIONS: "what do I need to do", "what's due" → call getUpcomingMaintenance.
 
