@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Wrench, Package } from "lucide-react";
+import { Home, Wrench, Package, Anchor } from "lucide-react";
 import ProfileSheet from "./profile-sheet";
 
 const tabs = [
   { href: "/chat", icon: Home, label: "Home" },
+  { href: "/trips", icon: Anchor, label: "Trips" },
   { href: "/maintenance", icon: Wrench, label: "Maintain" },
   { href: "/inventory", icon: Package, label: "Inventory" },
 ];
