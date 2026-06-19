@@ -9,7 +9,7 @@ import {
 } from "@/lib/inventory/queries";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 
-import { AddInventoryItemForm } from "@/components/inventory/add-inventory-item-form";
+import { AddInventorySheet } from "@/components/inventory/add-inventory-sheet";
 import { InventoryTable } from "@/components/inventory/inventory-table";
 
 type InventoryPageProps = {
@@ -85,58 +85,38 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
       )
     : inventoryItems;
 
+  const lowStockCount = inventoryItems.filter(
+    (item) => item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity)
+  ).length;
+
   return (
-    <main className="px-4 py-6 space-y-5">
-      <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <main className="px-4 py-6 space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-slate-800">Inventory</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Manage onboard spares, consumables, and critical maintenance items.
+          <p className="text-sm text-slate-500 mt-0.5">
+            {inventoryItems.length} items · {lowStockCount > 0 ? <span className="text-amber-600 font-medium">{lowStockCount} low stock</span> : "all stocked"}{missingCriticalSpares.length > 0 && <span className="text-red-600 font-medium"> · {missingCriticalSpares.length} critical missing</span>}
           </p>
         </div>
-        <form method="get" className="flex items-center gap-2">
-          <label className="flex items-center gap-2 text-sm text-slate-700">
-            <input type="checkbox" name="low" value="1" defaultChecked={lowOnly} />
-            Low stock only
-          </label>
-          <button
-            type="submit"
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-          >
-            Apply
-          </button>
-        </form>
-      </section>
+        <AddInventorySheet boatId={activeBoatId} components={components} categories={existingCategories} />
+      </div>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <div className="text-sm text-slate-500">Total items</div>
-          <div className="mt-2 text-2xl font-semibold text-slate-800">{inventoryItems.length}</div>
-        </div>
+      {/* Low stock filter */}
+      <form method="get" className="flex items-center gap-2">
+        <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
+          <input type="checkbox" name="low" value="1" defaultChecked={lowOnly} className="rounded border-slate-300 text-ocean-600 focus:ring-ocean-500" />
+          Show low stock only
+        </label>
+        <button
+          type="submit"
+          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+        >
+          Apply
+        </button>
+      </form>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <div className="text-sm text-slate-500">Low stock</div>
-          <div className="mt-2 text-2xl font-semibold text-amber-600">
-            {
-              inventoryItems.filter(
-                (item) =>
-                  item.minimum_quantity != null &&
-                  Number(item.quantity) < Number(item.minimum_quantity)
-              ).length
-            }
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <div className="text-sm text-slate-500">Missing critical spares</div>
-          <div className="mt-2 text-2xl font-semibold text-red-600">{missingCriticalSpares.length}</div>
-        </div>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-[1.2fr_2fr]">
-        <AddInventoryItemForm boatId={activeBoatId} components={components} categories={existingCategories} />
-        <InventoryTable boatId={activeBoatId} items={filteredItems} />
-      </section>
+      <InventoryTable boatId={activeBoatId} items={filteredItems} />
     </main>
   );
 }

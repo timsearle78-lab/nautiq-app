@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { createInventoryItem } from "@/lib/inventory/actions";
 
 type ComponentOption = { id: string; name: string };
@@ -14,20 +14,21 @@ export function AddInventoryItemForm({
   boatId,
   components,
   categories = [],
+  onSuccess,
 }: {
   boatId: string;
   components: ComponentOption[];
   categories?: string[];
+  onSuccess?: () => void;
 }) {
   const [state, formAction, pending] = useActionState(createInventoryItem, initialState);
 
-  return (
-    <section className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-      <div className="px-4 py-3 border-b border-slate-100">
-        <h2 className="text-base font-semibold text-slate-800">Add item</h2>
-      </div>
+  useEffect(() => {
+    if (state.success) onSuccess?.();
+  }, [state.success, onSuccess]);
 
-      <form action={formAction} className="px-4 py-4 space-y-4">
+  return (
+    <form action={formAction} className="space-y-4">
         <input type="hidden" name="boat_id" value={boatId} />
 
         <div>
@@ -133,7 +134,6 @@ export function AddInventoryItemForm({
         >
           {pending ? "Saving…" : "Add item"}
         </button>
-      </form>
-    </section>
+    </form>
   );
 }
