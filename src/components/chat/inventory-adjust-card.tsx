@@ -114,7 +114,22 @@ function CreateItemCard({
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Unit</label>
-            <input type="text" value={unit} onChange={(e) => setUnit(e.target.value)} className={inputCls} placeholder="e.g. L, units, m" />
+            <select value={unit} onChange={(e) => setUnit(e.target.value)} className={inputCls}>
+              <option value="">— select —</option>
+              <option value="ea">ea (each)</option>
+              <option value="L">L (litres)</option>
+              <option value="mL">mL (millilitres)</option>
+              <option value="kg">kg (kilograms)</option>
+              <option value="g">g (grams)</option>
+              <option value="m">m (metres)</option>
+              <option value="pair">pair</option>
+              <option value="set">set</option>
+              <option value="roll">roll</option>
+              <option value="box">box</option>
+              <option value="can">can</option>
+              <option value="tube">tube</option>
+              <option value="bottle">bottle</option>
+            </select>
           </div>
         </div>
         <div>
@@ -315,12 +330,4 @@ export default function InventoryAdjustCard({
 }
 
 
-interface InventoryItem {
-  id: string;
-  name: string;
-  quantity: number;
-  minimum_quantity: number;
-  unit?: string;
-  category?: string;
-}
 
