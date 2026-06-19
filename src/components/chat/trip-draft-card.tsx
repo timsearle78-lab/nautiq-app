@@ -163,10 +163,10 @@ export default function TripDraftCard({ draft, boatId, onSaved, onDismiss }: Tri
           />
         </div>
 
-        {draft.issues_observed.length > 0 && (
+        {draft.issues_observed.filter(s => s && !/^no issues?$/i.test(s.trim())).length > 0 && (
           <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2">
             <p className="text-xs font-medium text-amber-700 mb-1">Issues noted</p>
-            {draft.issues_observed.map((issue, i) => (
+            {draft.issues_observed.filter(s => s && !/^no issues?$/i.test(s.trim())).map((issue, i) => (
               <p key={i} className="text-xs text-amber-600">• {issue}</p>
             ))}
           </div>
