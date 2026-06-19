@@ -41,7 +41,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
 
   if (!boats || boats.length === 0) {
     return (
-      <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
+      <main className="px-4 py-6 space-y-5">
         <h1 className="text-xl font-semibold text-slate-800">Inventory</h1>
         <p className="mt-3 text-sm text-slate-500">Create a boat first to manage inventory.</p>
         <Link
@@ -86,7 +86,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     : inventoryItems;
 
   return (
-    <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
+    <main className="px-4 py-6 space-y-5">
       <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold text-slate-800">Inventory</h1>

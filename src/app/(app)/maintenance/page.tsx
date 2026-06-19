@@ -296,7 +296,7 @@ export default async function MaintenancePage({
   ].slice(0, 6);
 
   return (
-    <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
+    <main className="px-4 py-6 space-y-5">
       <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-xl font-semibold text-slate-800">Maintenance Overview</h1>

@@ -150,7 +150,7 @@ export default async function TripsPage() {
   };
 
   return (
-    <main className="px-4 py-6 space-y-5 max-w-2xl mx-auto">
+    <main className="px-4 py-6 space-y-5">
       <div>
         <h1 className="text-xl font-bold text-slate-900">Trips</h1>
         {boat && <p className="text-sm text-slate-500 mt-0.5">{boat.name}</p>}

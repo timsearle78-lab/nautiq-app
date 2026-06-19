@@ -23,7 +23,11 @@ export default async function AppLayout({
   return (
     <div className="flex flex-col h-[100dvh] bg-slate-50">
       <AppHeader />
-      <main className="flex-1 overflow-y-auto pb-16">{children}</main>
+      <main className="flex-1 overflow-y-auto pb-16">
+        <div className="mx-auto w-full max-w-2xl">
+          {children}
+        </div>
+      </main>
       <BottomNav userEmail={email} userInitials={initials} />
     </div>
   );

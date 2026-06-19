@@ -81,7 +81,7 @@ export default async function HealthPage() {
   const urgent = timeline.filter((r) => r.status === "overdue" || r.status === "due_soon");
 
   return (
-    <main className="px-4 py-6 space-y-5 max-w-2xl mx-auto">
+    <main className="px-4 py-6 space-y-5">
       <div>
         <h1 className="text-xl font-semibold text-slate-800">Boat Health</h1>
         <p className="text-sm text-slate-500">{boat.name} · {engineHours}h engine hours</p>
