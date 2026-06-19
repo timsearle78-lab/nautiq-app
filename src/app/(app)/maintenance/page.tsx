@@ -305,10 +305,10 @@ export default async function MaintenancePage({
   ].slice(0, 6);
 
   return (
-    <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
+    <main className="px-4 py-6 space-y-5">
       <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-slate-800">Maintenance Overview</h1>
+          <h1 className="text-xl font-bold text-slate-900">Maintenance Overview</h1>
           <p className="mt-1 text-sm text-slate-500">
             Track what is overdue, due soon, and healthy across your boat.
           </p>
@@ -316,7 +316,7 @@ export default async function MaintenancePage({
             <AddComponentSheet boatId={boat.id} systems={maintenanceSystems} />
             <Link
               href="/components"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
               All components
             </Link>
@@ -326,26 +326,26 @@ export default async function MaintenancePage({
       </section>
 
       <section className="grid gap-4 md:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
           <div className="text-sm text-slate-500">Total components</div>
           <div className="mt-2 text-2xl font-semibold text-slate-800">{allHealth.length}</div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
           <div className="text-sm text-slate-500">Overdue</div>
           <div className="mt-2 text-2xl font-semibold text-red-600">
             {overdueCount}
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
           <div className="text-sm text-slate-500">Due soon</div>
           <div className="mt-2 text-2xl font-semibold text-amber-600">
             {dueSoonCount}
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
           <div className="text-sm text-slate-500">Healthy</div>
           <div className="mt-2 text-2xl font-semibold text-green-600">
             {okCount}
@@ -353,7 +353,7 @@ export default async function MaintenancePage({
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4">
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
             <h2 className="text-base font-semibold text-slate-800">Predictive Timeline</h2>
@@ -385,21 +385,21 @@ export default async function MaintenancePage({
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4">
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
             <div className="text-sm text-slate-500">Overdue forecast</div>
             <div className="mt-2 text-2xl font-semibold text-red-600">
               {timelineOverdue.length}
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4">
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
             <div className="text-sm text-slate-500">Due soon</div>
             <div className="mt-2 text-2xl font-semibold text-amber-600">
               {timelineDueSoon.length}
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4">
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
             <div className="text-sm text-slate-500">
               Planned in next {selectedHorizon} days
             </div>
@@ -408,7 +408,7 @@ export default async function MaintenancePage({
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4">
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
             <div className="text-sm text-slate-500">Unknown baseline</div>
             <div className="mt-2 text-2xl font-semibold text-slate-500">
               {timelineUnknown.length}
@@ -423,7 +423,7 @@ export default async function MaintenancePage({
         ) : (
           <div className="mt-4 grid gap-3">
             {timelinePreview.map((row) => (
-              <div key={row.component_id} className="rounded-xl border border-slate-200 bg-white p-4">
+              <div key={row.component_id} className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div>
                     <div className="font-medium text-slate-800">{row.component_name}</div>
@@ -519,7 +519,7 @@ export default async function MaintenancePage({
         })}
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4">
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
         <h2 className="text-base font-semibold text-slate-800">
           Components
           {selectedStatus !== "all" ? (

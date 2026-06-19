@@ -42,12 +42,12 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
   ].sort();
 
   return (
-    <main className="px-4 py-6 space-y-5 max-w-2xl mx-auto">
+    <main className="px-4 py-6 space-y-5">
       <div>
         <Link href={`/inventory?boat=${itemData.boat_id}`} className="text-sm text-slate-500 hover:text-ocean-600">
           ← Back to inventory
         </Link>
-        <h1 className="mt-3 text-xl font-semibold text-slate-800">Edit item</h1>
+        <h1 className="mt-3 text-xl font-bold text-slate-900">Edit item</h1>
         <p className="mt-1 text-sm text-slate-500">{itemData.name}</p>
       </div>
 

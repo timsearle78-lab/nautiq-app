@@ -83,7 +83,7 @@ export default async function HealthPage() {
   return (
     <main className="px-4 py-6 space-y-5">
       <div>
-        <h1 className="text-xl font-semibold text-slate-800">Boat Health</h1>
+        <h1 className="text-xl font-bold text-slate-900">Boat Health</h1>
         <p className="text-sm text-slate-500">{boat.name} · {engineHours}h engine hours</p>
       </div>
 
@@ -114,7 +114,7 @@ export default async function HealthPage() {
 
       {/* Urgent items */}
       {urgent.length > 0 && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 space-y-3">
           <h2 className="text-base font-semibold text-slate-800">Needs attention</h2>
           {urgent.map((row) => {
             const isOverdue = row.status === "overdue";
@@ -151,7 +151,7 @@ export default async function HealthPage() {
 
       {/* All clear */}
       {urgent.length === 0 && (
-        <div className="rounded-xl border border-green-200 bg-green-50 p-5 flex items-center gap-3">
+        <div className="rounded-2xl border border-green-200 bg-green-50 p-5 flex items-center gap-3">
           <CheckCircle size={22} className="text-green-600 flex-shrink-0" />
           <div>
             <div className="font-medium text-green-800">All clear</div>
@@ -161,7 +161,7 @@ export default async function HealthPage() {
       )}
 
       {/* All components */}
-      <div className="rounded-xl border border-slate-200 bg-white divide-y divide-slate-100">
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm divide-y divide-slate-100">
         <div className="px-4 py-3 flex items-center justify-between">
           <h2 className="text-base font-semibold text-slate-800">All components</h2>
           <Link href="/maintenance" className="text-sm text-ocean-600 hover:text-ocean-700 font-medium">

@@ -56,9 +56,9 @@ export default async function SettingsPage() {
   }
 
   return (
-    <main className="px-4 py-6 space-y-6 max-w-2xl mx-auto">
+    <main className="px-4 py-6 space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-slate-800">Settings</h1>
+        <h1 className="text-xl font-bold text-slate-900">Settings</h1>
         <p className="mt-1 text-sm text-slate-500">Manage your boats, systems, and account.</p>
       </div>
 
@@ -67,7 +67,7 @@ export default async function SettingsPage() {
         <h2 className="text-base font-semibold text-slate-700">Your boats</h2>
 
         {boats.map((boat) => (
-          <div key={boat.id} className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+          <div key={boat.id} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
               <span className="text-sm font-semibold text-slate-700">{boat.name}</span>
             </div>
@@ -78,7 +78,7 @@ export default async function SettingsPage() {
           </div>
         ))}
 
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white overflow-hidden">
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white overflow-hidden">
           <div className="px-4 py-3 border-b border-slate-100">
             <span className="text-sm font-semibold text-slate-700">Add a new boat</span>
           </div>
@@ -101,7 +101,7 @@ export default async function SettingsPage() {
           <p className="text-sm text-slate-500">Add a boat first to manage its systems.</p>
         ) : (
           boats.map((boat) => (
-            <div key={boat.id} className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+            <div key={boat.id} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
               <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
                 <span className="text-sm font-semibold text-slate-700">{boat.name}</span>
               </div>
@@ -117,7 +117,7 @@ export default async function SettingsPage() {
       </section>
 
       {/* Account */}
-      <section className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
           <span className="text-sm font-semibold text-slate-700">Account</span>
         </div>

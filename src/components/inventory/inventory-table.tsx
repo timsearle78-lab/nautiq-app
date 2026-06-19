@@ -20,7 +20,7 @@ export function InventoryTable({
   items: InventoryItemRow[];
 }) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+    <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100">
         <h2 className="text-base font-semibold text-slate-800">
           Inventory <span className="ml-1.5 text-sm font-normal text-slate-400">({items.length})</span>

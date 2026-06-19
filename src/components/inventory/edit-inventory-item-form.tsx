@@ -38,7 +38,7 @@ export function EditInventoryItemForm({
 
   return (
     <div className="space-y-4">
-      <section className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100">
           <h2 className="text-base font-semibold text-slate-800">Item details</h2>
         </div>
@@ -134,14 +134,14 @@ export function EditInventoryItemForm({
           <button
             type="submit"
             disabled={savePending}
-            className="w-full rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex items-center gap-1.5 rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {savePending ? "Saving…" : "Save changes"}
           </button>
         </form>
       </section>
 
-      <section className="rounded-xl border border-red-200 bg-white overflow-hidden">
+      <section className="rounded-2xl border border-red-200 bg-white overflow-hidden">
         <div className="px-4 py-3 border-b border-red-100">
           <h2 className="text-base font-semibold text-red-700">Danger zone</h2>
         </div>

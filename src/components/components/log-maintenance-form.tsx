@@ -33,7 +33,7 @@ export function LogMaintenanceForm({
   }, [state.success, router]);
 
   return (
-    <section id="log-maintenance" className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+    <section id="log-maintenance" className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100">
         <h2 className="text-base font-semibold text-slate-800">Log maintenance</h2>
       </div>

@@ -190,10 +190,10 @@ export default async function ComponentsPage({
   ];
 
   return (
-    <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
+    <main className="px-4 py-6 space-y-5">
       <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-slate-800">Components</h1>
+          <h1 className="text-xl font-bold text-slate-900">Components</h1>
           <p className="mt-1 text-sm text-slate-500">
             Browse and manage all tracked components for the selected boat.
           </p>
@@ -258,7 +258,7 @@ export default async function ComponentsPage({
         })}
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4">
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
         <h2 className="text-base font-semibold text-slate-800">
           Component list
           {selectedSystem ? (

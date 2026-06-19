@@ -79,7 +79,7 @@ function sourceLabel(source: string | null) {
 type StatCardProps = { label: string; week: string; month: string; year: string };
 function StatCard({ label, week, month, year }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
+    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
       <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">{label}</div>
       <div className="grid grid-cols-3 gap-2 text-center">
         <div>
@@ -174,7 +174,7 @@ export default async function TripsPage() {
           month={timeOnWater.month}
           year={timeOnWater.year}
         />
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
           <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Trips logged</div>
           <div className="grid grid-cols-3 gap-2 text-center">
             <div>
@@ -194,7 +194,7 @@ export default async function TripsPage() {
       </div>
 
       {/* Trip list */}
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
           <span className="text-sm font-semibold text-slate-800">All trips</span>
           <span className="ml-2 text-xs text-slate-400">{trips.length} total</span>
