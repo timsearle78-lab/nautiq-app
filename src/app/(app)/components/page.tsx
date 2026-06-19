@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
+import { AddComponentSheet } from "@/components/components/add-component-sheet";
 
 export const dynamic = "force-dynamic";
 
@@ -124,6 +125,14 @@ export default async function ComponentsPage({
 
   const healthData = await getBoatHealth(boat.id);
 
+  const { data: systemsData } = await supabase
+    .from("systems")
+    .select("id,name")
+    .eq("boat_id", boat.id)
+    .order("name");
+
+  const boatSystems = (systemsData ?? []) as { id: string; name: string }[];
+
   const allRows = (healthData as HealthRow[]).sort((a, b) => {
     const systemCompare = (a.system_name ?? "").localeCompare(b.system_name ?? "");
     if (systemCompare !== 0) return systemCompare;
@@ -190,12 +199,7 @@ export default async function ComponentsPage({
           </p>
         </div>
 
-        <Link
-          href="/components/new"
-          className="rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ocean-700"
-        >
-          Add component
-        </Link>
+        <AddComponentSheet boatId={boat.id} systems={boatSystems} />
       </section>
 
       <section className="flex flex-wrap gap-2">

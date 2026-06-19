@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import {
   createComponent,
   type AddComponentActionState,
@@ -16,14 +16,22 @@ const initialState: AddComponentActionState = {};
 export function AddComponentForm({
   boatId,
   systems,
+  noRedirect = false,
+  onSuccess,
 }: {
   boatId: string;
   systems: SystemOption[];
+  noRedirect?: boolean;
+  onSuccess?: (componentId: string) => void;
 }) {
   const [state, formAction, pending] = useActionState(
     createComponent,
     initialState
   );
+
+  useEffect(() => {
+    if (state.componentId) onSuccess?.(state.componentId);
+  }, [state.componentId, onSuccess]);
 
   const inputCls =
     "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100";
@@ -31,6 +39,7 @@ export function AddComponentForm({
   return (
     <form action={formAction} className="space-y-4">
       <input type="hidden" name="boat_id" value={boatId} />
+      {noRedirect && <input type="hidden" name="no_redirect" value="1" />}
 
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">Component name</label>

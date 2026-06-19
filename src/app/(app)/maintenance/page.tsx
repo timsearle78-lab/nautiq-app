@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
+import { AddComponentSheet } from "@/components/components/add-component-sheet";
 
 export const dynamic = "force-dynamic";
 
@@ -219,6 +220,14 @@ export default async function MaintenancePage({
 
   const allHealthRaw = await getBoatHealth(boat.id);
 
+  const { data: maintenanceSystemsData } = await supabase
+    .from("systems")
+    .select("id,name")
+    .eq("boat_id", boat.id)
+    .order("name");
+
+  const maintenanceSystems = (maintenanceSystemsData ?? []) as { id: string; name: string }[];
+
   const allHealth = (allHealthRaw as HealthRow[]).sort((a, b) => {
     const statusCompare = statusRank(a.status) - statusRank(b.status);
     if (statusCompare !== 0) return statusCompare;
@@ -296,7 +305,7 @@ export default async function MaintenancePage({
   ].slice(0, 6);
 
   return (
-    <main className="px-4 py-6 space-y-5">
+    <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
       <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-xl font-semibold text-slate-800">Maintenance Overview</h1>
@@ -304,12 +313,7 @@ export default async function MaintenancePage({
             Track what is overdue, due soon, and healthy across your boat.
           </p>
           <div className="mt-3 flex gap-2">
-            <Link
-              href="/components/new"
-              className="rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ocean-700"
-            >
-              Add component
-            </Link>
+            <AddComponentSheet boatId={boat.id} systems={maintenanceSystems} />
             <Link
               href="/components"
               className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"

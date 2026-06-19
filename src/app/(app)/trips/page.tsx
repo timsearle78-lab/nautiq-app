@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
+import { AddTripButton } from "@/components/trips/add-trip-button";
 
 
 export const dynamic = "force-dynamic";
@@ -151,9 +152,12 @@ export default async function TripsPage() {
 
   return (
     <main className="px-4 py-6 space-y-5">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Trips</h1>
-        {boat && <p className="text-sm text-slate-500 mt-0.5">{boat.name}</p>}
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">Trips</h1>
+          {boat && <p className="text-sm text-slate-500 mt-0.5">{boat.name}</p>}
+        </div>
+        {boat && <AddTripButton boatId={boat.id} />}
       </div>
 
       {/* Stats */}

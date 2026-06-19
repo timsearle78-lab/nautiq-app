@@ -60,7 +60,7 @@ export default async function NewComponentPage() {
   const systems = (systemsData ?? []) as SystemRow[];
 
   return (
-    <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
+    <main className="px-4 py-6 space-y-5">
       <div>
         <h1 className="text-xl font-semibold text-slate-800">New Component</h1>
         <p className="mt-1 text-sm text-slate-500">

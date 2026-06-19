@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 export type AddComponentActionState = {
   error?: string;
   success?: string;
+  componentId?: string;
 };
 
 function parseOptionalNumber(value: FormDataEntryValue | null): number | null {
@@ -70,5 +71,9 @@ export async function createComponent(
     return { error: `Failed to create component: ${error?.message ?? "Unknown error"}` };
   }
 
+  const noRedirect = formData.get("no_redirect") === "1";
+  if (noRedirect) {
+    return { success: "Component created", componentId: data.id };
+  }
   redirect(`/components/${data.id}`);
 }
