@@ -15,7 +15,8 @@ function todayLocal() {
 }
 
 function buildIso(date: string, time: string) {
-  if (!date || !time) return null;
+  if (!date) return null;
+  if (!time) return `${date}T00:00:00`;
   return new Date(`${date}T${time}:00`).toISOString();
 }
 
