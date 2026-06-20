@@ -3,6 +3,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { AddTripButton } from "@/components/trips/add-trip-button";
+import { EngineHoursChart } from "@/components/trips/engine-hours-chart";
 
 
 export const dynamic = "force-dynamic";
@@ -128,6 +129,26 @@ export default async function TripsPage() {
     trips = (data ?? []) as TripRow[];
   }
 
+  // Build 12-month engine-hours chart data
+  const now = new Date();
+  const chartBars = Array.from({ length: 12 }, (_, i) => {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11 + i, 1));
+    const y = d.getUTCFullYear();
+    const m = d.getUTCMonth();
+    const hours = trips
+      .filter((t) => {
+        if (!t.started_at || t.engine_hours_delta == null) return false;
+        const td = new Date(t.started_at);
+        return td.getUTCFullYear() === y && td.getUTCMonth() === m;
+      })
+      .reduce((s, t) => s + (t.engine_hours_delta ?? 0), 0);
+    return {
+      label: d.toLocaleDateString(undefined, { month: "short" }),
+      hours: Math.round(hours * 10) / 10,
+      isCurrent: y === now.getUTCFullYear() && m === now.getUTCMonth(),
+    };
+  });
+
   const weekStart = startOf("week");
   const monthStart = startOf("month");
   const yearStart = startOf("year");
@@ -159,6 +180,9 @@ export default async function TripsPage() {
         </div>
         {boat && <AddTripButton boatId={boat.id} />}
       </div>
+
+      {/* Engine hours chart */}
+      <EngineHoursChart bars={chartBars} />
 
       {/* Stats */}
       <div className="space-y-3">
