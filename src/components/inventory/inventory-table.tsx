@@ -41,7 +41,7 @@ export function InventoryTable({
                     <div className="min-w-0">
                       <Link
                         href={`/inventory/${item.id}`}
-                        className="font-medium text-sm text-slate-800 hover:text-ocean-600 truncate block"
+                        className="font-medium text-sm text-ocean-600 hover:text-ocean-700 hover:underline truncate block"
                       >
                         {item.name}
                       </Link>
@@ -91,7 +91,7 @@ export function InventoryTable({
                       <td className="px-4 py-3">
                         <Link
                           href={`/inventory/${item.id}`}
-                          className="font-medium text-slate-800 hover:text-ocean-600"
+                          className="font-medium text-ocean-600 hover:text-ocean-700 hover:underline"
                         >
                           {item.name}
                         </Link>
