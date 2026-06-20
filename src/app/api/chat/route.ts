@@ -65,7 +65,7 @@ TOOL SELECTION RULES — follow these exactly:
 
 2. VIEWING PAST TRIPS: Only call getTripHistory if the owner explicitly asks to SEE or SHOW their trips (e.g. "show my trips", "what trips have I done", "trip history").
 
-3. USING A PART: If the owner mentions using/consuming a spare part → call draftInventoryAdjustment.
+3. USING A PART: If the owner mentions using/consuming a spare part or says something like "used a part", "used a spare", "I used something" (even without naming it) → call draftInventoryAdjustment. If no specific item is named, pass itemName as an empty string so the user can pick from their full inventory.
 
 4. ADDING/BUYING A PART: If the owner wants to add a new item to inventory, restock, buy, or purchase parts (e.g. "add 5m of rope", "I bought a new filter", "add dyneema rope to inventory") → call draftInventoryAdd.
 
@@ -229,12 +229,21 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
             quantityUsed: number;
             reason: string;
           }) => {
-            const { data: items } = await supabase
-              .from("inventory_items")
-              .select("id, name, quantity, minimum_quantity, unit, category")
-              .eq("boat_id", boatId)
-              .ilike("name", `%${itemName}%`)
-              .limit(5);
+            const isVague = !itemName || itemName.trim().length < 2;
+            const { data: items } = isVague
+              ? await supabase
+                  .from("inventory_items")
+                  .select("id, name, quantity, minimum_quantity, unit, category")
+                  .eq("boat_id", boatId)
+                  .order("name")
+                  .limit(50)
+              : await supabase
+                  .from("inventory_items")
+                  .select("id, name, quantity, minimum_quantity, unit, category")
+                  .eq("boat_id", boatId)
+                  .ilike("name", `%${itemName}%`)
+                  .order("name")
+                  .limit(5);
 
             return {
               searchTerm: itemName,
