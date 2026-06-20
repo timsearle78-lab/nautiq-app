@@ -199,7 +199,7 @@ export default async function ComponentsPage({
           </p>
         </div>
 
-        <AddComponentSheet boatId={boat.id} systems={boatSystems} />
+        <AddComponentSheet boatId={boat.id} systems={boatSystems} boatType={boat.type ?? undefined} />
       </section>
 
       <section className="flex flex-wrap gap-2">

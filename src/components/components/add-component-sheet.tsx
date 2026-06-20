@@ -9,9 +9,11 @@ type SystemOption = { id: string; name: string };
 export function AddComponentSheet({
   boatId,
   systems,
+  boatType,
 }: {
   boatId: string;
   systems: SystemOption[];
+  boatType?: string;
 }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -42,7 +44,7 @@ export function AddComponentSheet({
               </button>
             </div>
             <div className="px-4 py-4">
-              <AddComponentForm boatId={boatId} systems={systems} noRedirect onSuccess={handleSuccess} />
+              <AddComponentForm boatId={boatId} systems={systems} boatType={boatType} noRedirect onSuccess={handleSuccess} />
             </div>
           </div>
         </>

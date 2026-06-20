@@ -69,7 +69,7 @@ export default async function NewComponentPage() {
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-4">
-        <AddComponentForm boatId={boat.id} systems={systems} />
+        <AddComponentForm boatId={boat.id} systems={systems} boatType={boat.type ?? undefined} />
       </div>
     </main>
   );

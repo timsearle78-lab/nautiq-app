@@ -313,7 +313,7 @@ export default async function MaintenancePage({
             Track what is overdue, due soon, and healthy across your boat.
           </p>
           <div className="mt-3 flex gap-2">
-            <AddComponentSheet boatId={boat.id} systems={maintenanceSystems} />
+            <AddComponentSheet boatId={boat.id} systems={maintenanceSystems} boatType={boat.type ?? undefined} />
             <Link
               href="/components"
               className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
