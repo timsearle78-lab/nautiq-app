@@ -80,11 +80,11 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
   const pct = Math.round((step / total) * 100);
   return (
     <div className="mb-6">
-      <div className="flex justify-between text-xs text-slate-400 mb-1.5">
+      <div className="flex justify-between text-xs text-ocean-200/70 mb-1.5">
         <span>Step {step} of {total}</span>
         <span>{pct}%</span>
       </div>
-      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+      <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
         <div
           className="h-full rounded-full bg-ocean-500 transition-all duration-500"
           style={{ width: `${pct}%` }}
@@ -114,7 +114,7 @@ function NavButtons({
       {onBack && (
         <button
           onClick={onBack}
-          className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/8 px-4 py-2.5 text-sm font-medium text-white/80 transition hover:bg-white/15"
         >
           <ArrowLeft size={15} />
           Back
@@ -123,7 +123,7 @@ function NavButtons({
       <button
         onClick={onNext}
         disabled={nextDisabled || loading}
-        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-ocean-700 disabled:opacity-60"
+        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-ocean-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-ocean-600 disabled:opacity-60 shadow-lg shadow-ocean-900/40"
       >
         {loading ? "Working…" : nextLabel}
         {!loading && <ChevronRight size={16} />}
@@ -131,7 +131,7 @@ function NavButtons({
       {onSkip && (
         <button
           onClick={onSkip}
-          className="text-sm text-slate-400 hover:text-slate-600 transition px-2 py-2.5"
+          className="text-sm text-ocean-200/60 hover:text-ocean-200 transition px-2 py-2.5"
         >
           Skip
         </button>
@@ -221,21 +221,21 @@ export default function OnboardingPage() {
   // ── Render ───────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-ocean-900 to-ocean-700 flex flex-col items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
 
         {/* ── Step 0: Welcome ─────────────────────────────────────── */}
         {step === 0 && (
           <div className="text-center">
-            <div className="w-16 h-16 rounded-2xl bg-ocean-600 flex items-center justify-center mx-auto mb-5">
+            <div className="w-16 h-16 rounded-2xl bg-ocean-500 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-ocean-900/50">
               <Anchor size={32} className="text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900">Welcome to NautIQ</h1>
-            <p className="mt-2 text-sm text-slate-500 max-w-sm mx-auto">
+            <h1 className="text-2xl font-bold text-white">Welcome to NautIQ</h1>
+            <p className="mt-2 text-sm text-ocean-200 max-w-sm mx-auto">
               Your smart boat companion for maintenance tracking, trip logging, and keeping your vessel in top shape.
             </p>
 
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm p-5 text-left space-y-4">
+            <div className="mt-6 rounded-2xl border border-white/10 bg-white/8 backdrop-blur-sm p-5 text-left space-y-4">
               {[
                 { icon: Wrench,         label: "Maintenance tracking", desc: "Never miss a service with smart reminders based on time and engine hours" },
                 { icon: LayoutDashboard, label: "Health dashboard",   desc: "See your boat's overall health score and what needs attention" },
@@ -243,12 +243,12 @@ export default function OnboardingPage() {
                 { icon: MessageSquare,  label: "AI assistant",        desc: "Log trips, find parts, and get answers by just describing them" },
               ].map(({ icon: Icon, label, desc }) => (
                 <div key={label} className="flex gap-3">
-                  <div className="mt-0.5 flex-shrink-0 w-8 h-8 rounded-lg bg-ocean-50 flex items-center justify-center">
-                    <Icon size={16} className="text-ocean-600" />
+                  <div className="mt-0.5 flex-shrink-0 w-8 h-8 rounded-lg bg-ocean-500/20 flex items-center justify-center border border-ocean-500/20">
+                    <Icon size={16} className="text-ocean-200" />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-slate-800">{label}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">{desc}</div>
+                    <div className="text-sm font-semibold text-white">{label}</div>
+                    <div className="text-xs text-ocean-200/70 mt-0.5">{desc}</div>
                   </div>
                 </div>
               ))}
@@ -256,12 +256,12 @@ export default function OnboardingPage() {
 
             <button
               onClick={() => setStep(1)}
-              className="mt-6 w-full flex items-center justify-center gap-2 rounded-xl bg-ocean-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-ocean-700"
+              className="mt-6 w-full flex items-center justify-center gap-2 rounded-xl bg-ocean-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-ocean-600 shadow-lg shadow-ocean-900/40"
             >
               <Sparkles size={16} />
               Get started
             </button>
-            <p className="mt-3 text-xs text-slate-400">Takes about 2 minutes to set up</p>
+            <p className="mt-3 text-xs text-ocean-200/60">Takes about 2 minutes to set up</p>
           </div>
         )}
 
@@ -269,12 +269,12 @@ export default function OnboardingPage() {
         {step === 1 && (
           <div>
             <ProgressBar step={1} total={TOTAL_STEPS} />
-            <h2 className="text-xl font-bold text-slate-900">Tell us about your boat</h2>
-            <p className="mt-1 text-sm text-slate-500">We'll use this to set up your maintenance systems.</p>
+            <h2 className="text-xl font-bold text-white">Tell us about your boat</h2>
+            <p className="mt-1 text-sm text-ocean-200/70">We'll use this to set up your maintenance systems.</p>
 
-            <div className="mt-5 rounded-2xl border border-slate-200 bg-white shadow-sm p-5 space-y-4">
+            <div className="mt-5 rounded-2xl border border-white/10 bg-white/8 backdrop-blur-sm p-5 space-y-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">Boat name</label>
+                <label className="mb-1.5 block text-sm font-medium text-white/80">Boat name</label>
                 <input
                   type="text"
                   value={boatName}
@@ -286,7 +286,7 @@ export default function OnboardingPage() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">Boat type</label>
+                <label className="mb-1.5 block text-sm font-medium text-white/80">Boat type</label>
                 <select
                   value={boatType}
                   onChange={(e) => setBoatType(e.target.value)}
@@ -296,7 +296,7 @@ export default function OnboardingPage() {
                 </select>
               </div>
               {error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+                <div className="rounded-xl border border-red-400/30 bg-red-500/20 px-4 py-3 text-sm text-red-300">{error}</div>
               )}
             </div>
 
@@ -315,49 +315,49 @@ export default function OnboardingPage() {
           <div>
             <ProgressBar step={2} total={TOTAL_STEPS} />
             <div className="flex items-center gap-2 mb-1">
-              <CheckCircle2 size={20} className="text-green-500" />
-              <h2 className="text-xl font-bold text-slate-900">{boatDisplayName} is ready!</h2>
+              <CheckCircle2 size={20} className="text-green-400" />
+              <h2 className="text-xl font-bold text-white">{boatDisplayName} is ready!</h2>
             </div>
-            <p className="text-sm text-slate-500 mt-1 mb-5">
+            <p className="text-sm text-ocean-200/70 mt-1 mb-5">
               Here's what we've set up for your {boatType.toLowerCase()} to get you started.
             </p>
 
             {/* Systems */}
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden mb-3">
-              <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Systems created</span>
-                <span className="ml-2 text-xs text-slate-400">{systems.length} systems</span>
+            <div className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-sm overflow-hidden mb-3">
+              <div className="px-4 py-3 border-b border-white/8">
+                <span className="text-xs font-semibold text-ocean-200/70 uppercase tracking-wide">Systems created</span>
+                <span className="ml-2 text-xs text-ocean-200/50">{systems.length} systems</span>
               </div>
               <div className="px-4 py-3 flex flex-wrap gap-2">
                 {systems.length > 0 ? systems.map((s) => (
-                  <span key={s.id} className="rounded-full border border-ocean-200 bg-ocean-50 px-3 py-1 text-xs font-medium text-ocean-700">
+                  <span key={s.id} className="rounded-full border border-ocean-500/30 bg-ocean-500/15 px-3 py-1 text-xs font-medium text-ocean-200">
                     {s.name}
                   </span>
                 )) : (
-                  <span className="text-xs text-slate-400">No systems seeded</span>
+                  <span className="text-xs text-ocean-200/50">No systems seeded</span>
                 )}
               </div>
             </div>
 
             {/* Components grouped by system */}
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Components tracked</span>
-                <span className="ml-2 text-xs text-slate-400">{components.length} components</span>
+            <div className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-sm overflow-hidden">
+              <div className="px-4 py-3 border-b border-white/8">
+                <span className="text-xs font-semibold text-ocean-200/70 uppercase tracking-wide">Components tracked</span>
+                <span className="ml-2 text-xs text-ocean-200/50">{components.length} components</span>
               </div>
               {components.length > 0 ? (
-                <ul className="divide-y divide-slate-50">
+                <ul className="divide-y divide-white/5">
                   {components.slice(0, 8).map((c) => {
                     const system = systems.find((s) => s.id === c.system_id);
                     const hasInterval = c.service_interval_months || c.service_interval_engine_hours;
                     return (
                       <li key={c.id} className="flex items-center justify-between px-4 py-2.5">
                         <div>
-                          <div className="text-sm font-medium text-slate-800">{c.name}</div>
-                          {system && <div className="text-xs text-slate-400">{system.name}</div>}
+                          <div className="text-sm font-medium text-white/90">{c.name}</div>
+                          {system && <div className="text-xs text-ocean-200/50">{system.name}</div>}
                         </div>
                         {hasInterval && (
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-ocean-200/50">
                             {c.service_interval_months ? `${c.service_interval_months}mo` : ""}
                             {c.service_interval_months && c.service_interval_engine_hours ? " · " : ""}
                             {c.service_interval_engine_hours ? `${c.service_interval_engine_hours}h` : ""}
@@ -367,11 +367,11 @@ export default function OnboardingPage() {
                     );
                   })}
                   {components.length > 8 && (
-                    <li className="px-4 py-2.5 text-xs text-slate-400">+{components.length - 8} more components</li>
+                    <li className="px-4 py-2.5 text-xs text-ocean-200/50">+{components.length - 8} more components</li>
                   )}
                 </ul>
               ) : (
-                <div className="px-4 py-4 text-xs text-slate-400">No components seeded</div>
+                <div className="px-4 py-4 text-xs text-ocean-200/50">No components seeded</div>
               )}
             </div>
 
@@ -383,14 +383,14 @@ export default function OnboardingPage() {
         {step === 3 && (
           <div>
             <ProgressBar step={3} total={TOTAL_STEPS} />
-            <h2 className="text-xl font-bold text-slate-900">Stock your spares</h2>
-            <p className="text-sm text-slate-500 mt-1 mb-5">
+            <h2 className="text-xl font-bold text-white">Stock your spares</h2>
+            <p className="text-sm text-ocean-200/70 mt-1 mb-5">
               Select the essential spare parts to add to your inventory. Critical items are pre-selected.
             </p>
 
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden mb-1">
-              <div className="px-4 py-2 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Recommended spares</span>
+            <div className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-sm overflow-hidden mb-1">
+              <div className="px-4 py-2 border-b border-white/8 flex items-center justify-between">
+                <span className="text-xs font-semibold text-ocean-200/70 uppercase tracking-wide">Recommended spares</span>
                 <button
                   onClick={() => {
                     if (selectedSpares.size === sparePresets.length) {
@@ -399,42 +399,42 @@ export default function OnboardingPage() {
                       setSelectedSpares(new Set(sparePresets.map((s) => s.name)));
                     }
                   }}
-                  className="text-xs text-ocean-600 hover:text-ocean-700 font-medium"
+                  className="text-xs text-ocean-200 hover:text-ocean-200 font-medium"
                 >
                   {selectedSpares.size === sparePresets.length ? "Deselect all" : "Select all"}
                 </button>
               </div>
-              <ul className="divide-y divide-slate-50 max-h-72 overflow-y-auto">
+              <ul className="divide-y divide-white/5 max-h-72 overflow-y-auto">
                 {sparePresets.map((preset) => {
                   const checked = selectedSpares.has(preset.name);
                   return (
                     <li
                       key={preset.name}
                       onClick={() => toggleSpare(preset.name)}
-                      className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-white/5 transition-colors"
                     >
                       <input
                         type="checkbox"
                         checked={checked}
                         onChange={() => toggleSpare(preset.name)}
-                        className="h-4 w-4 rounded border-slate-300 text-ocean-600 focus:ring-ocean-500 flex-shrink-0"
+                        className="h-4 w-4 rounded border-white/20 text-ocean-500 focus:ring-ocean-500 flex-shrink-0"
                         onClick={(e) => e.stopPropagation()}
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-sm text-slate-800">{preset.name}</span>
+                          <span className="text-sm text-white/90">{preset.name}</span>
                           {preset.is_critical && (
-                            <span className="text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-full px-1.5 py-0.5">Critical</span>
+                            <span className="text-xs font-medium text-red-300 bg-red-500/20 border border-red-400/20 rounded-full px-1.5 py-0.5">Critical</span>
                           )}
                         </div>
-                        <div className="text-xs text-slate-400">{preset.category} · {preset.quantity} {preset.unit}</div>
+                        <div className="text-xs text-ocean-200/50">{preset.category} · {preset.quantity} {preset.unit}</div>
                       </div>
                     </li>
                   );
                 })}
               </ul>
-              <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50">
-                <span className="text-xs text-slate-500">{selectedSpares.size} of {sparePresets.length} items selected</span>
+              <div className="px-4 py-2.5 border-t border-white/8">
+                <span className="text-xs text-ocean-200/60">{selectedSpares.size} of {sparePresets.length} items selected</span>
               </div>
             </div>
 
@@ -452,8 +452,8 @@ export default function OnboardingPage() {
         {step === 4 && (
           <div>
             <ProgressBar step={4} total={TOTAL_STEPS} />
-            <h2 className="text-xl font-bold text-slate-900">Here's what you can do</h2>
-            <p className="text-sm text-slate-500 mt-1 mb-5">
+            <h2 className="text-xl font-bold text-white">Here's what you can do</h2>
+            <p className="text-sm text-ocean-200/70 mt-1 mb-5">
               NautIQ keeps everything in one place. Here's a quick look at the key features.
             </p>
 
@@ -461,36 +461,36 @@ export default function OnboardingPage() {
               {[
                 {
                   icon: MessageSquare,
-                  color: "bg-ocean-50 text-ocean-600",
+                  iconCls: "bg-ocean-500/20 text-ocean-200 border border-ocean-500/20",
                   label: "AI Chat",
                   desc: "Just describe what happened — \"went sailing for 3 hours\" or \"changed the oil\" — and NautIQ logs it for you.",
                 },
                 {
                   icon: Wrench,
-                  color: "bg-amber-50 text-amber-600",
+                  iconCls: "bg-amber-400/20 text-amber-300 border border-amber-400/20",
                   label: "Maintenance",
                   desc: "Track service history, get reminders when components are due, and see your boat's overall health score.",
                 },
                 {
                   icon: Package,
-                  color: "bg-green-50 text-green-600",
+                  iconCls: "bg-green-400/20 text-green-300 border border-green-400/20",
                   label: "Inventory",
                   desc: "Know exactly what spares you have on board. Get alerts when stock runs low or critical items are missing.",
                 },
                 {
                   icon: Anchor,
-                  color: "bg-purple-50 text-purple-600",
+                  iconCls: "bg-purple-400/20 text-purple-300 border border-purple-400/20",
                   label: "Trips",
                   desc: "Log trips with engine hours to keep accurate maintenance records based on actual usage, not just time.",
                 },
-              ].map(({ icon: Icon, color, label, desc }) => (
-                <div key={label} className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 flex gap-3">
-                  <div className={`mt-0.5 flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${color}`}>
+              ].map(({ icon: Icon, iconCls, label, desc }) => (
+                <div key={label} className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-sm p-4 flex gap-3">
+                  <div className={`mt-0.5 flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${iconCls}`}>
                     <Icon size={18} />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-slate-800">{label}</div>
-                    <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">{desc}</div>
+                    <div className="text-sm font-semibold text-white/90">{label}</div>
+                    <div className="text-xs text-ocean-200/60 mt-0.5 leading-relaxed">{desc}</div>
                   </div>
                 </div>
               ))}
@@ -504,16 +504,16 @@ export default function OnboardingPage() {
         {step === 5 && (
           <div className="text-center">
             <ProgressBar step={5} total={TOTAL_STEPS} />
-            <div className="w-16 h-16 rounded-2xl bg-green-500 flex items-center justify-center mx-auto mb-5">
+            <div className="w-16 h-16 rounded-2xl bg-green-500/80 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-green-900/40">
               <CheckCircle2 size={32} className="text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900">You're all set!</h2>
-            <p className="mt-2 text-sm text-slate-500">
+            <h2 className="text-2xl font-bold text-white">You're all set!</h2>
+            <p className="mt-2 text-sm text-ocean-200/70">
               {boatDisplayName} is ready to go. Start by logging your first trip or asking NautIQ anything.
             </p>
 
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm p-5 text-left space-y-3">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Quick start tips</p>
+            <div className="mt-6 rounded-2xl border border-white/10 bg-white/8 backdrop-blur-sm p-5 text-left space-y-3">
+              <p className="text-xs font-semibold text-ocean-200/70 uppercase tracking-wide">Quick start tips</p>
               {[
                 "Try asking: \"I went out for 2 hours this morning\"",
                 "Log your first maintenance event on a component",
@@ -522,14 +522,14 @@ export default function OnboardingPage() {
               ].map((tip) => (
                 <div key={tip} className="flex items-start gap-2">
                   <CheckCircle2 size={14} className="text-ocean-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-600">{tip}</span>
+                  <span className="text-sm text-white/80">{tip}</span>
                 </div>
               ))}
             </div>
 
             <button
               onClick={() => { router.push("/chat"); router.refresh(); }}
-              className="mt-6 w-full flex items-center justify-center gap-2 rounded-xl bg-ocean-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-ocean-700"
+              className="mt-6 w-full flex items-center justify-center gap-2 rounded-xl bg-ocean-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-ocean-600 shadow-lg shadow-ocean-900/40"
             >
               <MessageSquare size={16} />
               Open NautIQ
