@@ -7,7 +7,6 @@ import { createClient } from "@/lib/supabase/client";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
-  const [boatName, setBoatName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -38,14 +37,14 @@ export default function SignupPage() {
         password,
         options: {
           emailRedirectTo,
-          data: { full_name: name || null, boat_name: boatName || null },
+          data: { full_name: name || null },
         },
       });
 
       if (error) throw error;
 
       setStatus("Account created. Check your email to confirm your account before signing in.");
-      setName(""); setBoatName(""); setEmail(""); setPassword(""); setConfirmPassword("");
+      setName(""); setEmail(""); setPassword(""); setConfirmPassword("");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Failed to create account.");
     } finally {
@@ -107,20 +106,6 @@ export default function SignupPage() {
                   onChange={(e) => setName(e.target.value)}
                   className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
                   placeholder="Tim"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="boatName" className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Boat name
-                </label>
-                <input
-                  id="boatName"
-                  type="text"
-                  value={boatName}
-                  onChange={(e) => setBoatName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
-                  placeholder="Manhattan"
                 />
               </div>
 
