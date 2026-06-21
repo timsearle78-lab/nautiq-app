@@ -410,7 +410,7 @@ export default async function MaintenancePage({
               <div key={row.component_id} className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div>
-                    <div className="font-medium text-slate-800">{row.component_name}</div>
+                    <Link href={`/components/${row.component_id}`} className="font-semibold text-ocean-600 hover:text-ocean-700 hover:underline" style={{ fontSize: 14.5 }}>{row.component_name}</Link>
                     <div className="text-sm text-slate-500">
                       {row.system_name ?? "—"}
                     </div>
@@ -456,21 +456,6 @@ export default async function MaintenancePage({
 
                 <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-500">
                   <span>Risk: {Math.round(Number(row.risk_score ?? 0))}</span>
-                </div>
-
-                <div className="mt-4 flex gap-3">
-                  <Link
-                    href={`/components/${row.component_id}`}
-                    className="text-ocean-600 hover:text-ocean-700 font-medium text-sm"
-                  >
-                    Open
-                  </Link>
-                  <Link
-                    href={`/components/${row.component_id}#log-maintenance`}
-                    className="text-slate-500 hover:text-slate-700 text-sm"
-                  >
-                    Log maintenance
-                  </Link>
                 </div>
               </div>
             ))}
