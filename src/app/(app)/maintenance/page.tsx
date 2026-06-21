@@ -325,31 +325,25 @@ export default async function MaintenancePage({
 
       </section>
 
-      <section className="grid gap-4 md:grid-cols-4">
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-          <div className="text-sm text-slate-500">Total components</div>
-          <div className="mt-2 text-2xl font-semibold text-slate-800">{allHealth.length}</div>
+      <section className="grid gap-3 grid-cols-2 md:grid-cols-4">
+        <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: "#F3F6F9", border: "1px solid #E2E9EF" }}>
+          <div style={{ fontSize: 13, fontWeight: 500, color: "#8593A0" }}>Total components</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: "#46586A", lineHeight: 1.1 }}>{allHealth.length}</div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-          <div className="text-sm text-slate-500">Overdue</div>
-          <div className="mt-2 text-2xl font-semibold text-red-600">
-            {overdueCount}
-          </div>
+        <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: overdueCount > 0 ? "#FDF0F0" : "#F3F6F9", border: `1px solid ${overdueCount > 0 ? "#F8DCDC" : "#E2E9EF"}` }}>
+          <div style={{ fontSize: 13, fontWeight: 500, color: overdueCount > 0 ? "#D83A3A" : "#8593A0" }}>Overdue</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: overdueCount > 0 ? "#D83A3A" : "#46586A", lineHeight: 1.1 }}>{overdueCount}</div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-          <div className="text-sm text-slate-500">Due soon</div>
-          <div className="mt-2 text-2xl font-semibold text-amber-600">
-            {dueSoonCount}
-          </div>
+        <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: dueSoonCount > 0 ? "#FDF8EA" : "#F3F6F9", border: `1px solid ${dueSoonCount > 0 ? "#F3E6C4" : "#E2E9EF"}` }}>
+          <div style={{ fontSize: 13, fontWeight: 500, color: dueSoonCount > 0 ? "#C8841A" : "#8593A0" }}>Due soon</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: dueSoonCount > 0 ? "#C8841A" : "#46586A", lineHeight: 1.1 }}>{dueSoonCount}</div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-          <div className="text-sm text-slate-500">Healthy</div>
-          <div className="mt-2 text-2xl font-semibold text-green-600">
-            {okCount}
-          </div>
+        <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: okCount > 0 ? "#EEF8F1" : "#F3F6F9", border: `1px solid ${okCount > 0 ? "#D2EBDB" : "#E2E9EF"}` }}>
+          <div style={{ fontSize: 13, fontWeight: 500, color: okCount > 0 ? "#1D9B55" : "#8593A0" }}>Healthy</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: okCount > 0 ? "#1D9B55" : "#46586A", lineHeight: 1.1 }}>{okCount}</div>
         </div>
       </section>
 
@@ -384,35 +378,25 @@ export default async function MaintenancePage({
           </div>
         </div>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-4">
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-            <div className="text-sm text-slate-500">Overdue forecast</div>
-            <div className="mt-2 text-2xl font-semibold text-red-600">
-              {timelineOverdue.length}
-            </div>
+        <div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-4">
+          <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: timelineOverdue.length > 0 ? "#FDF0F0" : "#F3F6F9", border: `1px solid ${timelineOverdue.length > 0 ? "#F8DCDC" : "#E2E9EF"}` }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: timelineOverdue.length > 0 ? "#D83A3A" : "#8593A0" }}>Overdue forecast</div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: timelineOverdue.length > 0 ? "#D83A3A" : "#46586A", lineHeight: 1.1 }}>{timelineOverdue.length}</div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-            <div className="text-sm text-slate-500">Due soon</div>
-            <div className="mt-2 text-2xl font-semibold text-amber-600">
-              {timelineDueSoon.length}
-            </div>
+          <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: timelineDueSoon.length > 0 ? "#FDF8EA" : "#F3F6F9", border: `1px solid ${timelineDueSoon.length > 0 ? "#F3E6C4" : "#E2E9EF"}` }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: timelineDueSoon.length > 0 ? "#C8841A" : "#8593A0" }}>Due soon</div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: timelineDueSoon.length > 0 ? "#C8841A" : "#46586A", lineHeight: 1.1 }}>{timelineDueSoon.length}</div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-            <div className="text-sm text-slate-500">
-              Planned in next {selectedHorizon} days
-            </div>
-            <div className="mt-2 text-2xl font-semibold text-blue-700">
-              {timelinePlanned.length}
-            </div>
+          <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: timelinePlanned.length > 0 ? "#E6F3FA" : "#F3F6F9", border: `1px solid ${timelinePlanned.length > 0 ? "#BCDCEE" : "#E2E9EF"}` }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: timelinePlanned.length > 0 ? "#0B7EB8" : "#8593A0" }}>Planned · {selectedHorizon}d</div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: timelinePlanned.length > 0 ? "#0B7EB8" : "#46586A", lineHeight: 1.1 }}>{timelinePlanned.length}</div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-            <div className="text-sm text-slate-500">Unknown baseline</div>
-            <div className="mt-2 text-2xl font-semibold text-slate-500">
-              {timelineUnknown.length}
-            </div>
+          <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: "#F3F6F9", border: "1px solid #E2E9EF" }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: "#8593A0" }}>Unknown baseline</div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: "#46586A", lineHeight: 1.1 }}>{timelineUnknown.length}</div>
           </div>
         </div>
 
