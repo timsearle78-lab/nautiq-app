@@ -1,14 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
-  <rect width="192" height="192" rx="40" fill="#2a6496"/>
-  <!-- Anchor icon centred -->
-  <g transform="translate(96,96)" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <!-- Circle at top -->
-    <circle cx="0" cy="-44" r="10"/>
-    <!-- Vertical shaft -->
-    <line x1="0" y1="-34" x2="0" y2="44"/>
-    <!-- Crossbar -->
-    <line x1="-24" y1="-24" x2="24" y2="-24"/>
-    <!-- Flukes -->
-    <path d="M-32 32 Q-40 44 -24 44 L0 44 M32 32 Q40 44 24 44 L0 44"/>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%" gradientTransform="rotate(-25,0.5,0.5)">
+      <stop offset="0%" stop-color="#22A9DD"/>
+      <stop offset="100%" stop-color="#0B7EB8"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="46" fill="url(#bg)"/>
+  <!-- NautIQ anchor mark, centred at 96,96, scaled to ~52% of tile = ~100px -->
+  <g transform="translate(46,46) scale(1)">
+    <svg viewBox="0 0 100 100" width="100" height="100" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="50" cy="18" r="9"/>
+      <line x1="50" y1="27" x2="50" y2="84"/>
+      <line x1="26" y1="43" x2="74" y2="43"/>
+      <path d="M16 56 C 16 76, 32 86, 50 86 C 68 86, 84 76, 84 56"/>
+    </svg>
   </g>
 </svg>
