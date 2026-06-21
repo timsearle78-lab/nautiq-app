@@ -65,13 +65,13 @@ const SAIL_SPARES: SparePreset[] = [
 ];
 
 function getSparePresets(boatType: string): SparePreset[] {
-  const isSail = boatType === "Sailboat" || boatType === "Catamaran";
+  const isSail = boatType === "Sailboat" || boatType === "Catamaran" || boatType === "Yacht";
   return [...UNIVERSAL_SPARES, ...(isSail ? SAIL_SPARES : MOTOR_SPARES)];
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-const BOAT_TYPES = ["Motorboat", "Sailboat", "Catamaran", "Yacht", "RIB", "Other"];
+const BOAT_TYPES = ["Motorboat", "Sailboat", "Catamaran", "RIB", "Other"];
 
 const inputCls =
   "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100";
