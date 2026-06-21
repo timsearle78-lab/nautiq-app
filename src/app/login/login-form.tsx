@@ -31,18 +31,39 @@ export default function LoginForm() {
 
   const isError = status && status !== "Signed in successfully.";
 
+  const inputStyle = {
+    borderRadius: 11,
+    border: "1.5px solid #E0E6EC",
+    background: "#FFFFFF",
+    padding: "13px 15px",
+    fontSize: 14.5,
+    color: "#0F2335",
+    width: "100%",
+    outline: "none",
+  } as const;
+
+  const focusHandlers = {
+    onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
+      e.target.style.borderColor = "#0B7EB8";
+      e.target.style.boxShadow = "0 0 0 4px rgba(11,126,184,.14)";
+    },
+    onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
+      e.target.style.borderColor = "#E0E6EC";
+      e.target.style.boxShadow = "none";
+    },
+  };
+
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-10"
+      className="min-h-screen flex flex-col md:items-center md:justify-center md:px-4 md:py-10"
       style={{ background: "#EEF1F5" }}
     >
-      <div
-        className="w-full max-w-4xl overflow-hidden grid md:grid-cols-2"
-        style={{ borderRadius: 24, boxShadow: "0 12px 30px rgba(13,52,87,.16)" }}
-      >
-        {/* Dark navy panel */}
+      {/* Card: full-screen stack on mobile, rounded side-by-side on desktop */}
+      <div className="w-full md:max-w-4xl flex flex-col md:grid md:grid-cols-2 md:rounded-3xl md:overflow-hidden md:shadow-2xl">
+
+        {/* Navy branding panel */}
         <div
-          className="hidden md:flex flex-col justify-between p-10 text-white"
+          className="flex flex-col gap-4 px-6 py-8 md:p-10 text-white md:justify-between"
           style={{
             background: "radial-gradient(120% 140% at 85% 0%, #0D4A73 0%, #0B2942 50%, #061D31 100%)",
           }}
@@ -50,18 +71,18 @@ export default function LoginForm() {
           <div>
             <NautiqLogo size={22} dark />
             <h1
-              className="mt-8 leading-tight"
-              style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", color: "#FFFFFF" }}
+              className="mt-5 leading-tight"
+              style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: "#FFFFFF" }}
             >
               Predictive maintenance for real boat ownership.
             </h1>
-            <p className="mt-4 max-w-sm leading-6" style={{ fontSize: 15, color: "rgba(159,186,206,0.9)" }}>
+            <p className="mt-3 leading-6" style={{ fontSize: 14, color: "rgba(159,186,206,0.85)" }}>
               Track trips, maintenance, spares, and engine hours in one place.
               Stay ahead of service needs instead of reacting late.
             </p>
           </div>
           <div
-            className="p-4 text-sm"
+            className="hidden md:block p-4"
             style={{
               borderRadius: 14,
               border: "1px solid rgba(255,255,255,.1)",
@@ -75,17 +96,14 @@ export default function LoginForm() {
         </div>
 
         {/* White form panel */}
-        <div className="p-6 sm:p-10" style={{ background: "#FFFFFF" }}>
+        <div className="flex-1 px-6 py-8 md:p-10" style={{ background: "#FFFFFF" }}>
           <div className="mx-auto max-w-sm">
-            <div className="mb-8 md:hidden">
-              <NautiqLogo size={20} />
-            </div>
             <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0F2335" }}>Sign in</h2>
             <p className="mt-2" style={{ fontSize: 14, color: "#8593A0" }}>
               Access your boat and maintenance planner.
             </p>
 
-            <form onSubmit={handleLogin} className="mt-8 space-y-5">
+            <form onSubmit={handleLogin} className="mt-6 space-y-5">
               <div>
                 <label
                   htmlFor="email"
@@ -100,23 +118,8 @@ export default function LoginForm() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full outline-none transition"
-                  style={{
-                    borderRadius: 11,
-                    border: "1.5px solid #E0E6EC",
-                    background: "#FFFFFF",
-                    padding: "13px 15px",
-                    fontSize: 14.5,
-                    color: "#0F2335",
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#0B7EB8";
-                    e.target.style.boxShadow = "0 0 0 4px rgba(11,126,184,.14)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#E0E6EC";
-                    e.target.style.boxShadow = "none";
-                  }}
+                  style={inputStyle}
+                  {...focusHandlers}
                   placeholder="you@example.com"
                   required
                 />
@@ -144,23 +147,8 @@ export default function LoginForm() {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full outline-none transition"
-                  style={{
-                    borderRadius: 11,
-                    border: "1.5px solid #E0E6EC",
-                    background: "#FFFFFF",
-                    padding: "13px 15px",
-                    fontSize: 14.5,
-                    color: "#0F2335",
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#0B7EB8";
-                    e.target.style.boxShadow = "0 0 0 4px rgba(11,126,184,.14)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#E0E6EC";
-                    e.target.style.boxShadow = "none";
-                  }}
+                  style={inputStyle}
+                  {...focusHandlers}
                   placeholder="Enter your password"
                   required
                 />
@@ -185,7 +173,7 @@ export default function LoginForm() {
 
               {status ? (
                 <div
-                  className="px-4 py-3 text-sm"
+                  className="px-4 py-3"
                   style={{
                     borderRadius: 11,
                     border: `1px solid ${isError ? "#F3C4C4" : "#B8E2C8"}`,
@@ -212,8 +200,9 @@ export default function LoginForm() {
           </div>
         </div>
       </div>
+
       {process.env.NEXT_PUBLIC_BUILD_TIME && (
-        <p className="mt-4 text-xs" style={{ color: "#8593A0" }}>
+        <p className="mt-4 text-xs hidden md:block" style={{ color: "#8593A0" }}>
           v{new Date(process.env.NEXT_PUBLIC_BUILD_TIME).toLocaleString(undefined, {
             year: "numeric", month: "short", day: "numeric",
             hour: "2-digit", minute: "2-digit",

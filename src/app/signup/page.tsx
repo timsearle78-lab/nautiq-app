@@ -81,16 +81,13 @@ export default function SignupPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 py-10"
+      className="min-h-screen flex flex-col md:items-center md:justify-center md:px-4 md:py-10"
       style={{ background: "#EEF1F5" }}
     >
-      <div
-        className="w-full max-w-4xl overflow-hidden grid md:grid-cols-2"
-        style={{ borderRadius: 24, boxShadow: "0 12px 30px rgba(13,52,87,.16)" }}
-      >
-        {/* Dark navy panel */}
+      <div className="w-full md:max-w-4xl flex flex-col md:grid md:grid-cols-2 md:rounded-3xl md:overflow-hidden md:shadow-2xl">
+        {/* Navy branding panel */}
         <div
-          className="hidden md:flex flex-col justify-between p-10 text-white"
+          className="flex flex-col gap-4 px-6 py-8 md:p-10 text-white md:justify-between"
           style={{
             background: "radial-gradient(120% 140% at 85% 0%, #0D4A73 0%, #0B2942 50%, #061D31 100%)",
           }}
@@ -98,18 +95,18 @@ export default function SignupPage() {
           <div>
             <NautiqLogo size={22} dark />
             <h1
-              className="mt-8 leading-tight"
-              style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", color: "#FFFFFF" }}
+              className="mt-5 leading-tight"
+              style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: "#FFFFFF" }}
             >
               Start tracking your boat like a serious owner.
             </h1>
-            <p className="mt-4 max-w-sm leading-6" style={{ fontSize: 15, color: "rgba(159,186,206,0.9)" }}>
+            <p className="mt-3 leading-6" style={{ fontSize: 14, color: "rgba(159,186,206,0.85)" }}>
               Log trips, track maintenance, forecast service work, and stay
               ahead of critical spares.
             </p>
           </div>
           <div
-            className="p-4"
+            className="hidden md:block p-4"
             style={{
               borderRadius: 14,
               border: "1px solid rgba(255,255,255,.1)",
@@ -123,11 +120,8 @@ export default function SignupPage() {
         </div>
 
         {/* White form panel */}
-        <div className="p-6 sm:p-10" style={{ background: "#FFFFFF" }}>
+        <div className="flex-1 px-6 py-8 md:p-10" style={{ background: "#FFFFFF" }}>
           <div className="mx-auto max-w-sm">
-            <div className="mb-8 md:hidden">
-              <NautiqLogo size={20} />
-            </div>
             <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0F2335" }}>Create account</h2>
             <p className="mt-2" style={{ fontSize: 14, color: "#8593A0" }}>
               Set up your NautIQ account to start logging trips and managing maintenance.
