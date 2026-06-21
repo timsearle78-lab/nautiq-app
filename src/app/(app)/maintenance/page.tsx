@@ -454,8 +454,33 @@ export default async function MaintenancePage({
                   </div>
                 </div>
 
-                <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-500">
-                  <span>Risk: {Math.round(Number(row.risk_score ?? 0))}</span>
+                <div className="mt-3">
+                  {/* AI Predicted Risk bar */}
+                  {(() => {
+                    const score = Math.min(100, Math.round(Number(row.risk_score ?? 0)));
+                    const barColor = score >= 70 ? "#D83A3A" : score >= 40 ? "#C8841A" : "#1D9B55";
+                    const barBg = score >= 70 ? "#FDF0F0" : score >= 40 ? "#FDF8EA" : "#EEF8F1";
+                    const label = score >= 70 ? "High risk" : score >= 40 ? "Moderate risk" : "Low risk";
+                    return (
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="flex items-center gap-1.5" style={{ fontSize: 11, fontWeight: 700, color: "#8593A0", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                              <path d="M6 1L7.5 4.5H11L8.25 6.75L9.25 10.5L6 8.25L2.75 10.5L3.75 6.75L1 4.5H4.5L6 1Z" fill="#0B7EB8" />
+                            </svg>
+                            AI Predicted Risk
+                          </span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: barColor }}>{label} · {score}</span>
+                        </div>
+                        <div className="rounded-full overflow-hidden" style={{ height: 7, background: barBg }}>
+                          <div
+                            className="h-full rounded-full transition-all"
+                            style={{ width: `${score}%`, background: barColor, minWidth: score > 0 ? 4 : 0 }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             ))}
