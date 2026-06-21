@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Anchor } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function SignupPage() {
@@ -62,10 +63,13 @@ export default function SignupPage() {
       <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm grid md:grid-cols-2">
         <div className="hidden md:flex flex-col justify-between bg-ocean-900 p-10 text-white">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-ocean-200">
-              NautIQ
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-ocean-500 flex items-center justify-center shadow-lg shadow-ocean-900/50">
+                <Anchor size={22} className="text-white" />
+              </div>
+              <span className="text-xl font-bold tracking-tight text-white">NautIQ</span>
             </div>
-            <h1 className="mt-6 text-3xl font-semibold leading-tight">
+            <h1 className="mt-8 text-3xl font-semibold leading-tight">
               Start tracking your boat like a serious owner.
             </h1>
             <p className="mt-4 max-w-sm text-sm leading-6 text-ocean-100/80">
@@ -80,6 +84,12 @@ export default function SignupPage() {
 
         <div className="p-6 sm:p-10">
           <div className="mx-auto max-w-sm">
+            <div className="flex items-center gap-3 mb-8 md:hidden">
+              <div className="w-9 h-9 rounded-xl bg-ocean-600 flex items-center justify-center">
+                <Anchor size={19} className="text-white" />
+              </div>
+              <span className="text-lg font-bold tracking-tight text-slate-900">NautIQ</span>
+            </div>
             <h2 className="text-2xl font-semibold text-slate-900">Create account</h2>
             <p className="mt-2 text-sm text-slate-500">
               Set up your NautIQ account to start logging trips and managing maintenance.

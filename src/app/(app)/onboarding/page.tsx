@@ -224,12 +224,17 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-ocean-900 to-ocean-700 flex flex-col items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
 
+        {/* Persistent logo header on all steps */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-9 h-9 rounded-xl bg-ocean-500 flex items-center justify-center shadow-lg shadow-ocean-900/40">
+            <Anchor size={19} className="text-white" />
+          </div>
+          <span className="text-lg font-bold tracking-tight text-white">NautIQ</span>
+        </div>
+
         {/* ── Step 0: Welcome ─────────────────────────────────────── */}
         {step === 0 && (
           <div className="text-center">
-            <div className="w-16 h-16 rounded-2xl bg-ocean-500 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-ocean-900/50">
-              <Anchor size={32} className="text-white" />
-            </div>
             <h1 className="text-2xl font-bold text-white">Welcome to NautIQ</h1>
             <p className="mt-2 text-sm text-ocean-200 max-w-sm mx-auto">
               Your smart boat companion for maintenance tracking, trip logging, and keeping your vessel in top shape.
