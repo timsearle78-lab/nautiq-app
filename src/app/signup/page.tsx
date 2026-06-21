@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Anchor } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import NautiqLogo from "@/components/ui/nautiq-logo";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
@@ -57,46 +57,89 @@ export default function SignupPage() {
     !status.toLowerCase().includes("check your email") &&
     !status.toLowerCase().includes("account created");
 
+  const inputStyle = {
+    borderRadius: 11,
+    border: "1.5px solid #E0E6EC",
+    background: "#FFFFFF",
+    padding: "13px 15px",
+    fontSize: 14.5,
+    color: "#0F2335",
+    width: "100%",
+    outline: "none",
+  };
+
+  const focusHandlers = {
+    onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
+      e.target.style.borderColor = "#0B7EB8";
+      e.target.style.boxShadow = "0 0 0 4px rgba(11,126,184,.14)";
+    },
+    onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
+      e.target.style.borderColor = "#E0E6EC";
+      e.target.style.boxShadow = "none";
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm grid md:grid-cols-2">
-        <div className="hidden md:flex flex-col justify-between bg-ocean-900 p-10 text-white">
+    <div
+      className="min-h-screen flex items-center justify-center px-4 py-10"
+      style={{ background: "#EEF1F5" }}
+    >
+      <div
+        className="w-full max-w-4xl overflow-hidden grid md:grid-cols-2"
+        style={{ borderRadius: 24, boxShadow: "0 12px 30px rgba(13,52,87,.16)" }}
+      >
+        {/* Dark navy panel */}
+        <div
+          className="hidden md:flex flex-col justify-between p-10 text-white"
+          style={{
+            background: "radial-gradient(120% 140% at 85% 0%, #0D4A73 0%, #0B2942 50%, #061D31 100%)",
+          }}
+        >
           <div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-ocean-500 flex items-center justify-center shadow-lg shadow-ocean-900/50">
-                <Anchor size={22} className="text-white" />
-              </div>
-              <span className="text-xl font-bold tracking-tight text-white">NautIQ</span>
-            </div>
-            <h1 className="mt-8 text-3xl font-semibold leading-tight">
+            <NautiqLogo size={22} dark />
+            <h1
+              className="mt-8 leading-tight"
+              style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", color: "#FFFFFF" }}
+            >
               Start tracking your boat like a serious owner.
             </h1>
-            <p className="mt-4 max-w-sm text-sm leading-6 text-ocean-100/80">
+            <p className="mt-4 max-w-sm leading-6" style={{ fontSize: 15, color: "rgba(159,186,206,0.9)" }}>
               Log trips, track maintenance, forecast service work, and stay
               ahead of critical spares.
             </p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-ocean-100/70">
+          <div
+            className="p-4"
+            style={{
+              borderRadius: 14,
+              border: "1px solid rgba(255,255,255,.1)",
+              background: "rgba(255,255,255,.05)",
+              color: "rgba(159,186,206,0.7)",
+              fontSize: 13,
+            }}
+          >
             Built for real-world ownership, not just record keeping.
           </div>
         </div>
 
-        <div className="p-6 sm:p-10">
+        {/* White form panel */}
+        <div className="p-6 sm:p-10" style={{ background: "#FFFFFF" }}>
           <div className="mx-auto max-w-sm">
-            <div className="flex items-center gap-3 mb-8 md:hidden">
-              <div className="w-9 h-9 rounded-xl bg-ocean-600 flex items-center justify-center">
-                <Anchor size={19} className="text-white" />
-              </div>
-              <span className="text-lg font-bold tracking-tight text-slate-900">NautIQ</span>
+            <div className="mb-8 md:hidden">
+              <NautiqLogo size={20} />
             </div>
-            <h2 className="text-2xl font-semibold text-slate-900">Create account</h2>
-            <p className="mt-2 text-sm text-slate-500">
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0F2335" }}>Create account</h2>
+            <p className="mt-2" style={{ fontSize: 14, color: "#8593A0" }}>
               Set up your NautIQ account to start logging trips and managing maintenance.
             </p>
 
             <form onSubmit={handleSignup} className="mt-8 space-y-4">
               <div>
-                <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-slate-700">
+                <label
+                  htmlFor="name"
+                  className="mb-2 block"
+                  style={{ fontSize: 13, fontWeight: 600, color: "#0F2335" }}
+                >
                   Your name
                 </label>
                 <input
@@ -104,13 +147,18 @@ export default function SignupPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
+                  style={inputStyle}
+                  {...focusHandlers}
                   placeholder="Tim"
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
+                <label
+                  htmlFor="email"
+                  className="mb-2 block"
+                  style={{ fontSize: 13, fontWeight: 600, color: "#0F2335" }}
+                >
                   Email
                 </label>
                 <input
@@ -119,14 +167,19 @@ export default function SignupPage() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
+                  style={inputStyle}
+                  {...focusHandlers}
                   placeholder="you@example.com"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-slate-700">
+                <label
+                  htmlFor="password"
+                  className="mb-2 block"
+                  style={{ fontSize: 13, fontWeight: 600, color: "#0F2335" }}
+                >
                   Password
                 </label>
                 <input
@@ -135,7 +188,8 @@ export default function SignupPage() {
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
+                  style={inputStyle}
+                  {...focusHandlers}
                   placeholder="At least 8 characters"
                   required
                   minLength={8}
@@ -143,7 +197,11 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="mb-1.5 block text-sm font-medium text-slate-700">
+                <label
+                  htmlFor="confirmPassword"
+                  className="mb-2 block"
+                  style={{ fontSize: 13, fontWeight: 600, color: "#0F2335" }}
+                >
                   Confirm password
                 </label>
                 <input
@@ -152,7 +210,8 @@ export default function SignupPage() {
                   autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
+                  style={inputStyle}
+                  {...focusHandlers}
                   placeholder="Repeat your password"
                   required
                   minLength={8}
@@ -162,27 +221,44 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+                style={{
+                  borderRadius: 11,
+                  padding: "13px 24px",
+                  fontSize: 14.5,
+                  fontWeight: 600,
+                  background: "linear-gradient(135deg,#15A0D6,#0B7EB8)",
+                  boxShadow: "0 6px 16px rgba(11,126,184,.28)",
+                  border: "none",
+                  marginTop: 8,
+                }}
               >
                 {loading ? "Creating account…" : "Create account"}
               </button>
 
               {status ? (
                 <div
-                  className={`rounded-xl border px-4 py-3 text-sm ${
-                    isError
-                      ? "border-red-200 bg-red-50 text-red-700"
-                      : "border-green-200 bg-green-50 text-green-700"
-                  }`}
+                  className="px-4 py-3"
+                  style={{
+                    borderRadius: 11,
+                    border: `1px solid ${isError ? "#F3C4C4" : "#B8E2C8"}`,
+                    background: isError ? "#FDEBEB" : "#E7F6EE",
+                    color: isError ? "#D83A3A" : "#1D9B55",
+                    fontSize: 13,
+                  }}
                 >
                   {status}
                 </div>
               ) : null}
             </form>
 
-            <p className="mt-6 text-sm text-slate-500">
+            <p className="mt-6" style={{ fontSize: 14, color: "#8593A0" }}>
               Already have an account?{" "}
-              <Link href="/login" className="font-medium text-ocean-600 hover:text-ocean-700">
+              <Link
+                href="/login"
+                style={{ fontWeight: 600, color: "#0B7EB8" }}
+                className="hover:underline"
+              >
                 Sign in
               </Link>
             </p>
