@@ -89,28 +89,93 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     (item) => item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity)
   ).length;
 
+  const stockedCount = inventoryItems.length - lowStockCount - missingCriticalSpares.length;
+
   return (
     <main className="px-4 py-6 space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-800">Inventory</h1>
-          <p className="text-sm text-slate-500 mt-0.5">
-            {inventoryItems.length} items · {lowStockCount > 0 ? <span className="text-amber-600 font-medium">{lowStockCount} low stock</span> : "all stocked"}{missingCriticalSpares.length > 0 && <span className="text-red-600 font-medium"> · {missingCriticalSpares.length} critical missing</span>}
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#0F2335" }}>Inventory</h1>
+          <p className="mt-1" style={{ fontSize: 14, color: "#8593A0" }}>
+            Track spares, consumables, and critical items on board.
           </p>
         </div>
         <AddInventorySheet boatId={activeBoatId} components={components} categories={existingCategories} />
       </div>
 
+      {/* Stat tiles */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {/* Total */}
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-1.5"
+          style={{ background: "#F3F6F9", border: "1px solid #E2E9EF" }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 500, color: "#8593A0" }}>Total items</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: "#46586A", lineHeight: 1.1 }}>
+            {inventoryItems.length}
+          </div>
+        </div>
+
+        {/* Low stock */}
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-1.5"
+          style={{
+            background: lowStockCount > 0 ? "#FDF8EA" : "#F3F6F9",
+            border: `1px solid ${lowStockCount > 0 ? "#F3E6C4" : "#E2E9EF"}`,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 500, color: lowStockCount > 0 ? "#C8841A" : "#8593A0" }}>
+            Low stock
+          </div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: lowStockCount > 0 ? "#C8841A" : "#46586A", lineHeight: 1.1 }}>
+            {lowStockCount}
+          </div>
+        </div>
+
+        {/* Critical missing */}
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-1.5"
+          style={{
+            background: missingCriticalSpares.length > 0 ? "#FDF0F0" : "#F3F6F9",
+            border: `1px solid ${missingCriticalSpares.length > 0 ? "#F8DCDC" : "#E2E9EF"}`,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 500, color: missingCriticalSpares.length > 0 ? "#D83A3A" : "#8593A0" }}>
+            Critical missing
+          </div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: missingCriticalSpares.length > 0 ? "#D83A3A" : "#46586A", lineHeight: 1.1 }}>
+            {missingCriticalSpares.length}
+          </div>
+        </div>
+
+        {/* Stocked */}
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-1.5"
+          style={{
+            background: stockedCount > 0 ? "#EEF8F1" : "#F3F6F9",
+            border: `1px solid ${stockedCount > 0 ? "#D2EBDB" : "#E2E9EF"}`,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 500, color: stockedCount > 0 ? "#1D9B55" : "#8593A0" }}>
+            Stocked
+          </div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: stockedCount > 0 ? "#1D9B55" : "#46586A", lineHeight: 1.1 }}>
+            {stockedCount}
+          </div>
+        </div>
+      </div>
+
       {/* Low stock filter */}
       <form method="get" className="flex items-center gap-2">
-        <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
+        <label className="flex items-center gap-2 text-sm cursor-pointer select-none" style={{ color: "#46586A" }}>
           <input type="checkbox" name="low" value="1" defaultChecked={lowOnly} className="rounded border-slate-300 text-ocean-600 focus:ring-ocean-500" />
           Show low stock only
         </label>
         <button
           type="submit"
-          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+          className="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
+          style={{ border: "1px solid #E6EBF0", background: "#FFFFFF", color: "#46586A" }}
         >
           Apply
         </button>
