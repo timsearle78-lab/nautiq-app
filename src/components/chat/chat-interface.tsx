@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Mic, Send, Camera, Plus, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, PackagePlus, PackageMinus } from "lucide-react";
+import { Mic, Send, Plus, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, PackagePlus, PackageMinus, ScanLine } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
 import Link from "next/link";
 import MessageBubble from "./message-bubble";
@@ -121,7 +121,8 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const inventoryScanRef = useRef<HTMLInputElement>(null);
+  const [scanningInventory, setScanningInventory] = useState(false);
 
   const router = useRouter();
   const onTripSaved = useCallback(() => router.refresh(), [router]);
@@ -194,24 +195,29 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     setIsRecording(true);
   }
 
-  async function handlePhotoCapture(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleInventoryScan(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const formData = new FormData();
-    formData.append("image", file);
+    setScanningInventory(true);
+    const fd = new FormData();
+    fd.append("image", file);
     try {
-      const res = await fetch("/api/ai/engine-hours", { method: "POST", body: formData });
-      if (res.ok) {
-        const { engine_hours } = await res.json();
-        if (engine_hours != null) {
-          setTripSheetEngineHours(engine_hours);
-          setShowTripSheet(true);
-        }
+      const res = await fetch("/api/ai/inventory-scan", { method: "POST", body: fd });
+      const data = await res.json();
+      if (res.ok && !data.error) {
+        const action = data.transactionType === "add" ? "bought" : "used";
+        const unitStr = data.unit ? ` ${data.unit}` : "";
+        const msg = `I ${action} ${data.quantity}${unitStr} of ${data.itemName}${data.notes ? ` (${data.notes})` : ""}`;
+        sendMessage({ text: msg });
+      } else {
+        sendMessage({ text: "I just scanned a spare part — can you help me update inventory?" });
       }
-    } catch (err) {
-      console.error("Engine hours extraction failed", err);
+    } catch {
+      sendMessage({ text: "I just scanned a spare part — can you help me update inventory?" });
+    } finally {
+      setScanningInventory(false);
+      if (inventoryScanRef.current) inventoryScanRef.current.value = "";
     }
-    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
 
@@ -226,30 +232,13 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     <div className="flex flex-col h-[calc(100dvh-3.5rem-4rem)]">
       {/* Sub-header: quick actions */}
       <header className="flex items-center justify-end border-b border-slate-200 bg-white px-4 py-2.5 shrink-0">
-        <div className="flex gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={handlePhotoCapture}
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50"
-            title="Add photo"
-          >
-            <Camera size={18} />
-          </button>
-          <button
-            onClick={() => setShowTripSheet(true)}
-            className="flex items-center gap-1.5 rounded-full bg-ocean-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-ocean-700"
-          >
-            <Plus size={14} />
-            Log Trip
-          </button>
-        </div>
+        <button
+          onClick={() => setShowTripSheet(true)}
+          className="flex items-center gap-1.5 rounded-full bg-ocean-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-ocean-700"
+        >
+          <Plus size={14} />
+          Log Trip
+        </button>
       </header>
 
       {/* Messages / health area */}
@@ -377,20 +366,32 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       </div>
 
       {/* Input bar */}
-      <div className="shrink-0 border-t border-slate-200 bg-white px-3 py-2.5">
+      <div className="shrink-0 border-t border-slate-200 bg-white px-3 pt-3 pb-2">
+        {/* Main input row */}
         <div className="flex items-end gap-2">
+          {/* Prominent voice button */}
           <button
             onClick={handleVoice}
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors ${
-              isRecording
-                ? "border-red-300 bg-red-50 text-red-500"
-                : "border-slate-200 text-slate-400 hover:bg-slate-50"
-            }`}
+            className="shrink-0 flex items-center justify-center rounded-full transition-all"
+            style={{
+              width: 48,
+              height: 48,
+              background: isRecording
+                ? "#D83A3A"
+                : "linear-gradient(135deg, #15A0D6, #0B7EB8)",
+              boxShadow: isRecording
+                ? "0 4px 14px rgba(216,58,58,.35)"
+                : "0 6px 16px rgba(11,126,184,.32)",
+              color: "#fff",
+              border: "none",
+              flexShrink: 0,
+            }}
+            title={isRecording ? "Stop recording" : "Voice input"}
           >
             {isRecording ? (
-              <span className="h-3 w-3 rounded-sm bg-red-500 animate-pulse" />
+              <span className="h-3.5 w-3.5 rounded-sm bg-white animate-pulse" />
             ) : (
-              <Mic size={18} />
+              <Mic size={20} />
             )}
           </button>
 
@@ -408,14 +409,31 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ocean-600 text-white transition hover:bg-ocean-700 disabled:opacity-40"
+            className="flex shrink-0 items-center justify-center rounded-full bg-ocean-600 text-white transition hover:bg-ocean-700 disabled:opacity-40"
+            style={{ width: 40, height: 40 }}
           >
             <Send size={16} />
           </button>
         </div>
 
-        {/* Inventory quick actions */}
+        {/* Quick action chips */}
         <div className="mt-2 flex gap-2 overflow-x-auto pb-0.5">
+          <input
+            ref={inventoryScanRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handleInventoryScan}
+          />
+          <button
+            onClick={() => inventoryScanRef.current?.click()}
+            disabled={scanningInventory}
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+          >
+            <ScanLine size={12} />
+            {scanningInventory ? "Scanning…" : "Scan item"}
+          </button>
           <button
             onClick={() => sendMessage({ text: "I just bought some spare parts" })}
             className="flex shrink-0 items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1.5 text-xs text-green-700 hover:bg-green-100"
