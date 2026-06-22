@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { updateComponent, deleteComponent } from "@/app/(app)/components/[id]/actions";
 
 const inputCls =
@@ -35,6 +35,7 @@ export function EditComponentForm({
 }: Props) {
   const [updateState, updateAction, updatePending] = useActionState(updateComponent, {});
   const [deleteState, deleteAction, deletePending] = useActionState(deleteComponent, {});
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -175,25 +176,45 @@ export function EditComponentForm({
       <div className="rounded-xl border border-red-200 bg-red-50 p-4">
         <h2 className="text-sm font-semibold text-red-700">Danger zone</h2>
 
-        <form action={deleteAction} className="mt-3">
-          <input type="hidden" name="id" value={id} />
-
           <p className="text-sm text-slate-600 mb-3">
             Permanently delete this component and all its maintenance history. This cannot be undone.
           </p>
 
-          {deleteState.error && (
-            <p className="text-sm text-red-600 mb-2">{deleteState.error}</p>
+          {!confirmDelete ? (
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700"
+            >
+              Delete component
+            </button>
+          ) : (
+            <div className="rounded-xl border border-red-300 bg-white p-3">
+              <p className="text-sm font-medium text-red-700 mb-3">Delete this component permanently?</p>
+              {deleteState.error && (
+                <p className="text-sm text-red-600 mb-2">{deleteState.error}</p>
+              )}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(false)}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <form action={deleteAction} className="inline">
+                  <input type="hidden" name="id" value={id} />
+                  <button
+                    type="submit"
+                    disabled={deletePending}
+                    className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-60"
+                  >
+                    {deletePending ? "Deleting…" : "Yes, delete"}
+                  </button>
+                </form>
+              </div>
+            </div>
           )}
-
-          <button
-            type="submit"
-            disabled={deletePending}
-            className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
-          >
-            {deletePending ? "Deleting…" : "Delete component"}
-          </button>
-        </form>
       </div>
     </div>
   );

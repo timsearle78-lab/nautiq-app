@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { addSystem, deleteSystem } from "@/app/(app)/settings/actions";
 
@@ -34,19 +34,42 @@ function AddSystemForm({ boatId }: AddProps) {
 
 function DeleteSystemForm({ systemId }: { systemId: string }) {
   const [, action, pending] = useActionState(deleteSystem, {});
+  const [confirm, setConfirm] = useState(false);
+
+  if (confirm) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs text-red-600 font-medium">Delete?</span>
+        <button
+          type="button"
+          onClick={() => setConfirm(false)}
+          className="rounded-lg border border-slate-200 px-2 py-0.5 text-xs text-slate-600 hover:bg-slate-50 transition"
+        >
+          Cancel
+        </button>
+        <form action={action} className="inline">
+          <input type="hidden" name="system_id" value={systemId} />
+          <button
+            type="submit"
+            disabled={pending}
+            className="rounded-lg bg-red-600 px-2 py-0.5 text-xs font-medium text-white hover:bg-red-700 transition disabled:opacity-60"
+          >
+            {pending ? "…" : "Yes"}
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   return (
-    <form action={action}>
-      <input type="hidden" name="system_id" value={systemId} />
-      <button
-        type="submit"
-        disabled={pending}
-        className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition disabled:opacity-40"
-        title="Delete system"
-      >
-        <Trash2 size={15} />
-      </button>
-    </form>
+    <button
+      type="button"
+      onClick={() => setConfirm(true)}
+      className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition"
+      title="Delete system"
+    >
+      <Trash2 size={15} />
+    </button>
   );
 }
 
