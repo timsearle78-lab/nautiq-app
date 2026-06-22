@@ -4,11 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Mic, Send, Plus, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, PackagePlus, PackageMinus, ScanLine } from "lucide-react";
+import { Mic, Send, Plus, Timer, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, PackagePlus, PackageMinus, ScanLine } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
 import Link from "next/link";
 import MessageBubble from "./message-bubble";
 import LogTripSheet from "./log-trip-sheet";
+import { useTripTimer, formatElapsed } from "@/hooks/use-trip-timer";
 
 interface Boat {
   id: string;
@@ -118,6 +119,8 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [tripSheetEngineHours, setTripSheetEngineHours] = useState<number | null>(null);
+  const [tripSheetStartedAt, setTripSheetStartedAt] = useState<string | null>(null);
+  const { activeTrip, elapsed, startTrip, stopTrip } = useTripTimer(boat.id);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -231,9 +234,31 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     // h-[100dvh] minus AppHeader (h-14=3.5rem) minus BottomNav (h-16=4rem)
     <div className="flex flex-col h-[calc(100dvh-3.5rem-4rem)]">
       {/* Sub-header: quick actions */}
-      <header className="flex items-center justify-end border-b border-slate-200 bg-white px-4 py-2.5 shrink-0">
+      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2.5 shrink-0">
+        {activeTrip ? (
+          <button
+            onClick={() => {
+              const trip = stopTrip();
+              setTripSheetStartedAt(trip?.startedAt ?? null);
+              setShowTripSheet(true);
+            }}
+            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white transition"
+            style={{ background: "#D83A3A", boxShadow: "0 2px 8px rgba(216,58,58,.35)" }}
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+            Stop Trip · {formatElapsed(elapsed)}
+          </button>
+        ) : (
+          <button
+            onClick={startTrip}
+            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition"
+          >
+            <Timer size={13} />
+            Start Trip
+          </button>
+        )}
         <button
-          onClick={() => setShowTripSheet(true)}
+          onClick={() => { setTripSheetStartedAt(null); setShowTripSheet(true); }}
           className="flex items-center gap-1.5 rounded-full bg-ocean-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-ocean-700"
         >
           <Plus size={14} />
@@ -455,10 +480,12 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
         <LogTripSheet
           boatId={boat.id}
           prefillEngineHours={tripSheetEngineHours}
-          onClose={() => { setShowTripSheet(false); setTripSheetEngineHours(null); }}
+          prefillStartedAt={tripSheetStartedAt}
+          onClose={() => { setShowTripSheet(false); setTripSheetEngineHours(null); setTripSheetStartedAt(null); }}
           onSaved={() => {
             setShowTripSheet(false);
             setTripSheetEngineHours(null);
+            setTripSheetStartedAt(null);
             onTripSaved();
           }}
         />

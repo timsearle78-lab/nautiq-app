@@ -2,16 +2,33 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import VoiceTextarea from "@/components/ui/voice-textarea";
 
 interface LogTripSheetProps {
   boatId: string;
   prefillEngineHours?: number | null;
+  prefillStartedAt?: string | null;
   onClose: () => void;
   onSaved: () => void;
 }
 
+function toLocalDate(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-CA"); // YYYY-MM-DD in local tz
+}
+
+function toLocalTime(iso: string) {
+  const d = new Date(iso);
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
 function todayLocal() {
-  return new Date().toISOString().slice(0, 10);
+  return new Date().toLocaleDateString("en-CA");
+}
+
+function nowLocalTime() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
 function buildIso(date: string, time: string) {
@@ -23,12 +40,19 @@ function buildIso(date: string, time: string) {
 export default function LogTripSheet({
   boatId,
   prefillEngineHours,
+  prefillStartedAt,
   onClose,
   onSaved,
 }: LogTripSheetProps) {
-  const [date, setDate] = useState(todayLocal());
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const hasTimer = !!prefillStartedAt;
+
+  const [date, setDate] = useState(
+    prefillStartedAt ? toLocalDate(prefillStartedAt) : todayLocal()
+  );
+  const [startTime, setStartTime] = useState(
+    prefillStartedAt ? toLocalTime(prefillStartedAt) : ""
+  );
+  const [endTime, setEndTime] = useState(hasTimer ? nowLocalTime() : "");
   const [engineHours, setEngineHours] = useState(
     prefillEngineHours?.toString() ?? ""
   );
@@ -36,23 +60,15 @@ export default function LogTripSheet({
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-
   const [saved, setSaved] = useState(false);
 
   async function handleSave() {
-    if (!date) {
-      setError("Enter a date for this trip");
-      return;
-    }
+    if (!date) { setError("Enter a date for this trip"); return; }
     const hours = parseFloat(engineHours);
-    if (!hours || hours <= 0) {
-      setError("Enter engine hours for this trip");
-      return;
-    }
+    if (!hours || hours <= 0) { setError("Enter engine hours for this trip"); return; }
 
     setSaving(true);
     setError("");
-
     try {
       const res = await fetch("/api/trips/save", {
         method: "POST",
@@ -68,7 +84,6 @@ export default function LogTripSheet({
           source: "manual",
         }),
       });
-
       if (res.ok) {
         setSaved(true);
         setTimeout(() => onSaved(), 1500);
@@ -104,25 +119,20 @@ export default function LogTripSheet({
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/30" onClick={onClose} />
-
       <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl animate-in slide-in-from-bottom duration-200 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-          <h2 className="text-base font-semibold text-slate-900">Log Trip</h2>
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100"
-          >
+          <div>
+            <h2 className="text-base font-semibold text-slate-900">Log Trip</h2>
+            {hasTimer && (
+              <p className="text-xs text-ocean-600 mt-0.5">Trip timer stopped — times pre-filled</p>
+            )}
+          </div>
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100">
             <X size={18} />
           </button>
         </div>
 
         <div className="p-4 space-y-4">
-          {prefillEngineHours != null && (
-            <div className="rounded-lg bg-ocean-50 border border-ocean-200 px-3 py-2.5 text-sm text-ocean-700">
-              Engine panel read: <strong>{prefillEngineHours}h total</strong> — enter hours for <em>this trip</em> below.
-            </div>
-          )}
-
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Date <span className="text-red-500">*</span></label>
             <input
@@ -170,9 +180,7 @@ export default function LogTripSheet({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              Fuel added (litres)
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Fuel added (litres)</label>
             <input
               type="number"
               min="0"
@@ -186,18 +194,15 @@ export default function LogTripSheet({
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Notes</label>
-            <textarea
+            <VoiceTextarea
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
+              onChange={setNotes}
               placeholder="Where you went, any issues…"
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none resize-none"
+              rows={3}
             />
           </div>
 
-          {error && (
-            <p className="text-sm text-red-600">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-600">{error}</p>}
         </div>
 
         <div className="px-4 pb-6 pt-2">
