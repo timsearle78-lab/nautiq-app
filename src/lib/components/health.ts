@@ -171,7 +171,7 @@ export type BoatHealthRow = {
 export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
   const supabase = await createClient();
 
-  const [{ data: componentsData }, { data: tripsData }] = await Promise.all([
+  const [{ data: componentsData }, { data: tripsData }, { data: inventoryData }] = await Promise.all([
     supabase
       .from("components")
       .select("id, name, install_date, service_interval_years, service_interval_months, service_interval_days, service_interval_engine_hours, system:systems(id, name)")
@@ -183,6 +183,11 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
       .eq("boat_id", boatId)
       .not("engine_hours_delta", "is", null)
       .order("started_at", { ascending: true }),
+    supabase
+      .from("inventory_items")
+      .select("component_id, quantity, minimum_quantity")
+      .eq("boat_id", boatId)
+      .not("component_id", "is", null),
   ]);
 
   if (!componentsData || componentsData.length === 0) return [];
@@ -191,6 +196,22 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
 
   type TripRow = { started_at: string | null; engine_hours_delta: number };
   const trips = (tripsData ?? []) as TripRow[];
+
+  // Build a map of component_id → worst stock penalty (0–25)
+  type InventoryRow = { component_id: string | null; quantity: number | null; minimum_quantity: number | null };
+  const stockPenaltyMap = new Map<string, number>();
+  for (const item of ((inventoryData ?? []) as InventoryRow[])) {
+    if (!item.component_id) continue;
+    const qty = Number(item.quantity ?? 0);
+    const min = Number(item.minimum_quantity ?? 0);
+    let penalty = 0;
+    if (min > 0 && qty === 0) penalty = 25;          // out of stock
+    else if (min > 0 && qty < min) penalty = 15;     // below minimum
+    else if (min > 0 && qty === min) penalty = 5;    // at minimum
+    // above minimum → 0
+    const current = stockPenaltyMap.get(item.component_id) ?? 0;
+    if (penalty > current) stockPenaltyMap.set(item.component_id, penalty);
+  }
 
   // Fetch latest maintenance event per component in one query
   const { data: eventsData } = await supabase
@@ -238,21 +259,26 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
 
     const maxRatio = Math.max(dayRatio ?? 0, hourRatio ?? 0);
 
+    // Stock penalty for linked inventory items (0–25 points)
+    const stockPenalty = stockPenaltyMap.get(c.id as string) ?? 0;
+
     let status: string;
     let risk_score: number | null;
 
     if (!lastServiceDate) {
       status = "unknown";
-      risk_score = null;
-    } else if (maxRatio >= 1) {
-      status = "overdue";
-      risk_score = Math.round(maxRatio * 100);
-    } else if (maxRatio >= 0.85) {
-      status = "due soon";
-      risk_score = Math.round(maxRatio * 100);
+      // Still apply stock penalty even when service history is missing
+      risk_score = stockPenalty > 0 ? stockPenalty : null;
     } else {
-      status = "ok";
-      risk_score = maxRatio > 0 ? Math.round(maxRatio * 100) : 0;
+      const baseScore = Math.round(maxRatio * 100);
+      risk_score = baseScore + stockPenalty;
+      if (maxRatio >= 1 || risk_score >= 100) {
+        status = "overdue";
+      } else if (maxRatio >= 0.85 || risk_score >= 85) {
+        status = "due soon";
+      } else {
+        status = "ok";
+      }
     }
 
     const hours_until_due =
@@ -273,7 +299,6 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
     }
 
     // Hours-based: extrapolate from current usage rate (hours/day since last service)
-    // Rate = hoursSinceService / daysSinceService → daysUntilDue = hoursUntilDue / rate
     if (
       hourInterval != null &&
       hours_until_due != null &&
@@ -285,7 +310,6 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
       const hoursBased = new Date();
       hoursBased.setDate(hoursBased.getDate() + daysUntilHoursDue);
       const hoursBasedStr = hoursBased.toISOString().slice(0, 10);
-      // Use whichever date comes sooner
       if (predicted_due_date === null || hoursBasedStr < predicted_due_date) {
         predicted_due_date = hoursBasedStr;
       }
