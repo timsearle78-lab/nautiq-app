@@ -10,6 +10,7 @@ import Link from "next/link";
 import MessageBubble from "./message-bubble";
 import LogTripSheet from "./log-trip-sheet";
 import ScanConfirmSheet, { type ScanResult } from "./scan-confirm-sheet";
+import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
 import { useTripTimer, formatElapsed } from "@/hooks/use-trip-timer";
 
 interface Boat {
@@ -141,6 +142,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const inventoryScanRef = useRef<HTMLInputElement>(null);
   const [scanningInventory, setScanningInventory] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [showMaintenanceSheet, setShowMaintenanceSheet] = useState(false);
 
   const router = useRouter();
   const onTripSaved = useCallback(() => router.refresh(), [router]);
@@ -291,13 +293,22 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             Start Trip
           </button>
         )}
-        <button
-          onClick={() => { setTripSheetStartedAt(null); setShowTripSheet(true); }}
-          className="flex items-center gap-1.5 rounded-full bg-ocean-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-ocean-700"
-        >
-          <Plus size={14} />
-          Log Trip
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowMaintenanceSheet(true)}
+            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition"
+          >
+            <Plus size={13} />
+            Log Maintenance
+          </button>
+          <button
+            onClick={() => { setTripSheetStartedAt(null); setShowTripSheet(true); }}
+            className="flex items-center gap-1.5 rounded-full bg-ocean-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-ocean-700"
+          >
+            <Plus size={14} />
+            Log Trip
+          </button>
+        </div>
       </header>
 
       {/* Messages / health area */}
@@ -509,6 +520,17 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           </button>
         </div>
       </div>
+
+      {showMaintenanceSheet && (
+        <LogMaintenanceSheet
+          boatId={boat.id}
+          componentId={null}
+          components={components}
+          inventoryOptions={inventoryItems.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity, unit: i.unit }))}
+          onClose={() => setShowMaintenanceSheet(false)}
+          onSaved={() => { setShowMaintenanceSheet(false); router.refresh(); }}
+        />
+      )}
 
       {scanResult && (
         <ScanConfirmSheet

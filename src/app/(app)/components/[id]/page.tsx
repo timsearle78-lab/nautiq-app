@@ -15,6 +15,7 @@ import {
 import { getComponentHealthSummary } from "@/lib/components/health";
 import { LogMaintenanceForm } from "@/components/components/log-maintenance-form";
 import { EditComponentForm } from "@/components/components/edit-component-form";
+import LogMaintenanceButton from "@/components/components/log-maintenance-button";
 
 type ComponentPageProps = {
   params: Promise<{ id: string }>;
@@ -115,6 +116,19 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
               {component.notes}
             </p>
           ) : null}
+
+          <div className="mt-3">
+            <LogMaintenanceButton
+              componentId={component.id}
+              boatId={component.boat_id}
+              inventoryOptions={boatInventory.map((item) => ({
+                id: item.id,
+                name: item.name,
+                quantity: item.quantity,
+                unit: item.unit,
+              }))}
+            />
+          </div>
         </div>
 
         <div className={`rounded-xl p-4 min-w-[220px] ${status.className}`}>
@@ -189,17 +203,6 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           ))}
         </ul>
       </section>
-
-      <LogMaintenanceForm
-        componentId={component.id}
-        boatId={component.boat_id}
-        inventoryOptions={boatInventory.map((item) => ({
-          id: item.id,
-          name: item.name,
-          quantity: item.quantity,
-          unit: item.unit,
-        }))}
-      />
 
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
