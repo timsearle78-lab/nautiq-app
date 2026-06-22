@@ -9,6 +9,7 @@ import { HealthGauge } from "@/components/ui/health-gauge";
 import Link from "next/link";
 import MessageBubble from "./message-bubble";
 import LogTripSheet from "./log-trip-sheet";
+import ScanConfirmSheet, { type ScanResult } from "./scan-confirm-sheet";
 import { useTripTimer, formatElapsed } from "@/hooks/use-trip-timer";
 
 interface Boat {
@@ -33,6 +34,19 @@ interface ChatInterfaceProps {
   dueSoonCount: number;
   okCount: number;
   urgentItems: UrgentItem[];
+  components: { id: string; name: string }[];
+  inventoryItems: { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];
+}
+
+function tokenize(s: string) {
+  return s.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(Boolean);
+}
+function overlapScore(a: string, b: string) {
+  const ta = new Set(tokenize(a));
+  const tb = new Set(tokenize(b));
+  let hits = 0;
+  for (const t of ta) if (tb.has(t)) hits++;
+  return ta.size === 0 ? 0 : hits / ta.size;
 }
 
 function formatDate(v: string | null) {
@@ -114,7 +128,7 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
   );
 }
 
-export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems }: ChatInterfaceProps) {
+export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -126,6 +140,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const inventoryScanRef = useRef<HTMLInputElement>(null);
   const [scanningInventory, setScanningInventory] = useState(false);
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
 
   const router = useRouter();
   const onTripSaved = useCallback(() => router.refresh(), [router]);
@@ -208,10 +223,29 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       const res = await fetch("/api/ai/inventory-scan", { method: "POST", body: fd });
       const data = await res.json();
       if (res.ok && !data.error) {
-        const action = data.transactionType === "add" ? "bought" : "used";
-        const unitStr = data.unit ? ` ${data.unit}` : "";
-        const msg = `I ${action} ${data.quantity}${unitStr} of ${data.itemName}${data.notes ? ` (${data.notes})` : ""}`;
-        sendMessage({ text: msg });
+        const matchedItem = inventoryItems
+          .map((item) => ({ item, score: Math.max(overlapScore(data.itemName, item.name), overlapScore(item.name, data.itemName)) }))
+          .filter((x) => x.score >= 0.5)
+          .sort((a, b) => b.score - a.score)[0]?.item ?? null;
+
+        const suggestedComponentId = components
+          .map((c) => ({ c, score: Math.max(overlapScore(data.itemName, c.name), overlapScore(c.name, data.itemName)) }))
+          .filter((x) => x.score >= 0.4)
+          .sort((a, b) => b.score - a.score)[0]?.c.id ?? null;
+
+        setScanResult({
+          itemName: data.itemName ?? "Scanned item",
+          quantity: data.quantity ?? 1,
+          unit: data.unit ?? null,
+          category: data.category ?? null,
+          manufacturer: data.manufacturer ?? null,
+          sku: data.sku ?? null,
+          is_critical: data.is_critical ?? false,
+          notes: data.notes ?? null,
+          confidence: data.confidence ?? "medium",
+          matchedItem,
+          suggestedComponentId,
+        });
       } else {
         sendMessage({ text: "I just scanned a spare part — can you help me update inventory?" });
       }
@@ -475,6 +509,16 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           </button>
         </div>
       </div>
+
+      {scanResult && (
+        <ScanConfirmSheet
+          boatId={boat.id}
+          scanResult={scanResult}
+          components={components}
+          onClose={() => setScanResult(null)}
+          onSaved={() => { setScanResult(null); router.refresh(); }}
+        />
+      )}
 
       {showTripSheet && (
         <LogTripSheet

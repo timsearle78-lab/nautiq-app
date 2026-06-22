@@ -33,10 +33,15 @@ export default async function ChatPage() {
   const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const [engineHoursRes, health] = await Promise.all([
+  const [engineHoursRes, health, componentsRes, inventoryRes] = await Promise.all([
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
     getBoatHealth(boat.id),
+    supabase.from("components").select("id, name").eq("boat_id", boat.id).order("name"),
+    supabase.from("inventory_items").select("id, name, quantity, unit, minimum_quantity").eq("boat_id", boat.id).order("name"),
   ]);
+
+  const components = (componentsRes.data ?? []) as { id: string; name: string }[];
+  const inventoryItems = (inventoryRes.data ?? []) as { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];
 
   const engineHours = (engineHoursRes.data as number) ?? 0;
 
@@ -65,6 +70,8 @@ export default async function ChatPage() {
       dueSoonCount={dueSoonCount}
       okCount={okCount}
       urgentItems={urgent}
+      components={components}
+      inventoryItems={inventoryItems}
     />
   );
 }
