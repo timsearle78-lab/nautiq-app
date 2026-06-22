@@ -210,7 +210,7 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
     else if (min > 0 && qty === min) penalty = 5;    // at minimum
     // above minimum → 0
     const current = stockPenaltyMap.get(item.component_id) ?? 0;
-    if (penalty > current) stockPenaltyMap.set(item.component_id, penalty);
+    stockPenaltyMap.set(item.component_id, current + penalty);
   }
 
   // Fetch latest maintenance event per component in one query
