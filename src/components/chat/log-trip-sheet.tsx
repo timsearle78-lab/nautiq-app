@@ -198,7 +198,7 @@ export default function LogTripSheet({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="w-full rounded-xl bg-ocean-600 py-3.5 text-base font-semibold text-white transition hover:bg-ocean-700 disabled:opacity-50"
+            className="w-full rounded-xl btn-primary py-3.5 text-base font-semibold text-white transition disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save Trip"}
           </button>

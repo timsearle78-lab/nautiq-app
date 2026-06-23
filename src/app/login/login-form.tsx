@@ -157,16 +157,7 @@ export default function LoginForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
-                style={{
-                  borderRadius: 11,
-                  padding: "13px 24px",
-                  fontSize: 14.5,
-                  fontWeight: 600,
-                  background: loading ? "#0A6A9E" : "linear-gradient(135deg,#15A0D6,#0B7EB8)",
-                  boxShadow: "0 6px 16px rgba(11,126,184,.28)",
-                  border: "none",
-                }}
+                className="w-full rounded-xl btn-primary px-6 py-3.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? "Signing in…" : "Sign in"}
               </button>

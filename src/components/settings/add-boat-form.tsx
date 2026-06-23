@@ -36,7 +36,7 @@ export function AddBoatForm() {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-xl bg-ocean-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-ocean-700 disabled:opacity-60"
+        className="rounded-xl btn-primary px-4 py-2 text-sm font-medium text-white transition disabled:opacity-60"
       >
         {pending ? "Adding…" : "Add boat"}
       </button>

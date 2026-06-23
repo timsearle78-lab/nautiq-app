@@ -276,7 +276,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
         </button>
         <button
           onClick={() => setShowTripSheet(true)}
-          className="flex items-center gap-1.5 rounded-full bg-ocean-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-ocean-700"
+          className="flex items-center gap-1.5 rounded-full btn-primary px-3 py-1.5 text-xs font-semibold text-white"
         >
           <Plus size={14} />
           Log Trip
@@ -451,7 +451,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className="flex shrink-0 items-center justify-center rounded-full bg-ocean-600 text-white transition hover:bg-ocean-700 disabled:opacity-40"
+            className="flex shrink-0 items-center justify-center rounded-full btn-primary text-white transition disabled:opacity-40"
             style={{ width: 40, height: 40 }}
           >
             <Send size={16} />

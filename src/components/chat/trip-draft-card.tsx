@@ -177,7 +177,7 @@ export default function TripDraftCard({ draft, boatId, onSaved, onDismiss }: Tri
         <button
           onClick={handleSave}
           disabled={saving || !date}
-          className="flex-1 rounded-lg bg-ocean-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-ocean-700 disabled:opacity-50"
+          className="flex-1 rounded-lg btn-primary px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save Trip"}
         </button>

@@ -288,7 +288,7 @@ export function AddComponentForm({
       <button
         type="submit"
         disabled={pending || !!state.componentId || aiStatus === "loading"}
-        className="w-full rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-ocean-700 disabled:opacity-60"
+        className="w-full rounded-xl btn-primary px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60"
       >
         {pending ? "Saving…" : aiStatus === "loading" ? "Looking up intervals…" : "Create component"}
       </button>

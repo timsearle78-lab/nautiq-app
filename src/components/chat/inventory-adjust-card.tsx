@@ -352,7 +352,7 @@ export default function InventoryAdjustCard({
           onClick={handleConfirm}
           disabled={saving || !selectedId}
           className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-50 ${
-            isAdd ? "bg-green-600 hover:bg-green-700" : "bg-ocean-600 hover:bg-ocean-700"
+            isAdd ? "bg-green-600 hover:bg-green-700" : "btn-primary"
           }`}
         >
           {saving ? "Saving…" : isAdd ? "Confirm restock" : "Confirm use"}

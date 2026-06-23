@@ -27,7 +27,7 @@ export function AddComponentSheet({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-ocean-700"
+        className="flex items-center gap-1.5 rounded-xl btn-primary px-4 py-2.5 text-sm font-semibold text-white transition"
       >
         <Plus size={16} />
         Add component

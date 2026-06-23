@@ -42,6 +42,17 @@
   --foreground: #0F2335;
 }
 
+.btn-primary {
+  background: linear-gradient(135deg, #15A0D6, #0B7EB8);
+}
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0E8FBF, #0A6E9E);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 * {
   -webkit-tap-highlight-color: transparent;
   box-sizing: border-box;

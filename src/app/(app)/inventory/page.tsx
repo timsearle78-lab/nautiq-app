@@ -46,7 +46,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
         <p className="mt-3 text-sm text-slate-500">Create a boat first to manage inventory.</p>
         <Link
           href="/onboarding"
-          className="mt-4 inline-block rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-ocean-700 transition-colors"
+          className="mt-4 inline-block rounded-xl btn-primary px-4 py-2.5 text-sm font-medium text-white transition-colors"
         >
           Go to onboarding
         </Link>
