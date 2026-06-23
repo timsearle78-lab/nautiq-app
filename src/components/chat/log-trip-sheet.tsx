@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { X, Navigation } from "lucide-react";
+import { X } from "lucide-react";
+import NautiqAnchorIcon from "@/components/ui/nautiq-anchor-icon";
 import VoiceTextarea from "@/components/ui/voice-textarea";
 import SaveSuccessSheet from "@/components/ui/save-success-sheet";
 
@@ -108,7 +109,7 @@ export default function LogTripSheet({
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
           <div>
             <div className="flex items-center gap-2">
-              <Navigation size={16} className="text-ocean-600" />
+              <NautiqAnchorIcon size={16} color="#0B7EB8" />
               <h2 className="text-base font-semibold text-slate-900">Log Trip</h2>
             </div>
             {hasTimer && (
