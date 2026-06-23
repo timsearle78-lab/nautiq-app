@@ -9,7 +9,7 @@ import { AddComponentSheet } from "@/components/components/add-component-sheet";
 export const dynamic = "force-dynamic";
 
 type MaintenancePageProps = {
-  searchParams: Promise<{ boat?: string; status?: string; horizon?: string }>;
+  searchParams: Promise<{ boat?: string; horizon?: string }>;
 };
 
 type BoatRow = {
@@ -42,9 +42,9 @@ type TimelineRow = {
   risk_score: number | null;
 };
 
-type StatusFilter = "all" | "overdue" | "due_soon" | "ok" | "unknown";
-
 const HORIZONS = [30, 90, 180] as const;
+
+type StatusFilter = "all" | "overdue" | "due_soon" | "ok" | "unknown";
 
 function normalizeStatus(status: string | null): StatusFilter {
   const value = (status ?? "").toLowerCase();
@@ -98,40 +98,6 @@ function statusRank(status: string | null) {
   }
 }
 
-function statusColor(status: string | null) {
-  switch (normalizeStatus(status)) {
-    case "overdue":
-      return "text-red-600";
-    case "due_soon":
-      return "text-amber-600";
-    case "ok":
-      return "text-green-600";
-    default:
-      return "text-slate-500";
-  }
-}
-
-function statusLabel(status: string | null) {
-  switch (normalizeStatus(status)) {
-    case "overdue":
-      return "Overdue";
-    case "due_soon":
-      return "Due soon";
-    case "ok":
-      return "OK";
-    default:
-      return "Unknown";
-  }
-}
-
-function parseStatusFilter(value: string | undefined): StatusFilter {
-  if (value === "overdue") return "overdue";
-  if (value === "due_soon") return "due_soon";
-  if (value === "ok") return "ok";
-  if (value === "unknown") return "unknown";
-  return "all";
-}
-
 function parseHorizon(value: string | undefined) {
   const parsed = Number(value);
   if (parsed === 30 || parsed === 90 || parsed === 180) return parsed;
@@ -148,47 +114,12 @@ function formatPredictedDue(value: string | null) {
   return new Date(value).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
-function maintenanceUrgency(
-  predictedDate: string | null,
-  hoursUntil: number | null
-) {
-  if (!predictedDate && hoursUntil == null) {
-    return "Baseline required";
-  }
-
-  if (predictedDate) {
-    const now = new Date();
-    const due = new Date(predictedDate);
-
-    const diffDays = Math.round(
-      (due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    if (diffDays < 0) {
-      return `Overdue by ${Math.abs(diffDays)} days`;
-    }
-
-    return `Due in ${diffDays} days`;
-  }
-
-  if (hoursUntil != null) {
-    if (hoursUntil < 0) {
-      return `Overdue by ${Math.abs(Math.round(hoursUntil))} hrs`;
-    }
-
-    return `Due in ${Math.round(hoursUntil)} hrs`;
-  }
-
-  return "Unknown";
-}
-
 export default async function MaintenancePage({
   searchParams,
 }: MaintenancePageProps) {
   noStore();
 
   const params = await searchParams;
-  const selectedStatus = parseStatusFilter(params.status);
   const selectedHorizon = parseHorizon(params.horizon);
 
   const supabase = await createClient();
@@ -276,23 +207,6 @@ export default async function MaintenancePage({
     (row) => normalizeStatus(row.status) === "unknown"
   ).length;
 
-  const filteredHealth =
-    selectedStatus === "all"
-      ? allHealth
-      : allHealth.filter((row) => normalizeStatus(row.status) === selectedStatus);
-
-  const statusLinks: Array<{
-    key: StatusFilter;
-    label: string;
-    count: number;
-  }> = [
-    { key: "all", label: "All", count: allHealth.length },
-    { key: "overdue", label: "Overdue", count: overdueCount },
-    { key: "due_soon", label: "Due soon", count: dueSoonCount },
-    { key: "ok", label: "Healthy", count: okCount },
-    { key: "unknown", label: "Unknown", count: unknownCount },
-  ];
-
   const timelineOverdue = timeline.filter((row) => row.status === "overdue");
   const timelineDueSoon = timeline.filter((row) => row.status === "due_soon");
   const timelinePlanned = timeline.filter((row) => row.status === "planned");
@@ -358,7 +272,7 @@ export default async function MaintenancePage({
 
           <div className="flex gap-2">
             {HORIZONS.map((days) => {
-              const href = `/maintenance?status=${selectedStatus}&horizon=${days}`;
+              const href = `/maintenance?horizon=${days}`;
               const active = selectedHorizon === days;
 
               return (
@@ -488,209 +402,6 @@ export default async function MaintenancePage({
         )}
       </section>
 
-      <section className="flex flex-wrap gap-2">
-        {statusLinks.map((tab) => {
-          const href =
-            tab.key === "all"
-              ? `/maintenance?horizon=${selectedHorizon}`
-              : `/maintenance?status=${tab.key}&horizon=${selectedHorizon}`;
-
-          const active = selectedStatus === tab.key;
-
-          return (
-            <Link
-              key={tab.key}
-              href={href}
-              className={
-                active
-                  ? "rounded-full bg-ocean-600 px-3.5 py-1.5 text-sm font-medium text-white"
-                  : "rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
-              }
-            >
-              {tab.label} ({tab.count})
-            </Link>
-          );
-        })}
-      </section>
-
-      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-        <h2 className="text-base font-semibold text-slate-800">
-          Components
-          {selectedStatus !== "all" ? (
-            <span className="ml-2 text-sm font-normal text-slate-500">
-              · {statusLinks.find((s) => s.key === selectedStatus)?.label}
-            </span>
-          ) : null}
-        </h2>
-
-        {filteredHealth.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">
-            No components match this filter.
-          </p>
-        ) : (
-          <>
-            <div className="mt-4 space-y-3 lg:hidden">
-              {filteredHealth.map((row) => {
-                return (
-                  <div
-                    key={row.component_id}
-                    className={`rounded-xl border p-4 ${
-                      normalizeStatus(row.status) === "overdue"
-                        ? "border-red-200 bg-red-50"
-                        : normalizeStatus(row.status) === "due_soon"
-                        ? "border-amber-200 bg-amber-50"
-                        : "border-slate-200 bg-white"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <Link href={`/components/${row.component_id}`} className="font-medium text-ocean-600 hover:text-ocean-700">
-                          {row.component_name}
-                        </Link>
-                        <div className="text-sm text-slate-500">
-                          {row.system_name ?? "—"}
-                        </div>
-
-                        <div
-                          className={`text-xs ${
-                            normalizeStatus(row.status) === "overdue"
-                              ? "text-red-600"
-                              : normalizeStatus(row.status) === "due_soon"
-                              ? "text-amber-600"
-                              : "text-slate-500"
-                          }`}
-                        >
-                          {maintenanceUrgency(row.predicted_due_date ?? null, row.hours_until_due)}
-                        </div>
-                      </div>
-
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-medium border ${
-                          normalizeStatus(row.status) === "overdue"
-                            ? "text-red-600 bg-red-50 border-red-200"
-                            : normalizeStatus(row.status) === "due_soon"
-                            ? "text-amber-600 bg-amber-50 border-amber-200"
-                            : normalizeStatus(row.status) === "ok"
-                            ? "text-green-600 bg-green-50 border-green-200"
-                            : "text-slate-500 bg-slate-50 border-slate-200"
-                        }`}
-                      >
-                        {statusLabel(row.status)}
-                      </span>
-                    </div>
-
-                    <div className="mt-4 space-y-2 text-sm">
-                      <div className="flex justify-between gap-4">
-                        <span className="text-slate-500">Predicted due</span>
-                        <span
-                          className={
-                            normalizeStatus(row.status) === "overdue"
-                              ? "font-medium text-red-600"
-                              : normalizeStatus(row.status) === "due_soon"
-                              ? "font-medium text-amber-600"
-                              : "font-medium text-slate-800"
-                          }
-                        >
-                          {formatPredictedDue(row.predicted_due_date ?? null)}
-                        </span>
-                      </div>
-
-                      <div className="flex justify-between gap-4">
-                        <span className="text-slate-500">Hours until due</span>
-                        <span className="font-medium text-slate-800">
-                          {row.hours_until_due != null
-                            ? Math.round(row.hours_until_due)
-                            : "—"}
-                        </span>
-                      </div>
-
-                      <div className="flex justify-between gap-4">
-                        <span className="text-slate-500">Months until due</span>
-                        <span className="font-medium text-slate-800">
-                          {row.months_until_due != null
-                            ? row.months_until_due
-                            : "—"}
-                        </span>
-                      </div>
-                    </div>
-
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="mt-4 hidden lg:block overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200 text-left">
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Component</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">System</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Status</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Risk</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Hours since</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Hours until due</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Months until due</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Predicted due</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredHealth.map((row) => (
-                    <tr
-                      key={row.component_id}
-                      className="border-b border-slate-100 hover:bg-slate-50 align-top"
-                    >
-                      <td className="py-3 pr-4">
-                        <Link href={`/components/${row.component_id}`} className="font-medium text-ocean-600 hover:text-ocean-700">
-                          {row.component_name}
-                        </Link>
-                      </td>
-                      <td className="py-3 pr-4 text-slate-600">{row.system_name ?? "—"}</td>
-                      <td
-                        className={`py-3 pr-4 font-medium ${statusColor(
-                          row.status
-                        )}`}
-                      >
-                        {statusLabel(row.status)}
-                      </td>
-                      <td className="py-3 pr-4 text-slate-600">
-                        {Math.round(Number(row.risk_score ?? 0))}
-                      </td>
-                      <td className="py-3 pr-4 text-slate-600">
-                        {row.hours_since_service != null
-                          ? Math.round(row.hours_since_service)
-                          : "—"}
-                      </td>
-                      <td className="py-3 pr-4 text-slate-600">
-                        {row.hours_until_due != null
-                          ? Math.round(row.hours_until_due)
-                          : "—"}
-                      </td>
-                      <td className="py-3 pr-4 text-slate-600">
-                        {row.months_until_due != null
-                          ? row.months_until_due
-                          : "—"}
-                      </td>
-                      <td className="py-3 pr-4">
-                        <span
-                          className={
-                            normalizeStatus(row.status) === "overdue"
-                              ? "font-medium text-red-600"
-                              : normalizeStatus(row.status) === "due_soon"
-                              ? "font-medium text-amber-600"
-                              : "text-slate-600"
-                          }
-                        >
-                          {formatPredictedDue(row.predicted_due_date ?? null)}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-      </section>
     </main>
   );
 }
