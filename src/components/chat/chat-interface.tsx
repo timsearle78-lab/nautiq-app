@@ -480,14 +480,14 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             className="flex shrink-0 items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1.5 text-xs text-green-700 hover:bg-green-100"
           >
             <PackagePlus size={12} />
-            Bought parts
+            Restock item
           </button>
           <button
             onClick={() => sendMessage({ text: "I just used a spare part" })}
             className="flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50"
           >
             <PackageMinus size={12} />
-            Used a part
+            Used item
           </button>
         </div>
       </div>
