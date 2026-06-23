@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { SupabaseClient } from "@supabase/supabase-js";
 import type {
   ComponentDetail,
   MaintenanceHistoryRow,
@@ -168,8 +169,8 @@ export type BoatHealthRow = {
   predicted_due_date: string | null;
 };
 
-export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
-  const supabase = await createClient();
+export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseClient): Promise<BoatHealthRow[]> {
+  const supabase = supabaseClient ?? await createClient();
 
   const [{ data: componentsData }, { data: tripsData }, { data: inventoryData }] = await Promise.all([
     supabase

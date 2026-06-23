@@ -96,34 +96,33 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
           description: "Get boat health score, engine hours, and most urgent maintenance",
           inputSchema: zodSchema(z.object({})),
           execute: async () => {
-            const [health, hoursRes, timelineRes] = await Promise.all([
-              getBoatHealth(boatId!),
-              supabase.rpc("get_boat_engine_hours", { p_boat_id: boatId }),
-              supabase.rpc("get_boat_maintenance_timeline", {
-                p_boat_id: boatId,
-                p_horizon_days: 90,
-              }),
-            ]);
-
-            const knownHealth = health.filter((c) => c.risk_score != null);
-            const avgRisk =
-              knownHealth.length > 0
-                ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
-                : 0;
-            const healthScore = Math.max(0, Math.round(100 - avgRisk));
-            const timeline = (timelineRes.data ?? []) as { status: string; component_name: string }[];
-
-            return {
-              boatName: boat.name,
-              engineHours: hoursRes.data ?? 0,
-              healthScore,
-              overdueCount: health.filter((c) => c.status === "overdue").length,
-              dueSoonCount: health.filter((c) => c.status === "due soon").length,
-              urgentItems: health
-                .filter((c) => c.status === "overdue")
-                .slice(0, 3)
-                .map((c) => c.component_name),
-            };
+            try {
+              const [health, hoursRes] = await Promise.all([
+                getBoatHealth(boatId!, supabase),
+                supabase.rpc("get_boat_engine_hours", { p_boat_id: boatId }),
+              ]);
+              const knownHealth = health.filter((c) => c.risk_score != null);
+              const avgRisk =
+                knownHealth.length > 0
+                  ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
+                  : 0;
+              const healthScore = Math.max(0, Math.round(100 - avgRisk));
+              return {
+                boatName: boat.name,
+                engineHours: hoursRes.data ?? 0,
+                healthScore,
+                overdueCount: health.filter((c) => c.status === "overdue").length,
+                dueSoonCount: health.filter((c) => c.status === "due soon").length,
+                urgentItems: health
+                  .filter((c) => c.status === "overdue")
+                  .slice(0, 3)
+                  .map((c) => c.component_name),
+              };
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : String(err);
+              await logChatError(supabase, { userId, boatId, message: `getBoatSummary: ${msg}` });
+              throw err;
+            }
           },
         },
 
@@ -135,22 +134,28 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
             })
           ),
           execute: async ({ overdueOnly = false }: { overdueOnly?: boolean }) => {
-            const health = await getBoatHealth(boatId!);
-            const filtered = health
-              .filter((r) => {
-                const s = (r.status ?? "").toLowerCase();
-                if (overdueOnly) return s === "overdue";
-                return s === "overdue" || s === "due soon";
-              })
-              .sort((a, b) => (b.risk_score ?? 0) - (a.risk_score ?? 0));
-            return filtered.map((r) => ({
-              component: r.component_name,
-              system: r.system_name,
-              status: r.status,
-              monthsUntilDue: r.months_until_due,
-              hoursUntilDue: r.hours_until_due,
-              riskScore: r.risk_score,
-            }));
+            try {
+              const health = await getBoatHealth(boatId!, supabase);
+              const filtered = health
+                .filter((r) => {
+                  const s = (r.status ?? "").toLowerCase();
+                  if (overdueOnly) return s === "overdue";
+                  return s === "overdue" || s === "due soon";
+                })
+                .sort((a, b) => (b.risk_score ?? 0) - (a.risk_score ?? 0));
+              return filtered.map((r) => ({
+                component: r.component_name,
+                system: r.system_name,
+                status: r.status,
+                monthsUntilDue: r.months_until_due,
+                hoursUntilDue: r.hours_until_due,
+                riskScore: r.risk_score,
+              }));
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : String(err);
+              await logChatError(supabase, { userId, boatId, message: `getUpcomingMaintenance: ${msg}` });
+              throw err;
+            }
           },
         },
 
