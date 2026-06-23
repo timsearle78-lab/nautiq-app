@@ -55,7 +55,7 @@ export function AddInventorySheet({
               </button>
             </div>
 
-            <div className="px-4 py-4">
+            <div className="px-4 py-4 pb-8">
               <AddInventoryItemForm
                 boatId={boatId}
                 components={components}

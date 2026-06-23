@@ -65,7 +65,7 @@ export default function LogMaintenanceSheet({
           </button>
         </div>
 
-        <form action={formAction} className="p-4 space-y-4">
+        <form action={formAction} className="p-4 pb-8 space-y-4">
           <input type="hidden" name="boat_id" value={boatId} />
           <input type="hidden" name="component_id" value={effectiveComponentId} />
 

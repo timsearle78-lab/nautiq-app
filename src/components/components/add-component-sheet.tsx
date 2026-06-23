@@ -43,7 +43,7 @@ export function AddComponentSheet({
                 <X size={18} />
               </button>
             </div>
-            <div className="px-4 py-4">
+            <div className="px-4 py-4 pb-8">
               <AddComponentForm boatId={boatId} systems={systems} boatType={boatType} noRedirect onSuccess={handleSuccess} />
             </div>
           </div>
