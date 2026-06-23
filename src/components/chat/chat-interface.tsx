@@ -492,7 +492,6 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             ref={inventoryScanRef}
             type="file"
             accept="image/*"
-            capture="environment"
             className="hidden"
             onChange={handleInventoryScan}
           />
