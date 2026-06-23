@@ -115,21 +115,22 @@ export default function LogMaintenanceSheet({
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              Work done <span className="text-red-500">*</span>
-            </label>
-            <input
-              name="work_done"
-              required
-              placeholder="e.g. Replaced impeller"
-              className={inputCls}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Vendor</label>
-            <input name="vendor" placeholder="Optional" className={inputCls} />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                Work done <span className="text-red-500">*</span>
+              </label>
+              <input
+                name="work_done"
+                required
+                placeholder="e.g. Replaced impeller"
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Vendor</label>
+              <input name="vendor" placeholder="Optional" className={inputCls} />
+            </div>
           </div>
 
           <div>

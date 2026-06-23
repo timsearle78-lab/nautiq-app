@@ -68,14 +68,15 @@ export function LogMaintenanceForm({
           </div>
         </div>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">Work done</label>
-          <input name="work_done" required className={inputCls} placeholder="Replaced impeller and checked cooling flow" />
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">Vendor</label>
-          <input name="vendor" className={inputCls} placeholder="Optional" />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Work done</label>
+            <input name="work_done" required className={inputCls} placeholder="Replaced impeller" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Vendor</label>
+            <input name="vendor" className={inputCls} placeholder="Optional" />
+          </div>
         </div>
 
         <div>
