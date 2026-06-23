@@ -17,6 +17,14 @@ export default async function AppLayout({
 
   if (!user) redirect("/login");
 
+  const { data: boats } = await supabase
+    .from("boats")
+    .select("id")
+    .eq("user_id", user.id)
+    .limit(1);
+
+  if (!boats || boats.length === 0) redirect("/onboarding");
+
   const email = user.email ?? "";
   const initials = email.slice(0, 2).toUpperCase();
 

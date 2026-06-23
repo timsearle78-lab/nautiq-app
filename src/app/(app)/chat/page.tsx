@@ -28,10 +28,8 @@ export default async function ChatPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
-  if (!boats || boats.length === 0) redirect("/onboarding");
-
   const selectedBoatId = await getSelectedBoatId();
-  const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
+  const boat = (boats ?? []).find((b) => b.id === selectedBoatId) ?? (boats ?? [])[0];
 
   const [engineHoursRes, health, componentsRes, inventoryRes] = await Promise.all([
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
