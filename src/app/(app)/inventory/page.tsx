@@ -11,6 +11,7 @@ import { getSelectedBoatId } from "@/lib/selected-boat";
 
 import { AddInventorySheet } from "@/components/inventory/add-inventory-sheet";
 import { InventoryTable } from "@/components/inventory/inventory-table";
+import { LowStockToggle } from "@/components/inventory/low-stock-toggle";
 
 type InventoryPageProps = {
   searchParams: Promise<{ low?: string }>;
@@ -166,19 +167,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
         </div>
       </div>
 
-      {/* Low stock filter */}
-      <form method="get" className="flex items-center gap-2">
-        <label className="flex items-center gap-2 text-sm cursor-pointer select-none" style={{ color: "#46586A" }}>
-          <input type="checkbox" name="low" value="1" defaultChecked={lowOnly} className="rounded border-slate-300 text-ocean-600 focus:ring-ocean-500" />
-          Show low stock only
-        </label>
-        <button
-          type="submit"
-          className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-        >
-          Apply
-        </button>
-      </form>
+      <LowStockToggle active={lowOnly} />
 
       <InventoryTable boatId={activeBoatId} items={filteredItems} />
     </main>
