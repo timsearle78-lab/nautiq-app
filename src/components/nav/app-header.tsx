@@ -4,7 +4,6 @@ import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
 import BoatSelector from "./boat-selector";
 import NautiqLogo from "@/components/ui/nautiq-logo";
-import TripTimerButton from "./trip-timer-button";
 
 function normalizeStatus(s: string | null) {
   const v = (s ?? "").toLowerCase();
@@ -65,8 +64,6 @@ export default async function AppHeader() {
       <NautiqLogo size={20} />
 
       <div className="flex items-center gap-3">
-        <TripTimerButton boatId={activeBoat.id} />
-
         {health.length > 0 && (
           <div
             className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"

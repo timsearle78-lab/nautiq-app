@@ -11,6 +11,7 @@ import MessageBubble from "./message-bubble";
 import LogTripSheet from "./log-trip-sheet";
 import ScanConfirmSheet, { type ScanResult } from "./scan-confirm-sheet";
 import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
+import TripTimerButton from "@/components/nav/trip-timer-button";
 
 interface Boat {
   id: string;
@@ -266,21 +267,24 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     // h-[100dvh] minus AppHeader (h-14=3.5rem) minus BottomNav (h-16=4rem)
     <div className="flex flex-col h-[calc(100dvh-3.5rem-4rem)]">
       {/* Sub-header: quick actions */}
-      <header className="flex items-center justify-end gap-2 border-b border-slate-200 bg-white px-4 py-2.5 shrink-0">
-        <button
-          onClick={() => setShowMaintenanceSheet(true)}
-          className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
-        >
-          <Plus size={13} />
-          Log Maintenance
-        </button>
-        <button
-          onClick={() => setShowTripSheet(true)}
-          className="flex items-center gap-1.5 rounded-full btn-primary px-3 py-1.5 text-xs font-semibold text-white"
-        >
-          <Plus size={14} />
-          Log Trip
-        </button>
+      <header className="flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-2.5 shrink-0">
+        <TripTimerButton boatId={boat.id} />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowMaintenanceSheet(true)}
+            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+          >
+            <Plus size={13} />
+            Log Maintenance
+          </button>
+          <button
+            onClick={() => setShowTripSheet(true)}
+            className="flex items-center gap-1.5 rounded-full btn-primary px-3 py-1.5 text-xs font-semibold text-white"
+          >
+            <Plus size={14} />
+            Log Trip
+          </button>
+        </div>
       </header>
 
       {/* Messages / health area */}
