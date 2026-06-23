@@ -95,14 +95,14 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
   return (
     <main className="px-4 py-6 space-y-4">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#0F2335" }}>Inventory</h1>
-          <p className="mt-1" style={{ fontSize: 14, color: "#8593A0" }}>
-            Track spares, consumables, and critical items on board.
-          </p>
+      <div>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: "#0F2335" }}>Inventory</h1>
+        <p className="mt-1" style={{ fontSize: 14, color: "#8593A0" }}>
+          Track spares, consumables, and critical items on board.
+        </p>
+        <div className="mt-3">
+          <AddInventorySheet boatId={activeBoatId} components={components} categories={existingCategories} />
         </div>
-        <AddInventorySheet boatId={activeBoatId} components={components} categories={existingCategories} />
       </div>
 
       {/* Stat tiles */}
