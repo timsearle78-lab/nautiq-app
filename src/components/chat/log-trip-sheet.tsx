@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import NautiqAnchorIcon from "@/components/ui/nautiq-anchor-icon";
 import VoiceTextarea from "@/components/ui/voice-textarea";
 import SaveSuccessSheet from "@/components/ui/save-success-sheet";
+import NautiqSpinner from "@/components/ui/nautiq-spinner";
 
 interface LogTripSheetProps {
   boatId: string;
@@ -104,6 +105,7 @@ export default function LogTripSheet({
 
   return (
     <>
+      {saving && <NautiqSpinner overlay />}
       <div className="fixed inset-0 z-40 bg-black/30" onClick={onClose} />
       <div className="fixed bottom-16 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl animate-in slide-in-from-bottom duration-200 max-h-[calc(100dvh-4rem)] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">

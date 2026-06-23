@@ -12,6 +12,7 @@ import LogTripSheet from "./log-trip-sheet";
 import ScanConfirmSheet, { type ScanResult } from "./scan-confirm-sheet";
 import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
 import TripTimerButton from "@/components/nav/trip-timer-button";
+import NautiqSpinner from "@/components/ui/nautiq-spinner";
 
 interface Boat {
   id: string;
@@ -266,6 +267,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   return (
     // h-[100dvh] minus AppHeader (h-14=3.5rem) minus BottomNav (h-16=4rem)
     <div className="flex flex-col h-[calc(100dvh-3.5rem-4rem)]">
+      {scanningInventory && <NautiqSpinner overlay />}
       {/* Sub-header: quick actions */}
       <header className="flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-2.5 shrink-0">
         <TripTimerButton boatId={boat.id} />
@@ -390,10 +392,8 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 <MessageBubble key={message.id} message={message} boatId={boat.id} onTripSaved={onTripSaved} />
               ))}
               {isLoading && (
-                <div className="flex gap-1 px-4 py-3">
-                  <span className="h-2 w-2 rounded-full bg-slate-300 animate-bounce [animation-delay:0ms]" />
-                  <span className="h-2 w-2 rounded-full bg-slate-300 animate-bounce [animation-delay:150ms]" />
-                  <span className="h-2 w-2 rounded-full bg-slate-300 animate-bounce [animation-delay:300ms]" />
+                <div className="flex justify-center py-4">
+                  <NautiqSpinner size={40} />
                 </div>
               )}
               {error && (

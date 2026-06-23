@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { X, Wrench } from "lucide-react";
 import SaveSuccessSheet from "@/components/ui/save-success-sheet";
+import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import { logMaintenance } from "@/app/(app)/components/[id]/actions";
 import VoiceTextarea from "@/components/ui/voice-textarea";
 
@@ -53,6 +54,7 @@ export default function LogMaintenanceSheet({
 
   return (
     <>
+      {pending && <NautiqSpinner overlay />}
       <div className="fixed inset-0 z-40 bg-black/30" onClick={onClose} />
       <div className="fixed bottom-16 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl animate-in slide-in-from-bottom duration-200 max-h-[calc(100dvh-4rem)] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 sticky top-0 bg-white">
