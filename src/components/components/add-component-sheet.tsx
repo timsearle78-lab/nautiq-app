@@ -36,7 +36,7 @@ export function AddComponentSheet({
       {open && (
         <>
           <div className="fixed inset-0 z-40 bg-black/30" onClick={() => setOpen(false)} />
-          <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl animate-in slide-in-from-bottom duration-200 max-h-[92dvh] overflow-y-auto">
+          <div className="fixed bottom-16 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl animate-in slide-in-from-bottom duration-200 max-h-[calc(100dvh-4rem)] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 sticky top-0 bg-white">
               <h2 className="text-base font-semibold text-slate-900">Add component</h2>
               <button onClick={() => setOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100">
