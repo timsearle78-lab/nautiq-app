@@ -39,11 +39,11 @@ function DeleteSystemForm({ systemId }: { systemId: string }) {
   if (confirm) {
     return (
       <div className="flex items-center gap-1.5">
-        <span className="text-xs text-red-600 font-medium">Delete?</span>
+        <span className="text-xs font-semibold text-red-600">Delete?</span>
         <button
           type="button"
           onClick={() => setConfirm(false)}
-          className="rounded-lg border border-slate-200 px-2 py-0.5 text-xs text-slate-600 hover:bg-slate-50 transition"
+          className="rounded-xl border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
         >
           Cancel
         </button>
@@ -52,9 +52,9 @@ function DeleteSystemForm({ systemId }: { systemId: string }) {
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg bg-red-600 px-2 py-0.5 text-xs font-medium text-white hover:bg-red-700 transition disabled:opacity-60"
+            className="rounded-xl bg-red-600 px-2.5 py-0.5 text-xs font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
           >
-            {pending ? "…" : "Yes"}
+            {pending ? "…" : "Yes, delete"}
           </button>
         </form>
       </div>
@@ -65,7 +65,7 @@ function DeleteSystemForm({ systemId }: { systemId: string }) {
     <button
       type="button"
       onClick={() => setConfirm(true)}
-      className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition"
+      className="p-1.5 rounded-xl text-slate-400 transition hover:bg-red-50 hover:text-red-500"
       title="Delete system"
     >
       <Trash2 size={15} />
