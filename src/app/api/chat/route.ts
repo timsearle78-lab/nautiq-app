@@ -4,6 +4,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { generateTripDraftFromAI } from "@/lib/ai/generateTripDraft";
 import { getBoatHealth } from "@/lib/components/health";
+import { HELP_SYSTEM_PROMPT } from "@/lib/help-content";
 
 async function logChatError(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -59,7 +60,11 @@ export async function POST(req: Request) {
       system: `You are NautIQ, a practical boat assistant for "${boat.name}".
 Engine hours: ${engineHours ?? 0}h.
 
-TOOL SELECTION RULES — follow these exactly:
+${HELP_SYSTEM_PROMPT}
+
+When the user asks a "how do I" or "how does X work" question about the app, answer it directly in plain conversational text without calling any tool. Keep answers concise and friendly.
+
+TOOL SELECTION RULES — follow these exactly (only for data/action requests, not how-to questions):
 
 1. LOGGING A TRIP: If the owner is telling you about a trip they just did (e.g. "went sailing", "motored for 2 hours", "left marina at 10am", "went racing") → call draftTripLog immediately. Do NOT call getTripHistory.
 
