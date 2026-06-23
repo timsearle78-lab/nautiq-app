@@ -380,7 +380,7 @@ export default async function MaintenancePage({
 
         <div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-4">
           <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: timelineOverdue.length > 0 ? "#FDF0F0" : "#F3F6F9", border: `1px solid ${timelineOverdue.length > 0 ? "#F8DCDC" : "#E2E9EF"}` }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: timelineOverdue.length > 0 ? "#D83A3A" : "#8593A0" }}>Overdue forecast</div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: timelineOverdue.length > 0 ? "#D83A3A" : "#8593A0" }}>Overdue</div>
             <div style={{ fontSize: 26, fontWeight: 800, color: timelineOverdue.length > 0 ? "#D83A3A" : "#46586A", lineHeight: 1.1 }}>{timelineOverdue.length}</div>
           </div>
 
@@ -395,7 +395,7 @@ export default async function MaintenancePage({
           </div>
 
           <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: "#F3F6F9", border: "1px solid #E2E9EF" }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: "#8593A0" }}>Unknown baseline</div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: "#8593A0" }}>Unknown</div>
             <div style={{ fontSize: 26, fontWeight: 800, color: "#46586A", lineHeight: 1.1 }}>{timelineUnknown.length}</div>
           </div>
         </div>

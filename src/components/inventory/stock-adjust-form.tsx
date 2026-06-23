@@ -42,7 +42,7 @@ export function StockAdjustForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-ocean-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-ocean-700 disabled:opacity-50"
+        className="rounded-xl bg-ocean-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-ocean-700 disabled:opacity-50"
       >
         {pending ? "…" : "Update"}
       </button>
