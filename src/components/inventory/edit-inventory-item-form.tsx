@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { updateInventoryItem, deleteInventoryItem } from "@/app/(app)/inventory/[id]/actions";
+import SaveSuccessBanner from "@/components/ui/save-success-banner";
 
 type ComponentOption = { id: string; name: string };
 
@@ -131,12 +132,7 @@ export function EditInventoryItemForm({
           {saveState.error && (
             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{saveState.error}</div>
           )}
-          {saveState.success && (
-            <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 flex items-center gap-2">
-              <svg className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-              {saveState.success}
-            </div>
-          )}
+          {saveState.success && <SaveSuccessBanner message={saveState.success} />}
 
           <button
             type="submit"

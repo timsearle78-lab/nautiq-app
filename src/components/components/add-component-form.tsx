@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { Sparkles, X } from "lucide-react";
+import SaveSuccessBanner from "@/components/ui/save-success-banner";
 import {
   createComponent,
   type AddComponentActionState,
@@ -282,12 +283,7 @@ export function AddComponentForm({
       {state.error && (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{state.error}</div>
       )}
-      {state.componentId && (
-        <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 flex items-center gap-2">
-          <svg className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-          Component created
-        </div>
-      )}
+      {state.componentId && <SaveSuccessBanner message="Component created" />}
 
       <button
         type="submit"

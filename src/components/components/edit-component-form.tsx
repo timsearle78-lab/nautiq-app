@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { updateComponent, deleteComponent } from "@/app/(app)/components/[id]/actions";
+import SaveSuccessBanner from "@/components/ui/save-success-banner";
 
 const inputCls =
   "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100";
@@ -156,12 +157,7 @@ export function EditComponentForm({
           {updateState.error && (
             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{updateState.error}</div>
           )}
-          {updateState.success && (
-            <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 flex items-center gap-2">
-              <svg className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-              {updateState.success}
-            </div>
-          )}
+          {updateState.success && <SaveSuccessBanner message={updateState.success} />}
 
           <button
             type="submit"

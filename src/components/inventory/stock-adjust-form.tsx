@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { adjustInventoryStock } from "@/lib/inventory/actions";
+import SaveSuccessBanner from "@/components/ui/save-success-banner";
 
 type ActionState = { error?: string; success?: string };
 const initialState: ActionState = {};
@@ -48,12 +49,7 @@ export function StockAdjustForm({
       </button>
 
       {state.error && <span className="text-xs text-red-600">{state.error}</span>}
-      {state.success && (
-        <span className="flex items-center gap-1 text-xs text-green-700 font-medium">
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-          {state.success}
-        </span>
-      )}
+      {state.success && <SaveSuccessBanner message={state.success} />}
     </form>
   );
 }

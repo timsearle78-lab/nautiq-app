@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect } from "react";
 import { createInventoryItem } from "@/lib/inventory/actions";
+import SaveSuccessBanner from "@/components/ui/save-success-banner";
 
 type ComponentOption = { id: string; name: string };
 type ActionState = { error?: string; success?: string };
@@ -124,11 +125,7 @@ export function AddInventoryItemForm({
             {state.error}
           </div>
         )}
-        {state.success && (
-          <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            {state.success}
-          </div>
-        )}
+        {state.success && <SaveSuccessBanner message={state.success} />}
 
         <button
           type="submit"

@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import SaveSuccessBanner from "@/components/ui/save-success-banner";
 import { logMaintenance, type MaintenanceActionState } from "@/app/(app)/components/[id]/actions";
 
 type InventoryOption = {
@@ -115,11 +116,7 @@ export function LogMaintenanceForm({
             {state.error}
           </div>
         )}
-        {state.success && (
-          <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            {state.success}
-          </div>
-        )}
+        {state.success && <SaveSuccessBanner message={state.success} />}
 
         <button
           type="submit"
