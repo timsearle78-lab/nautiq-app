@@ -43,9 +43,9 @@ export async function logMaintenance(
       formData.get("engine_hours_at_service")
     );
 
-    const consumeInventory = formData.get("consume_inventory") === "on";
     const inventoryItemId =
       String(formData.get("inventory_item_id") ?? "").trim() || null;
+    const consumeInventory = !!inventoryItemId;
     const inventoryQuantityUsed = parseOptionalNumber(
       formData.get("inventory_quantity_used")
     );
@@ -97,10 +97,6 @@ export async function logMaintenance(
     }
 
     if (consumeInventory) {
-      if (!inventoryItemId) {
-        return { error: "Select an inventory item to consume." };
-      }
-
       if (inventoryQuantityUsed == null || inventoryQuantityUsed <= 0) {
         return { error: "Inventory quantity used must be greater than zero." };
       }
