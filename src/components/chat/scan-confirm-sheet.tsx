@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { X } from "lucide-react";
+import { X, ScanLine } from "lucide-react";
 import SaveSuccessSheet from "@/components/ui/save-success-sheet";
 import { createInventoryItem, adjustInventoryStock } from "@/lib/inventory/actions";
 import VoiceTextarea from "@/components/ui/voice-textarea";
@@ -65,9 +65,12 @@ export default function ScanConfirmSheet({ boatId, scanResult, components, onClo
       <div className="fixed bottom-16 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl animate-in slide-in-from-bottom duration-200 max-h-[calc(100dvh-4rem)] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 sticky top-0 bg-white">
           <div>
-            <h2 className="text-base font-semibold text-slate-900">
-              {mode === "update" ? "Update existing item" : "Add inventory item"}
-            </h2>
+            <div className="flex items-center gap-2">
+              <ScanLine size={16} className="text-ocean-600" />
+              <h2 className="text-base font-semibold text-slate-900">
+                {mode === "update" ? "Update existing item" : "Add inventory item"}
+              </h2>
+            </div>
             <p className="text-xs text-slate-500 mt-0.5">
               AI scanned: <span className="font-medium text-slate-700">{scanResult.itemName}</span>
               {scanResult.confidence === "low" && " · low confidence"}

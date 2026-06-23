@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Package } from "lucide-react";
 import { AddInventoryItemForm } from "./add-inventory-item-form";
 
 type ComponentOption = { id: string; name: string };
@@ -46,7 +46,10 @@ export function AddInventorySheet({
           <div className="fixed bottom-16 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl animate-in slide-in-from-bottom duration-200 max-h-[calc(100dvh-4rem)] overflow-y-auto">
             {/* Sheet header */}
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 sticky top-0 bg-white">
-              <h2 className="text-base font-semibold text-slate-900">Add inventory item</h2>
+              <div className="flex items-center gap-2">
+                <Package size={16} className="text-ocean-600" />
+                <h2 className="text-base font-semibold text-slate-900">Add inventory item</h2>
+              </div>
               <button
                 onClick={() => setOpen(false)}
                 className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100"

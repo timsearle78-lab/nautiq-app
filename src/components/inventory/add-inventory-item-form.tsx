@@ -100,19 +100,15 @@ export function AddInventoryItemForm({
           </div>
         </div>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">SKU</label>
-          <input name="sku" className={inputCls} placeholder="Optional part number" />
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">Notes</label>
-          <textarea
-            name="notes"
-            rows={3}
-            className={`${inputCls} resize-none`}
-            placeholder="Fits YSM12 raw water system"
-          />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">SKU</label>
+            <input name="sku" className={inputCls} placeholder="Optional item number" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Notes</label>
+            <input name="notes" className={inputCls} placeholder="e.g. fits YSM12" />
+          </div>
         </div>
 
         <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer">

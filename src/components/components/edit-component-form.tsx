@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { updateComponent, deleteComponent } from "@/app/(app)/components/[id]/actions";
 import SaveSuccessBanner from "@/components/ui/save-success-banner";
+import { Wrench } from "lucide-react";
 
 const inputCls =
   "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100";
@@ -41,7 +42,10 @@ export function EditComponentForm({
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-        <h2 className="text-base font-semibold text-slate-800">Edit component</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <Wrench size={16} className="text-ocean-600" />
+          <h2 className="text-base font-semibold text-slate-800">Edit component</h2>
+        </div>
 
         <form action={updateAction} className="mt-4 space-y-4">
           <input type="hidden" name="id" value={id} />

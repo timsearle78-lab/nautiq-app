@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import SaveSuccessBanner from "@/components/ui/save-success-banner";
+import { Wrench } from "lucide-react";
 import { logMaintenance, type MaintenanceActionState } from "@/app/(app)/components/[id]/actions";
 
 type InventoryOption = {
@@ -39,7 +40,10 @@ export function LogMaintenanceForm({
   return (
     <section id="log-maintenance" className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100">
-        <h2 className="text-base font-semibold text-slate-800">Log maintenance</h2>
+        <div className="flex items-center gap-2">
+          <Wrench size={16} className="text-ocean-600" />
+          <h2 className="text-base font-semibold text-slate-800">Log maintenance</h2>
+        </div>
       </div>
 
       <form action={formAction} className="px-4 py-4 space-y-4">

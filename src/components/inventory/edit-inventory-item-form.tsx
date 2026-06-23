@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { updateInventoryItem, deleteInventoryItem } from "@/app/(app)/inventory/[id]/actions";
 import SaveSuccessBanner from "@/components/ui/save-success-banner";
+import { Package } from "lucide-react";
 
 type ComponentOption = { id: string; name: string };
 
@@ -42,7 +43,10 @@ export function EditInventoryItemForm({
     <div className="space-y-4">
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100">
-          <h2 className="text-base font-semibold text-slate-800">Item details</h2>
+          <div className="flex items-center gap-2">
+            <Package size={16} className="text-ocean-600" />
+            <h2 className="text-base font-semibold text-slate-800">Item details</h2>
+          </div>
         </div>
 
         <form action={saveAction} className="px-4 py-4 space-y-4">
