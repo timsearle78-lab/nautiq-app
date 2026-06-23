@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AppHeader from "@/components/nav/app-header";
 import BottomNav from "@/components/nav/bottom-nav";
+import ScrollToTop from "@/components/ui/scroll-to-top";
 
 export default async function AppLayout({
   children,
@@ -36,6 +37,7 @@ export default async function AppLayout({
           {children}
         </div>
       </main>
+      <ScrollToTop />
       <BottomNav userEmail={email} userInitials={initials} />
     </div>
   );
