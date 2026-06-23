@@ -29,6 +29,29 @@ export async function POST(req: Request) {
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
 
+  // If fuel was recorded, consume it from the first matching inventory item
+  // (any item whose name contains "fuel", "diesel", or "petrol").
+  if (fuel_added_litres && Number(fuel_added_litres) > 0) {
+    const { data: fuelItems } = await supabase
+      .from("inventory_items")
+      .select("id")
+      .eq("boat_id", boatId)
+      .or("name.ilike.%fuel%,name.ilike.%diesel%,name.ilike.%petrol%,name.ilike.%gasoline%")
+      .order("name")
+      .limit(1);
+
+    const fuelItemId = fuelItems?.[0]?.id;
+    if (fuelItemId) {
+      await supabase.rpc("adjust_inventory_stock", {
+        p_inventory_item_id: fuelItemId,
+        p_transaction_type: "consume",
+        p_quantity_delta: Number(fuel_added_litres),
+        p_notes: `Auto-deducted from trip on ${new Date().toLocaleDateString()}`,
+      });
+      revalidatePath("/inventory");
+    }
+  }
+
   revalidatePath("/chat");
   revalidatePath("/maintenance");
 

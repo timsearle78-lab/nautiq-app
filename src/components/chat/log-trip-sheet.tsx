@@ -180,7 +180,7 @@ export default function LogTripSheet({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Fuel added (litres)</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Fuel used (litres)</label>
             <input
               type="number"
               min="0"
