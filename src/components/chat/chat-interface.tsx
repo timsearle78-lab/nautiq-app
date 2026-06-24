@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Mic, Send, Plus, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, PackagePlus, PackageMinus, ScanLine } from "lucide-react";
+import { Mic, Send, Plus, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, PackagePlus, PackageMinus, ScanLine, RotateCcw } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
 import Link from "next/link";
 import MessageBubble from "./message-bubble";
@@ -145,7 +145,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const router = useRouter();
   const onTripSaved = useCallback(() => router.refresh(), [router]);
 
-  const { messages, sendMessage, status, error } = useChat({
+  const { messages, setMessages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
       body: { boatId: boat.id },
@@ -270,7 +270,18 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       {scanningInventory && <NautiqSpinner overlay />}
       {/* Sub-header: quick actions */}
       <header className="flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-2.5 shrink-0">
-        <TripTimerButton boatId={boat.id} />
+        <div className="flex items-center gap-2">
+          <TripTimerButton boatId={boat.id} />
+          {messages.length > 0 && (
+            <button
+              onClick={() => setMessages([])}
+              title="New conversation"
+              className="flex items-center justify-center h-7 w-7 rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
+            >
+              <RotateCcw size={13} />
+            </button>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowMaintenanceSheet(true)}
