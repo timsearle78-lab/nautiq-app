@@ -273,15 +273,6 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       <header className="flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-2.5 shrink-0">
         <div className="flex items-center gap-2">
           <TripTimerButton boatId={boat.id} />
-          {messages.length > 0 && (
-            <button
-              onClick={() => setMessages([])}
-              title="New conversation"
-              className="flex items-center justify-center h-7 w-7 rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
-            >
-              <RotateCcw size={13} />
-            </button>
-          )}
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -506,6 +497,15 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             <PackageMinus size={12} />
             Used item
           </button>
+          {messages.length > 0 && (
+            <button
+              onClick={() => setMessages([])}
+              title="New conversation"
+              className="flex shrink-0 items-center justify-center h-7 w-7 rounded-full border border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition"
+            >
+              <RotateCcw size={12} />
+            </button>
+          )}
         </div>
       </div>
 
