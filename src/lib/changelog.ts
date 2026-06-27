@@ -18,6 +18,8 @@ export const CHANGELOG: Release[] = [
       "Scroll-to-top button appears on any long page after scrolling down",
       "Components table removed from Maintenance Overview — use the All Components button instead",
       "All primary buttons now use a consistent ocean-blue gradient",
+      "AI assistant now stays focused on your boat — off-topic questions are politely declined",
+      "Friendlier error message if something goes wrong in the chat",
     ],
   },
 ];

@@ -401,12 +401,9 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 </div>
               )}
               {error && (
-                <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
-                  <AlertTriangle size={16} className="mt-0.5 shrink-0 text-red-500" />
-                  <div className="text-sm text-red-700 space-y-1">
-                    <span className="font-medium">Something went wrong.</span>
-                    <pre className="text-xs text-red-600 whitespace-pre-wrap break-all font-mono bg-red-100 rounded p-2 mt-1">{error.message}</pre>
-                  </div>
+                <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                  <AlertTriangle size={16} className="shrink-0 text-red-500" />
+                  <span className="text-sm text-red-700">Something went wrong — please try again.</span>
                 </div>
               )}
               <div ref={messagesEndRef} />
