@@ -32,12 +32,18 @@ export function AddComponentForm({
   boatType,
   noRedirect = false,
   onSuccess,
+  defaultName,
+  defaultSystemId,
+  defaultInstallDate,
 }: {
   boatId: string;
   systems: SystemOption[];
   boatType?: string;
   noRedirect?: boolean;
   onSuccess?: (componentId: string) => void;
+  defaultName?: string;
+  defaultSystemId?: string;
+  defaultInstallDate?: string;
 }) {
   const [state, formAction, pending] = useActionState(createComponent, initialState);
 
@@ -46,12 +52,23 @@ export function AddComponentForm({
   const [months, setMonths] = useState("");
   const [days, setDays] = useState("");
   const [engineHours, setEngineHours] = useState("");
-  const [componentName, setComponentName] = useState("");
+  const [componentName, setComponentName] = useState(defaultName ?? "");
+  const [systemId, setSystemId] = useState(defaultSystemId ?? "");
 
   // AI state
   const [aiStatus, setAiStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [aiSuggestion, setAiSuggestion] = useState<AiSuggestion | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto-trigger AI lookup when a default name is supplied
+  const didAutoLookup = useRef(false);
+  useEffect(() => {
+    if (defaultName && !didAutoLookup.current) {
+      didAutoLookup.current = true;
+      lookUpIntervals(defaultName);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (state.componentId) {
@@ -178,7 +195,12 @@ export function AddComponentForm({
       {/* System */}
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">System</label>
-        <select name="system_id" className={inputCls} defaultValue="">
+        <select
+          name="system_id"
+          className={inputCls}
+          value={systemId}
+          onChange={(e) => setSystemId(e.target.value)}
+        >
           <option value="">None</option>
           {systems.map((system) => (
             <option key={system.id} value={system.id}>
@@ -191,7 +213,12 @@ export function AddComponentForm({
       {/* Install date */}
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">Install date</label>
-        <input name="install_date" type="date" className={inputCls} />
+        <input
+          name="install_date"
+          type="date"
+          className={inputCls}
+          defaultValue={defaultInstallDate ?? ""}
+        />
       </div>
 
       {/* Time-based interval */}
