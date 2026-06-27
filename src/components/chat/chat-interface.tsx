@@ -392,7 +392,11 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
               {error && (
                 <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
                   <AlertTriangle size={16} className="shrink-0 text-red-500" />
-                  <span className="text-sm text-red-700">Something went wrong — please try again.</span>
+                  <span className="text-sm text-red-700">
+                    {error.message?.includes("RATE_LIMIT") || error.message?.includes("429")
+                      ? "We've used up our daily AI limit — please try again tomorrow."
+                      : "Something went wrong — please try again."}
+                  </span>
                 </div>
               )}
               <div ref={messagesEndRef} />

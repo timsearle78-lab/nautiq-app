@@ -54,7 +54,15 @@ export async function POST(req: Request) {
 
     const modelMessages = await convertToModelMessages(messages);
 
-    const result = streamText({
+    function isRateLimit(err: unknown): boolean {
+      const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+      return msg.includes("rate limit") || msg.includes("rate_limit") || msg.includes("429") ||
+        msg.includes("quota") || msg.includes("daily") || msg.includes("tokens per");
+    }
+
+    let result;
+    try {
+      result = streamText({
       model: createGroq({ apiKey: process.env.GROQ_API_KEY })("llama-3.3-70b-versatile"),
       stopWhen: stepCountIs(1),
       system: `You are NautIQ, a practical boat assistant for "${boat.name}".
@@ -88,6 +96,7 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
       messages: modelMessages,
       onError: async (event) => {
         const err = event.error as Error | undefined;
+        if (isRateLimit(err)) return "RATE_LIMIT";
         await logChatError(supabase, {
           userId,
           boatId,
@@ -350,6 +359,15 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
         },
       },
     });
+    } catch (modelErr) {
+      if (isRateLimit(modelErr)) {
+        return Response.json(
+          { error: "RATE_LIMIT" },
+          { status: 429 }
+        );
+      }
+      throw modelErr;
+    }
 
     return result.toUIMessageStreamResponse();
   } catch (err) {
