@@ -57,7 +57,7 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
       window.dispatchEvent(new CustomEvent(`nautiq:action-${action}`));
     } else {
       sessionStorage.setItem("nautiq_pending_action", action);
-      router.push("/");
+      router.push("/chat");
     }
   }
 

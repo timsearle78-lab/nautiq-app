@@ -184,10 +184,14 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Keep a stable ref to sendMessage so event handlers never go stale
+  const sendMessageRef = useRef(sendMessage);
+  useEffect(() => { sendMessageRef.current = sendMessage; }, [sendMessage]);
+
   // Handle actions dispatched when already on the chat page
   useEffect(() => {
-    const onRestock = () => sendMessage({ text: "I just bought some spare parts" });
-    const onUsed = () => sendMessage({ text: "I just used a spare part" });
+    const onRestock = () => sendMessageRef.current({ text: "I just bought some spare parts" });
+    const onUsed = () => sendMessageRef.current({ text: "I just used a spare part" });
     const onScan = () => setShowScanPicker(true);
     window.addEventListener("nautiq:action-restock", onRestock);
     window.addEventListener("nautiq:action-used", onUsed);
@@ -197,7 +201,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       window.removeEventListener("nautiq:action-used", onUsed);
       window.removeEventListener("nautiq:action-scan", onScan);
     };
-  }, [sendMessage]);
+  }, []);
 
   function handleSend() {
     const text = input.trim();
