@@ -13,6 +13,7 @@ import ScanConfirmSheet, { type ScanResult } from "./scan-confirm-sheet";
 import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
 import TripTimerButton from "@/components/nav/trip-timer-button";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
+import WhatsNewCard from "@/components/chat/whats-new-card";
 
 interface Boat {
   id: string;
@@ -302,6 +303,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
 
       {/* Messages / health area */}
       <div className="flex-1 overflow-y-auto">
+        <WhatsNewCard />
         {messages.length === 0 ? (
           /* Empty state: gauge + stats + maintenance */
           <div className="px-4 pt-5 pb-4 space-y-4">

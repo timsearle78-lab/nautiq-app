@@ -14,11 +14,11 @@ export const HELP_SECTIONS: HelpSection[] = [
     content: `NautIQ is a boat management app that helps you stay on top of maintenance, track your time on the water, and manage your spare parts — all in one place.
 
 The app has five main areas:
-- Home (Chat): Your AI assistant. Ask questions, log trips by voice, update inventory, and get maintenance reminders.
+- Home (Chat): Your AI assistant. Ask questions, log trips by voice, update inventory, get maintenance reminders, and download a boat report.
 - Trips: A log of every time you've been out on the water, with engine hours and fuel tracking.
 - Maintain: An overview of all your boat's components and their service status. Tells you what's overdue, due soon, or healthy.
 - Inventory: A list of all your spare parts and supplies, with stock levels and low-stock alerts.
-- Profile: Account settings, boat details, and this help guide.`,
+- Profile: Account settings, boat details, boat report PDF download, and this help guide.`,
   },
   {
     id: "boat",
@@ -50,7 +50,7 @@ Engine hours are required for every trip — they're used to calculate when main
     title: "How maintenance tracking works",
     content: `NautIQ tracks service intervals for every component on your boat (engine, impeller, belts, safety gear, etc.).
 
-Each component has a service interval defined in time (months/years) and/or engine hours. NautIQ calculates a risk score based on how overdue the component is and shows you:
+Each component has a service interval defined in time (months/years) and/or engine hours. NautIQ uses a predictive timeline to estimate when each component will next be due based on your average usage, and shows you:
 - Overdue: past the service interval — needs attention now.
 - Due soon: within 85% of the interval — plan for service.
 - Healthy: well within the interval.
@@ -63,7 +63,9 @@ To log maintenance:
 
 You can also tap "+ Log Maintenance" on the Home screen to log maintenance without navigating to the component page first — just pick the component from the dropdown.
 
-After logging, the component's health score resets and the next due date is recalculated.`,
+After logging, the component's health score resets and the next due date is recalculated.
+
+The Maintenance Overview shows all components sorted by urgency. Use the "All Components" button to see the full component list.`,
   },
   {
     id: "components",
@@ -85,6 +87,8 @@ Each component has a service interval (time-based and/or engine-hour-based). Nau
     title: "How to manage spare parts (inventory)",
     content: `The Inventory tab shows all your spare parts and supplies. Each item has a current quantity and an optional minimum quantity — when stock drops below the minimum, it shows as low stock.
 
+To filter to low-stock items only, use the "Low stock only" toggle at the top of the Inventory page. It applies instantly — no need to tap Apply.
+
 To add an item manually:
 1. Go to the Inventory tab and tap "+ Add item."
 2. Fill in the name, quantity, unit (ea, L, kg, etc.), category, and optionally link it to a maintenance component.
@@ -98,6 +102,7 @@ To scan an item with your camera:
 To adjust stock (used or restocked a part):
 - On any inventory item's page, tap "+ Add" or "Use" to update the quantity.
 - You can also say to the AI: "I used 2 oil filters" or "I bought a new impeller."
+- Tap "Restock item" or "Used item" below the chat box for a quick shortcut.
 
 Linking spares to components: When a spare is linked to a component, low stock for that spare increases the component's risk score — so you'll be reminded to restock before you need to service it.`,
   },
@@ -113,11 +118,36 @@ Things you can ask or say:
 - "I went sailing for 3 hours today" → logs a trip (AI parses your words).
 - "I used a fuel filter" → adjusts inventory (AI finds the item and asks you to confirm).
 - "I bought 2 new impellers" → adds to inventory stock.
+- "Send me a boat report" or "Download a PDF summary" → generates and downloads a full boat report PDF.
 - "How do I log maintenance?" → answers how-to questions about the app.
 
-Quick action chips below the chat box let you scan parts, log bought/used parts, or start/stop the trip timer with one tap.
+Quick action chips below the chat box:
+- Scan item: point your camera at a part to identify and add it to inventory.
+- Restock item: quickly log that you bought new parts.
+- Used item: quickly log that you consumed a spare.
 
-Voice notes: Every notes field in the app has a microphone button — tap it to dictate your notes hands-free.`,
+To reset the conversation and start fresh, tap the ↺ button next to the Start/Stop trip timer. This clears the current chat without deleting any saved data.
+
+Voice notes: Every notes field in the app has a microphone button — tap it to dictate your notes hands-free.
+
+When the AI is processing your request, a spinning NautIQ logo will appear so you know it's working.`,
+  },
+  {
+    id: "report",
+    title: "Boat Report PDF",
+    content: `NautIQ can generate a full PDF summary of your boat, including:
+- Boat name and type
+- Overall health score
+- Engine hours
+- Maintenance schedule (all components with their status)
+- Full inventory list (low-stock items highlighted)
+- Last 10 trips
+
+To download a report:
+1. Go to the Profile tab and tap "Download Boat Report."
+2. Or, in the Home chat, say "Download a boat report" or "Send me a PDF summary."
+
+The PDF is generated on your device and saved automatically to your downloads folder.`,
   },
   {
     id: "health",
@@ -130,25 +160,44 @@ How the score is calculated:
 
 The score and breakdown are shown on the Home screen and in the health banner at the top of the chat.`,
   },
+  {
+    id: "navigation",
+    title: "App navigation tips",
+    content: `A few handy navigation features:
+
+Scroll to top: On any long page, after scrolling down a short way, a scroll-to-top button appears at the bottom centre of the screen. Tap it to jump back to the top.
+
+What's New: When NautIQ releases new features, a notification card appears at the top of the Home screen the next time you open the app. Tap "Got it — dismiss" to hide it.
+
+Page loading: When the app is loading a new page or saving a record, a spinning NautIQ logo will appear in the centre of the screen so you know it's working.
+
+Bottom navigation: The five tabs at the bottom of the screen take you to Home, Trips, Maintain, Inventory, and Profile. The Profile tab gives access to settings, the boat report, and this help guide.`,
+  },
 ];
 
 // Compact version injected into the AI chat system prompt.
 export const HELP_SYSTEM_PROMPT = `
 APP USAGE GUIDE (answer "how do I" questions using this):
 
-OVERVIEW: NautIQ has 5 sections — Home/Chat (AI assistant), Trips (engine hours log), Maintain (component service tracking), Inventory (spare parts), Profile (settings/help).
+OVERVIEW: NautIQ has 5 sections — Home/Chat (AI assistant), Trips (engine hours log), Maintain (component service tracking), Inventory (spare parts), Profile (settings/help/report).
 
 BOAT SETUP: First-time wizard creates systems and components automatically. Add more boats in Profile → Settings. Switch boats via the top-right selector.
 
 LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving, "Stop Trip" when back; (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours."
 
-MAINTENANCE: Each component has a time/engine-hour service interval. Risk score shows overdue/due soon/healthy. Log maintenance via "Log Maintenance" button on the component page or from the Home screen. Fill in date, work done, engine hours, optional spare consumed.
+MAINTENANCE: Each component has a time/engine-hour service interval. NautIQ uses a predictive timeline to estimate due dates based on average usage. Risk score shows overdue/due soon/healthy. Log maintenance via "Log Maintenance" button on the component page or from the Home screen. Fill in date, work done, engine hours, optional spare consumed. The Maintenance Overview shows components sorted by urgency; use "All Components" for the full list.
 
 COMPONENTS & SYSTEMS: Components = individual parts needing service (engine, impeller, life jackets…). Systems = groups (Engine, Safety, Electrical…). Add/edit from Maintain tab. Delete from Danger Zone on component page.
 
-INVENTORY: Add items via "+ Add item" or camera "Scan item" on Home. Adjust stock by saying "I used X" or "I bought X" to the AI, or from the item's page. Link spares to components so low stock raises the risk score.
+INVENTORY: Add items via "+ Add item" or camera "Scan item" on Home. Adjust stock by saying "I used X" or "I bought X" to the AI, or via the Restock item / Used item chips, or from the item's page. Use the "Low stock only" toggle on the Inventory page to filter instantly. Link spares to components so low stock raises the risk score.
+
+BOAT REPORT / PDF: Say "download a boat report" or "send me a PDF summary" to generate and download a full PDF of health, maintenance schedule, inventory, and recent trips. Also available from Profile tab → "Download Boat Report."
 
 HEALTH SCORE: 0–100. Drops as components go overdue or spares run low. Shown on Home screen.
 
 VOICE: Every notes field has a mic button. The main mic button on Home sends voice messages to the AI.
+
+CHAT RESET: Tap the ↺ button (next to Start/Stop trip) to clear the current conversation and start fresh.
+
+NAVIGATION: Scroll-to-top button appears at the bottom centre of the screen on any long page after scrolling down. What's New card appears in chat when new features are released.
 `.trim();
