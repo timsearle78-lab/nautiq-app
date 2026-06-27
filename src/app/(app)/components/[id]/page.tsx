@@ -112,7 +112,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           <h1 className="mt-2 text-xl font-bold text-slate-900">{component.name}</h1>
 
           {component.notes ? (
-            <p className="mt-2 max-w-3xl text-sm text-slate-500">
+            <p className="mt-2 max-w-3xl text-sm text-slate-500 whitespace-pre-line">
               {component.notes}
             </p>
           ) : null}
