@@ -65,7 +65,9 @@ You can also tap "+ Log Maintenance" on the Home screen to log maintenance witho
 
 After logging, the component's health score resets and the next due date is recalculated.
 
-The Maintenance Overview shows all components sorted by urgency. Use the "All Components" button to see the full component list.`,
+The Maintenance Overview shows all components sorted by urgency. Use the "All Components" button to see the full component list.
+
+Maintenance gap suggestions: When you open the Home screen, NautIQ checks your component list against a typical maintenance schedule for your boat type. If anything important is missing, a yellow suggestion card appears — tap it to see what components are worth adding and why. Tap "Add" next to any suggestion to go straight to the add component form.`,
   },
   {
     id: "components",
@@ -187,7 +189,7 @@ BOAT SETUP: First-time wizard creates systems and components automatically. Add 
 
 LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving, "Stop Trip" when back; (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours."
 
-MAINTENANCE: Each component has a time/engine-hour service interval. NautIQ uses a predictive timeline to estimate due dates based on average usage. Risk score shows overdue/due soon/healthy. Log maintenance via "Log Maintenance" button on the component page or from the Home screen. Fill in date, work done, engine hours, optional spare consumed. The Maintenance Overview shows components sorted by urgency; use "All Components" for the full list.
+MAINTENANCE: Each component has a time/engine-hour service interval. NautIQ uses a predictive timeline to estimate due dates based on average usage. Risk score shows overdue/due soon/healthy. Log maintenance via "Log Maintenance" button on the component page or from the Home screen. Fill in date, work done, engine hours, optional spare consumed. The Maintenance Overview shows components sorted by urgency; use "All Components" for the full list. On the Home screen, a yellow card suggests components typical for your boat type that you haven't added yet — tap "Add" on any suggestion to add it.
 
 COMPONENTS & SYSTEMS: Components = individual parts needing service (engine, impeller, life jackets…). Systems = groups (Engine, Safety, Electrical…). Add/edit from Maintain tab. Delete from Danger Zone on component page.
 

@@ -20,6 +20,7 @@ export const CHANGELOG: Release[] = [
       "All primary buttons now use a consistent ocean-blue gradient",
       "AI assistant now stays focused on your boat — off-topic questions are politely declined",
       "Friendlier error message if something goes wrong in the chat",
+      "Maintenance gap suggestions on the Home screen — see what components are missing for your boat type",
     ],
   },
 ];

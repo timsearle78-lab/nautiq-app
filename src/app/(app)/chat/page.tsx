@@ -3,6 +3,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
+import { getMissingComponents } from "@/lib/component-suggestions";
 import ChatInterface from "@/components/chat/chat-interface";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +40,7 @@ export default async function ChatPage() {
   ]);
 
   const components = (componentsRes.data ?? []) as { id: string; name: string }[];
+  const missingSuggestions = getMissingComponents(boat.type ?? null, components.map((c) => c.name));
   const inventoryItems = (inventoryRes.data ?? []) as { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];
 
   const engineHours = (engineHoursRes.data as number) ?? 0;
@@ -70,6 +72,7 @@ export default async function ChatPage() {
       urgentItems={urgent}
       components={components}
       inventoryItems={inventoryItems}
+      missingSuggestions={missingSuggestions}
     />
   );
 }

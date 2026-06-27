@@ -14,6 +14,8 @@ import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
 import TripTimerButton from "@/components/nav/trip-timer-button";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import WhatsNewCard from "@/components/chat/whats-new-card";
+import MissingComponentsCard from "@/components/chat/missing-components-card";
+import type { SuggestedComponent } from "@/lib/component-suggestions";
 
 interface Boat {
   id: string;
@@ -39,6 +41,7 @@ interface ChatInterfaceProps {
   urgentItems: UrgentItem[];
   components: { id: string; name: string }[];
   inventoryItems: { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];
+  missingSuggestions: SuggestedComponent[];
 }
 
 function tokenize(s: string) {
@@ -131,7 +134,7 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
   );
 }
 
-export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems }: ChatInterfaceProps) {
+export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -295,6 +298,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       {/* Messages / health area */}
       <div className="flex-1 overflow-y-auto">
         <WhatsNewCard />
+        <MissingComponentsCard boatType={boat.type ?? null} suggestions={missingSuggestions} />
         {messages.length === 0 ? (
           /* Empty state: gauge + stats + maintenance */
           <div className="px-4 pt-5 pb-4 space-y-4">
