@@ -4,17 +4,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Mic, Send, Plus, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, PackagePlus, PackageMinus, ScanLine, RotateCcw } from "lucide-react";
+import { Mic, Send, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Menu } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
 import Link from "next/link";
 import MessageBubble from "./message-bubble";
 import LogTripSheet from "./log-trip-sheet";
 import ScanConfirmSheet, { type ScanResult } from "./scan-confirm-sheet";
 import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
-import TripTimerButton from "@/components/nav/trip-timer-button";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import WhatsNewCard from "@/components/chat/whats-new-card";
 import MissingComponentsCard from "@/components/chat/missing-components-card";
+import ChatActionsSheet from "@/components/chat/chat-actions-sheet";
 import type { SuggestedComponent } from "@/lib/component-suggestions";
 
 interface Boat {
@@ -138,6 +138,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [showActionsSheet, setShowActionsSheet] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -266,34 +267,23 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     { label: "What's due?", text: "What maintenance is coming up?" },
     { label: "Spares check", text: "What spares am I low on?" },
     { label: "Boat health", text: "How's the boat doing overall?" },
+    { label: "Boat report", text: "Download a boat report" },
   ];
 
   return (
     // h-[100dvh] minus AppHeader (h-14=3.5rem) minus BottomNav (h-16=4rem)
     <div className="flex flex-col h-[calc(100dvh-3.5rem-4rem)]">
       {scanningInventory && <NautiqSpinner overlay />}
-      {/* Sub-header: quick actions */}
-      <header className="flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-2.5 shrink-0">
-        <div className="flex items-center gap-2">
-          <TripTimerButton boatId={boat.id} />
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowMaintenanceSheet(true)}
-            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
-          >
-            <Plus size={13} />
-            Log Maintenance
-          </button>
-          <button
-            onClick={() => setShowTripSheet(true)}
-            className="flex items-center gap-1.5 rounded-full btn-primary px-3 py-1.5 text-xs font-semibold text-white"
-          >
-            <Plus size={14} />
-            Log Trip
-          </button>
-        </div>
-      </header>
+      {/* Minimal top bar: just the hamburger */}
+      <div className="shrink-0 flex items-center px-3 py-2 border-b border-slate-100 bg-white">
+        <button
+          onClick={() => setShowActionsSheet(true)}
+          className="flex items-center justify-center h-9 w-9 rounded-xl text-slate-500 hover:bg-slate-100 transition"
+          title="Quick actions"
+        >
+          <Menu size={20} />
+        </button>
+      </div>
 
       {/* Messages / health area */}
       <div className="flex-1 overflow-y-auto">
@@ -467,48 +457,30 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           </button>
         </div>
 
-        {/* Quick action chips */}
-        <div className="mt-2 flex gap-2 overflow-x-auto pb-0.5">
-          <input
-            ref={inventoryScanRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleInventoryScan}
-          />
-          <button
-            onClick={() => inventoryScanRef.current?.click()}
-            disabled={scanningInventory}
-            className="flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50 disabled:opacity-50"
-          >
-            <ScanLine size={12} />
-            {scanningInventory ? "Scanning…" : "Scan item"}
-          </button>
-          <button
-            onClick={() => sendMessage({ text: "I just bought some spare parts" })}
-            className="flex shrink-0 items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1.5 text-xs text-green-700 hover:bg-green-100"
-          >
-            <PackagePlus size={12} />
-            Restock item
-          </button>
-          <button
-            onClick={() => sendMessage({ text: "I just used a spare part" })}
-            className="flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50"
-          >
-            <PackageMinus size={12} />
-            Used item
-          </button>
-          {messages.length > 0 && (
-            <button
-              onClick={() => setMessages([])}
-              title="New conversation"
-              className="flex shrink-0 items-center justify-center h-7 w-7 rounded-full border border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition"
-            >
-              <RotateCcw size={12} />
-            </button>
-          )}
-        </div>
+        {/* Hidden file input for scan */}
+        <input
+          ref={inventoryScanRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleInventoryScan}
+        />
       </div>
+
+      {showActionsSheet && (
+        <ChatActionsSheet
+          boatId={boat.id}
+          hasMessages={messages.length > 0}
+          scanningInventory={scanningInventory}
+          onClose={() => setShowActionsSheet(false)}
+          onScanItem={() => inventoryScanRef.current?.click()}
+          onRestockItem={() => sendMessage({ text: "I just bought some spare parts" })}
+          onUsedItem={() => sendMessage({ text: "I just used a spare part" })}
+          onLogMaintenance={() => setShowMaintenanceSheet(true)}
+          onLogTrip={() => setShowTripSheet(true)}
+          onResetChat={() => setMessages([])}
+        />
+      )}
 
       {showMaintenanceSheet && (
         <LogMaintenanceSheet
