@@ -96,7 +96,7 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
       messages: modelMessages,
       onError: async (event) => {
         const err = event.error as Error | undefined;
-        if (isRateLimit(err)) return "RATE_LIMIT";
+        if (isRateLimit(err)) return;
         await logChatError(supabase, {
           userId,
           boatId,
