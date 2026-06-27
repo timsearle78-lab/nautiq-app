@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Mic, Send, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Menu } from "lucide-react";
+import { Mic, Send, AlertTriangle, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
 import Link from "next/link";
 import MessageBubble from "./message-bubble";
@@ -163,6 +163,12 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    const open = () => setShowActionsSheet(true);
+    window.addEventListener("nautiq:open-chat-actions", open);
+    return () => window.removeEventListener("nautiq:open-chat-actions", open);
+  }, []);
+
   function handleSend() {
     const text = input.trim();
     if (!text || isLoading) return;
@@ -274,17 +280,6 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     // h-[100dvh] minus AppHeader (h-14=3.5rem) minus BottomNav (h-16=4rem)
     <div className="flex flex-col h-[calc(100dvh-3.5rem-4rem)]">
       {scanningInventory && <NautiqSpinner overlay />}
-      {/* Minimal top bar: just the hamburger */}
-      <div className="shrink-0 flex items-center px-3 py-2 border-b border-slate-100 bg-white">
-        <button
-          onClick={() => setShowActionsSheet(true)}
-          className="flex items-center justify-center h-9 w-9 rounded-xl text-slate-500 hover:bg-slate-100 transition"
-          title="Quick actions"
-        >
-          <Menu size={20} />
-        </button>
-      </div>
-
       {/* Messages / health area */}
       <div className="flex-1 overflow-y-auto">
         <WhatsNewCard />

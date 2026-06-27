@@ -4,6 +4,7 @@ import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
 import BoatSelector from "./boat-selector";
 import NautiqLogo from "@/components/ui/nautiq-logo";
+import ChatMenuTrigger from "./chat-menu-trigger";
 
 function normalizeStatus(s: string | null) {
   const v = (s ?? "").toLowerCase();
@@ -61,7 +62,10 @@ export default async function AppHeader() {
       className="h-14 shrink-0 flex items-center justify-between px-4 z-30"
       style={{ background: "#FFFFFF", borderBottom: "1px solid #E6EBF0" }}
     >
-      <NautiqLogo size={20} />
+      <div className="flex items-center gap-2">
+        <NautiqLogo size={20} />
+        <ChatMenuTrigger />
+      </div>
 
       <div className="flex items-center gap-3">
         {health.length > 0 && (
@@ -106,7 +110,10 @@ export default async function AppHeader() {
         className="h-14 shrink-0 flex items-center px-4 z-30"
         style={{ background: "#FFFFFF", borderBottom: "1px solid #E6EBF0" }}
       >
-        <NautiqLogo size={20} />
+        <div className="flex items-center gap-2">
+          <NautiqLogo size={20} />
+          <ChatMenuTrigger />
+        </div>
       </header>
     );
   }
