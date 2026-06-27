@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { X, LogOut, Settings, HelpCircle } from "lucide-react";
+import BoatReportButton from "@/components/reports/boat-report-button";
 
 interface ProfileSheetProps {
   email: string;
@@ -45,6 +46,7 @@ export default function ProfileSheet({ email, initials, onClose }: ProfileSheetP
           </div>
         </div>
         <div className="px-5 pb-6 space-y-3">
+          <BoatReportButton />
           <Link
             href="/help"
             onClick={onClose}

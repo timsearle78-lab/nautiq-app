@@ -80,6 +80,8 @@ TOOL SELECTION RULES — follow these exactly (only for data/action requests, no
 
 7. BOAT HEALTH: General health questions → call getBoatSummary.
 
+8. REPORT / PDF: If the user asks for a report, summary PDF, or to send/download a boat report → call requestBoatReport.
+
 The UI renders tool results as formatted cards automatically — do NOT add any text after calling any tool. The card is the response.`,
       messages: modelMessages,
       onError: async (event) => {
@@ -334,6 +336,14 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
               fuelLitres: t.fuel_added_litres,
               notes: t.notes,
             }));
+          },
+        },
+
+        requestBoatReport: {
+          description: "Generate and download a PDF summary of the boat, including maintenance schedule and inventory",
+          inputSchema: zodSchema(z.object({})),
+          execute: async () => {
+            return { ready: true, boatName: boat.name };
           },
         },
       },

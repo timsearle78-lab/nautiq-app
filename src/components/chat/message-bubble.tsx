@@ -5,6 +5,7 @@ import type { UIMessage } from "ai";
 import TripDraftCard from "./trip-draft-card";
 import InventoryAdjustCard from "./inventory-adjust-card";
 import { MaintenanceListCard, InventoryListCard, TripHistoryCard, BoatSummaryCard } from "./data-cards";
+import ReportCard from "./report-card";
 
 interface MessageBubbleProps {
   message: UIMessage;
@@ -133,6 +134,10 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
               trips={(output as unknown as Parameters<typeof TripHistoryCard>[0]["trips"])}
             />
           );
+        }
+
+        if (toolName === "requestBoatReport") {
+          return <ReportCard key={i} />;
         }
 
         if (toolName === "getBoatSummary") {
