@@ -59,12 +59,12 @@ export default async function AppHeader() {
 
   return (
     <header
-      className="h-14 shrink-0 flex items-center justify-between px-4 z-30"
+      className="h-14 shrink-0 relative flex items-center justify-between px-4 z-30"
       style={{ background: "#FFFFFF", borderBottom: "1px solid #E6EBF0" }}
     >
-      <div className="flex items-center gap-2">
-        <NautiqLogo size={20} />
+      <div className="flex items-center pl-10">
         <ChatMenuTrigger />
+        <NautiqLogo size={20} />
       </div>
 
       <div className="flex items-center gap-3">
@@ -107,12 +107,12 @@ export default async function AppHeader() {
   } catch {
     return (
       <header
-        className="h-14 shrink-0 flex items-center px-4 z-30"
+        className="h-14 shrink-0 relative flex items-center px-4 z-30"
         style={{ background: "#FFFFFF", borderBottom: "1px solid #E6EBF0" }}
       >
-        <div className="flex items-center gap-2">
-          <NautiqLogo size={20} />
+        <div className="flex items-center pl-10">
           <ChatMenuTrigger />
+          <NautiqLogo size={20} />
         </div>
       </header>
     );
