@@ -53,7 +53,11 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
 
   function goChat(action: string) {
     close();
-    router.push(`/?action=${action}`);
+    if (isChat) {
+      window.dispatchEvent(new CustomEvent(`nautiq:action-${action}`));
+    } else {
+      router.push(`/?action=${action}`);
+    }
   }
 
   if (!open && !showTrip && !showMaintenance) return null;

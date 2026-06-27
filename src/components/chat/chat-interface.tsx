@@ -169,12 +169,11 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     return () => window.removeEventListener("nautiq:reset-chat", reset);
   }, [setMessages]);
 
-  // Handle ?action= query params from global menu navigation
+  // Handle ?action= query params when navigating from another page
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const action = params.get("action");
     if (!action) return;
-    // Remove the param from URL without reload
     const url = new URL(window.location.href);
     url.searchParams.delete("action");
     window.history.replaceState({}, "", url.toString());
@@ -183,6 +182,21 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     if (action === "scan") setShowScanPicker(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Handle actions dispatched when already on the chat page
+  useEffect(() => {
+    const onRestock = () => sendMessage({ text: "I just bought some spare parts" });
+    const onUsed = () => sendMessage({ text: "I just used a spare part" });
+    const onScan = () => setShowScanPicker(true);
+    window.addEventListener("nautiq:action-restock", onRestock);
+    window.addEventListener("nautiq:action-used", onUsed);
+    window.addEventListener("nautiq:action-scan", onScan);
+    return () => {
+      window.removeEventListener("nautiq:action-restock", onRestock);
+      window.removeEventListener("nautiq:action-used", onUsed);
+      window.removeEventListener("nautiq:action-scan", onScan);
+    };
+  }, [sendMessage]);
 
   function handleSend() {
     const text = input.trim();
