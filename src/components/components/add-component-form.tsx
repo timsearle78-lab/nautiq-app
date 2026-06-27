@@ -19,6 +19,7 @@ type AiSuggestion = {
   service_interval_engine_hours: number | null;
   reasoning: string;
   confidence: "high" | "medium" | "low";
+  servicing_notes: string;
 };
 
 const initialState: AddComponentActionState = {};
@@ -52,6 +53,7 @@ export function AddComponentForm({
   const [months, setMonths] = useState("");
   const [days, setDays] = useState("");
   const [engineHours, setEngineHours] = useState("");
+  const [notes, setNotes] = useState("");
   const [componentName, setComponentName] = useState(defaultName ?? "");
   const [systemId, setSystemId] = useState(defaultSystemId ?? "");
 
@@ -95,6 +97,7 @@ export function AddComponentForm({
       setYears(data.service_interval_years != null ? String(data.service_interval_years) : "");
       setMonths(data.service_interval_months != null ? String(data.service_interval_months) : "");
       setEngineHours(data.service_interval_engine_hours != null ? String(data.service_interval_engine_hours) : "");
+      if (data.servicing_notes) setNotes(data.servicing_notes);
     } catch {
       setAiStatus("error");
     }
@@ -121,6 +124,7 @@ export function AddComponentForm({
     setMonths("");
     setDays("");
     setEngineHours("");
+    setNotes("");
   }
 
   const confidenceColors = {
@@ -298,12 +302,21 @@ export function AddComponentForm({
 
       {/* Notes */}
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">Notes</label>
+        <label className="mb-1 block text-sm font-medium text-slate-700 flex items-center gap-1.5">
+          Notes
+          {aiStatus === "done" && aiSuggestion?.servicing_notes && (
+            <span className="text-xs font-normal text-ocean-600 flex items-center gap-0.5">
+              <Sparkles size={11} /> AI filled
+            </span>
+          )}
+        </label>
         <textarea
           name="notes"
-          rows={3}
+          rows={notes ? 6 : 3}
           className={inputCls}
           placeholder="Optional notes"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
         />
       </div>
 
