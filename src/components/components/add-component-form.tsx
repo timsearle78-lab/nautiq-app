@@ -205,14 +205,15 @@ export function AddComponentForm({
 
       {/* System */}
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">System</label>
+        <label className="mb-1 block text-sm font-medium text-slate-700">System <span className="text-red-500">*</span></label>
         <select
           name="system_id"
           className={inputCls}
           value={systemId}
           onChange={(e) => setSystemId(e.target.value)}
+          required
         >
-          <option value="">None</option>
+          <option value="">Select a system…</option>
           {systems.map((system) => (
             <option key={system.id} value={system.id}>
               {system.name}

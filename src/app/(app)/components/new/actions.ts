@@ -50,6 +50,10 @@ export async function createComponent(
     return { error: "Component name is required." };
   }
 
+  if (!systemId) {
+    return { error: "Please select a system for this component." };
+  }
+
   const { data, error } = await supabase
     .from("components")
     .insert({
@@ -68,7 +72,10 @@ export async function createComponent(
     .single();
 
   if (error || !data) {
-    return { error: `Failed to create component: ${error?.message ?? "Unknown error"}` };
+    const msg = error?.message ?? "";
+    if (msg.includes("system_id")) return { error: "Please select a system for this component." };
+    if (msg.includes("unique") || msg.includes("duplicate")) return { error: "A component with this name already exists." };
+    return { error: "Something went wrong saving the component — please try again." };
   }
 
   const noRedirect = formData.get("no_redirect") === "1";
