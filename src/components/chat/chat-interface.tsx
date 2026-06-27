@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Mic, Send, AlertTriangle, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Mic, Send, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Camera, FolderOpen, X } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
 import Link from "next/link";
 import MessageBubble from "./message-bubble";
@@ -141,8 +141,10 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const inventoryScanRef = useRef<HTMLInputElement>(null);
+  const inventoryScanCameraRef = useRef<HTMLInputElement>(null);
   const [scanningInventory, setScanningInventory] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [showScanPicker, setShowScanPicker] = useState(false);
 
   const router = useRouter();
   const onTripSaved = useCallback(() => router.refresh(), [router]);
@@ -178,7 +180,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     window.history.replaceState({}, "", url.toString());
     if (action === "restock") sendMessage({ text: "I just bought some spare parts" });
     if (action === "used") sendMessage({ text: "I just used a spare part" });
-    if (action === "scan") inventoryScanRef.current?.click();
+    if (action === "scan") setShowScanPicker(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -469,7 +471,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           </button>
         </div>
 
-        {/* Hidden file input for scan */}
+        {/* Hidden file inputs for scan */}
         <input
           ref={inventoryScanRef}
           type="file"
@@ -477,6 +479,53 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           className="hidden"
           onChange={handleInventoryScan}
         />
+        <input
+          ref={inventoryScanCameraRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={handleInventoryScan}
+        />
+
+        {/* Scan source picker */}
+        {showScanPicker && (
+          <div
+            className="fixed inset-0 z-50 flex flex-col justify-end bg-black/40"
+            onClick={() => setShowScanPicker(false)}
+          >
+            <div
+              className="bg-white rounded-t-2xl shadow-xl pb-safe"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-slate-100">
+                <p className="text-sm font-semibold text-slate-700">Scan item</p>
+                <button
+                  onClick={() => setShowScanPicker(false)}
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 transition"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+              <div className="px-4 py-3 space-y-2 pb-6">
+                <button
+                  onClick={() => { setShowScanPicker(false); inventoryScanCameraRef.current?.click(); }}
+                  className="flex w-full items-center gap-3 rounded-xl btn-primary px-4 py-3 text-sm font-semibold text-white"
+                >
+                  <Camera size={18} />
+                  Take photo
+                </button>
+                <button
+                  onClick={() => { setShowScanPicker(false); inventoryScanRef.current?.click(); }}
+                  className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+                >
+                  <FolderOpen size={18} />
+                  Choose from device
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {scanResult && (

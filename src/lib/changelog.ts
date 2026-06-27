@@ -22,6 +22,8 @@ export const CHANGELOG: Release[] = [
       "Friendlier error message if something goes wrong in the chat",
       "Maintenance gap suggestions on the Home screen — see what components are missing for your boat type",
       "Home screen simplified — quick actions moved to a hamburger menu (☰) to give more space to the chat",
+      "Hamburger menu (☰) now works on every page, not just the home screen",
+      "Scan item now lets you choose between taking a photo or picking from your device",
     ],
   },
 ];

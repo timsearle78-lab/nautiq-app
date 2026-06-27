@@ -96,9 +96,9 @@ To add an item manually:
 2. Fill in the name, quantity, unit (ea, L, kg, etc.), category, and optionally link it to a maintenance component.
 3. Mark it as a critical spare if it's essential for safety or operation.
 
-To scan an item with your camera:
-1. On the Home screen, tap "Scan item."
-2. Point your camera at the product label or packaging.
+To scan an item:
+1. Open the ☰ menu and tap "Scan item."
+2. Choose "Take photo" to use your camera, or "Choose from device" to pick an existing image.
 3. The AI will identify the item and pre-fill the form. If a similar item already exists in your inventory, it will offer to update the existing item's quantity instead of creating a duplicate.
 
 To adjust stock (used or restocked a part):
@@ -127,7 +127,7 @@ Quick actions menu: tap the ☰ button (top left of the chat screen) to open a m
 - Start/Stop trip timer
 - Log Trip
 - Log Maintenance
-- Scan item: point your camera at a part to identify and add it to inventory.
+- Scan item: tap "Scan item," then choose to take a photo or pick from your device to identify and add a part to inventory.
 - Restock item: quickly log that you bought new parts.
 - Used item: quickly log that you consumed a spare.
 - New chat: clear the conversation and start fresh (appears when there are messages).
