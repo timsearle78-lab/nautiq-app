@@ -169,20 +169,18 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     return () => window.removeEventListener("nautiq:reset-chat", reset);
   }, [setMessages]);
 
-  // Handle ?action= query params when navigating from another page
+  // Handle actions triggered by navigation from another page
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const action = params.get("action");
+    const action = sessionStorage.getItem("nautiq_pending_action");
     if (!action) return;
-    const url = new URL(window.location.href);
-    url.searchParams.delete("action");
-    window.history.replaceState({}, "", url.toString());
-    // Defer so the chat transport is fully ready before sending
-    setTimeout(() => {
+    sessionStorage.removeItem("nautiq_pending_action");
+    if (action === "scan") { setShowScanPicker(true); return; }
+    // sendMessage needs the chat transport to settle after mount
+    const timer = setTimeout(() => {
       if (action === "restock") sendMessage({ text: "I just bought some spare parts" });
       if (action === "used") sendMessage({ text: "I just used a spare part" });
-      if (action === "scan") setShowScanPicker(true);
-    }, 300);
+    }, 400);
+    return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

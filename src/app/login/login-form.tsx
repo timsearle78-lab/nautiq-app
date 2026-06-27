@@ -8,6 +8,7 @@ import NautiqLogo from "@/components/ui/nautiq-logo";
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [staySignedIn, setStaySignedIn] = useState(true);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -20,6 +21,12 @@ export default function LoginForm() {
       const supabase = createClient();
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      // Tell middleware whether to persist auth cookies across browser sessions
+      await fetch("/api/auth/remember", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ persist: staySignedIn }),
+      });
       setStatus("Signed in successfully.");
       window.location.href = "/chat";
     } catch (error) {
@@ -153,6 +160,20 @@ export default function LoginForm() {
                   required
                 />
               </div>
+
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={staySignedIn}
+                    onChange={(e) => setStaySignedIn(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-10 h-6 rounded-full bg-slate-200 peer-checked:bg-ocean-500 transition-colors" />
+                  <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4" />
+                </div>
+                <span style={{ fontSize: 13, color: "#0F2335", fontWeight: 500 }}>Stay signed in on this device</span>
+              </label>
 
               <button
                 type="submit"

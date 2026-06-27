@@ -15,9 +15,15 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
+          const persist = request.cookies.get("nautiq_remember")?.value === "1";
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value);
-            response.cookies.set(name, value, options);
+            // If user didn't choose "stay signed in", make auth cookies session-only
+            const cookieOptions =
+              !persist && name.startsWith("sb-")
+                ? { ...options, maxAge: undefined, expires: undefined }
+                : options;
+            response.cookies.set(name, value, cookieOptions);
           });
         },
       },

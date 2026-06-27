@@ -24,6 +24,7 @@ export const CHANGELOG: Release[] = [
       "Home screen simplified — quick actions moved to a hamburger menu (☰) to give more space to the chat",
       "Hamburger menu (☰) now works on every page, not just the home screen",
       "Scan item now lets you choose between taking a photo or picking from your device",
+      "Stay signed in option on the login page — keeps you logged in on your device securely",
     ],
   },
 ];
