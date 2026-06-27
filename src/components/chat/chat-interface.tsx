@@ -177,9 +177,12 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     const url = new URL(window.location.href);
     url.searchParams.delete("action");
     window.history.replaceState({}, "", url.toString());
-    if (action === "restock") sendMessage({ text: "I just bought some spare parts" });
-    if (action === "used") sendMessage({ text: "I just used a spare part" });
-    if (action === "scan") setShowScanPicker(true);
+    // Defer so the chat transport is fully ready before sending
+    setTimeout(() => {
+      if (action === "restock") sendMessage({ text: "I just bought some spare parts" });
+      if (action === "used") sendMessage({ text: "I just used a spare part" });
+      if (action === "scan") setShowScanPicker(true);
+    }, 300);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
