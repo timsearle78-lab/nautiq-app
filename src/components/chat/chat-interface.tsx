@@ -14,7 +14,6 @@ import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import WhatsNewCard from "@/components/chat/whats-new-card";
 import MissingComponentsCard from "@/components/chat/missing-components-card";
-import ChatActionsSheet from "@/components/chat/chat-actions-sheet";
 import type { SuggestedComponent } from "@/lib/component-suggestions";
 
 interface Boat {
@@ -138,14 +137,12 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [showActionsSheet, setShowActionsSheet] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const inventoryScanRef = useRef<HTMLInputElement>(null);
   const [scanningInventory, setScanningInventory] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
-  const [showMaintenanceSheet, setShowMaintenanceSheet] = useState(false);
 
   const router = useRouter();
   const onTripSaved = useCallback(() => router.refresh(), [router]);
@@ -163,10 +160,26 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Reset chat from global menu
   useEffect(() => {
-    const open = () => setShowActionsSheet(true);
-    window.addEventListener("nautiq:open-chat-actions", open);
-    return () => window.removeEventListener("nautiq:open-chat-actions", open);
+    const reset = () => setMessages([]);
+    window.addEventListener("nautiq:reset-chat", reset);
+    return () => window.removeEventListener("nautiq:reset-chat", reset);
+  }, [setMessages]);
+
+  // Handle ?action= query params from global menu navigation
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get("action");
+    if (!action) return;
+    // Remove the param from URL without reload
+    const url = new URL(window.location.href);
+    url.searchParams.delete("action");
+    window.history.replaceState({}, "", url.toString());
+    if (action === "restock") sendMessage({ text: "I just bought some spare parts" });
+    if (action === "used") sendMessage({ text: "I just used a spare part" });
+    if (action === "scan") inventoryScanRef.current?.click();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleSend() {
@@ -465,32 +478,6 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           onChange={handleInventoryScan}
         />
       </div>
-
-      {showActionsSheet && (
-        <ChatActionsSheet
-          boatId={boat.id}
-          hasMessages={messages.length > 0}
-          scanningInventory={scanningInventory}
-          onClose={() => setShowActionsSheet(false)}
-          onScanItem={() => inventoryScanRef.current?.click()}
-          onRestockItem={() => sendMessage({ text: "I just bought some spare parts" })}
-          onUsedItem={() => sendMessage({ text: "I just used a spare part" })}
-          onLogMaintenance={() => setShowMaintenanceSheet(true)}
-          onLogTrip={() => setShowTripSheet(true)}
-          onResetChat={() => setMessages([])}
-        />
-      )}
-
-      {showMaintenanceSheet && (
-        <LogMaintenanceSheet
-          boatId={boat.id}
-          componentId={null}
-          components={components}
-          inventoryOptions={inventoryItems.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity, unit: i.unit }))}
-          onClose={() => setShowMaintenanceSheet(false)}
-          onSaved={() => { setShowMaintenanceSheet(false); router.refresh(); }}
-        />
-      )}
 
       {scanResult && (
         <ScanConfirmSheet
