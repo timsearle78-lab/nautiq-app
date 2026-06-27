@@ -58,7 +58,7 @@ export function AddComponentForm({
   const [systemId, setSystemId] = useState(defaultSystemId ?? "");
 
   // AI state
-  const [aiStatus, setAiStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [aiStatus, setAiStatus] = useState<"idle" | "loading" | "done" | "error" | "ratelimit">("idle");
   const [aiSuggestion, setAiSuggestion] = useState<AiSuggestion | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -89,7 +89,11 @@ export function AddComponentForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ componentName: name, boatType }),
       });
-      if (!res.ok) { setAiStatus("error"); return; }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setAiStatus(body?.error === "RATE_LIMIT" ? "ratelimit" : "error");
+        return;
+      }
       const data: AiSuggestion = await res.json();
       setAiSuggestion(data);
       setAiStatus("done");
@@ -106,7 +110,7 @@ export function AddComponentForm({
   function handleNameChange(value: string) {
     setComponentName(value);
     // Clear previous suggestion when name changes
-    if (aiStatus !== "idle") {
+    if (aiStatus !== "idle" && aiStatus !== "ratelimit") {
       setAiStatus("idle");
       setAiSuggestion(null);
     }
@@ -176,6 +180,9 @@ export function AddComponentForm({
         )}
         {aiStatus === "error" && (
           <p className="mt-1.5 text-xs text-slate-400">Couldn't look up intervals — fill in manually.</p>
+        )}
+        {aiStatus === "ratelimit" && (
+          <p className="mt-1.5 text-xs text-amber-600">Daily AI limit reached — fill in intervals manually.</p>
         )}
       </div>
 
