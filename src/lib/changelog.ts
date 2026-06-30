@@ -25,6 +25,7 @@ export const CHANGELOG: Release[] = [
       "Hamburger menu (☰) now works on every page, not just the home screen",
       "Scan item now lets you choose between taking a photo or picking from your device",
       "Stay signed in option on the login page — keeps you logged in on your device securely",
+      "GPS location captured automatically when you start and stop a trip — tap coordinates to view on a map",
     ],
   },
 ];

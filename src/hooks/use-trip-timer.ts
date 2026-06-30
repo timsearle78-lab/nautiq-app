@@ -4,10 +4,24 @@ import { useState, useEffect, useCallback } from "react";
 
 const STORAGE_KEY = "nautiq_active_trip";
 
+export type GpsCoords = { latitude: number; longitude: number };
+
 export type ActiveTrip = {
   boatId: string;
   startedAt: string; // ISO string
+  startCoords?: GpsCoords;
 };
+
+function getGps(): Promise<GpsCoords | null> {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) { resolve(null); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+      () => resolve(null),
+      { timeout: 8000, maximumAge: 30000 }
+    );
+  });
+}
 
 export function useTripTimer(boatId: string) {
   const [activeTrip, setActiveTrip] = useState<ActiveTrip | null>(null);
@@ -35,18 +49,24 @@ export function useTripTimer(boatId: string) {
     return () => clearInterval(id);
   }, [activeTrip]);
 
-  const startTrip = useCallback(() => {
-    const trip: ActiveTrip = { boatId, startedAt: new Date().toISOString() };
+  const startTrip = useCallback(async () => {
+    const startCoords = await getGps();
+    const trip: ActiveTrip = {
+      boatId,
+      startedAt: new Date().toISOString(),
+      ...(startCoords ? { startCoords } : {}),
+    };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(trip));
     setActiveTrip(trip);
   }, [boatId]);
 
-  const stopTrip = useCallback(() => {
+  const stopTrip = useCallback(async () => {
     const trip = activeTrip;
+    const endCoords = await getGps();
     localStorage.removeItem(STORAGE_KEY);
     setActiveTrip(null);
     setElapsed(0);
-    return trip;
+    return { trip, endCoords };
   }, [activeTrip]);
 
   return { activeTrip, elapsed, startTrip, stopTrip };

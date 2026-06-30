@@ -3,7 +3,8 @@ import { revalidatePath } from "next/cache";
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { boatId, started_at, ended_at, engine_hours_delta, fuel_added_litres, notes, source, raw_input } = body;
+  const { boatId, started_at, ended_at, engine_hours_delta, fuel_added_litres, notes, source, raw_input,
+          start_latitude, start_longitude, end_latitude, end_longitude } = body;
 
   const supabase = await createClient();
   const {
@@ -25,6 +26,10 @@ export async function POST(req: Request) {
     notes: notes ?? null,
     source: source ?? "ai_quick_log",
     raw_input: raw_input ?? null,
+    start_latitude: start_latitude ?? null,
+    start_longitude: start_longitude ?? null,
+    end_latitude: end_latitude ?? null,
+    end_longitude: end_longitude ?? null,
   });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });

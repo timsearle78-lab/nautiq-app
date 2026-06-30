@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Timer } from "lucide-react";
-import { useTripTimer, formatElapsed } from "@/hooks/use-trip-timer";
+import { useTripTimer, formatElapsed, type GpsCoords } from "@/hooks/use-trip-timer";
 import LogTripSheet from "@/components/chat/log-trip-sheet";
 import { useRouter } from "next/navigation";
 
@@ -10,11 +10,18 @@ export default function TripTimerButton({ boatId }: { boatId: string }) {
   const { activeTrip, elapsed, startTrip, stopTrip } = useTripTimer(boatId);
   const [showSheet, setShowSheet] = useState(false);
   const [startedAt, setStartedAt] = useState<string | null>(null);
+  const [startCoords, setStartCoords] = useState<GpsCoords | null>(null);
+  const [endCoords, setEndCoords] = useState<GpsCoords | null>(null);
+  const [stopping, setStopping] = useState(false);
   const router = useRouter();
 
-  function handleStop() {
-    const trip = stopTrip();
+  async function handleStop() {
+    setStopping(true);
+    const { trip, endCoords: ec } = await stopTrip();
+    setStopping(false);
     setStartedAt(trip?.startedAt ?? null);
+    setStartCoords(trip?.startCoords ?? null);
+    setEndCoords(ec);
     setShowSheet(true);
   }
 
@@ -23,11 +30,12 @@ export default function TripTimerButton({ boatId }: { boatId: string }) {
       {activeTrip ? (
         <button
           onClick={handleStop}
-          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white transition"
+          disabled={stopping}
+          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white transition disabled:opacity-60"
           style={{ background: "#D83A3A", boxShadow: "0 2px 8px rgba(216,58,58,.35)" }}
         >
           <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-          Stop · {formatElapsed(elapsed)}
+          {stopping ? "Locating…" : `Stop · ${formatElapsed(elapsed)}`}
         </button>
       ) : (
         <button
@@ -43,6 +51,8 @@ export default function TripTimerButton({ boatId }: { boatId: string }) {
         <LogTripSheet
           boatId={boatId}
           prefillStartedAt={startedAt}
+          prefillStartCoords={startCoords}
+          prefillEndCoords={endCoords}
           onClose={() => setShowSheet(false)}
           onSaved={() => {
             setShowSheet(false);

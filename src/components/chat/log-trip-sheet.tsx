@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, MapPin } from "lucide-react";
+import type { GpsCoords } from "@/hooks/use-trip-timer";
 import NautiqAnchorIcon from "@/components/ui/nautiq-anchor-icon";
 import VoiceTextarea from "@/components/ui/voice-textarea";
 import SaveSuccessSheet from "@/components/ui/save-success-sheet";
@@ -11,6 +12,8 @@ interface LogTripSheetProps {
   boatId: string;
   prefillEngineHours?: number | null;
   prefillStartedAt?: string | null;
+  prefillStartCoords?: GpsCoords | null;
+  prefillEndCoords?: GpsCoords | null;
   onClose: () => void;
   onSaved: () => void;
 }
@@ -40,10 +43,20 @@ function buildIso(date: string, time: string) {
   return new Date(`${date}T${time}:00`).toISOString();
 }
 
+function coordsLink(coords: GpsCoords) {
+  return `https://www.google.com/maps?q=${coords.latitude.toFixed(6)},${coords.longitude.toFixed(6)}`;
+}
+
+function coordsLabel(coords: GpsCoords) {
+  return `${coords.latitude.toFixed(4)}°, ${coords.longitude.toFixed(4)}°`;
+}
+
 export default function LogTripSheet({
   boatId,
   prefillEngineHours,
   prefillStartedAt,
+  prefillStartCoords,
+  prefillEndCoords,
   onClose,
   onSaved,
 }: LogTripSheetProps) {
@@ -85,6 +98,10 @@ export default function LogTripSheet({
           fuel_added_litres: fuelLitres ? parseFloat(fuelLitres) : null,
           notes: notes || null,
           source: "manual",
+          start_latitude: prefillStartCoords?.latitude ?? null,
+          start_longitude: prefillStartCoords?.longitude ?? null,
+          end_latitude: prefillEndCoords?.latitude ?? null,
+          end_longitude: prefillEndCoords?.longitude ?? null,
         }),
       });
       if (res.ok) {
@@ -192,6 +209,40 @@ export default function LogTripSheet({
               rows={3}
             />
           </div>
+
+          {(prefillStartCoords || prefillEndCoords) && (
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 space-y-2">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                <MapPin size={12} /> GPS locations
+              </p>
+              {prefillStartCoords && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-600">Departure</span>
+                  <a
+                    href={coordsLink(prefillStartCoords)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-ocean-600 hover:underline"
+                  >
+                    {coordsLabel(prefillStartCoords)}
+                  </a>
+                </div>
+              )}
+              {prefillEndCoords && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-600">Return</span>
+                  <a
+                    href={coordsLink(prefillEndCoords)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-ocean-600 hover:underline"
+                  >
+                    {coordsLabel(prefillEndCoords)}
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
 
           {error && <p className="text-sm text-red-600">{error}</p>}
         </div>
