@@ -122,7 +122,7 @@ export async function deleteBoat(_prev: ActionState, formData: FormData): Promis
   // Delete all related data in order (FK constraints: deepest first)
   // maintenance_records → components → systems → trips → inventory_items → boats
   const tables: { table: string; column: string }[] = [
-    { table: "maintenance_records", column: "boat_id" },
+    { table: "maintenance_events", column: "boat_id" },
     { table: "components", column: "boat_id" },
     { table: "systems", column: "boat_id" },
     { table: "trips", column: "boat_id" },
