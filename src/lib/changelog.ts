@@ -13,6 +13,7 @@ export const CHANGELOG: Release[] = [
       "Boat specs — capture propulsion, hull design, and hull material during setup and in Settings",
       "Component suggestions now tailored to your boat's propulsion and hull material (e.g. electric motor checks for electric boats, wood hull caulking for wooden vessels)",
       "Dimensions (length, beam, draft) can now be saved against each boat in Settings",
+      "Delete a boat and all its data from the Danger Zone in Settings — requires typing the boat name to confirm",
     ],
   },
   {

@@ -95,3 +95,50 @@ export async function deleteSystem(_prev: ActionState, formData: FormData): Prom
   revalidatePath("/settings");
   return { success: "Deleted" };
 }
+
+export async function deleteBoat(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const boatId = formData.get("boat_id") as string;
+  const confirmedName = (formData.get("confirmed_name") as string)?.trim();
+  const actualName = (formData.get("boat_name") as string)?.trim();
+
+  if (!confirmedName || confirmedName !== actualName) {
+    return { error: "Boat name does not match. Please type the exact boat name to confirm." };
+  }
+
+  // Verify ownership before deleting
+  const { data: boat } = await supabase
+    .from("boats")
+    .select("id")
+    .eq("id", boatId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!boat) return { error: "Boat not found or you do not have permission to delete it." };
+
+  // Delete all related data in order (FK constraints: deepest first)
+  // maintenance_records → components → systems → trips → inventory_items → boats
+  const tables: { table: string; column: string }[] = [
+    { table: "maintenance_records", column: "boat_id" },
+    { table: "components", column: "boat_id" },
+    { table: "systems", column: "boat_id" },
+    { table: "trips", column: "boat_id" },
+    { table: "inventory_items", column: "boat_id" },
+  ];
+
+  for (const { table, column } of tables) {
+    const { error } = await supabase.from(table).delete().eq(column, boatId);
+    if (error && !error.message.includes("does not exist")) {
+      return { error: `Failed to delete ${table}: ${error.message}` };
+    }
+  }
+
+  const { error } = await supabase.from("boats").delete().eq("id", boatId).eq("user_id", user.id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/settings");
+  return { success: `${actualName} deleted` };
+}
