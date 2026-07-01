@@ -65,13 +65,13 @@ const SAIL_SPARES: SparePreset[] = [
 ];
 
 function getSparePresets(boatType: string): SparePreset[] {
-  const isSail = boatType === "Sailboat" || boatType === "Catamaran" || boatType === "Yacht";
+  const isSail = boatType === "Keeler Yacht" || boatType === "Trailer Yacht" || boatType === "Catamaran";
   return [...UNIVERSAL_SPARES, ...(isSail ? SAIL_SPARES : MOTOR_SPARES)];
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-const BOAT_TYPES = ["Motorboat", "Sailboat", "Catamaran", "RIB", "Other"];
+const BOAT_TYPES = ["Motorboat", "Keeler Yacht", "Trailer Yacht", "Catamaran", "RIB", "Other"];
 const PROPULSION_TYPES = ["Inboard diesel", "Inboard petrol", "Outboard", "Sail", "Sail + auxiliary", "Electric", "Hybrid"];
 const HULL_DESIGNS = ["Monohull", "Catamaran", "Trimaran", "Pontoon", "Semi-displacement", "Planing", "Displacement"];
 const HULL_MATERIALS = ["Fibreglass (GRP)", "Aluminium", "Steel", "Wood", "Carbon fibre", "Ferro-cement", "Inflatable (Hypalon)", "Inflatable (PVC)"];

@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { updateBoat } from "@/app/(app)/settings/actions";
 import SaveSuccessBanner from "@/components/ui/save-success-banner";
 
-const BOAT_TYPES = ["Motorboat", "Sailboat", "Catamaran", "Yacht", "RIB", "Other"];
+const BOAT_TYPES = ["Motorboat", "Keeler Yacht", "Trailer Yacht", "Catamaran", "RIB", "Other"];
 const PROPULSION_TYPES = ["Inboard diesel", "Inboard petrol", "Outboard", "Sail", "Sail + auxiliary", "Electric", "Hybrid"];
 const HULL_DESIGNS = ["Monohull", "Catamaran", "Trimaran", "Pontoon", "Semi-displacement", "Planing", "Displacement"];
 const HULL_MATERIALS = ["Fibreglass (GRP)", "Aluminium", "Steel", "Wood", "Carbon fibre", "Ferro-cement", "Inflatable (Hypalon)", "Inflatable (PVC)"];

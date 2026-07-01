@@ -13,7 +13,7 @@ export type BoatDetails = {
 
 // Typical components per boat type. system mirrors common NautIQ system names.
 const SUGGESTIONS: Record<string, SuggestedComponent[]> = {
-  Sailboat: [
+  "Keeler Yacht": [
     { name: "Main Engine", system: "Engine", reason: "Track engine hours and service intervals" },
     { name: "Raw Water Impeller", system: "Engine", reason: "Critical — should be replaced annually or every 200h" },
     { name: "Engine Oil & Filter", system: "Engine", reason: "Regular service item" },
@@ -36,6 +36,30 @@ const SUGGESTIONS: Record<string, SuggestedComponent[]> = {
     { name: "AIS", system: "Electrical", reason: "Verify operation each season" },
     { name: "Windlass", system: "Deck", reason: "Service annually; check chain and shackle pins" },
     { name: "Anchor & Chain", system: "Deck", reason: "Inspect for wear; re-galvanise chain as needed" },
+  ],
+  "Trailer Yacht": [
+    { name: "Main Engine / Outboard", system: "Engine", reason: "Track engine hours and service intervals" },
+    { name: "Raw Water Impeller", system: "Engine", reason: "Critical — replace annually or every 200h" },
+    { name: "Engine Oil & Filter", system: "Engine", reason: "Regular service item" },
+    { name: "Fuel Filter", system: "Engine", reason: "Annual replacement recommended" },
+    { name: "Standing Rigging", system: "Rigging", reason: "Inspect annually; replace every 10 years" },
+    { name: "Running Rigging", system: "Rigging", reason: "Check halyards, sheets, and blocks regularly" },
+    { name: "Mainsail", system: "Sails", reason: "Track UV damage, stitching, and batten condition" },
+    { name: "Headsail / Genoa", system: "Sails", reason: "Annual inspection for wear and UV damage" },
+    { name: "Trailer Tyres", system: "Trailer", reason: "Check pressure, tread, and sidewall condition before each launch" },
+    { name: "Trailer Wheel Bearings", system: "Trailer", reason: "Repack bearings annually or after saltwater submersion" },
+    { name: "Trailer Lights", system: "Trailer", reason: "Check and reseal connections seasonally" },
+    { name: "Trailer Winch & Strap", system: "Trailer", reason: "Inspect strap for fraying and winch ratchet annually" },
+    { name: "Life Jackets / PFDs", system: "Safety", reason: "Annual inspection and re-arm gas cylinders" },
+    { name: "Fire Extinguisher", system: "Safety", reason: "Annual inspection and pressure check" },
+    { name: "Flares / Pyrotechnics", system: "Safety", reason: "Replace before expiry date" },
+    { name: "Bilge Pump", system: "Plumbing", reason: "Test and service regularly" },
+    { name: "Seacocks", system: "Plumbing", reason: "Exercise and grease annually" },
+    { name: "Zincs / Anodes", system: "Hull", reason: "Replace when 50% depleted, typically annually" },
+    { name: "Bottom Paint / Antifoul", system: "Hull", reason: "Apply each haulout season if moored; skip if trailered and dried" },
+    { name: "Batteries", system: "Electrical", reason: "Test capacity annually; replace every 3–5 years" },
+    { name: "VHF Radio", system: "Electrical", reason: "Annual inspection; license renewal tracking" },
+    { name: "Anchor & Chain", system: "Deck", reason: "Inspect for wear; check shackle pins" },
   ],
   Motorboat: [
     { name: "Main Engine", system: "Engine", reason: "Track engine hours and service intervals" },
@@ -184,7 +208,9 @@ export function getMissingComponents(
     ? { type: boatTypeOrDetails }
     : boatTypeOrDetails;
 
-  const boatType = details.type ?? "";
+  // Normalise legacy type names
+  const rawType = details.type ?? "";
+  const boatType = rawType === "Sailboat" || rawType === "Yacht" ? "Keeler Yacht" : rawType;
   const baseList = SUGGESTIONS[boatType] ?? SUGGESTIONS["Other"];
 
   // Build extras list from propulsion and hull material

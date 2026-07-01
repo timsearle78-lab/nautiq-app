@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { addBoat } from "@/app/(app)/settings/actions";
 import SaveSuccessBanner from "@/components/ui/save-success-banner";
 
-const BOAT_TYPES = ["Motorboat", "Sailboat", "Catamaran", "Yacht", "RIB", "Other"];
+const BOAT_TYPES = ["Motorboat", "Keeler Yacht", "Trailer Yacht", "Catamaran", "RIB", "Other"];
 
 const inputCls =
   "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100";
