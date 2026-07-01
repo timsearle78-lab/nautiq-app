@@ -23,14 +23,21 @@ export default async function ChatPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: boats } = await supabase
+  const { data: boats, error: boatsErr } = await supabase
     .from("boats")
     .select("id, name, type, propulsion, hull_design, hull_material")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
+  // Fall back to base columns if new spec columns don't exist yet in DB
+  const boatList = boatsErr
+    ? ((await supabase.from("boats").select("id, name, type").eq("user_id", user.id).order("created_at", { ascending: true })).data ?? [])
+    : (boats ?? []);
+
   const selectedBoatId = await getSelectedBoatId();
-  const boat = (boats ?? []).find((b) => b.id === selectedBoatId) ?? (boats ?? [])[0];
+  const boat = boatList.find((b) => b.id === selectedBoatId) ?? boatList[0];
+
+  if (!boat) redirect("/onboarding");
 
   const [engineHoursRes, health, componentsRes, inventoryRes] = await Promise.all([
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
@@ -40,8 +47,9 @@ export default async function ChatPage() {
   ]);
 
   const components = (componentsRes.data ?? []) as { id: string; name: string }[];
+  const boatWithSpecs = boat as { id: string; name: string; type?: string | null; propulsion?: string | null; hull_material?: string | null };
   const missingSuggestions = getMissingComponents(
-    { type: boat.type ?? null, propulsion: (boat as { propulsion?: string | null }).propulsion ?? null, hull_material: (boat as { hull_material?: string | null }).hull_material ?? null },
+    { type: boatWithSpecs.type ?? null, propulsion: boatWithSpecs.propulsion ?? null, hull_material: boatWithSpecs.hull_material ?? null },
     components.map((c) => c.name)
   );
   const inventoryItems = (inventoryRes.data ?? []) as { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];

@@ -32,7 +32,9 @@ export default async function SettingsPage() {
       .select("id,name,type")
       .eq("user_id", user.id)
       .order("created_at", { ascending: true });
-    boats = ((fallback ?? []) as Pick<BoatRow, "id" | "name" | "type">[]).map((b) => ({ ...b, image_url: null, propulsion: null, hull_design: null, hull_material: null, length_m: null, beam_m: null, draft_m: null }));
+    // image_url or spec columns may not exist yet — fall back to base columns
+    const { data: fallback2 } = await supabase.from("boats").select("id,name,type").eq("user_id", user.id).order("created_at", { ascending: true });
+    boats = ((fallback2 ?? []) as Pick<BoatRow, "id" | "name" | "type">[]).map((b) => ({ ...b, image_url: null, propulsion: null, hull_design: null, hull_material: null, length_m: null, beam_m: null, draft_m: null }));
   } else {
     boats = (boatsData ?? []) as BoatRow[];
   }
