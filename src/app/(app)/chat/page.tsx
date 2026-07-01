@@ -25,7 +25,7 @@ export default async function ChatPage() {
 
   const { data: boats } = await supabase
     .from("boats")
-    .select("id, name, type")
+    .select("id, name, type, propulsion, hull_design, hull_material")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
@@ -40,7 +40,10 @@ export default async function ChatPage() {
   ]);
 
   const components = (componentsRes.data ?? []) as { id: string; name: string }[];
-  const missingSuggestions = getMissingComponents(boat.type ?? null, components.map((c) => c.name));
+  const missingSuggestions = getMissingComponents(
+    { type: boat.type ?? null, propulsion: (boat as { propulsion?: string | null }).propulsion ?? null, hull_material: (boat as { hull_material?: string | null }).hull_material ?? null },
+    components.map((c) => c.name)
+  );
   const inventoryItems = (inventoryRes.data ?? []) as { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];
 
   const engineHours = (engineHoursRes.data as number) ?? 0;

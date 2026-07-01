@@ -72,6 +72,9 @@ function getSparePresets(boatType: string): SparePreset[] {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 const BOAT_TYPES = ["Motorboat", "Sailboat", "Catamaran", "RIB", "Other"];
+const PROPULSION_TYPES = ["Inboard diesel", "Inboard petrol", "Outboard", "Sail", "Sail + auxiliary", "Electric", "Hybrid"];
+const HULL_DESIGNS = ["Monohull", "Catamaran", "Trimaran", "Pontoon", "Semi-displacement", "Planing", "Displacement"];
+const HULL_MATERIALS = ["Fibreglass (GRP)", "Aluminium", "Steel", "Wood", "Carbon fibre", "Ferro-cement", "Inflatable (Hypalon)", "Inflatable (PVC)"];
 
 const inputCls =
   "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100";
@@ -154,6 +157,9 @@ export default function OnboardingPage() {
   // Boat form
   const [boatName, setBoatName] = useState("");
   const [boatType, setBoatType] = useState("Motorboat");
+  const [propulsion, setPropulsion] = useState("");
+  const [hullDesign, setHullDesign] = useState("");
+  const [hullMaterial, setHullMaterial] = useState("");
 
   // After creation
   const [boatId, setBoatId] = useState<string | null>(null);
@@ -177,7 +183,7 @@ export default function OnboardingPage() {
       const res = await fetch("/api/onboarding/create-boat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: boatName.trim(), type: boatType }),
+        body: JSON.stringify({ name: boatName.trim(), type: boatType, propulsion: propulsion || null, hull_design: hullDesign || null, hull_material: hullMaterial || null }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? "Something went wrong"); return; }
@@ -299,6 +305,29 @@ export default function OnboardingPage() {
                 >
                   {BOAT_TYPES.map((t) => <option key={t}>{t}</option>)}
                 </select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-white/80">Propulsion <span className="text-white/40 font-normal">(optional)</span></label>
+                <select value={propulsion} onChange={(e) => setPropulsion(e.target.value)} className={inputCls}>
+                  <option value="">Select propulsion</option>
+                  {PROPULSION_TYPES.map((t) => <option key={t}>{t}</option>)}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-white/80">Hull design <span className="text-white/40 font-normal">(optional)</span></label>
+                  <select value={hullDesign} onChange={(e) => setHullDesign(e.target.value)} className={inputCls}>
+                    <option value="">Select design</option>
+                    {HULL_DESIGNS.map((t) => <option key={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-white/80">Hull material <span className="text-white/40 font-normal">(optional)</span></label>
+                  <select value={hullMaterial} onChange={(e) => setHullMaterial(e.target.value)} className={inputCls}>
+                    <option value="">Select material</option>
+                    {HULL_MATERIALS.map((t) => <option key={t}>{t}</option>)}
+                  </select>
+                </div>
               </div>
               {error && (
                 <div className="rounded-xl border border-red-400/30 bg-red-500/20 px-4 py-3 text-sm text-red-300">{error}</div>

@@ -7,12 +7,12 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return new Response("Unauthorized", { status: 401 });
 
-  const { name, type } = await req.json();
+  const { name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m } = await req.json();
   if (!name?.trim()) return Response.json({ error: "Boat name required" }, { status: 400 });
 
   const { data: boat, error: boatError } = await supabase
     .from("boats")
-    .insert({ user_id: user.id, name: name.trim(), type: type || "Motorboat" })
+    .insert({ user_id: user.id, name: name.trim(), type: type || "Motorboat", propulsion: propulsion || null, hull_design: hull_design || null, hull_material: hull_material || null, length_m: length_m || null, beam_m: beam_m || null, draft_m: draft_m || null })
     .select("id, name, type")
     .single();
 

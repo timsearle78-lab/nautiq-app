@@ -23,14 +23,16 @@ The app has five main areas:
   {
     id: "boat",
     title: "How to add or edit a boat",
-    content: `When you first sign up, NautIQ walks you through adding your boat with a setup wizard. It will ask for your boat's name and type, then automatically create common systems and components for that type of vessel.
+    content: `When you first sign up, NautIQ walks you through adding your boat with a setup wizard. It will ask for your boat's name, type, propulsion, hull design, and hull material — then automatically create common systems and components for that type of vessel.
 
 To add another boat or edit an existing one:
 1. Tap the Profile tab (bottom right).
 2. Tap Settings.
-3. Scroll to your boat — you can edit the name, type, and upload a photo.
+3. Scroll to your boat — you can edit the name, type, propulsion, hull design, hull material, and dimensions (length, beam, draft). You can also upload a photo.
 4. To add a new boat, scroll to the bottom of the Settings page and use the "Add boat" section.
-5. You can switch between boats using the boat selector in the top-right corner of the app.`,
+5. You can switch between boats using the boat selector in the top-right corner of the app.
+
+Boat specs are used to tailor component suggestions on the Home screen. For example, an electric boat will be prompted to add a drive battery pack and BMS, while a wooden boat will see hull caulking suggestions.`,
   },
   {
     id: "trips",
@@ -189,7 +191,7 @@ APP USAGE GUIDE (answer "how do I" questions using this):
 
 OVERVIEW: NautIQ has 5 sections — Home/Chat (AI assistant), Trips (engine hours log), Maintain (component service tracking), Inventory (spare parts), Profile (settings/help/report).
 
-BOAT SETUP: First-time wizard creates systems and components automatically. Add more boats in Profile → Settings. Switch boats via the top-right selector.
+BOAT SETUP: First-time wizard asks for name, type, propulsion, hull design, and hull material — then creates systems and components automatically. Edit boat specs (including dimensions: length, beam, draft) in Profile → Settings. Add more boats in Profile → Settings. Switch boats via the top-right selector. Boat specs refine component suggestions on the Home screen.
 
 LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving (GPS location captured), "Stop Trip" when back (GPS location captured again); (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours."
 

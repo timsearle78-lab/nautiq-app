@@ -7,6 +7,15 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-07-01",
+    label: "July 2026 update",
+    features: [
+      "Boat specs — capture propulsion, hull design, and hull material during setup and in Settings",
+      "Component suggestions now tailored to your boat's propulsion and hull material (e.g. electric motor checks for electric boats, wood hull caulking for wooden vessels)",
+      "Dimensions (length, beam, draft) can now be saved against each boat in Settings",
+    ],
+  },
+  {
     date: "2026-06-27",
     label: "June 2026 update",
     features: [

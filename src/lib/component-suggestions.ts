@@ -4,6 +4,13 @@ export type SuggestedComponent = {
   reason: string;
 };
 
+export type BoatDetails = {
+  type?: string | null;
+  propulsion?: string | null;
+  hull_design?: string | null;
+  hull_material?: string | null;
+};
+
 // Typical components per boat type. system mirrors common NautIQ system names.
 const SUGGESTIONS: Record<string, SuggestedComponent[]> = {
   Sailboat: [
@@ -105,6 +112,53 @@ const SUGGESTIONS: Record<string, SuggestedComponent[]> = {
   ],
 };
 
+// Extra suggestions based on propulsion type
+const PROPULSION_EXTRAS: Record<string, SuggestedComponent[]> = {
+  "Outboard": [
+    { name: "Outboard Engine", system: "Engine", reason: "Track engine hours and service intervals" },
+    { name: "Gear Oil (Lower Unit)", system: "Engine", reason: "Change annually or every 100h" },
+    { name: "Propeller", system: "Engine", reason: "Inspect for nicks after use" },
+  ],
+  "Electric": [
+    { name: "Electric Motor", system: "Engine", reason: "Check connections and cooling annually" },
+    { name: "Drive Battery Pack", system: "Electrical", reason: "Test capacity seasonally; monitor cell health" },
+    { name: "Battery Management System (BMS)", system: "Electrical", reason: "Verify operation each season" },
+    { name: "Charger / Shore Power", system: "Electrical", reason: "Inspect cable and connector annually" },
+  ],
+  "Hybrid": [
+    { name: "Electric Motor", system: "Engine", reason: "Check connections and cooling annually" },
+    { name: "Drive Battery Pack", system: "Electrical", reason: "Test capacity seasonally; monitor cell health" },
+    { name: "Battery Management System (BMS)", system: "Electrical", reason: "Verify operation each season" },
+  ],
+};
+
+// Extra suggestions based on hull material
+const HULL_MATERIAL_EXTRAS: Record<string, SuggestedComponent[]> = {
+  "Wood": [
+    { name: "Hull Caulking / Sealant", system: "Hull", reason: "Inspect and re-caulk seams annually" },
+    { name: "Deck Caulking", system: "Hull", reason: "Inspect teak or deck seams seasonally" },
+    { name: "Varnish / Topcoat", system: "Hull", reason: "Apply UV-protective varnish each season" },
+  ],
+  "Steel": [
+    { name: "Hull Rust Inspection", system: "Hull", reason: "Check for rust spots and re-prime annually" },
+    { name: "Sacrificial Anodes (Hull)", system: "Hull", reason: "Steel hulls consume anodes quickly — check every 6 months" },
+  ],
+  "Aluminium": [
+    { name: "Aluminium Corrosion Inspection", system: "Hull", reason: "Inspect for galvanic corrosion; ensure anodes are compatible" },
+  ],
+  "Ferro-cement": [
+    { name: "Hull Crack Survey", system: "Hull", reason: "Inspect ferro-cement for hairline cracks annually" },
+  ],
+  "Inflatable (Hypalon)": [
+    { name: "Hypalon Seam Inspection", system: "Hull", reason: "Check for delamination and UV cracking annually" },
+    { name: "Tube Pressure Check", system: "Hull", reason: "Check inflation pressure seasonally" },
+  ],
+  "Inflatable (PVC)": [
+    { name: "PVC Tube Inspection", system: "Hull", reason: "Inspect for UV cracking and seam integrity annually" },
+    { name: "Tube Pressure Check", system: "Hull", reason: "Check inflation pressure seasonally" },
+  ],
+};
+
 function tokenize(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(Boolean);
 }
@@ -122,9 +176,34 @@ function isCovered(suggestion: string, existing: string[]): boolean {
 }
 
 export function getMissingComponents(
-  boatType: string | null,
+  boatTypeOrDetails: string | null | BoatDetails,
   existingComponentNames: string[]
 ): SuggestedComponent[] {
-  const list = SUGGESTIONS[boatType ?? ""] ?? SUGGESTIONS["Other"];
-  return list.filter((s) => !isCovered(s.name, existingComponentNames));
+  // Support legacy string call signature
+  const details: BoatDetails = typeof boatTypeOrDetails === "string" || boatTypeOrDetails === null
+    ? { type: boatTypeOrDetails }
+    : boatTypeOrDetails;
+
+  const boatType = details.type ?? "";
+  const baseList = SUGGESTIONS[boatType] ?? SUGGESTIONS["Other"];
+
+  // Build extras list from propulsion and hull material
+  const extras: SuggestedComponent[] = [];
+
+  if (details.propulsion) {
+    const propExtras = PROPULSION_EXTRAS[details.propulsion] ?? [];
+    extras.push(...propExtras);
+  }
+
+  if (details.hull_material) {
+    const hullExtras = HULL_MATERIAL_EXTRAS[details.hull_material] ?? [];
+    extras.push(...hullExtras);
+  }
+
+  // Deduplicate extras against base list by name
+  const baseNames = new Set(baseList.map((s) => s.name));
+  const uniqueExtras = extras.filter((e) => !baseNames.has(e.name));
+
+  const combined = [...baseList, ...uniqueExtras];
+  return combined.filter((s) => !isCovered(s.name, existingComponentNames));
 }
