@@ -130,7 +130,11 @@ export async function deleteBoat(_prev: ActionState, formData: FormData): Promis
   ];
 
   for (const { table, column } of tables) {
-    const { error } = await supabase.from(table).delete().eq(column, boatId);
+    // Some tables have user_id and RLS requires it; add the filter where it exists
+    const query = supabase.from(table).delete().eq(column, boatId);
+    const { error } = await (table === "maintenance_events"
+      ? query.eq("user_id", user.id)
+      : query);
     if (error && !error.message.includes("does not exist")) {
       return { error: `Failed to delete ${table}: ${error.message}` };
     }
