@@ -119,10 +119,25 @@ export async function deleteBoat(_prev: ActionState, formData: FormData): Promis
 
   if (!boat) return { error: "Boat not found or you do not have permission to delete it." };
 
-  // Delete all related data in order (FK constraints: deepest first)
-  // maintenance_records → components → systems → trips → inventory_items → boats
+  // Delete maintenance_events via component_id to satisfy RLS (policy is on component ownership)
+  const { data: componentRows } = await supabase
+    .from("components")
+    .select("id")
+    .eq("boat_id", boatId);
+
+  if (componentRows && componentRows.length > 0) {
+    const componentIds = componentRows.map((c) => c.id);
+    const { error: meError } = await supabase
+      .from("maintenance_events")
+      .delete()
+      .in("component_id", componentIds);
+    if (meError && !meError.message.includes("does not exist")) {
+      return { error: `Failed to delete maintenance_events: ${meError.message}` };
+    }
+  }
+
+  // Delete remaining related data
   const tables: { table: string; column: string }[] = [
-    { table: "maintenance_events", column: "boat_id" },
     { table: "components", column: "boat_id" },
     { table: "systems", column: "boat_id" },
     { table: "trips", column: "boat_id" },
@@ -130,11 +145,7 @@ export async function deleteBoat(_prev: ActionState, formData: FormData): Promis
   ];
 
   for (const { table, column } of tables) {
-    // Some tables have user_id and RLS requires it; add the filter where it exists
-    const query = supabase.from(table).delete().eq(column, boatId);
-    const { error } = await (table === "maintenance_events"
-      ? query.eq("user_id", user.id)
-      : query);
+    const { error } = await supabase.from(table).delete().eq(column, boatId);
     if (error && !error.message.includes("does not exist")) {
       return { error: `Failed to delete ${table}: ${error.message}` };
     }
