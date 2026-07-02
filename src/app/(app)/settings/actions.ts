@@ -119,39 +119,12 @@ export async function deleteBoat(_prev: ActionState, formData: FormData): Promis
 
   if (!boat) return { error: "Boat not found or you do not have permission to delete it." };
 
-  // Delete maintenance_events via component_id to satisfy RLS (policy is on component ownership)
-  const { data: componentRows } = await supabase
-    .from("components")
-    .select("id")
-    .eq("boat_id", boatId);
-
-  if (componentRows && componentRows.length > 0) {
-    const componentIds = componentRows.map((c) => c.id);
-    const { error: meError } = await supabase
-      .from("maintenance_events")
-      .delete()
-      .in("component_id", componentIds);
-    if (meError && !meError.message.includes("does not exist")) {
-      return { error: `Failed to delete maintenance_events: ${meError.message}` };
-    }
-  }
-
-  // Delete remaining related data
-  const tables: { table: string; column: string }[] = [
-    { table: "components", column: "boat_id" },
-    { table: "systems", column: "boat_id" },
-    { table: "trips", column: "boat_id" },
-    { table: "inventory_items", column: "boat_id" },
-  ];
-
-  for (const { table, column } of tables) {
-    const { error } = await supabase.from(table).delete().eq(column, boatId);
-    if (error && !error.message.includes("does not exist")) {
-      return { error: `Failed to delete ${table}: ${error.message}` };
-    }
-  }
-
-  const { error } = await supabase.from("boats").delete().eq("id", boatId).eq("user_id", user.id);
+  // Use a SECURITY DEFINER RPC to delete the boat and all related data,
+  // bypassing per-table RLS restrictions.
+  const { error } = await supabase.rpc("delete_boat_cascade", {
+    p_boat_id: boatId,
+    p_user_id: user.id,
+  });
   if (error) return { error: error.message };
 
   revalidatePath("/settings");
