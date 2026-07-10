@@ -32,7 +32,9 @@ To add another boat or edit an existing one:
 4. To add a new boat, scroll to the bottom of the Settings page and use the "Add boat" section.
 5. You can switch between boats using the boat selector in the top-right corner of the app.
 
-Boat specs are used to tailor component suggestions on the Home screen. For example, an electric boat will be prompted to add a drive battery pack and BMS, while a wooden boat will see hull caulking suggestions.`,
+Boat specs are used to tailor component suggestions on the Home screen. For example, an electric boat will be prompted to add a drive battery pack and BMS, while a wooden boat will see hull caulking suggestions.
+
+There is also a free-text Boat description field — describe your boat in plain English (builder, year, engine make/model, sails, electronics, any quirks). The AI assistant reads this description in every conversation, so the more detail you add, the better its maintenance advice and component suggestions will be.`,
   },
   {
     id: "trips",
@@ -191,7 +193,7 @@ APP USAGE GUIDE (answer "how do I" questions using this):
 
 OVERVIEW: NautIQ has 5 sections — Home/Chat (AI assistant), Trips (engine hours log), Maintain (component service tracking), Inventory (spare parts), Profile (settings/help/report).
 
-BOAT SETUP: First-time wizard asks for name, type, propulsion, hull design, and hull material — then creates systems and components automatically. Edit boat specs (including dimensions: length, beam, draft) in Profile → Settings. Add more boats in Profile → Settings. Switch boats via the top-right selector. Boat specs refine component suggestions on the Home screen.
+BOAT SETUP: First-time wizard asks for name, type, propulsion, hull design, hull material, and an optional free-text description — then creates systems and components automatically. Edit boat specs (including dimensions: length, beam, draft) and description in Profile → Settings. Add more boats in Profile → Settings. Switch boats via the top-right selector. Boat specs and description refine component suggestions and AI advice.
 
 LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving (GPS location captured), "Stop Trip" when back (GPS location captured again); (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours."
 

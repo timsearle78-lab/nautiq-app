@@ -14,6 +14,7 @@ export const CHANGELOG: Release[] = [
       "Component suggestions now tailored to your boat's propulsion and hull material (e.g. electric motor checks for electric boats, wood hull caulking for wooden vessels)",
       "Dimensions (length, beam, draft) can now be saved against each boat in Settings",
       "Delete a boat and all its data from the Danger Zone in Settings — requires typing the boat name to confirm",
+      "Boat description field in Settings — describe your boat in plain English and the AI will use it to suggest the right components and give better maintenance advice",
     ],
   },
   {

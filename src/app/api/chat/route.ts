@@ -42,11 +42,21 @@ export async function POST(req: Request) {
 
     const { data: boat } = await supabase
       .from("boats")
-      .select("id, name")
+      .select("id, name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description")
       .eq("id", boatId)
       .eq("user_id", user.id)
       .single();
     if (!boat) return new Response("Boat not found", { status: 404 });
+
+    const boatSpec = [
+      boat.type,
+      boat.propulsion,
+      boat.hull_design,
+      boat.hull_material,
+      boat.length_m ? `${boat.length_m}m LOA` : null,
+      boat.beam_m ? `${boat.beam_m}m beam` : null,
+      boat.draft_m ? `${boat.draft_m}m draft` : null,
+    ].filter(Boolean).join(", ");
 
     const { data: engineHours } = await supabase.rpc("get_boat_engine_hours", {
       p_boat_id: boatId,
@@ -66,6 +76,7 @@ export async function POST(req: Request) {
       model: createGroq({ apiKey: process.env.GROQ_API_KEY })("llama-3.3-70b-versatile"),
       stopWhen: stepCountIs(1),
       system: `You are NautIQ, a practical boat assistant for "${boat.name}".
+${boatSpec ? `Boat specs: ${boatSpec}.` : ""}${(boat as { description?: string | null }).description ? `\nOwner's description: ${(boat as { description?: string | null }).description}` : ""}
 Engine hours: ${engineHours ?? 0}h.
 
 SCOPE: You only help with topics directly related to this boat — maintenance, trips, inventory, health score, spare parts, engine hours, and how to use the NautIQ app. If the user asks about anything else (general knowledge, cooking, coding, news, other topics, etc.), respond with exactly: "Sorry, I can only help with questions about your boat and the NautIQ app." Do not elaborate or apologise further.

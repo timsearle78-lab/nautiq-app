@@ -160,6 +160,7 @@ export default function OnboardingPage() {
   const [propulsion, setPropulsion] = useState("");
   const [hullDesign, setHullDesign] = useState("");
   const [hullMaterial, setHullMaterial] = useState("");
+  const [description, setDescription] = useState("");
 
   // After creation
   const [boatId, setBoatId] = useState<string | null>(null);
@@ -183,7 +184,7 @@ export default function OnboardingPage() {
       const res = await fetch("/api/onboarding/create-boat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: boatName.trim(), type: boatType, propulsion: propulsion || null, hull_design: hullDesign || null, hull_material: hullMaterial || null }),
+        body: JSON.stringify({ name: boatName.trim(), type: boatType, propulsion: propulsion || null, hull_design: hullDesign || null, hull_material: hullMaterial || null, description: description.trim() || null }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? "Something went wrong"); return; }
@@ -328,6 +329,21 @@ export default function OnboardingPage() {
                     {HULL_MATERIALS.map((t) => <option key={t}>{t}</option>)}
                   </select>
                 </div>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-white/80">
+                  Describe your boat <span className="text-white/40 font-normal">(optional)</span>
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                  placeholder="e.g. 1987 Beneteau First 35, Yanmar 2GM diesel, roller furling jib, teak deck..."
+                  className={`${inputCls} resize-none`}
+                />
+                <p className="mt-1.5 text-xs text-ocean-200/50">
+                  The AI assistant uses this to suggest the right components and give better maintenance advice.
+                </p>
               </div>
               {error && (
                 <div className="rounded-xl border border-red-400/30 bg-red-500/20 px-4 py-3 text-sm text-red-300">{error}</div>

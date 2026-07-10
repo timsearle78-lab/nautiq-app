@@ -9,7 +9,7 @@ import { DeleteBoatDialog } from "@/components/settings/delete-boat-dialog";
 
 export const dynamic = "force-dynamic";
 
-type BoatRow = { id: string; name: string; type: string | null; image_url: string | null; propulsion: string | null; hull_design: string | null; hull_material: string | null; length_m: number | null; beam_m: number | null; draft_m: number | null };
+type BoatRow = { id: string; name: string; type: string | null; image_url: string | null; propulsion: string | null; hull_design: string | null; hull_material: string | null; length_m: number | null; beam_m: number | null; draft_m: number | null; description: string | null };
 type SystemRow = { id: string; name: string; boat_id: string };
 
 export default async function SettingsPage() {
@@ -21,7 +21,7 @@ export default async function SettingsPage() {
 
   const { data: boatsData, error: boatsErr } = await supabase
     .from("boats")
-    .select("id,name,type,image_url,propulsion,hull_design,hull_material,length_m,beam_m,draft_m")
+    .select("id,name,type,image_url,propulsion,hull_design,hull_material,length_m,beam_m,draft_m,description")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
@@ -29,7 +29,7 @@ export default async function SettingsPage() {
   let boats: BoatRow[];
   if (boatsErr) {
     const { data: fallback } = await supabase.from("boats").select("id,name,type").eq("user_id", user.id).order("created_at", { ascending: true });
-    boats = ((fallback ?? []) as Pick<BoatRow, "id" | "name" | "type">[]).map((b) => ({ ...b, image_url: null, propulsion: null, hull_design: null, hull_material: null, length_m: null, beam_m: null, draft_m: null }));
+    boats = ((fallback ?? []) as Pick<BoatRow, "id" | "name" | "type">[]).map((b) => ({ ...b, image_url: null, propulsion: null, hull_design: null, hull_material: null, length_m: null, beam_m: null, draft_m: null, description: null }));
   } else {
     boats = (boatsData ?? []) as BoatRow[];
   }
@@ -70,7 +70,7 @@ export default async function SettingsPage() {
             </div>
             <div className="px-4 py-4 space-y-4">
               <BoatImageUpload boatId={boat.id} imageUrl={boat.image_url} />
-              <EditBoatForm boatId={boat.id} name={boat.name} type={boat.type} propulsion={boat.propulsion} hull_design={boat.hull_design} hull_material={boat.hull_material} length_m={boat.length_m} beam_m={boat.beam_m} draft_m={boat.draft_m} />
+              <EditBoatForm boatId={boat.id} name={boat.name} type={boat.type} propulsion={boat.propulsion} hull_design={boat.hull_design} hull_material={boat.hull_material} length_m={boat.length_m} beam_m={boat.beam_m} draft_m={boat.draft_m} description={boat.description} />
             </div>
             <div className="px-4 py-3 border-t border-red-100 bg-red-50/40 flex items-center justify-between gap-4">
               <div>

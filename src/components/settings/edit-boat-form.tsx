@@ -22,9 +22,10 @@ type Props = {
   length_m?: number | null;
   beam_m?: number | null;
   draft_m?: number | null;
+  description?: string | null;
 };
 
-export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m }: Props) {
+export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description }: Props) {
   const [state, action, pending] = useActionState(updateBoat, {});
 
   return (
@@ -121,6 +122,23 @@ export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull
             />
           </div>
         </div>
+      </div>
+
+      {/* Boat description */}
+      <div>
+        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+          Boat description <span className="font-normal text-slate-400">(optional)</span>
+        </label>
+        <textarea
+          name="description"
+          defaultValue={description ?? ""}
+          rows={4}
+          placeholder="Describe your boat in your own words — builder, year, engine make/model, sails, electronics, any quirks. The AI assistant uses this to give you better maintenance advice and component suggestions."
+          className={`${inputCls} resize-none`}
+        />
+        <p className="mt-1 text-xs text-slate-400">
+          e.g. &quot;1987 Beneteau First 35, Yanmar 2GM20 diesel, Lewmar windlass, roller furling jib, teak cockpit&quot;
+        </p>
       </div>
 
       {state.error && (
