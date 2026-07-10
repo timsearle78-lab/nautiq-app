@@ -75,23 +75,26 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
 
   return (
     <div className={`rounded-xl border mx-1 mb-1 overflow-hidden ${scoreBorder}`}>
-      <button
-        onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center justify-between px-4 py-3 text-left"
-      >
+      <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-4">
-          <div>
+          <Link href="/health" className="flex items-baseline gap-1 hover:opacity-80 transition-opacity">
             <span className={`text-2xl font-bold ${scoreColor}`}>{healthScore}</span>
-            <span className="text-xs text-slate-500 ml-1">/ 100</span>
-          </div>
+            <span className="text-xs text-slate-500">/ 100</span>
+          </Link>
           <div className="flex gap-3 text-xs">
             {overdueCount > 0 && <span className="font-medium text-red-600">{overdueCount} overdue</span>}
             {dueSoonCount > 0 && <span className="font-medium text-amber-600">{dueSoonCount} due soon</span>}
             <span className="text-green-600">{okCount} healthy</span>
           </div>
         </div>
-        {expanded ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
-      </button>
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="p-1 -mr-1 text-slate-400 hover:text-slate-600 transition-colors"
+          aria-label={expanded ? "Collapse" : "Expand"}
+        >
+          {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </button>
+      </div>
 
       {expanded && (
         <div className="border-t border-slate-200 bg-white">
@@ -327,7 +330,9 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             {/* Health score card with gauge */}
             <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
               <div className="flex items-center justify-between gap-4">
-                <HealthGauge score={healthScore} overdueCount={overdueCount} size={130} />
+                <Link href="/health" className="hover:opacity-80 transition-opacity flex-shrink-0">
+                  <HealthGauge score={healthScore} overdueCount={overdueCount} size={130} />
+                </Link>
                 <div className="flex-1 grid grid-cols-2 gap-2">
                   <div className="rounded-xl bg-red-50 border border-red-100 px-3 py-3 text-center">
                     <div className="text-xl font-bold text-red-600">{overdueCount}</div>
