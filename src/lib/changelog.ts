@@ -7,6 +7,15 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-07-10",
+    label: "July 2026 update",
+    features: [
+      "Expiry dates on inventory items — get warned in-line when items are expired or expiring within 90 days",
+      "Expiring soon tile on the Inventory page shows how many items need attention at a glance",
+      "Critical low-stock and expired items now carry higher penalties in the boat health score",
+    ],
+  },
+  {
     date: "2026-07-01",
     label: "July 2026 update",
     features: [

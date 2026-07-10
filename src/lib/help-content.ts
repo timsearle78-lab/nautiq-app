@@ -110,7 +110,9 @@ To adjust stock (used or restocked a part):
 - You can also say to the AI: "I used 2 oil filters" or "I bought a new impeller."
 - Tap "Restock item" or "Used item" below the chat box for a quick shortcut.
 
-Linking spares to components: When a spare is linked to a component, low stock for that spare increases the component's risk score — so you'll be reminded to restock before you need to service it.`,
+Linking spares to components: When a spare is linked to a component, low stock for that spare increases the component's risk score — so you'll be reminded to restock before you need to service it.
+
+Expiry dates: You can record an expiry date on any inventory item (e.g. flares, first aid supplies, epoxy, fuel treatment). Items expiring within 90 days show an amber "Exp. Xd" badge; expired items show a red "Expired" badge. The Inventory page shows an "Expiring soon" tile so you can see at a glance how many items need attention. Expired and near-expired critical items also increase your boat's health risk score.`,
   },
   {
     id: "chat",
@@ -201,7 +203,7 @@ MAINTENANCE: Each component has a time/engine-hour service interval. NautIQ uses
 
 COMPONENTS & SYSTEMS: Components = individual parts needing service (engine, impeller, life jackets…). Systems = groups (Engine, Safety, Electrical…). Add/edit from Maintain tab. Delete from Danger Zone on component page.
 
-INVENTORY: Add items via "+ Add item" or camera "Scan item" on Home. Adjust stock by saying "I used X" or "I bought X" to the AI, or via the Restock item / Used item chips, or from the item's page. Use the "Low stock only" toggle on the Inventory page to filter instantly. Link spares to components so low stock raises the risk score.
+INVENTORY: Add items via "+ Add item" or camera "Scan item" on Home. Adjust stock by saying "I used X" or "I bought X" to the AI, or via the Restock item / Used item chips, or from the item's page. Use the "Low stock only" toggle on the Inventory page to filter instantly. Link spares to components so low stock raises the risk score. Set an expiry date on items like flares, first aid supplies, or fuel treatment — items expiring within 90 days show an amber badge; expired items show red. The "Expiring soon" tile on the Inventory page shows the count at a glance. Expired critical items increase the boat health risk score.
 
 BOAT REPORT / PDF: Say "download a boat report" or "send me a PDF summary" to generate and download a full PDF of health, maintenance schedule, inventory, and recent trips. Also available from Profile tab → "Download Boat Report."
 

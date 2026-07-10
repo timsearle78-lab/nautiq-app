@@ -12,6 +12,18 @@ function getStatus(item: InventoryItemRow) {
   return { label: "OK", badgeCls: "bg-green-50 text-green-600 border-green-200" };
 }
 
+function getExpiryBadge(expiryDate: string | null): { label: string; cls: string } | null {
+  if (!expiryDate) return null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const expiry = new Date(expiryDate); expiry.setHours(0, 0, 0, 0);
+  const daysLeft = Math.ceil((expiry.getTime() - today.getTime()) / 86400000);
+  if (daysLeft < 0) return { label: "Expired", cls: "bg-red-50 text-red-600 border-red-200" };
+  if (daysLeft === 0) return { label: "Expires today", cls: "bg-red-50 text-red-600 border-red-200" };
+  if (daysLeft <= 30) return { label: `Exp. ${daysLeft}d`, cls: "bg-red-50 text-red-600 border-red-200" };
+  if (daysLeft <= 90) return { label: `Exp. ${daysLeft}d`, cls: "bg-amber-50 text-amber-600 border-amber-200" };
+  return null;
+}
+
 export function InventoryTable({
   boatId,
   items,
@@ -35,6 +47,7 @@ export function InventoryTable({
           <div className="divide-y divide-slate-100 lg:hidden">
             {items.map((item) => {
               const status = getStatus(item);
+              const expiryBadge = getExpiryBadge(item.expiry_date);
               return (
                 <div key={item.id} className="px-4 py-4">
                   <div className="flex items-start justify-between gap-3 mb-3">
@@ -63,6 +76,11 @@ export function InventoryTable({
                       <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${status.badgeCls}`}>
                         {status.label}
                       </span>
+                      {expiryBadge && (
+                        <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${expiryBadge.cls}`}>
+                          {expiryBadge.label}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />
@@ -86,6 +104,7 @@ export function InventoryTable({
               <tbody>
                 {items.map((item) => {
                   const status = getStatus(item);
+                  const expiryBadge = getExpiryBadge(item.expiry_date);
                   return (
                     <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 align-middle">
                       <td className="px-4 py-3">
@@ -118,9 +137,16 @@ export function InventoryTable({
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${status.badgeCls}`}>
-                          {status.label}
-                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${status.badgeCls}`}>
+                            {status.label}
+                          </span>
+                          {expiryBadge && (
+                            <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${expiryBadge.cls}`}>
+                              {expiryBadge.label}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />

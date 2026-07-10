@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { updateInventoryItem, deleteInventoryItem } from "@/app/(app)/inventory/[id]/actions";
 import SaveSuccessBanner from "@/components/ui/save-success-banner";
-import { Package } from "lucide-react";
+import { Package, AlertTriangle } from "lucide-react";
 
 type ComponentOption = { id: string; name: string };
 
@@ -21,6 +21,7 @@ type Item = {
   storage_location: string | null;
   notes: string | null;
   is_critical: boolean;
+  expiry_date: string | null;
 };
 
 const inputCls =
@@ -118,10 +119,37 @@ export function EditInventoryItemForm({
             </div>
           </div>
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">SKU</label>
-            <input name="sku" defaultValue={item.sku ?? ""} className={inputCls} placeholder="Optional part number" />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">SKU</label>
+              <input name="sku" defaultValue={item.sku ?? ""} className={inputCls} placeholder="Optional part number" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Expiry date</label>
+              <input name="expiry_date" type="date" defaultValue={item.expiry_date ?? ""} className={inputCls} />
+            </div>
           </div>
+
+          {/* Expiry warning banner */}
+          {item.expiry_date && (() => {
+            const today = new Date(); today.setHours(0,0,0,0);
+            const expiry = new Date(item.expiry_date); expiry.setHours(0,0,0,0);
+            const daysLeft = Math.ceil((expiry.getTime() - today.getTime()) / 86400000);
+            if (daysLeft > 90) return null;
+            const expired = daysLeft < 0;
+            return (
+              <div className={`flex items-start gap-2.5 rounded-xl border px-4 py-3 text-sm ${expired ? "border-red-200 bg-red-50 text-red-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>
+                <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
+                <span>
+                  {expired
+                    ? `This item expired ${Math.abs(daysLeft)} day${Math.abs(daysLeft) !== 1 ? "s" : ""} ago.`
+                    : daysLeft === 0
+                    ? "This item expires today."
+                    : `This item expires in ${daysLeft} day${daysLeft !== 1 ? "s" : ""}.`}
+                </span>
+              </div>
+            );
+          })()}
 
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Notes</label>

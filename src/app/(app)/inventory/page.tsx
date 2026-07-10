@@ -90,6 +90,14 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     (item) => item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity)
   ).length;
 
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const in90Days = new Date(today); in90Days.setDate(in90Days.getDate() + 90);
+  const expiringSoonCount = inventoryItems.filter((item) => {
+    if (!item.expiry_date) return false;
+    const expiry = new Date(item.expiry_date); expiry.setHours(0, 0, 0, 0);
+    return expiry <= in90Days;
+  }).length;
+
   const stockedCount = inventoryItems.length - lowStockCount - missingCriticalSpares.length;
 
   return (
@@ -106,7 +114,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
       </div>
 
       {/* Stat tiles */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {/* Total */}
         <div
           className="rounded-2xl p-4 flex flex-col gap-1.5"
@@ -163,6 +171,22 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
           </div>
           <div style={{ fontSize: 26, fontWeight: 800, color: stockedCount > 0 ? "#1D9B55" : "#46586A", lineHeight: 1.1 }}>
             {stockedCount}
+          </div>
+        </div>
+
+        {/* Expiring soon */}
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-1.5"
+          style={{
+            background: expiringSoonCount > 0 ? "#FDF8EA" : "#F3F6F9",
+            border: `1px solid ${expiringSoonCount > 0 ? "#F3E6C4" : "#E2E9EF"}`,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 500, color: expiringSoonCount > 0 ? "#C8841A" : "#8593A0" }}>
+            Expiring soon
+          </div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: expiringSoonCount > 0 ? "#C8841A" : "#46586A", lineHeight: 1.1 }}>
+            {expiringSoonCount}
           </div>
         </div>
       </div>

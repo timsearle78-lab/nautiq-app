@@ -186,9 +186,8 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
       .order("started_at", { ascending: true }),
     supabase
       .from("inventory_items")
-      .select("component_id, quantity, minimum_quantity")
-      .eq("boat_id", boatId)
-      .not("component_id", "is", null),
+      .select("component_id, quantity, minimum_quantity, is_critical, expiry_date")
+      .eq("boat_id", boatId),
   ]);
 
   if (!componentsData || componentsData.length === 0) return [];
@@ -198,20 +197,49 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
   type TripRow = { started_at: string | null; engine_hours_delta: number };
   const trips = (tripsData ?? []) as TripRow[];
 
-  // Build a map of component_id → worst stock penalty (0–25)
-  type InventoryRow = { component_id: string | null; quantity: number | null; minimum_quantity: number | null };
+  // Build a map of component_id → worst stock + expiry penalty
+  type InventoryRow = { component_id: string | null; quantity: number | null; minimum_quantity: number | null; is_critical: boolean; expiry_date: string | null };
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const in90Days = new Date(today);
+  in90Days.setDate(in90Days.getDate() + 90);
+  const in30Days = new Date(today);
+  in30Days.setDate(in30Days.getDate() + 30);
+
   const stockPenaltyMap = new Map<string, number>();
+  let boatExpiryPenalty = 0; // for items not linked to a component
+
   for (const item of ((inventoryData ?? []) as InventoryRow[])) {
-    if (!item.component_id) continue;
     const qty = Number(item.quantity ?? 0);
     const min = Number(item.minimum_quantity ?? 0);
-    let penalty = 0;
-    if (min > 0 && qty === 0) penalty = 25;          // out of stock
-    else if (min > 0 && qty < min) penalty = 15;     // below minimum
-    else if (min > 0 && qty === min) penalty = 5;    // at minimum
-    // above minimum → 0
-    const current = stockPenaltyMap.get(item.component_id) ?? 0;
-    stockPenaltyMap.set(item.component_id, current + penalty);
+    const isCritical = item.is_critical;
+
+    // Stock penalty — critical items carry double the weight
+    let stockPenalty = 0;
+    if (min > 0 && qty === 0) stockPenalty = isCritical ? 40 : 25;       // out of stock
+    else if (min > 0 && qty < min) stockPenalty = isCritical ? 25 : 15;  // below minimum
+    else if (min > 0 && qty === min) stockPenalty = isCritical ? 10 : 5; // at minimum
+
+    // Expiry penalty
+    let expiryPenalty = 0;
+    if (item.expiry_date) {
+      const expiry = new Date(item.expiry_date);
+      expiry.setHours(0, 0, 0, 0);
+      if (expiry < today) expiryPenalty = isCritical ? 40 : 25;         // expired
+      else if (expiry <= in30Days) expiryPenalty = isCritical ? 25 : 15; // expires within 30 days
+      else if (expiry <= in90Days) expiryPenalty = isCritical ? 10 : 5;  // expires within 90 days
+    }
+
+    const totalPenalty = stockPenalty + expiryPenalty;
+    if (!totalPenalty) continue;
+
+    if (item.component_id) {
+      const current = stockPenaltyMap.get(item.component_id) ?? 0;
+      stockPenaltyMap.set(item.component_id, current + totalPenalty);
+    } else {
+      // Unlinked items still affect overall boat health
+      boatExpiryPenalty += expiryPenalty;
+    }
   }
 
   // Fetch latest maintenance event per component in one query
@@ -228,7 +256,7 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
     if (!latestEvent.has(e.component_id)) latestEvent.set(e.component_id, e);
   }
 
-  return (componentsData as Record<string, unknown>[]).map((c) => {
+  const componentRows = (componentsData as Record<string, unknown>[]).map((c) => {
     const systemArr = c.system as { id: string; name: string }[] | { id: string; name: string } | null;
     const system = Array.isArray(systemArr) ? systemArr[0] : systemArr;
 
@@ -328,4 +356,22 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
       predicted_due_date,
     };
   });
+
+  // Inject a synthetic row for unlinked inventory expiry/stock issues so they
+  // affect the boat health score even when not tied to a specific component.
+  if (boatExpiryPenalty > 0) {
+    componentRows.push({
+      component_id: "__inventory__",
+      component_name: "Inventory",
+      system_name: "Inventory",
+      risk_score: Math.min(boatExpiryPenalty, 100),
+      status: boatExpiryPenalty >= 25 ? "overdue" : "due soon",
+      hours_since_service: null,
+      hours_until_due: null,
+      months_until_due: null,
+      predicted_due_date: null,
+    });
+  }
+
+  return componentRows;
 }

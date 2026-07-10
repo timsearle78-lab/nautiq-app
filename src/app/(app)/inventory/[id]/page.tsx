@@ -21,7 +21,7 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
 
   const { data: itemData } = await supabase
     .from("inventory_items")
-    .select("id, user_id, boat_id, component_id, name, category, sku, manufacturer, quantity, minimum_quantity, unit, storage_location, notes, is_critical")
+    .select("id, user_id, boat_id, component_id, name, category, sku, manufacturer, quantity, minimum_quantity, unit, storage_location, notes, is_critical, expiry_date")
     .eq("id", id)
     .single();
 
