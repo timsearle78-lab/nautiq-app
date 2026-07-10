@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
@@ -69,17 +70,18 @@ export default async function AppHeader() {
 
       <div className="flex items-center gap-3">
         {health.length > 0 && (
-          <div
-            className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
+          <Link
+            href="/health"
+            className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition-opacity hover:opacity-80"
             style={scorePillStyle(healthScore, overdueCount)}
-            title={`Boat health score: ${healthScore}/100${overdueCount > 0 ? ` · ${overdueCount} overdue` : ""}`}
+            title={`Boat health score: ${healthScore}/100${overdueCount > 0 ? ` · ${overdueCount} overdue` : ""} — tap to see breakdown`}
           >
             <span
               className="inline-block h-1.5 w-1.5 rounded-full"
               style={{ background: scorePillStyle(healthScore, overdueCount).color }}
             />
             <span>{healthScore}</span>
-          </div>
+          </Link>
         )}
 
         <div

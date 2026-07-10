@@ -122,9 +122,12 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
               );
             })
           )}
-          <div className="px-4 py-2 border-t border-slate-100">
-            <Link href="/maintenance" className="text-xs text-ocean-600 hover:text-ocean-700 font-medium">
-              Full maintenance view →
+          <div className="px-4 py-2 border-t border-slate-100 flex gap-4">
+            <Link href="/health" className="text-xs text-ocean-600 hover:text-ocean-700 font-medium">
+              Health breakdown →
+            </Link>
+            <Link href="/maintenance" className="text-xs text-slate-500 hover:text-ocean-600 font-medium">
+              Maintenance timeline →
             </Link>
           </div>
         </div>

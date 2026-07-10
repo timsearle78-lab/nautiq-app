@@ -10,6 +10,7 @@ export const CHANGELOG: Release[] = [
     date: "2026-07-10",
     label: "July 2026 update",
     features: [
+      "Tap the health score (in the header or on the Home screen) to see a full breakdown of why your score is what it is, with specific recommendations to restore it to 100",
       "Expiry dates on inventory items — get warned in-line when items are expired or expiring within 90 days",
       "Expiring soon tile on the Inventory page shows how many items need attention at a glance",
       "Critical low-stock and expired items now carry higher penalties in the boat health score",
