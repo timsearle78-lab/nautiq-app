@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { addSystem, deleteSystem } from "@/app/(app)/settings/actions";
 
@@ -23,7 +23,7 @@ function AddSystemForm({ boatId }: AddProps) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-xl bg-ocean-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-ocean-700 disabled:opacity-60 whitespace-nowrap"
+        className="rounded-xl btn-primary px-4 py-2 text-sm font-medium text-white transition disabled:opacity-60 whitespace-nowrap"
       >
         {pending ? "Adding…" : "Add"}
       </button>
@@ -34,19 +34,42 @@ function AddSystemForm({ boatId }: AddProps) {
 
 function DeleteSystemForm({ systemId }: { systemId: string }) {
   const [, action, pending] = useActionState(deleteSystem, {});
+  const [confirm, setConfirm] = useState(false);
+
+  if (confirm) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs font-semibold text-red-600">Delete?</span>
+        <button
+          type="button"
+          onClick={() => setConfirm(false)}
+          className="rounded-xl border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+        >
+          Cancel
+        </button>
+        <form action={action} className="inline">
+          <input type="hidden" name="system_id" value={systemId} />
+          <button
+            type="submit"
+            disabled={pending}
+            className="rounded-xl bg-red-600 px-2.5 py-0.5 text-xs font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
+          >
+            {pending ? "…" : "Yes, delete"}
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   return (
-    <form action={action}>
-      <input type="hidden" name="system_id" value={systemId} />
-      <button
-        type="submit"
-        disabled={pending}
-        className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition disabled:opacity-40"
-        title="Delete system"
-      >
-        <Trash2 size={15} />
-      </button>
-    </form>
+    <button
+      type="button"
+      onClick={() => setConfirm(true)}
+      className="p-1.5 rounded-xl text-slate-400 transition hover:bg-red-50 hover:text-red-500"
+      title="Delete system"
+    >
+      <Trash2 size={15} />
+    </button>
   );
 }
 

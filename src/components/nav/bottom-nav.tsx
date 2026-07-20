@@ -5,11 +5,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Wrench, Package } from "lucide-react";
 import ProfileSheet from "./profile-sheet";
+import NautiqAnchorIcon from "@/components/ui/nautiq-anchor-icon";
 
-const tabs = [
-  { href: "/chat", icon: Home, label: "Home" },
-  { href: "/maintenance", icon: Wrench, label: "Maintain" },
-  { href: "/inventory", icon: Package, label: "Inventory" },
+
+interface Tab {
+  href: string;
+  label: string;
+  lucide?: React.ElementType;
+  custom?: "anchor";
+}
+
+const tabs: Tab[] = [
+  { href: "/chat", label: "Home", lucide: Home },
+  { href: "/trips", label: "Trips", custom: "anchor" },
+  { href: "/maintenance", label: "Maintain", lucide: Wrench },
+  { href: "/inventory", label: "Inventory", lucide: Package },
 ];
 
 interface BottomNavProps {
@@ -23,30 +33,49 @@ export default function BottomNav({ userEmail, userInitials }: BottomNavProps) {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 pb-[env(safe-area-inset-bottom)]">
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-40 pb-[env(safe-area-inset-bottom)]"
+        style={{
+          background: "#FFFFFF",
+          borderTop: "1px solid #E6EBF0",
+          boxShadow: "0 -2px 18px rgba(13,52,87,.05)",
+        }}
+      >
         <div className="flex h-16">
-          {tabs.map(({ href, icon: Icon, label }) => {
+          {tabs.map(({ href, label, lucide: Icon, custom }) => {
             const active = pathname === href || (href !== "/chat" && pathname.startsWith(href));
+            const color = active ? "#0B7EB8" : "#8593A0";
             return (
               <Link
                 key={href}
                 href={href}
-                className={`flex flex-1 flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors ${
-                  active
-                    ? "text-ocean-600"
-                    : "text-slate-400 hover:text-slate-600"
-                }`}
+                className="relative flex flex-1 flex-col items-center justify-center gap-1 transition-colors"
+                style={{ color, fontSize: 11.5, fontWeight: active ? 700 : 600 }}
               >
-                <Icon size={22} strokeWidth={active ? 2.5 : 1.75} />
+                {custom === "anchor" ? (
+                  <NautiqAnchorIcon size={22} color={color} />
+                ) : Icon ? (
+                  <Icon size={22} strokeWidth={active ? 2.5 : 1.75} />
+                ) : null}
                 <span>{label}</span>
+                {active && (
+                  <span
+                    className="absolute bottom-1 h-1 w-1 rounded-full"
+                    style={{ background: "#0B7EB8" }}
+                  />
+                )}
               </Link>
             );
           })}
           <button
             onClick={() => setProfileOpen(true)}
-            className="flex flex-1 flex-col items-center justify-center gap-0.5 text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors"
+            className="flex flex-1 flex-col items-center justify-center gap-1 transition-colors"
+            style={{ color: "#8593A0", fontSize: 11.5, fontWeight: 600 }}
           >
-            <div className="w-7 h-7 rounded-full bg-ocean-600 flex items-center justify-center text-white font-semibold text-xs leading-none">
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-semibold leading-none"
+              style={{ background: "linear-gradient(135deg, #15A0D6, #0B7EB8)" }}
+            >
               {userInitials}
             </div>
             <span>Profile</span>

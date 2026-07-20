@@ -9,8 +9,9 @@ import {
 } from "@/lib/inventory/queries";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 
-import { AddInventoryItemForm } from "@/components/inventory/add-inventory-item-form";
+import { AddInventorySheet } from "@/components/inventory/add-inventory-sheet";
 import { InventoryTable } from "@/components/inventory/inventory-table";
+import { LowStockToggle } from "@/components/inventory/low-stock-toggle";
 
 type InventoryPageProps = {
   searchParams: Promise<{ low?: string }>;
@@ -41,12 +42,12 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
 
   if (!boats || boats.length === 0) {
     return (
-      <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
+      <main className="px-4 py-6 space-y-5">
         <h1 className="text-xl font-semibold text-slate-800">Inventory</h1>
         <p className="mt-3 text-sm text-slate-500">Create a boat first to manage inventory.</p>
         <Link
           href="/onboarding"
-          className="mt-4 inline-block rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-ocean-700 transition-colors"
+          className="mt-4 inline-block rounded-xl btn-primary px-4 py-2.5 text-sm font-medium text-white transition-colors"
         >
           Go to onboarding
         </Link>
@@ -59,11 +60,24 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     ? selectedBoatId
     : boats[0].id;
 
-  const [inventoryItems, components, missingCriticalSpares] = await Promise.all([
+  const [inventoryItems, components, missingCriticalSpares, categoriesRes] = await Promise.all([
     getInventoryItems(activeBoatId),
     getBoatComponents(activeBoatId),
     getMissingCriticalSpares(activeBoatId),
+    supabase
+      .from("inventory_items")
+      .select("category")
+      .eq("boat_id", activeBoatId)
+      .not("category", "is", null),
   ]);
+
+  const existingCategories = [
+    ...new Set(
+      (categoriesRes.data ?? [])
+        .map((r: { category: string | null }) => r.category)
+        .filter(Boolean) as string[]
+    ),
+  ].sort();
 
   const filteredItems = lowOnly
     ? inventoryItems.filter(
@@ -72,58 +86,114 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
       )
     : inventoryItems;
 
+  const lowStockCount = inventoryItems.filter(
+    (item) => item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity)
+  ).length;
+
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const in90Days = new Date(today); in90Days.setDate(in90Days.getDate() + 90);
+  const expiringSoonCount = inventoryItems.filter((item) => {
+    if (!item.expiry_date) return false;
+    const expiry = new Date(item.expiry_date); expiry.setHours(0, 0, 0, 0);
+    return expiry <= in90Days;
+  }).length;
+
+  const stockedCount = inventoryItems.length - lowStockCount - missingCriticalSpares.length;
+
   return (
-    <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
-      <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-slate-800">Inventory</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Manage onboard spares, consumables, and critical maintenance items.
-          </p>
+    <main className="px-4 py-6 space-y-4">
+      {/* Header */}
+      <div>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: "#0F2335" }}>Inventory</h1>
+        <p className="mt-1" style={{ fontSize: 14, color: "#8593A0" }}>
+          Track spares, consumables, and critical items on board.
+        </p>
+        <div className="mt-3">
+          <AddInventorySheet boatId={activeBoatId} components={components} categories={existingCategories} />
         </div>
-        <form method="get" className="flex items-center gap-2">
-          <label className="flex items-center gap-2 text-sm text-slate-700">
-            <input type="checkbox" name="low" value="1" defaultChecked={lowOnly} />
-            Low stock only
-          </label>
-          <button
-            type="submit"
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-          >
-            Apply
-          </button>
-        </form>
-      </section>
+      </div>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <div className="text-sm text-slate-500">Total items</div>
-          <div className="mt-2 text-2xl font-semibold text-slate-800">{inventoryItems.length}</div>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <div className="text-sm text-slate-500">Low stock</div>
-          <div className="mt-2 text-2xl font-semibold text-amber-600">
-            {
-              inventoryItems.filter(
-                (item) =>
-                  item.minimum_quantity != null &&
-                  Number(item.quantity) < Number(item.minimum_quantity)
-              ).length
-            }
+      {/* Stat tiles */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+        {/* Total */}
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-1.5"
+          style={{ background: "#F3F6F9", border: "1px solid #E2E9EF" }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 500, color: "#8593A0" }}>Total items</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: "#46586A", lineHeight: 1.1 }}>
+            {inventoryItems.length}
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <div className="text-sm text-slate-500">Missing critical spares</div>
-          <div className="mt-2 text-2xl font-semibold text-red-600">{missingCriticalSpares.length}</div>
+        {/* Low stock */}
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-1.5"
+          style={{
+            background: lowStockCount > 0 ? "#FDF8EA" : "#F3F6F9",
+            border: `1px solid ${lowStockCount > 0 ? "#F3E6C4" : "#E2E9EF"}`,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 500, color: lowStockCount > 0 ? "#C8841A" : "#8593A0" }}>
+            Low stock
+          </div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: lowStockCount > 0 ? "#C8841A" : "#46586A", lineHeight: 1.1 }}>
+            {lowStockCount}
+          </div>
         </div>
-      </section>
 
-      <section className="grid gap-6 lg:grid-cols-[1.2fr_2fr]">
-        <AddInventoryItemForm boatId={activeBoatId} components={components} />
-        <InventoryTable boatId={activeBoatId} items={filteredItems} />
-      </section>
+        {/* Critical missing */}
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-1.5"
+          style={{
+            background: missingCriticalSpares.length > 0 ? "#FDF0F0" : "#F3F6F9",
+            border: `1px solid ${missingCriticalSpares.length > 0 ? "#F8DCDC" : "#E2E9EF"}`,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 500, color: missingCriticalSpares.length > 0 ? "#D83A3A" : "#8593A0" }}>
+            Critical missing
+          </div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: missingCriticalSpares.length > 0 ? "#D83A3A" : "#46586A", lineHeight: 1.1 }}>
+            {missingCriticalSpares.length}
+          </div>
+        </div>
+
+        {/* Stocked */}
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-1.5"
+          style={{
+            background: stockedCount > 0 ? "#EEF8F1" : "#F3F6F9",
+            border: `1px solid ${stockedCount > 0 ? "#D2EBDB" : "#E2E9EF"}`,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 500, color: stockedCount > 0 ? "#1D9B55" : "#8593A0" }}>
+            Stocked
+          </div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: stockedCount > 0 ? "#1D9B55" : "#46586A", lineHeight: 1.1 }}>
+            {stockedCount}
+          </div>
+        </div>
+
+        {/* Expiring soon */}
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-1.5"
+          style={{
+            background: expiringSoonCount > 0 ? "#FDF8EA" : "#F3F6F9",
+            border: `1px solid ${expiringSoonCount > 0 ? "#F3E6C4" : "#E2E9EF"}`,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 500, color: expiringSoonCount > 0 ? "#C8841A" : "#8593A0" }}>
+            Expiring soon
+          </div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: expiringSoonCount > 0 ? "#C8841A" : "#46586A", lineHeight: 1.1 }}>
+            {expiringSoonCount}
+          </div>
+        </div>
+      </div>
+
+      <LowStockToggle active={lowOnly} />
+
+      <InventoryTable boatId={activeBoatId} items={filteredItems} />
     </main>
   );
 }

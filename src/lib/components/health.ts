@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { SupabaseClient } from "@supabase/supabase-js";
 import type {
   ComponentDetail,
   MaintenanceHistoryRow,
@@ -168,10 +169,10 @@ export type BoatHealthRow = {
   predicted_due_date: string | null;
 };
 
-export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
-  const supabase = await createClient();
+export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseClient): Promise<BoatHealthRow[]> {
+  const supabase = supabaseClient ?? await createClient();
 
-  const [{ data: componentsData }, { data: tripsData }] = await Promise.all([
+  const [{ data: componentsData }, { data: tripsData }, { data: inventoryData }] = await Promise.all([
     supabase
       .from("components")
       .select("id, name, install_date, service_interval_years, service_interval_months, service_interval_days, service_interval_engine_hours, system:systems(id, name)")
@@ -183,6 +184,10 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
       .eq("boat_id", boatId)
       .not("engine_hours_delta", "is", null)
       .order("started_at", { ascending: true }),
+    supabase
+      .from("inventory_items")
+      .select("component_id, quantity, minimum_quantity, is_critical, expiry_date")
+      .eq("boat_id", boatId),
   ]);
 
   if (!componentsData || componentsData.length === 0) return [];
@@ -191,6 +196,51 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
 
   type TripRow = { started_at: string | null; engine_hours_delta: number };
   const trips = (tripsData ?? []) as TripRow[];
+
+  // Build a map of component_id → worst stock + expiry penalty
+  type InventoryRow = { component_id: string | null; quantity: number | null; minimum_quantity: number | null; is_critical: boolean; expiry_date: string | null };
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const in90Days = new Date(today);
+  in90Days.setDate(in90Days.getDate() + 90);
+  const in30Days = new Date(today);
+  in30Days.setDate(in30Days.getDate() + 30);
+
+  const stockPenaltyMap = new Map<string, number>();
+  let boatExpiryPenalty = 0; // for items not linked to a component
+
+  for (const item of ((inventoryData ?? []) as InventoryRow[])) {
+    const qty = Number(item.quantity ?? 0);
+    const min = Number(item.minimum_quantity ?? 0);
+    const isCritical = item.is_critical;
+
+    // Stock penalty — critical items carry double the weight
+    let stockPenalty = 0;
+    if (min > 0 && qty === 0) stockPenalty = isCritical ? 40 : 25;       // out of stock
+    else if (min > 0 && qty < min) stockPenalty = isCritical ? 25 : 15;  // below minimum
+    else if (min > 0 && qty === min) stockPenalty = isCritical ? 10 : 5; // at minimum
+
+    // Expiry penalty
+    let expiryPenalty = 0;
+    if (item.expiry_date) {
+      const expiry = new Date(item.expiry_date);
+      expiry.setHours(0, 0, 0, 0);
+      if (expiry < today) expiryPenalty = isCritical ? 40 : 25;         // expired
+      else if (expiry <= in30Days) expiryPenalty = isCritical ? 25 : 15; // expires within 30 days
+      else if (expiry <= in90Days) expiryPenalty = isCritical ? 10 : 5;  // expires within 90 days
+    }
+
+    const totalPenalty = stockPenalty + expiryPenalty;
+    if (!totalPenalty) continue;
+
+    if (item.component_id) {
+      const current = stockPenaltyMap.get(item.component_id) ?? 0;
+      stockPenaltyMap.set(item.component_id, current + totalPenalty);
+    } else {
+      // Unlinked items still affect overall boat health
+      boatExpiryPenalty += expiryPenalty;
+    }
+  }
 
   // Fetch latest maintenance event per component in one query
   const { data: eventsData } = await supabase
@@ -206,7 +256,7 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
     if (!latestEvent.has(e.component_id)) latestEvent.set(e.component_id, e);
   }
 
-  return (componentsData as Record<string, unknown>[]).map((c) => {
+  const componentRows = (componentsData as Record<string, unknown>[]).map((c) => {
     const systemArr = c.system as { id: string; name: string }[] | { id: string; name: string } | null;
     const system = Array.isArray(systemArr) ? systemArr[0] : systemArr;
 
@@ -238,21 +288,28 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
 
     const maxRatio = Math.max(dayRatio ?? 0, hourRatio ?? 0);
 
+    // Stock penalty for linked inventory items (0–25 points)
+    const stockPenalty = stockPenaltyMap.get(c.id as string) ?? 0;
+
     let status: string;
     let risk_score: number | null;
 
     if (!lastServiceDate) {
       status = "unknown";
-      risk_score = null;
-    } else if (maxRatio >= 1) {
-      status = "overdue";
-      risk_score = Math.round(maxRatio * 100);
-    } else if (maxRatio >= 0.85) {
-      status = "due soon";
-      risk_score = Math.round(maxRatio * 100);
+      // Still apply stock penalty even when service history is missing
+      risk_score = stockPenalty > 0 ? stockPenalty : null;
     } else {
-      status = "ok";
-      risk_score = maxRatio > 0 ? Math.round(maxRatio * 100) : 0;
+      const baseScore = Math.round(maxRatio * 100);
+      risk_score = baseScore + stockPenalty;
+      // Status reflects maintenance interval only — inventory penalties affect risk_score
+      // but not the maintenance status label (inventory issues are surfaced separately).
+      if (maxRatio >= 1) {
+        status = "overdue";
+      } else if (maxRatio >= 0.85) {
+        status = "due soon";
+      } else {
+        status = "ok";
+      }
     }
 
     const hours_until_due =
@@ -273,7 +330,6 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
     }
 
     // Hours-based: extrapolate from current usage rate (hours/day since last service)
-    // Rate = hoursSinceService / daysSinceService → daysUntilDue = hoursUntilDue / rate
     if (
       hourInterval != null &&
       hours_until_due != null &&
@@ -285,7 +341,6 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
       const hoursBased = new Date();
       hoursBased.setDate(hoursBased.getDate() + daysUntilHoursDue);
       const hoursBasedStr = hoursBased.toISOString().slice(0, 10);
-      // Use whichever date comes sooner
       if (predicted_due_date === null || hoursBasedStr < predicted_due_date) {
         predicted_due_date = hoursBasedStr;
       }
@@ -303,4 +358,22 @@ export async function getBoatHealth(boatId: string): Promise<BoatHealthRow[]> {
       predicted_due_date,
     };
   });
+
+  // Inject a synthetic row for unlinked inventory expiry/stock issues so they
+  // affect the boat health score even when not tied to a specific component.
+  if (boatExpiryPenalty > 0) {
+    componentRows.push({
+      component_id: "__inventory__",
+      component_name: "Inventory",
+      system_name: "Inventory",
+      risk_score: Math.min(boatExpiryPenalty, 100),
+      status: boatExpiryPenalty >= 25 ? "overdue" : "due soon",
+      hours_since_service: null,
+      hours_until_due: null,
+      months_until_due: null,
+      predicted_due_date: null,
+    });
+  }
+
+  return componentRows;
 }

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { adjustInventoryStock } from "@/lib/inventory/actions";
+import SaveSuccessBanner from "@/components/ui/save-success-banner";
 
 type ActionState = { error?: string; success?: string };
 const initialState: ActionState = {};
@@ -42,13 +43,13 @@ export function StockAdjustForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-ocean-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-ocean-700 disabled:opacity-50"
+        className="rounded-xl btn-primary px-3 py-1.5 text-xs font-semibold text-white transition disabled:opacity-50"
       >
         {pending ? "…" : "Update"}
       </button>
 
       {state.error && <span className="text-xs text-red-600">{state.error}</span>}
-      {state.success && <span className="text-xs text-green-600">{state.success}</span>}
+      {state.success && <SaveSuccessBanner message={state.success} />}
     </form>
   );
 }

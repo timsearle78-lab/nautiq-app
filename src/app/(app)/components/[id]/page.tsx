@@ -15,6 +15,7 @@ import {
 import { getComponentHealthSummary } from "@/lib/components/health";
 import { LogMaintenanceForm } from "@/components/components/log-maintenance-form";
 import { EditComponentForm } from "@/components/components/edit-component-form";
+import LogMaintenanceButton from "@/components/components/log-maintenance-button";
 
 type ComponentPageProps = {
   params: Promise<{ id: string }>;
@@ -97,7 +98,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const status = statusLabel(health.status);
 
   return (
-    <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
+    <main className="px-4 py-6 space-y-5">
       <section className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="text-sm text-slate-500">
@@ -108,13 +109,26 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
             <span>{component.system?.name ?? "System"}</span>
           </div>
 
-          <h1 className="mt-2 text-xl font-semibold text-slate-800">{component.name}</h1>
+          <h1 className="mt-2 text-xl font-bold text-slate-900">{component.name}</h1>
 
           {component.notes ? (
-            <p className="mt-2 max-w-3xl text-sm text-slate-500">
+            <p className="mt-2 max-w-3xl text-sm text-slate-500 whitespace-pre-line">
               {component.notes}
             </p>
           ) : null}
+
+          <div className="mt-3">
+            <LogMaintenanceButton
+              componentId={component.id}
+              boatId={component.boat_id}
+              inventoryOptions={boatInventory.map((item) => ({
+                id: item.id,
+                name: item.name,
+                quantity: item.quantity,
+                unit: item.unit,
+              }))}
+            />
+          </div>
         </div>
 
         <div className={`rounded-xl p-4 min-w-[220px] ${status.className}`}>
@@ -129,7 +143,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       </section>
 
       <section className="grid gap-4 md:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
           <div className="text-sm text-slate-500">Last service date</div>
           <div className="mt-2 text-2xl font-semibold text-slate-800">
             {health.lastServiceDate
@@ -138,14 +152,14 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
           <div className="text-sm text-slate-500">Days since service</div>
           <div className="mt-2 text-2xl font-semibold text-slate-800">
             {health.daysSinceService ?? "—"}
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
           <div className="text-sm text-slate-500">Hours since service</div>
           <div className="mt-2 text-2xl font-semibold text-slate-800">
             {health.hoursSinceService ?? "—"}
@@ -153,7 +167,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
         </div>
 
         {health.predictedDueDate && (
-          <div className="rounded-xl border border-slate-200 bg-white p-4">
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
             <div className="text-sm text-slate-500">Next service due</div>
             <div className="mt-2 text-lg font-semibold text-slate-800">
               {new Date(health.predictedDueDate).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
@@ -162,7 +176,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           </div>
         )}
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
           <div className="text-sm text-slate-500">Service interval</div>
           <div className="mt-2 text-sm font-medium text-slate-800 space-y-0.5">
             {(() => {
@@ -181,7 +195,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4">
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
         <h2 className="text-base font-semibold text-slate-800">Assessment</h2>
         <ul className="mt-3 space-y-2 text-sm text-slate-500">
           {health.reasons.map((reason) => (
@@ -190,19 +204,8 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
         </ul>
       </section>
 
-      <LogMaintenanceForm
-        componentId={component.id}
-        boatId={component.boat_id}
-        inventoryOptions={boatInventory.map((item) => ({
-          id: item.id,
-          name: item.name,
-          quantity: item.quantity,
-          unit: item.unit,
-        }))}
-      />
-
       <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
           <h2 className="text-base font-semibold text-slate-800">Maintenance history</h2>
 
           {history.length === 0 ? (
@@ -241,7 +244,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           )}
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
           <h2 className="text-base font-semibold text-slate-800">Linked spares</h2>
 
           {linkedInventory.length === 0 ? (

@@ -1,0 +1,57 @@
+"use client";
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { Plus, X, Wrench } from "lucide-react";
+import { AddComponentForm } from "./add-component-form";
+
+type SystemOption = { id: string; name: string };
+
+export function AddComponentSheet({
+  boatId,
+  systems,
+  boatType,
+}: {
+  boatId: string;
+  systems: SystemOption[];
+  boatType?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  const handleSuccess = useCallback(() => {
+    setOpen(false);
+    router.refresh();
+  }, [router]);
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-1.5 rounded-xl btn-primary px-4 py-2.5 text-sm font-semibold text-white transition"
+      >
+        <Plus size={16} />
+        Add component
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/30" onClick={() => setOpen(false)} />
+          <div className="fixed bottom-16 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl animate-in slide-in-from-bottom duration-200 max-h-[calc(100dvh-4rem)] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 sticky top-0 bg-white">
+              <div className="flex items-center gap-2">
+                <Wrench size={16} className="text-ocean-600" />
+                <h2 className="text-base font-semibold text-slate-900">Add component</h2>
+              </div>
+              <button onClick={() => setOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-4 py-4 pb-8">
+              <AddComponentForm boatId={boatId} systems={systems} boatType={boatType} noRedirect onSuccess={handleSuccess} />
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+}

@@ -1,9 +1,11 @@
 import Image from "next/image";
-import { Anchor } from "lucide-react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
 import BoatSelector from "./boat-selector";
+import NautiqLogo from "@/components/ui/nautiq-logo";
+import ChatMenuTrigger from "./chat-menu-trigger";
 
 function normalizeStatus(s: string | null) {
   const v = (s ?? "").toLowerCase();
@@ -13,10 +15,10 @@ function normalizeStatus(s: string | null) {
   return "unknown";
 }
 
-function scorePillCls(score: number, overdueCount: number) {
-  if (overdueCount > 0 || score < 50) return "bg-red-50 text-red-600 border-red-200";
-  if (score < 75) return "bg-amber-50 text-amber-600 border-amber-200";
-  return "bg-green-50 text-green-600 border-green-200";
+function scorePillStyle(score: number, overdueCount: number): React.CSSProperties {
+  if (overdueCount > 0 || score < 60) return { color: "#D83A3A", background: "#FDEBEB", border: "1px solid #F3C4C4" };
+  if (score < 80) return { color: "#C8841A", background: "#FBF2DC", border: "1px solid #ECD6A6" };
+  return { color: "#1D9B55", background: "#E7F6EE", border: "1px solid #B8E2C8" };
 }
 
 export default async function AppHeader() {
@@ -25,7 +27,6 @@ export default async function AppHeader() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
-  // Try to include image_url; fall back if the column doesn't exist yet
   const { data, error: boatErr } = await supabase
     .from("boats")
     .select("id, name, image_url")
@@ -58,33 +59,35 @@ export default async function AppHeader() {
   const overdueCount = health.filter((r) => normalizeStatus(r.status) === "overdue").length;
 
   return (
-    <header className="h-14 shrink-0 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-30">
-      <div className="flex items-center gap-2">
-        <Anchor size={17} className="text-ocean-600" strokeWidth={2} />
-        <span className="text-sm font-semibold text-ocean-800 tracking-tight">NautIQ</span>
+    <header
+      className="h-14 shrink-0 relative flex items-center justify-between px-4 z-30"
+      style={{ background: "#FFFFFF", borderBottom: "1px solid #E6EBF0" }}
+    >
+      <div className="flex items-center pl-10">
+        <ChatMenuTrigger />
+        <NautiqLogo size={20} />
       </div>
 
       <div className="flex items-center gap-3">
         {health.length > 0 && (
-          <div
-            className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${scorePillCls(healthScore, overdueCount)}`}
-            title={`Boat health score: ${healthScore}/100${overdueCount > 0 ? ` · ${overdueCount} overdue` : ""}`}
+          <Link
+            href="/health"
+            className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition-opacity hover:opacity-80"
+            style={scorePillStyle(healthScore, overdueCount)}
+            title={`Boat health score: ${healthScore}/100${overdueCount > 0 ? ` · ${overdueCount} overdue` : ""} — tap to see breakdown`}
           >
             <span
-              className={`inline-block h-1.5 w-1.5 rounded-full ${
-                overdueCount > 0 || healthScore < 50
-                  ? "bg-red-500"
-                  : healthScore < 75
-                  ? "bg-amber-500"
-                  : "bg-green-500"
-              }`}
+              className="inline-block h-1.5 w-1.5 rounded-full"
+              style={{ background: scorePillStyle(healthScore, overdueCount).color }}
             />
             <span>{healthScore}</span>
-          </div>
+          </Link>
         )}
 
-        {/* Boat avatar thumbnail */}
-        <div className="h-7 w-7 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex-shrink-0 flex items-center justify-center">
+        <div
+          className="h-7 w-7 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center"
+          style={{ border: "1px solid #E6EBF0", background: "#EEF1F5" }}
+        >
           {activeBoat.image_url ? (
             <Image
               src={activeBoat.image_url}
@@ -104,12 +107,14 @@ export default async function AppHeader() {
     </header>
   );
   } catch {
-    // Fallback minimal header so the app remains usable
     return (
-      <header className="h-14 shrink-0 bg-white border-b border-slate-200 flex items-center px-4 z-30">
-        <div className="flex items-center gap-2">
-          <Anchor size={17} className="text-ocean-600" strokeWidth={2} />
-          <span className="text-sm font-semibold text-ocean-800 tracking-tight">NautIQ</span>
+      <header
+        className="h-14 shrink-0 relative flex items-center px-4 z-30"
+        style={{ background: "#FFFFFF", borderBottom: "1px solid #E6EBF0" }}
+      >
+        <div className="flex items-center pl-10">
+          <ChatMenuTrigger />
+          <NautiqLogo size={20} />
         </div>
       </header>
     );

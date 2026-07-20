@@ -3,6 +3,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
+import { getMissingComponents } from "@/lib/component-suggestions";
 import ChatInterface from "@/components/chat/chat-interface";
 
 export const dynamic = "force-dynamic";
@@ -22,21 +23,36 @@ export default async function ChatPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: boats } = await supabase
+  const { data: boats, error: boatsErr } = await supabase
     .from("boats")
-    .select("id, name, type")
+    .select("id, name, type, propulsion, hull_design, hull_material")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
-  if (!boats || boats.length === 0) redirect("/onboarding");
+  // Fall back to base columns if new spec columns don't exist yet in DB
+  const boatList = boatsErr
+    ? ((await supabase.from("boats").select("id, name, type").eq("user_id", user.id).order("created_at", { ascending: true })).data ?? [])
+    : (boats ?? []);
 
   const selectedBoatId = await getSelectedBoatId();
-  const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
+  const boat = boatList.find((b) => b.id === selectedBoatId) ?? boatList[0];
 
-  const [engineHoursRes, health] = await Promise.all([
+  if (!boat) redirect("/onboarding");
+
+  const [engineHoursRes, health, componentsRes, inventoryRes] = await Promise.all([
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
     getBoatHealth(boat.id),
+    supabase.from("components").select("id, name").eq("boat_id", boat.id).order("name"),
+    supabase.from("inventory_items").select("id, name, quantity, unit, minimum_quantity").eq("boat_id", boat.id).order("name"),
   ]);
+
+  const components = (componentsRes.data ?? []) as { id: string; name: string }[];
+  const boatWithSpecs = boat as { id: string; name: string; type?: string | null; propulsion?: string | null; hull_material?: string | null };
+  const missingSuggestions = getMissingComponents(
+    { type: boatWithSpecs.type ?? null, propulsion: boatWithSpecs.propulsion ?? null, hull_material: boatWithSpecs.hull_material ?? null },
+    components.map((c) => c.name)
+  );
+  const inventoryItems = (inventoryRes.data ?? []) as { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];
 
   const engineHours = (engineHoursRes.data as number) ?? 0;
 
@@ -65,6 +81,9 @@ export default async function ChatPage() {
       dueSoonCount={dueSoonCount}
       okCount={okCount}
       urgentItems={urgent}
+      components={components}
+      inventoryItems={inventoryItems}
+      missingSuggestions={missingSuggestions}
     />
   );
 }

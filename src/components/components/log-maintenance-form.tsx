@@ -2,6 +2,8 @@
 
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import SaveSuccessBanner from "@/components/ui/save-success-banner";
+import { Wrench } from "lucide-react";
 import { logMaintenance, type MaintenanceActionState } from "@/app/(app)/components/[id]/actions";
 
 type InventoryOption = {
@@ -29,13 +31,19 @@ export function LogMaintenanceForm({
   const router = useRouter();
 
   useEffect(() => {
-    if (state.success) router.refresh();
+    if (state.success) {
+      const t = setTimeout(() => router.refresh(), 1500);
+      return () => clearTimeout(t);
+    }
   }, [state.success, router]);
 
   return (
-    <section id="log-maintenance" className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+    <section id="log-maintenance" className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100">
-        <h2 className="text-base font-semibold text-slate-800">Log maintenance</h2>
+        <div className="flex items-center gap-2">
+          <Wrench size={16} className="text-ocean-600" />
+          <h2 className="text-base font-semibold text-slate-800">Log maintenance</h2>
+        </div>
       </div>
 
       <form action={formAction} className="px-4 py-4 space-y-4">
@@ -60,14 +68,15 @@ export function LogMaintenanceForm({
           </div>
         </div>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">Work done</label>
-          <input name="work_done" required className={inputCls} placeholder="Replaced impeller and checked cooling flow" />
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">Vendor</label>
-          <input name="vendor" className={inputCls} placeholder="Optional" />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Work done</label>
+            <input name="work_done" required className={inputCls} placeholder="Replaced impeller" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Vendor</label>
+            <input name="vendor" className={inputCls} placeholder="Optional" />
+          </div>
         </div>
 
         <div>
@@ -112,16 +121,12 @@ export function LogMaintenanceForm({
             {state.error}
           </div>
         )}
-        {state.success && (
-          <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            {state.success}
-          </div>
-        )}
+        {state.success && <SaveSuccessBanner message={state.success} />}
 
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-xl btn-primary px-4 py-2.5 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60"
         >
           {pending ? "Saving…" : "Log maintenance"}
         </button>

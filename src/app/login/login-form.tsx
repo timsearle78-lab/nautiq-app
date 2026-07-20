@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import NautiqLogo from "@/components/ui/nautiq-logo";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [staySignedIn, setStaySignedIn] = useState(true);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -19,6 +21,12 @@ export default function LoginForm() {
       const supabase = createClient();
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      // Tell middleware whether to persist auth cookies across browser sessions
+      await fetch("/api/auth/remember", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ persist: staySignedIn }),
+      });
       setStatus("Signed in successfully.");
       window.location.href = "/chat";
     } catch (error) {
@@ -30,37 +38,85 @@ export default function LoginForm() {
 
   const isError = status && status !== "Signed in successfully.";
 
+  const inputStyle = {
+    borderRadius: 11,
+    border: "1.5px solid #E0E6EC",
+    background: "#FFFFFF",
+    padding: "13px 15px",
+    fontSize: 14.5,
+    color: "#0F2335",
+    width: "100%",
+    outline: "none",
+  } as const;
+
+  const focusHandlers = {
+    onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
+      e.target.style.borderColor = "#0B7EB8";
+      e.target.style.boxShadow = "0 0 0 4px rgba(11,126,184,.14)";
+    },
+    onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
+      e.target.style.borderColor = "#E0E6EC";
+      e.target.style.boxShadow = "none";
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-10">
-      <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm grid md:grid-cols-2">
-        <div className="hidden md:flex flex-col justify-between bg-ocean-900 p-10 text-white">
+    <div
+      className="min-h-screen flex flex-col md:items-center md:justify-center md:px-4 md:py-10"
+      style={{ background: "#EEF1F5" }}
+    >
+      {/* Card: full-screen stack on mobile, rounded side-by-side on desktop */}
+      <div className="w-full md:max-w-4xl flex flex-col md:grid md:grid-cols-2 md:rounded-3xl md:overflow-hidden md:shadow-2xl">
+
+        {/* Navy branding panel */}
+        <div
+          className="flex flex-col gap-4 px-6 py-8 md:p-10 text-white md:justify-between"
+          style={{
+            background: "radial-gradient(120% 140% at 85% 0%, #0D4A73 0%, #0B2942 50%, #061D31 100%)",
+          }}
+        >
           <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-ocean-200">
-              NautIQ
-            </div>
-            <h1 className="mt-6 text-3xl font-semibold leading-tight">
+            <NautiqLogo size={22} dark />
+            <h1
+              className="mt-5 leading-tight"
+              style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: "#FFFFFF" }}
+            >
               Predictive maintenance for real boat ownership.
             </h1>
-            <p className="mt-4 max-w-sm text-sm leading-6 text-ocean-100/80">
+            <p className="mt-3 leading-6" style={{ fontSize: 14, color: "rgba(159,186,206,0.85)" }}>
               Track trips, maintenance, spares, and engine hours in one place.
               Stay ahead of service needs instead of reacting late.
             </p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-ocean-100/70">
+          <div
+            className="hidden md:block p-4"
+            style={{
+              borderRadius: 14,
+              border: "1px solid rgba(255,255,255,.1)",
+              background: "rgba(255,255,255,.05)",
+              color: "rgba(159,186,206,0.7)",
+              fontSize: 13,
+            }}
+          >
             Keep your boat ready, your records clean, and your maintenance forecast visible.
           </div>
         </div>
 
-        <div className="p-6 sm:p-10">
+        {/* White form panel */}
+        <div className="flex-1 px-6 py-8 md:p-10" style={{ background: "#FFFFFF" }}>
           <div className="mx-auto max-w-sm">
-            <h2 className="text-2xl font-semibold text-slate-900">Sign in</h2>
-            <p className="mt-2 text-sm text-slate-500">
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0F2335" }}>Sign in</h2>
+            <p className="mt-2" style={{ fontSize: 14, color: "#8593A0" }}>
               Access your boat and maintenance planner.
             </p>
 
-            <form onSubmit={handleLogin} className="mt-8 space-y-5">
+            <form onSubmit={handleLogin} className="mt-6 space-y-5">
               <div>
-                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
+                <label
+                  htmlFor="email"
+                  className="mb-2 block"
+                  style={{ fontSize: 13, fontWeight: 600, color: "#0F2335" }}
+                >
                   Email
                 </label>
                 <input
@@ -69,20 +125,25 @@ export default function LoginForm() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
+                  style={inputStyle}
+                  {...focusHandlers}
                   placeholder="you@example.com"
                   required
                 />
               </div>
 
               <div>
-                <div className="mb-1.5 flex items-center justify-between">
-                  <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+                <div className="mb-2 flex items-center justify-between">
+                  <label
+                    htmlFor="password"
+                    style={{ fontSize: 13, fontWeight: 600, color: "#0F2335" }}
+                  >
                     Password
                   </label>
                   <Link
                     href="/forgot-password"
-                    className="text-sm text-slate-500 hover:text-ocean-600 transition-colors"
+                    style={{ fontSize: 13, color: "#8593A0" }}
+                    className="hover:text-ocean-600 transition-colors"
                   >
                     Forgot password?
                   </Link>
@@ -93,44 +154,67 @@ export default function LoginForm() {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
+                  style={inputStyle}
+                  {...focusHandlers}
                   placeholder="Enter your password"
                   required
                 />
               </div>
 
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={staySignedIn}
+                    onChange={(e) => setStaySignedIn(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-10 h-6 rounded-full bg-slate-200 peer-checked:bg-ocean-500 transition-colors" />
+                  <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4" />
+                </div>
+                <span style={{ fontSize: 13, color: "#0F2335", fontWeight: 500 }}>Stay signed in on this device</span>
+              </label>
+
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl btn-primary px-6 py-3.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? "Signing in…" : "Sign in"}
               </button>
 
               {status ? (
                 <div
-                  className={`rounded-xl border px-4 py-3 text-sm ${
-                    isError
-                      ? "border-red-200 bg-red-50 text-red-700"
-                      : "border-green-200 bg-green-50 text-green-700"
-                  }`}
+                  className="px-4 py-3"
+                  style={{
+                    borderRadius: 11,
+                    border: `1px solid ${isError ? "#F3C4C4" : "#B8E2C8"}`,
+                    background: isError ? "#FDEBEB" : "#E7F6EE",
+                    color: isError ? "#D83A3A" : "#1D9B55",
+                    fontSize: 13,
+                  }}
                 >
                   {status}
                 </div>
               ) : null}
             </form>
 
-            <p className="mt-6 text-sm text-slate-500">
+            <p className="mt-6" style={{ fontSize: 14, color: "#8593A0" }}>
               New to NautIQ?{" "}
-              <Link href="/signup" className="font-medium text-ocean-600 hover:text-ocean-700">
+              <Link
+                href="/signup"
+                style={{ fontWeight: 600, color: "#0B7EB8" }}
+                className="hover:underline"
+              >
                 Create an account
               </Link>
             </p>
           </div>
         </div>
       </div>
+
       {process.env.NEXT_PUBLIC_BUILD_TIME && (
-        <p className="mt-4 text-xs text-slate-400">
+        <p className="mt-4 text-xs hidden md:block" style={{ color: "#8593A0" }}>
           v{new Date(process.env.NEXT_PUBLIC_BUILD_TIME).toLocaleString(undefined, {
             year: "numeric", month: "short", day: "numeric",
             hour: "2-digit", minute: "2-digit",

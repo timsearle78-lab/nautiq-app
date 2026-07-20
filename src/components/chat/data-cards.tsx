@@ -130,11 +130,22 @@ export function InventoryListCard({ items }: { items: InventoryItem[] }) {
 
 type TripItem = {
   id: string;
-  date: string | null;
+  startedAt: string | null;
+  endedAt: string | null;
   engineHours: number | null;
   fuelLitres: number | null;
   notes: string | null;
 };
+
+function fmtDate(iso: string | null) {
+  if (!iso) return null;
+  return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
+function fmtTime(iso: string | null) {
+  if (!iso) return null;
+  return new Date(iso).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+}
 
 export function TripHistoryCard({ trips }: { trips: TripItem[] }) {
   if (trips.length === 0) {
@@ -151,26 +162,30 @@ export function TripHistoryCard({ trips }: { trips: TripItem[] }) {
         <span className="text-sm font-semibold text-slate-800">Trip history</span>
       </div>
       <ul className="divide-y divide-slate-100">
-        {trips.map((trip) => (
-          <li key={trip.id} className="px-4 py-3">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="text-sm font-medium text-slate-800">
-                  {trip.date
-                    ? new Date(trip.date).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
-                    : "Unknown date"}
-                </div>
-                {trip.notes && (
-                  <div className="text-xs text-slate-500 mt-0.5 truncate max-w-xs">{trip.notes}</div>
+        {trips.map((trip) => {
+          const date = fmtDate(trip.startedAt);
+          const start = fmtTime(trip.startedAt);
+          const end = fmtTime(trip.endedAt);
+          return (
+            <li key={trip.id} className="px-4 py-3 space-y-1">
+              <div className="text-sm font-semibold text-slate-800">{date ?? "Unknown date"}</div>
+              <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-slate-500">
+                {(start || end) && (
+                  <span>Departed {start ?? "—"}{end ? ` · Returned ${end}` : ""}</span>
+                )}
+                {trip.engineHours != null && (
+                  <span>{trip.engineHours}h engine</span>
+                )}
+                {trip.fuelLitres != null && (
+                  <span>{trip.fuelLitres}L fuel</span>
                 )}
               </div>
-              <div className="flex-shrink-0 text-right text-xs text-slate-500 space-y-0.5">
-                {trip.engineHours != null && <div>{trip.engineHours}h engine</div>}
-                {trip.fuelLitres != null && <div>{trip.fuelLitres}L fuel</div>}
-              </div>
-            </div>
-          </li>
-        ))}
+              {trip.notes && (
+                <div className="text-xs text-slate-400 truncate">{trip.notes}</div>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

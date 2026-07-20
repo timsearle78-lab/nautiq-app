@@ -41,19 +41,21 @@ export async function updateInventoryItem(
   const storage_location = String(formData.get("storage_location") ?? "").trim() || null;
   const notes = String(formData.get("notes") ?? "").trim() || null;
   const is_critical = formData.get("is_critical") === "on";
+  const expiry_date = String(formData.get("expiry_date") ?? "").trim() || null;
 
   if (!name) return { error: "Item name is required." };
 
   const { error } = await supabase
     .from("inventory_items")
-    .update({ component_id, name, category, sku, manufacturer, quantity, minimum_quantity, unit, storage_location, notes, is_critical })
+    .update({ component_id, name, category, sku, manufacturer, quantity, minimum_quantity, unit, storage_location, notes, is_critical, expiry_date })
     .eq("id", id)
     .eq("user_id", user.id);
 
   if (error) return { error: error.message };
 
+  revalidatePath(`/inventory/${id}`);
   revalidatePath("/inventory");
-  redirect("/inventory");
+  return { success: "Changes saved" };
 }
 
 export async function deleteInventoryItem(

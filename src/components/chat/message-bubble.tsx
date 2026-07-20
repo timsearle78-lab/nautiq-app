@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import type { UIMessage } from "ai";
 import TripDraftCard from "./trip-draft-card";
 import InventoryAdjustCard from "./inventory-adjust-card";
 import { MaintenanceListCard, InventoryListCard, TripHistoryCard, BoatSummaryCard } from "./data-cards";
+import ReportCard from "./report-card";
 
 interface MessageBubbleProps {
   message: UIMessage;
@@ -13,6 +15,7 @@ interface MessageBubbleProps {
 
 export default function MessageBubble({ message, boatId, onTripSaved }: MessageBubbleProps) {
   const isUser = message.role === "user";
+  const [tripDone, setTripDone] = useState(false);
 
   if (isUser) {
     const text = message.parts
@@ -29,6 +32,9 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
     );
   }
 
+  // If this message contains a trip draft, suppress all text parts once done
+  const hasTripDraft = message.parts.some((p) => (p as { type: string }).type === "tool-draftTripLog");
+
   // Assistant message — render parts
   return (
     <div className="flex flex-col gap-1 max-w-[92%]">
@@ -36,6 +42,8 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
         if (part.type === "text") {
           const text = (part as { type: "text"; text: string }).text;
           if (!text.trim()) return null;
+          if (hasTripDraft && tripDone) return null;
+          if (hasTripDraft) return null; // text is redundant alongside the card
           return (
             <div
               key={i}
@@ -51,22 +59,39 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
           type: string;
           state?: string;
           output?: unknown;
+          errorText?: string;
         };
 
         if (!toolPart.type.startsWith("tool-")) return null;
+        if (toolPart.state === "output-error") {
+          return (
+            <div key={i} className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              Something went wrong processing your request. Please try again.
+            </div>
+          );
+        }
         if (toolPart.state !== "output-available") return null;
 
         const toolName = toolPart.type.replace("tool-", "");
         const output = toolPart.output as Record<string, unknown>;
 
-        if (toolName === "draftTripLog" && output?.draft) {
+        if (toolName === "draftTripLog") {
+          if (output?.draft) {
+            return (
+              <TripDraftCard
+                key={i}
+                draft={output.draft as Parameters<typeof TripDraftCard>[0]["draft"]}
+                boatId={boatId}
+                onSaved={() => { setTripDone(true); onTripSaved?.(); }}
+                onDismiss={() => setTripDone(true)}
+              />
+            );
+          }
           return (
-            <TripDraftCard
-              key={i}
-              draft={output.draft as Parameters<typeof TripDraftCard>[0]["draft"]}
-              boatId={boatId}
-              onSaved={onTripSaved}
-            />
+            <div key={i} className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {"Couldn't extract trip details. Please try again or log manually."}
+              {output?.error != null && <div className="mt-1 text-xs font-mono opacity-70">{String(output.error)}</div>}
+            </div>
           );
         }
 
@@ -109,6 +134,10 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
               trips={(output as unknown as Parameters<typeof TripHistoryCard>[0]["trips"])}
             />
           );
+        }
+
+        if (toolName === "requestBoatReport") {
+          return <ReportCard key={i} />;
         }
 
         if (toolName === "getBoatSummary") {

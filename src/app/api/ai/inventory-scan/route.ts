@@ -28,18 +28,18 @@ export async function POST(req: NextRequest) {
             { type: "image", image: base64, mediaType },
             {
               type: "text",
-              text: `You are scanning a boat parts / marine supplies photo. This could be:
-- A product label or packaging
-- A receipt or invoice
-- A physical item
+              text: `You are scanning a boat parts / marine supplies photo. This could be a product label, packaging, receipt, or physical item.
 
-Extract inventory information and respond with ONLY valid JSON:
+Extract inventory information and respond with ONLY valid JSON (no markdown, no explanation):
 {
-  "itemName": "short descriptive name of the item (e.g. 'Engine oil', 'Fuel filter', 'Impeller')",
-  "quantity": <number, best guess, default 1>,
-  "unit": "L or ea or kg etc, or null",
-  "transactionType": "add",
-  "notes": "any other useful info like brand or part number, or null",
+  "itemName": "short descriptive name (e.g. 'Engine oil', 'Fuel filter', 'Life jacket', 'Impeller')",
+  "quantity": <number, best guess from label/receipt, default 1>,
+  "unit": "choose the most appropriate: L | mL | ea | kg | g | m | pair | set | roll | box | can | tube | bottle — or null if unknown. Use 'ea' for countable individual items (life jacket, filter, impeller, flare, etc). Use 'L' for liquid volume. Use 'can'/'tube'/'bottle' for packaged consumables.",
+  "category": "choose one: Engine | Safety | Electrical | Plumbing | Rigging | Navigation | Deck | Consumables — or null",
+  "manufacturer": "brand name if visible, or null",
+  "sku": "part number or model number if visible on label, or null",
+  "is_critical": <true if this is a safety or emergency item (life jacket, flare, fire extinguisher, EPIRB, bilge pump, etc), false otherwise>,
+  "notes": "any other useful info not captured above, or null",
   "confidence": "high|medium|low"
 }
 

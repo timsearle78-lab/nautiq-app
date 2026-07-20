@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { createInventoryItem } from "@/lib/inventory/actions";
+import SaveSuccessBanner from "@/components/ui/save-success-banner";
 
 type ComponentOption = { id: string; name: string };
 type ActionState = { error?: string; success?: string };
@@ -13,19 +14,25 @@ const inputCls =
 export function AddInventoryItemForm({
   boatId,
   components,
+  categories = [],
+  onSuccess,
 }: {
   boatId: string;
   components: ComponentOption[];
+  categories?: string[];
+  onSuccess?: () => void;
 }) {
   const [state, formAction, pending] = useActionState(createInventoryItem, initialState);
 
-  return (
-    <section className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-      <div className="px-4 py-3 border-b border-slate-100">
-        <h2 className="text-base font-semibold text-slate-800">Add item</h2>
-      </div>
+  useEffect(() => {
+    if (state.success) {
+      const t = setTimeout(() => onSuccess?.(), 1200);
+      return () => clearTimeout(t);
+    }
+  }, [state.success, onSuccess]);
 
-      <form action={formAction} className="px-4 py-4 space-y-4">
+  return (
+    <form action={formAction} className="space-y-4">
         <input type="hidden" name="boat_id" value={boatId} />
 
         <div>
@@ -36,7 +43,10 @@ export function AddInventoryItemForm({
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Category</label>
-            <input name="category" className={inputCls} placeholder="Engine" />
+            <input name="category" list="category-options" className={inputCls} placeholder="Engine" autoComplete="off" />
+            <datalist id="category-options">
+              {categories.map((c) => <option key={c} value={c} />)}
+            </datalist>
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Linked component</label>
@@ -60,7 +70,22 @@ export function AddInventoryItemForm({
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Unit</label>
-            <input name="unit" className={inputCls} placeholder="ea / L" />
+            <select name="unit" className={inputCls}>
+              <option value="">— select —</option>
+              <option value="ea">ea (each)</option>
+              <option value="L">L (litres)</option>
+              <option value="mL">mL (millilitres)</option>
+              <option value="kg">kg (kilograms)</option>
+              <option value="g">g (grams)</option>
+              <option value="m">m (metres)</option>
+              <option value="pair">pair</option>
+              <option value="set">set</option>
+              <option value="roll">roll</option>
+              <option value="box">box</option>
+              <option value="can">can</option>
+              <option value="tube">tube</option>
+              <option value="bottle">bottle</option>
+            </select>
           </div>
         </div>
 
@@ -75,19 +100,15 @@ export function AddInventoryItemForm({
           </div>
         </div>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">SKU</label>
-          <input name="sku" className={inputCls} placeholder="Optional part number" />
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">Notes</label>
-          <textarea
-            name="notes"
-            rows={3}
-            className={`${inputCls} resize-none`}
-            placeholder="Fits YSM12 raw water system"
-          />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">SKU</label>
+            <input name="sku" className={inputCls} placeholder="Optional item number" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Notes</label>
+            <input name="notes" className={inputCls} placeholder="e.g. fits YSM12" />
+          </div>
         </div>
 
         <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer">
@@ -100,20 +121,15 @@ export function AddInventoryItemForm({
             {state.error}
           </div>
         )}
-        {state.success && (
-          <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            {state.success}
-          </div>
-        )}
+        {state.success && <SaveSuccessBanner message={state.success} />}
 
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-xl btn-primary px-4 py-2.5 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60"
         >
           {pending ? "Saving…" : "Add item"}
         </button>
-      </form>
-    </section>
+    </form>
   );
 }

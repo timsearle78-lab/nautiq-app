@@ -29,6 +29,7 @@ function buildIso(date: string, time: string) {
 export default function TripDraftCard({ draft, boatId, onSaved, onDismiss }: TripDraftCardProps) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
 
   const today = new Date().toISOString().slice(0, 10);
   const [date, setDate] = useState(toDateValue(draft.started_at) || today);
@@ -64,6 +65,8 @@ export default function TripDraftCard({ draft, boatId, onSaved, onDismiss }: Tri
     }
   }
 
+  if (dismissed) return null;
+
   if (saved) {
     return (
       <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
@@ -76,9 +79,15 @@ export default function TripDraftCard({ draft, boatId, onSaved, onDismiss }: Tri
 
   return (
     <div className="mt-2 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div className="flex items-center gap-2 border-b border-slate-100 bg-slate-50 px-4 py-2.5">
-        <span className="text-base">⚓</span>
-        <span className="text-sm font-semibold text-slate-800">Trip Draft</span>
+      <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5">
+        <div className="flex items-center gap-2">
+          <span className="text-base">⚓</span>
+          <span className="text-sm font-semibold text-slate-800">Trip Draft</span>
+        </div>
+        <span className="text-xs font-medium text-ocean-600 bg-ocean-50 border border-ocean-200 rounded-full px-2 py-0.5">AI extracted</span>
+      </div>
+      <div className="px-4 pt-3 pb-0">
+        <p className="text-xs text-slate-500">Review the details below and edit anything before saving.</p>
       </div>
 
       <div className="p-4 space-y-3">
@@ -154,10 +163,10 @@ export default function TripDraftCard({ draft, boatId, onSaved, onDismiss }: Tri
           />
         </div>
 
-        {draft.issues_observed.length > 0 && (
+        {draft.issues_observed.filter(s => s && !/^no issues?$/i.test(s.trim())).length > 0 && (
           <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2">
             <p className="text-xs font-medium text-amber-700 mb-1">Issues noted</p>
-            {draft.issues_observed.map((issue, i) => (
+            {draft.issues_observed.filter(s => s && !/^no issues?$/i.test(s.trim())).map((issue, i) => (
               <p key={i} className="text-xs text-amber-600">• {issue}</p>
             ))}
           </div>
@@ -168,12 +177,12 @@ export default function TripDraftCard({ draft, boatId, onSaved, onDismiss }: Tri
         <button
           onClick={handleSave}
           disabled={saving || !date}
-          className="flex-1 rounded-lg bg-ocean-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-ocean-700 disabled:opacity-50"
+          className="flex-1 rounded-lg btn-primary px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save Trip"}
         </button>
         <button
-          onClick={onDismiss}
+          onClick={() => { setDismissed(true); onDismiss?.(); }}
           className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
         >
           Dismiss

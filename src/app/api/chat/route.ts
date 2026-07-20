@@ -1,9 +1,10 @@
-import { streamText, zodSchema, convertToModelMessages } from "ai";
+import { streamText, zodSchema, convertToModelMessages, stepCountIs } from "ai";
 import { createGroq } from "@ai-sdk/groq";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { generateTripDraftFromAI } from "@/lib/ai/generateTripDraft";
 import { getBoatHealth } from "@/lib/components/health";
+import { HELP_SYSTEM_PROMPT } from "@/lib/help-content";
 
 async function logChatError(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -41,11 +42,21 @@ export async function POST(req: Request) {
 
     const { data: boat } = await supabase
       .from("boats")
-      .select("id, name")
+      .select("id, name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description")
       .eq("id", boatId)
       .eq("user_id", user.id)
       .single();
     if (!boat) return new Response("Boat not found", { status: 404 });
+
+    const boatSpec = [
+      boat.type,
+      boat.propulsion,
+      boat.hull_design,
+      boat.hull_material,
+      boat.length_m ? `${boat.length_m}m LOA` : null,
+      boat.beam_m ? `${boat.beam_m}m beam` : null,
+      boat.draft_m ? `${boat.draft_m}m draft` : null,
+    ].filter(Boolean).join(", ");
 
     const { data: engineHours } = await supabase.rpc("get_boat_engine_hours", {
       p_boat_id: boatId,
@@ -53,20 +64,36 @@ export async function POST(req: Request) {
 
     const modelMessages = await convertToModelMessages(messages);
 
-    const result = streamText({
+    function isRateLimit(err: unknown): boolean {
+      const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+      return msg.includes("rate limit") || msg.includes("rate_limit") || msg.includes("429") ||
+        msg.includes("quota") || msg.includes("daily") || msg.includes("tokens per");
+    }
+
+    let result;
+    try {
+      result = streamText({
       model: createGroq({ apiKey: process.env.GROQ_API_KEY })("llama-3.3-70b-versatile"),
+      stopWhen: stepCountIs(1),
       system: `You are NautIQ, a practical boat assistant for "${boat.name}".
+${boatSpec ? `Boat specs: ${boatSpec}.` : ""}${(boat as { description?: string | null }).description ? `\nOwner's description: ${(boat as { description?: string | null }).description}` : ""}
 Engine hours: ${engineHours ?? 0}h.
 
-TOOL SELECTION RULES — follow these exactly:
+SCOPE: You only help with topics directly related to this boat — maintenance, trips, inventory, health score, spare parts, engine hours, and how to use the NautIQ app. If the user asks about anything else (general knowledge, cooking, coding, news, other topics, etc.), respond with exactly: "Sorry, I can only help with questions about your boat and the NautIQ app." Do not elaborate or apologise further.
+
+${HELP_SYSTEM_PROMPT}
+
+When the user asks a "how do I" or "how does X work" question about the app, answer it directly in plain conversational text without calling any tool. Keep answers concise and friendly.
+
+TOOL SELECTION RULES — follow these exactly (only for data/action requests, not how-to questions):
 
 1. LOGGING A TRIP: If the owner is telling you about a trip they just did (e.g. "went sailing", "motored for 2 hours", "left marina at 10am", "went racing") → call draftTripLog immediately. Do NOT call getTripHistory.
 
 2. VIEWING PAST TRIPS: Only call getTripHistory if the owner explicitly asks to SEE or SHOW their trips (e.g. "show my trips", "what trips have I done", "trip history").
 
-3. USING A PART: If the owner mentions using/consuming a spare part → call draftInventoryAdjustment.
+3. USING A PART: If the owner mentions using/consuming a spare part or says something like "used a part", "used a spare", "I used something" (even without naming it) → call draftInventoryAdjustment. If no specific item is named, pass itemName as an empty string so the user can pick from their full inventory.
 
-4. BUYING A PART: If the owner mentions buying/purchasing/restocking parts → call draftInventoryAdd.
+4. ADDING/BUYING A PART: If the owner wants to add a new item to inventory, restock, buy, or purchase parts (e.g. "add 5m of rope", "I bought a new filter", "add dyneema rope to inventory") → call draftInventoryAdd.
 
 5. MAINTENANCE QUESTIONS: "what do I need to do", "what's due" → call getUpcomingMaintenance.
 
@@ -74,12 +101,13 @@ TOOL SELECTION RULES — follow these exactly:
 
 7. BOAT HEALTH: General health questions → call getBoatSummary.
 
-The UI renders tool results as formatted cards automatically — do NOT repeat data as text after calling any tool. Just call the tool and add one short sentence if needed.
+8. REPORT / PDF: If the user asks for a report, summary PDF, or to send/download a boat report → call requestBoatReport.
 
-After calling draftTripLog or any draft tool, tell the owner the draft is ready to review.`,
+The UI renders tool results as formatted cards automatically — do NOT add any text after calling any tool. The card is the response.`,
       messages: modelMessages,
       onError: async (event) => {
         const err = event.error as Error | undefined;
+        if (isRateLimit(err)) return;
         await logChatError(supabase, {
           userId,
           boatId,
@@ -92,34 +120,33 @@ After calling draftTripLog or any draft tool, tell the owner the draft is ready 
           description: "Get boat health score, engine hours, and most urgent maintenance",
           inputSchema: zodSchema(z.object({})),
           execute: async () => {
-            const [health, hoursRes, timelineRes] = await Promise.all([
-              getBoatHealth(boatId!),
-              supabase.rpc("get_boat_engine_hours", { p_boat_id: boatId }),
-              supabase.rpc("get_boat_maintenance_timeline", {
-                p_boat_id: boatId,
-                p_horizon_days: 90,
-              }),
-            ]);
-
-            const knownHealth = health.filter((c) => c.risk_score != null);
-            const avgRisk =
-              knownHealth.length > 0
-                ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
-                : 0;
-            const healthScore = Math.max(0, Math.round(100 - avgRisk));
-            const timeline = (timelineRes.data ?? []) as { status: string; component_name: string }[];
-
-            return {
-              boatName: boat.name,
-              engineHours: hoursRes.data ?? 0,
-              healthScore,
-              overdueCount: health.filter((c) => c.status === "overdue").length,
-              dueSoonCount: health.filter((c) => c.status === "due soon").length,
-              urgentItems: health
-                .filter((c) => c.status === "overdue")
-                .slice(0, 3)
-                .map((c) => c.component_name),
-            };
+            try {
+              const [health, hoursRes] = await Promise.all([
+                getBoatHealth(boatId!, supabase),
+                supabase.rpc("get_boat_engine_hours", { p_boat_id: boatId }),
+              ]);
+              const knownHealth = health.filter((c) => c.risk_score != null);
+              const avgRisk =
+                knownHealth.length > 0
+                  ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
+                  : 0;
+              const healthScore = Math.max(0, Math.round(100 - avgRisk));
+              return {
+                boatName: boat.name,
+                engineHours: hoursRes.data ?? 0,
+                healthScore,
+                overdueCount: health.filter((c) => c.status === "overdue").length,
+                dueSoonCount: health.filter((c) => c.status === "due soon").length,
+                urgentItems: health
+                  .filter((c) => c.status === "overdue")
+                  .slice(0, 3)
+                  .map((c) => c.component_name),
+              };
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : String(err);
+              await logChatError(supabase, { userId, boatId, message: `getBoatSummary: ${msg}` });
+              throw err;
+            }
           },
         },
 
@@ -131,22 +158,28 @@ After calling draftTripLog or any draft tool, tell the owner the draft is ready 
             })
           ),
           execute: async ({ overdueOnly = false }: { overdueOnly?: boolean }) => {
-            const health = await getBoatHealth(boatId!);
-            const filtered = health
-              .filter((r) => {
-                const s = (r.status ?? "").toLowerCase();
-                if (overdueOnly) return s === "overdue";
-                return s === "overdue" || s === "due soon";
-              })
-              .sort((a, b) => (b.risk_score ?? 0) - (a.risk_score ?? 0));
-            return filtered.map((r) => ({
-              component: r.component_name,
-              system: r.system_name,
-              status: r.status,
-              monthsUntilDue: r.months_until_due,
-              hoursUntilDue: r.hours_until_due,
-              riskScore: r.risk_score,
-            }));
+            try {
+              const health = await getBoatHealth(boatId!, supabase);
+              const filtered = health
+                .filter((r) => {
+                  const s = (r.status ?? "").toLowerCase();
+                  if (overdueOnly) return s === "overdue";
+                  return s === "overdue" || s === "due soon";
+                })
+                .sort((a, b) => (b.risk_score ?? 0) - (a.risk_score ?? 0));
+              return filtered.map((r) => ({
+                component: r.component_name,
+                system: r.system_name,
+                status: r.status,
+                monthsUntilDue: r.months_until_due,
+                hoursUntilDue: r.hours_until_due,
+                riskScore: r.risk_score,
+              }));
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : String(err);
+              await logChatError(supabase, { userId, boatId, message: `getUpcomingMaintenance: ${msg}` });
+              throw err;
+            }
           },
         },
 
@@ -198,11 +231,17 @@ After calling draftTripLog or any draft tool, tell the owner the draft is ready 
             })
           ),
           execute: async ({ description }: { description: string }) => {
-            const draft = await generateTripDraftFromAI(description, {
-              currentDate: new Date().toISOString().slice(0, 10),
-              timezone: "UTC",
-            });
-            return { draft, boatId };
+            try {
+              const draft = await generateTripDraftFromAI(description, {
+                currentDate: new Date().toISOString().slice(0, 10),
+                timezone: "UTC",
+              });
+              return { draft, boatId };
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : String(err);
+              await logChatError(supabase, { userId, boatId, message: `draftTripLog: ${msg}` });
+              return { error: msg, boatId };
+            }
           },
         },
 
@@ -224,12 +263,21 @@ After calling draftTripLog or any draft tool, tell the owner the draft is ready 
             quantityUsed: number;
             reason: string;
           }) => {
-            const { data: items } = await supabase
-              .from("inventory_items")
-              .select("id, name, quantity, minimum_quantity, unit, category")
-              .eq("boat_id", boatId)
-              .ilike("name", `%${itemName}%`)
-              .limit(5);
+            const isVague = !itemName || itemName.trim().length < 2;
+            const { data: items } = isVague
+              ? await supabase
+                  .from("inventory_items")
+                  .select("id, name, quantity, minimum_quantity, unit, category")
+                  .eq("boat_id", boatId)
+                  .order("name")
+                  .limit(50)
+              : await supabase
+                  .from("inventory_items")
+                  .select("id, name, quantity, minimum_quantity, unit, category")
+                  .eq("boat_id", boatId)
+                  .ilike("name", `%${itemName}%`)
+                  .order("name")
+                  .limit(5);
 
             return {
               searchTerm: itemName,
@@ -304,15 +352,33 @@ After calling draftTripLog or any draft tool, tell the owner the draft is ready 
 
             return ((data ?? []) as TripRow[]).map((t) => ({
               id: t.id,
-              date: t.started_at ? t.started_at.slice(0, 10) : null,
+              startedAt: t.started_at,
+              endedAt: t.ended_at,
               engineHours: t.engine_hours_delta,
               fuelLitres: t.fuel_added_litres,
               notes: t.notes,
             }));
           },
         },
+
+        requestBoatReport: {
+          description: "Generate and download a PDF summary of the boat, including maintenance schedule and inventory",
+          inputSchema: zodSchema(z.object({})),
+          execute: async () => {
+            return { ready: true, boatName: boat.name };
+          },
+        },
       },
     });
+    } catch (modelErr) {
+      if (isRateLimit(modelErr)) {
+        return Response.json(
+          { error: "RATE_LIMIT" },
+          { status: 429 }
+        );
+      }
+      throw modelErr;
+    }
 
     return result.toUIMessageStreamResponse();
   } catch (err) {

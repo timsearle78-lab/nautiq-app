@@ -5,10 +5,19 @@ import { EditBoatForm } from "@/components/settings/edit-boat-form";
 import { AddBoatForm } from "@/components/settings/add-boat-form";
 import { SystemsManager } from "@/components/settings/systems-manager";
 import { BoatImageUpload } from "@/components/settings/boat-image-upload";
+import { DeleteBoatDialog } from "@/components/settings/delete-boat-dialog";
+import { NotificationPreferencesForm } from "@/components/settings/notification-preferences-form";
 
 export const dynamic = "force-dynamic";
 
-type BoatRow = { id: string; name: string; type: string | null; image_url: string | null };
+type NotificationPrefs = {
+  email: string;
+  health_summary: "none" | "daily" | "weekly";
+  health_summary_day: number;
+  overdue_alerts: boolean;
+};
+
+type BoatRow = { id: string; name: string; type: string | null; image_url: string | null; propulsion: string | null; hull_design: string | null; hull_material: string | null; length_m: number | null; beam_m: number | null; draft_m: number | null; description: string | null };
 type SystemRow = { id: string; name: string; boat_id: string };
 
 export default async function SettingsPage() {
@@ -20,22 +29,25 @@ export default async function SettingsPage() {
 
   const { data: boatsData, error: boatsErr } = await supabase
     .from("boats")
-    .select("id,name,type,image_url")
+    .select("id,name,type,image_url,propulsion,hull_design,hull_material,length_m,beam_m,draft_m,description")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
   // image_url column may not exist yet — fall back to query without it
   let boats: BoatRow[];
   if (boatsErr) {
-    const { data: fallback } = await supabase
-      .from("boats")
-      .select("id,name,type")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: true });
-    boats = ((fallback ?? []) as Omit<BoatRow, "image_url">[]).map((b) => ({ ...b, image_url: null }));
+    const { data: fallback } = await supabase.from("boats").select("id,name,type").eq("user_id", user.id).order("created_at", { ascending: true });
+    boats = ((fallback ?? []) as Pick<BoatRow, "id" | "name" | "type">[]).map((b) => ({ ...b, image_url: null, propulsion: null, hull_design: null, hull_material: null, length_m: null, beam_m: null, draft_m: null, description: null }));
   } else {
     boats = (boatsData ?? []) as BoatRow[];
   }
+
+  const { data: notifPrefsData } = await supabase
+    .from("notification_preferences")
+    .select("email, health_summary, health_summary_day, overdue_alerts")
+    .eq("user_id", user.id)
+    .single();
+  const notifPrefs = notifPrefsData as NotificationPrefs | null;
 
   const boatIds = boats.map((b) => b.id);
 
@@ -56,9 +68,9 @@ export default async function SettingsPage() {
   }
 
   return (
-    <main className="px-4 py-6 space-y-6 max-w-2xl mx-auto">
+    <main className="px-4 py-6 space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-slate-800">Settings</h1>
+        <h1 className="text-xl font-bold text-slate-900">Settings</h1>
         <p className="mt-1 text-sm text-slate-500">Manage your boats, systems, and account.</p>
       </div>
 
@@ -67,18 +79,25 @@ export default async function SettingsPage() {
         <h2 className="text-base font-semibold text-slate-700">Your boats</h2>
 
         {boats.map((boat) => (
-          <div key={boat.id} className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+          <div key={boat.id} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
               <span className="text-sm font-semibold text-slate-700">{boat.name}</span>
             </div>
             <div className="px-4 py-4 space-y-4">
               <BoatImageUpload boatId={boat.id} imageUrl={boat.image_url} />
-              <EditBoatForm boatId={boat.id} name={boat.name} type={boat.type} />
+              <EditBoatForm boatId={boat.id} name={boat.name} type={boat.type} propulsion={boat.propulsion} hull_design={boat.hull_design} hull_material={boat.hull_material} length_m={boat.length_m} beam_m={boat.beam_m} draft_m={boat.draft_m} description={boat.description} />
+            </div>
+            <div className="px-4 py-3 border-t border-red-100 bg-red-50/40 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold text-red-700">Danger zone</p>
+                <p className="text-xs text-red-500 mt-0.5">Permanently delete this boat and all its data</p>
+              </div>
+              <DeleteBoatDialog boatId={boat.id} boatName={boat.name} />
             </div>
           </div>
         ))}
 
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white overflow-hidden">
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white overflow-hidden">
           <div className="px-4 py-3 border-b border-slate-100">
             <span className="text-sm font-semibold text-slate-700">Add a new boat</span>
           </div>
@@ -101,7 +120,7 @@ export default async function SettingsPage() {
           <p className="text-sm text-slate-500">Add a boat first to manage its systems.</p>
         ) : (
           boats.map((boat) => (
-            <div key={boat.id} className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+            <div key={boat.id} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
               <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
                 <span className="text-sm font-semibold text-slate-700">{boat.name}</span>
               </div>
@@ -116,8 +135,19 @@ export default async function SettingsPage() {
         )}
       </section>
 
+      {/* Notifications */}
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+          <span className="text-sm font-semibold text-slate-700">Notifications</span>
+          <p className="mt-0.5 text-xs text-slate-500">Email alerts for boat health and overdue maintenance.</p>
+        </div>
+        <div className="px-4 py-4">
+          <NotificationPreferencesForm prefs={notifPrefs} userEmail={user.email ?? ""} />
+        </div>
+      </section>
+
       {/* Account */}
-      <section className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
           <span className="text-sm font-semibold text-slate-700">Account</span>
         </div>

@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
+import { AddComponentSheet } from "@/components/components/add-component-sheet";
 
 export const dynamic = "force-dynamic";
 
@@ -124,6 +125,14 @@ export default async function ComponentsPage({
 
   const healthData = await getBoatHealth(boat.id);
 
+  const { data: systemsData } = await supabase
+    .from("systems")
+    .select("id,name")
+    .eq("boat_id", boat.id)
+    .order("name");
+
+  const boatSystems = (systemsData ?? []) as { id: string; name: string }[];
+
   const allRows = (healthData as HealthRow[]).sort((a, b) => {
     const systemCompare = (a.system_name ?? "").localeCompare(b.system_name ?? "");
     if (systemCompare !== 0) return systemCompare;
@@ -181,21 +190,16 @@ export default async function ComponentsPage({
   ];
 
   return (
-    <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
+    <main className="px-4 py-6 space-y-5">
       <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-slate-800">Components</h1>
+          <h1 className="text-xl font-bold text-slate-900">Components</h1>
           <p className="mt-1 text-sm text-slate-500">
             Browse and manage all tracked components for the selected boat.
           </p>
         </div>
 
-        <Link
-          href="/components/new"
-          className="rounded-xl bg-ocean-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ocean-700"
-        >
-          Add component
-        </Link>
+        <AddComponentSheet boatId={boat.id} systems={boatSystems} boatType={boat.type ?? undefined} />
       </section>
 
       <section className="flex flex-wrap gap-2">
@@ -254,7 +258,7 @@ export default async function ComponentsPage({
         })}
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4">
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
         <h2 className="text-base font-semibold text-slate-800">
           Component list
           {selectedSystem ? (

@@ -18,7 +18,11 @@ type SystemRow = {
   name: string;
 };
 
-export default async function NewComponentPage() {
+export default async function NewComponentPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ name?: string; system?: string }>;
+}) {
   noStore();
 
   const supabase = await createClient();
@@ -59,8 +63,16 @@ export default async function NewComponentPage() {
 
   const systems = (systemsData ?? []) as SystemRow[];
 
+  const { name: presetName, system: presetSystemName } = await searchParams;
+  const presetSystemId = presetSystemName
+    ? (systems.find((s) => s.name.toLowerCase() === presetSystemName.toLowerCase())?.id ?? "")
+    : "";
+
+  // Today's date in YYYY-MM-DD for the install date default
+  const today = new Date().toISOString().split("T")[0];
+
   return (
-    <main className="px-4 py-6 space-y-5 max-w-5xl mx-auto">
+    <main className="px-4 py-6 space-y-5">
       <div>
         <h1 className="text-xl font-semibold text-slate-800">New Component</h1>
         <p className="mt-1 text-sm text-slate-500">
@@ -69,7 +81,14 @@ export default async function NewComponentPage() {
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-4">
-        <AddComponentForm boatId={boat.id} systems={systems} />
+        <AddComponentForm
+          boatId={boat.id}
+          systems={systems}
+          boatType={boat.type ?? undefined}
+          defaultName={presetName}
+          defaultSystemId={presetSystemId || undefined}
+          defaultInstallDate={presetName ? today : undefined}
+        />
       </div>
     </main>
   );

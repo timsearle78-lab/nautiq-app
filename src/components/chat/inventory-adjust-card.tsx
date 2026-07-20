@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PackagePlus, PackageMinus } from "lucide-react";
+import { PackagePlus, PackageMinus, Search } from "lucide-react";
 
 interface InventoryItem {
   id: string;
@@ -114,7 +114,22 @@ function CreateItemCard({
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Unit</label>
-            <input type="text" value={unit} onChange={(e) => setUnit(e.target.value)} className={inputCls} placeholder="e.g. L, units, m" />
+            <select value={unit} onChange={(e) => setUnit(e.target.value)} className={inputCls}>
+              <option value="">— select —</option>
+              <option value="ea">ea (each)</option>
+              <option value="L">L (litres)</option>
+              <option value="mL">mL (millilitres)</option>
+              <option value="kg">kg (kilograms)</option>
+              <option value="g">g (grams)</option>
+              <option value="m">m (metres)</option>
+              <option value="pair">pair</option>
+              <option value="set">set</option>
+              <option value="roll">roll</option>
+              <option value="box">box</option>
+              <option value="can">can</option>
+              <option value="tube">tube</option>
+              <option value="bottle">bottle</option>
+            </select>
           </div>
         </div>
         <div>
@@ -158,7 +173,9 @@ export default function InventoryAdjustCard({
   onDismiss,
 }: InventoryAdjustCardProps) {
   const isAdd = transactionType === "add";
-  const [selectedId, setSelectedId] = useState(matches[0]?.id ?? "");
+  const isPickerMode = !searchTerm || searchTerm.trim().length < 2 || matches.length > 5;
+  const [filter, setFilter] = useState("");
+  const [selectedId, setSelectedId] = useState(!isPickerMode ? (matches[0]?.id ?? "") : "");
   const [qty, setQty] = useState(initialQty);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -222,6 +239,10 @@ export default function InventoryAdjustCard({
     );
   }
 
+  const filteredMatches = isPickerMode && filter.trim()
+    ? matches.filter((m) => m.name.toLowerCase().includes(filter.toLowerCase()))
+    : matches;
+
   return (
     <div className="mt-2 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       {/* Header */}
@@ -231,13 +252,48 @@ export default function InventoryAdjustCard({
           : <PackageMinus size={16} className="text-slate-500" />
         }
         <span className="text-sm font-semibold text-slate-800">
-          {isAdd ? "Restock Inventory" : "Use from Inventory"}
+          {isAdd ? "Restock Inventory" : "Which part did you use?"}
         </span>
       </div>
 
       <div className="p-4 space-y-3">
-        {/* Item selector */}
-        {matches.length > 1 ? (
+        {/* Picker mode: searchable list */}
+        {isPickerMode ? (
+          <div className="space-y-2">
+            <div className="relative">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                placeholder="Search your inventory…"
+                className="w-full rounded-lg border border-slate-200 bg-white pl-8 pr-3 py-2 text-sm outline-none focus:border-ocean-500 focus:ring-1 focus:ring-ocean-100"
+                autoFocus
+              />
+            </div>
+            <div className="max-h-48 overflow-y-auto rounded-lg border border-slate-100 divide-y divide-slate-50">
+              {filteredMatches.length === 0 ? (
+                <p className="px-3 py-2 text-xs text-slate-400">No matching items</p>
+              ) : filteredMatches.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setSelectedId(item.id)}
+                  className={`w-full text-left px-3 py-2.5 text-sm transition ${
+                    selectedId === item.id
+                      ? "bg-ocean-50 text-ocean-700 font-medium"
+                      : "hover:bg-slate-50 text-slate-700"
+                  }`}
+                >
+                  <span className="font-medium">{item.name}</span>
+                  <span className="ml-2 text-xs text-slate-400">
+                    {item.quantity} {item.unit ?? "units"} in stock
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : matches.length > 1 ? (
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Item</label>
             <select
@@ -296,7 +352,7 @@ export default function InventoryAdjustCard({
           onClick={handleConfirm}
           disabled={saving || !selectedId}
           className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-50 ${
-            isAdd ? "bg-green-600 hover:bg-green-700" : "bg-ocean-600 hover:bg-ocean-700"
+            isAdd ? "bg-green-600 hover:bg-green-700" : "btn-primary"
           }`}
         >
           {saving ? "Saving…" : isAdd ? "Confirm restock" : "Confirm use"}
@@ -315,12 +371,4 @@ export default function InventoryAdjustCard({
 }
 
 
-interface InventoryItem {
-  id: string;
-  name: string;
-  quantity: number;
-  minimum_quantity: number;
-  unit?: string;
-  category?: string;
-}
 
