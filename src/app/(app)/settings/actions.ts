@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
-type ActionState = { error?: string; success?: string };
+type ActionState = { error?: string; success?: string; savedAt?: number };
 
 export async function updateBoat(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const supabase = await createClient();
@@ -119,7 +119,7 @@ export async function updateNotificationPreferences(_prev: ActionState, formData
   if (error) return { error: error.message };
 
   revalidatePath("/settings");
-  return { success: "Notification preferences saved" };
+  return { success: "Notification preferences saved", savedAt: Date.now() };
 }
 
 export async function deleteBoat(_prev: ActionState, formData: FormData): Promise<ActionState> {
