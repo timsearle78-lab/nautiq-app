@@ -27,7 +27,7 @@ export function NotificationPreferencesForm({ prefs, userEmail }: { prefs: Prefs
   };
 
   return (
-    <form action={action} className="space-y-5">
+    <form key={state.savedAt} action={action} className="space-y-5">
       <div>
         <label className="mb-1.5 block text-sm font-medium text-slate-700">Notification email</label>
         <input
