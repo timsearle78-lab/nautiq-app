@@ -1,9 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
-import { updateNotificationPreferences } from "@/app/(app)/settings/actions";
+import { updateNotificationPreferences, triggerNotificationsNow } from "@/app/(app)/settings/actions";
 import SaveSuccessBanner from "@/components/ui/save-success-banner";
-import { Bell } from "lucide-react";
+import { Bell, Send } from "lucide-react";
 
 type Prefs = {
   email: string;
@@ -18,6 +18,7 @@ const inputCls = "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5
 
 export function NotificationPreferencesForm({ prefs, userEmail }: { prefs: Prefs | null; userEmail: string }) {
   const [state, action, pending] = useActionState(updateNotificationPreferences, {});
+  const [checkState, checkAction, checkPending] = useActionState(triggerNotificationsNow, {});
 
   const defaults: Prefs = prefs ?? {
     email: userEmail,
@@ -79,14 +80,32 @@ export function NotificationPreferencesForm({ prefs, userEmail }: { prefs: Prefs
       )}
       {state.success && <SaveSuccessBanner message={state.success} />}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="flex items-center gap-1.5 rounded-xl btn-primary px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60"
-      >
-        <Bell size={14} />
-        {pending ? "Saving…" : "Save preferences"}
-      </button>
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="submit"
+          disabled={pending}
+          className="flex items-center gap-1.5 rounded-xl btn-primary px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60"
+        >
+          <Bell size={14} />
+          {pending ? "Saving…" : "Save preferences"}
+        </button>
+
+        <form action={checkAction}>
+          <button
+            type="submit"
+            disabled={checkPending}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+          >
+            <Send size={14} />
+            {checkPending ? "Sending…" : "Check now"}
+          </button>
+        </form>
+      </div>
+
+      {checkState.error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{checkState.error}</div>
+      )}
+      {checkState.success && <SaveSuccessBanner message={checkState.success} />}
     </form>
   );
 }
