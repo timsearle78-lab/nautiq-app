@@ -161,9 +161,21 @@ function buildHealthSummaryEmail(boatName: string, score: number, overdue: Compo
       <table role="presentation" width="100%" style="max-width:560px;background:#FFFFFF;border-radius:16px;border:1px solid #E5E7EB;overflow:hidden;">
 
         <!-- Header -->
-        <tr><td style="background:#0F2335;padding:24px 28px;">
-          <span style="color:#FFFFFF;font-size:20px;font-weight:700;letter-spacing:-0.5px;">⚓ NautIQ</span>
-          <p style="color:#93C5FD;font-size:13px;margin:4px 0 0;">${boatName} — Boat Health Summary</p>
+        <tr><td style="background:#0B2942;padding:24px 28px;">
+          <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+            <td style="vertical-align:middle;padding-right:8px;">
+              <svg width="22" height="22" viewBox="0 0 100 100" fill="none" stroke="#5EC6EE" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="50" cy="18" r="9"/>
+                <line x1="50" y1="27" x2="50" y2="84"/>
+                <line x1="26" y1="43" x2="74" y2="43"/>
+                <path d="M16 56 C 16 76, 32 86, 50 86 C 68 86, 84 76, 84 56"/>
+              </svg>
+            </td>
+            <td style="vertical-align:middle;">
+              <span style="font-size:20px;font-weight:800;letter-spacing:-0.5px;"><span style="color:#FFFFFF;">Naut</span><span style="color:#5EC6EE;">IQ</span></span>
+            </td>
+          </tr></table>
+          <p style="color:#5EC6EE;font-size:13px;margin:6px 0 0;opacity:0.85;">${boatName} — Boat Health Summary</p>
         </td></tr>
 
         <!-- Score -->
@@ -204,7 +216,7 @@ function buildHealthSummaryEmail(boatName: string, score: number, overdue: Compo
 
         <!-- CTA -->
         <tr><td style="padding:24px 28px 28px;text-align:center;">
-          <a href="${APP_URL}/health" style="display:inline-block;background:#0F2335;color:#FFFFFF;text-decoration:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:600;letter-spacing:0.2px;">
+          <a href="${APP_URL}/health" style="display:inline-block;background:linear-gradient(135deg,#15A0D6,#0B7EB8);color:#FFFFFF;text-decoration:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:600;letter-spacing:0.2px;">
             View full health report →
           </a>
         </td></tr>
@@ -233,9 +245,21 @@ function buildOverdueAlertEmail(boatName: string, component: ComponentHealth) {
     <tr><td align="center" style="padding:32px 16px;">
       <table role="presentation" width="100%" style="max-width:520px;background:#FFFFFF;border-radius:16px;border:1px solid #E5E7EB;overflow:hidden;">
 
-        <tr><td style="background:#0F2335;padding:24px 28px;">
-          <span style="color:#FFFFFF;font-size:20px;font-weight:700;letter-spacing:-0.5px;">⚓ NautIQ</span>
-          <p style="color:#93C5FD;font-size:13px;margin:4px 0 0;">${boatName}</p>
+        <tr><td style="background:#0B2942;padding:24px 28px;">
+          <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+            <td style="vertical-align:middle;padding-right:8px;">
+              <svg width="22" height="22" viewBox="0 0 100 100" fill="none" stroke="#5EC6EE" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="50" cy="18" r="9"/>
+                <line x1="50" y1="27" x2="50" y2="84"/>
+                <line x1="26" y1="43" x2="74" y2="43"/>
+                <path d="M16 56 C 16 76, 32 86, 50 86 C 68 86, 84 76, 84 56"/>
+              </svg>
+            </td>
+            <td style="vertical-align:middle;">
+              <span style="font-size:20px;font-weight:800;letter-spacing:-0.5px;"><span style="color:#FFFFFF;">Naut</span><span style="color:#5EC6EE;">IQ</span></span>
+            </td>
+          </tr></table>
+          <p style="color:#5EC6EE;font-size:13px;margin:6px 0 0;opacity:0.85;">${boatName}</p>
         </td></tr>
 
         <tr><td style="padding:28px 28px 20px;">
@@ -259,7 +283,7 @@ function buildOverdueAlertEmail(boatName: string, component: ComponentHealth) {
 
           <p style="color:#374151;font-size:14px;line-height:1.6;margin:0 0 20px;">Log a completed service in NautIQ to clear this alert and reset the maintenance interval.</p>
 
-          <a href="${APP_URL}/maintain" style="display:inline-block;background:#0F2335;color:#FFFFFF;text-decoration:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;">
+          <a href="${APP_URL}/maintain" style="display:inline-block;background:linear-gradient(135deg,#15A0D6,#0B7EB8);color:#FFFFFF;text-decoration:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;">
             Log maintenance →
           </a>
         </td></tr>
