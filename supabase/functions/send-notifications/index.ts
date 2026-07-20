@@ -381,25 +381,31 @@ Deno.serve(async (req) => {
       // Use the first/primary boat (could extend to all boats later)
       const boat = boats[0];
 
-      // Load components, trips, maintenance events, inventory in parallel
-      const [{ data: componentsData }, { data: tripsData }, { data: eventsData }, { data: inventoryData }] = await Promise.all([
-        supabase
-          .from("components")
-          .select("id, name, install_date, service_interval_years, service_interval_months, service_interval_days, service_interval_engine_hours, system:systems(name)")
-          .eq("boat_id", boat.id)
-          .order("name"),
+      // Fetch components first so we can use their IDs to filter maintenance events
+      const { data: componentsData } = await supabase
+        .from("components")
+        .select("id, name, install_date, service_interval_years, service_interval_months, service_interval_days, service_interval_engine_hours, system:systems(name)")
+        .eq("boat_id", boat.id)
+        .order("name");
+
+      const componentIds = ((componentsData ?? []) as Record<string, unknown>[]).map((c) => c.id as string);
+
+      // Load trips, maintenance events, and inventory in parallel
+      const [{ data: tripsData }, { data: eventsData }, { data: inventoryData }] = await Promise.all([
         supabase
           .from("trips")
           .select("started_at, engine_hours_delta")
           .eq("boat_id", boat.id)
           .not("engine_hours_delta", "is", null)
           .order("started_at"),
-        supabase
-          .from("maintenance_events")
-          .select("component_id, performed_at, engine_hours_at_service")
-          .in("component_id", ((componentsData ?? []) as Record<string, unknown>[]).map((c) => c.id as string))
-          .order("performed_at", { ascending: false, nullsFirst: false })
-          .order("created_at", { ascending: false }),
+        componentIds.length > 0
+          ? supabase
+              .from("maintenance_events")
+              .select("component_id, performed_at, engine_hours_at_service")
+              .in("component_id", componentIds)
+              .order("performed_at", { ascending: false, nullsFirst: false })
+              .order("created_at", { ascending: false })
+          : Promise.resolve({ data: [] }),
         supabase
           .from("inventory_items")
           .select("id, name, quantity, minimum_quantity, is_critical, expiry_date")
