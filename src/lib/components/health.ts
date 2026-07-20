@@ -301,9 +301,11 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
     } else {
       const baseScore = Math.round(maxRatio * 100);
       risk_score = baseScore + stockPenalty;
-      if (maxRatio >= 1 || risk_score >= 100) {
+      // Status reflects maintenance interval only — inventory penalties affect risk_score
+      // but not the maintenance status label (inventory issues are surfaced separately).
+      if (maxRatio >= 1) {
         status = "overdue";
-      } else if (maxRatio >= 0.85 || risk_score >= 85) {
+      } else if (maxRatio >= 0.85) {
         status = "due soon";
       } else {
         status = "ok";
