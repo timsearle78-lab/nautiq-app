@@ -122,6 +122,32 @@ export async function updateNotificationPreferences(_prev: ActionState, formData
   return { success: "Notification preferences saved", savedAt: Date.now() };
 }
 
+export async function triggerNotificationsNow(_prev: ActionState): Promise<ActionState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) return { error: "Server configuration missing" };
+
+  const res = await fetch(`${supabaseUrl}/functions/v1/send-notifications`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${serviceRoleKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({}),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    return { error: `Notification check failed: ${text}` };
+  }
+
+  return { success: "Check complete — emails sent if any issues were found" };
+}
+
 export async function deleteBoat(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
