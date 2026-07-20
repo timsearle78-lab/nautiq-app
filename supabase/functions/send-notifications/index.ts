@@ -476,7 +476,7 @@ Deno.serve(async (req) => {
         const cooldownOk = !lastSent || (now.getTime() - lastSent.getTime()) > cooldownMs;
 
         if (shouldSend && cooldownOk) {
-          const subject = `${overdue.length > 0 ? "⚠️" : "🕐"} ${boat.name} health report — ${healthScore}/100`;
+          const subject = `NautIQ Update: ${boat.name} health report — ${healthScore}/100`;
           const html = buildHealthSummaryEmail(boat.name, healthScore, overdue, dueSoon, inventoryIssues);
           await sendEmail(pref.email, subject, html);
 
@@ -508,7 +508,7 @@ Deno.serve(async (req) => {
           const sevenDaysMs = 7 * 24 * 3_600_000;
           if (lastNotified && (now.getTime() - lastNotified.getTime()) < sevenDaysMs) continue;
 
-          const subject = `⚠️ ${component.componentName} is overdue on ${boat.name}`;
+          const subject = `NautIQ Update: ${component.componentName} is overdue on ${boat.name}`;
           const html = buildOverdueAlertEmail(boat.name, component);
           await sendEmail(pref.email, subject, html);
 
