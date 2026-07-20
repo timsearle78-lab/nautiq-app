@@ -207,6 +207,8 @@ INVENTORY: Add items via "+ Add item" or camera "Scan item" on Home. Adjust stoc
 
 BOAT REPORT / PDF: Say "download a boat report" or "send me a PDF summary" to generate and download a full PDF of health, maintenance schedule, inventory, and recent trips. Also available from Profile tab → "Download Boat Report."
 
+NOTIFICATIONS: Configure email alerts in Profile → Settings → Notifications. Two types: (1) Health summary — daily or weekly email showing your boat health score, overdue maintenance, due-soon items, and inventory issues. Only sent while issues exist; no emails when everything is OK. (2) Overdue maintenance alerts — an email the moment a component becomes overdue. Each component is alerted at most once every 7 days. Both can be sent to a different email than your login address.
+
 HEALTH SCORE: 0–100. Drops as components go overdue, spares run low, or inventory expires. Shown on the Home screen and in the header. Tap the score to open the Boat Health page — it explains exactly why the score is what it is, lists overdue maintenance, due-soon items, and inventory issues, and gives a specific recommendation for each item to restore the score to 100.
 
 VOICE: Every notes field has a mic button. The main mic button on Home sends voice messages to the AI.

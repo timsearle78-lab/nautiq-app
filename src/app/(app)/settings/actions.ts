@@ -97,6 +97,31 @@ export async function deleteSystem(_prev: ActionState, formData: FormData): Prom
   return { success: "Deleted" };
 }
 
+export async function updateNotificationPreferences(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const email = (formData.get("email") as string)?.trim();
+  if (!email) return { error: "Email is required" };
+
+  const health_summary = (formData.get("health_summary") as string) || "none";
+  const health_summary_day = parseInt(formData.get("health_summary_day") as string ?? "1", 10);
+  const overdue_alerts = formData.get("overdue_alerts") === "on";
+
+  const { error } = await supabase
+    .from("notification_preferences")
+    .upsert(
+      { user_id: user.id, email, health_summary, health_summary_day, overdue_alerts },
+      { onConflict: "user_id" }
+    );
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/settings");
+  return { success: "Notification preferences saved" };
+}
+
 export async function deleteBoat(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

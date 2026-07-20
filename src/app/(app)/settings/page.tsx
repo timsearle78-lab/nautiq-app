@@ -6,8 +6,16 @@ import { AddBoatForm } from "@/components/settings/add-boat-form";
 import { SystemsManager } from "@/components/settings/systems-manager";
 import { BoatImageUpload } from "@/components/settings/boat-image-upload";
 import { DeleteBoatDialog } from "@/components/settings/delete-boat-dialog";
+import { NotificationPreferencesForm } from "@/components/settings/notification-preferences-form";
 
 export const dynamic = "force-dynamic";
+
+type NotificationPrefs = {
+  email: string;
+  health_summary: "none" | "daily" | "weekly";
+  health_summary_day: number;
+  overdue_alerts: boolean;
+};
 
 type BoatRow = { id: string; name: string; type: string | null; image_url: string | null; propulsion: string | null; hull_design: string | null; hull_material: string | null; length_m: number | null; beam_m: number | null; draft_m: number | null; description: string | null };
 type SystemRow = { id: string; name: string; boat_id: string };
@@ -33,6 +41,13 @@ export default async function SettingsPage() {
   } else {
     boats = (boatsData ?? []) as BoatRow[];
   }
+
+  const { data: notifPrefsData } = await supabase
+    .from("notification_preferences")
+    .select("email, health_summary, health_summary_day, overdue_alerts")
+    .eq("user_id", user.id)
+    .single();
+  const notifPrefs = notifPrefsData as NotificationPrefs | null;
 
   const boatIds = boats.map((b) => b.id);
 
@@ -118,6 +133,17 @@ export default async function SettingsPage() {
             </div>
           ))
         )}
+      </section>
+
+      {/* Notifications */}
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+          <span className="text-sm font-semibold text-slate-700">Notifications</span>
+          <p className="mt-0.5 text-xs text-slate-500">Email alerts for boat health and overdue maintenance.</p>
+        </div>
+        <div className="px-4 py-4">
+          <NotificationPreferencesForm prefs={notifPrefs} userEmail={user.email ?? ""} />
+        </div>
       </section>
 
       {/* Account */}
