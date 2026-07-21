@@ -30,6 +30,7 @@ interface ComponentHealth {
   daysSinceService: number | null;
   hoursSinceService: number | null;
   predictedDueDate: string | null;
+  _maxRatio: number | null;
 }
 
 function computeComponentHealth(
@@ -90,6 +91,7 @@ function computeComponentHealth(
     daysSinceService,
     hoursSinceService,
     predictedDueDate,
+    _maxRatio: maxRatio > 0 ? maxRatio : null,
   };
 }
 
@@ -446,6 +448,38 @@ Deno.serve(async (req) => {
         if (!latestEvent.has(e.component_id)) latestEvent.set(e.component_id, e);
       }
 
+      // Build inventory penalty map — same logic as the app's getBoatHealth()
+      type InvRow = { id: string; name: string; quantity: number; minimum_quantity: number | null; is_critical: boolean; expiry_date: string | null };
+      const invItems = (inventoryData ?? []) as (InvRow & { component_id?: string | null })[];
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const in30Days = new Date(today); in30Days.setDate(in30Days.getDate() + 30);
+      const in90Days = new Date(today); in90Days.setDate(in90Days.getDate() + 90);
+      const stockPenaltyMap = new Map<string, number>();
+      let boatExpiryPenalty = 0;
+      for (const item of invItems) {
+        const qty = Number(item.quantity ?? 0);
+        const min = Number(item.minimum_quantity ?? 0);
+        const isCritical = item.is_critical;
+        let stockPenalty = 0;
+        if (min > 0 && qty === 0) stockPenalty = isCritical ? 40 : 25;
+        else if (min > 0 && qty < min) stockPenalty = isCritical ? 25 : 15;
+        else if (min > 0 && qty === min) stockPenalty = isCritical ? 10 : 5;
+        let expiryPenalty = 0;
+        if (item.expiry_date) {
+          const expiry = new Date(item.expiry_date); expiry.setHours(0, 0, 0, 0);
+          if (expiry < today) expiryPenalty = isCritical ? 40 : 25;
+          else if (expiry <= in30Days) expiryPenalty = isCritical ? 25 : 15;
+          else if (expiry <= in90Days) expiryPenalty = isCritical ? 10 : 5;
+        }
+        const totalPenalty = stockPenalty + expiryPenalty;
+        if (!totalPenalty) continue;
+        if (item.component_id) {
+          stockPenaltyMap.set(item.component_id, (stockPenaltyMap.get(item.component_id) ?? 0) + totalPenalty);
+        } else {
+          boatExpiryPenalty += expiryPenalty;
+        }
+      }
+
       // Compute health per component
       const components = (componentsData ?? []) as Record<string, unknown>[];
       const componentHealth = components.map((c) =>
@@ -456,12 +490,20 @@ Deno.serve(async (req) => {
       const dueSoon = componentHealth.filter((c) => c.status === "due_soon");
       const ok = componentHealth.filter((c) => c.status === "ok");
 
-      // Compute overall score (maintenance only for now)
-      const healthScore = Math.max(0, Math.round(100 - (overdue.length > 0 ? Math.min(100, overdue.length * 20 + dueSoon.length * 8) : dueSoon.length * 8)));
+      // Compute overall score matching the app's algorithm:
+      // average risk_score (maxRatio*100 + inventory penalty) across all components,
+      // plus a synthetic inventory row for unlinked expiry penalties.
+      const riskScores = componentHealth.map((h) => {
+        const stockPenalty = stockPenaltyMap.get(h.componentId) ?? 0;
+        const baseScore = h._maxRatio != null ? Math.round(h._maxRatio * 100) : 0;
+        return baseScore + stockPenalty;
+      });
+      if (boatExpiryPenalty > 0) riskScores.push(Math.min(boatExpiryPenalty, 100));
+      const avgRisk = riskScores.length > 0 ? riskScores.reduce((a, b) => a + b, 0) / riskScores.length : 0;
+      const healthScore = Math.max(0, Math.round(100 - avgRisk));
 
       // Inventory issues
-      type InvRow = { id: string; name: string; quantity: number; minimum_quantity: number | null; is_critical: boolean; expiry_date: string | null };
-      const inventoryIssues = getInventoryIssues((inventoryData ?? []) as InvRow[]);
+      const inventoryIssues = getInventoryIssues(invItems);
 
       const hasIssues = overdue.length > 0 || dueSoon.length > 0 || inventoryIssues.length > 0;
 
