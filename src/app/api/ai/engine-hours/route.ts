@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const mediaType = (file.type || "image/jpeg") as "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 
     const { object } = await generateObject({
-      model: groq("meta-llama/llama-4-scout-17b-16e-instruct"),
+      model: groq("llama-3.3-70b-versatile"),
       providerOptions: { groq: { structuredOutputs: false } },
       schema,
       messages: [
