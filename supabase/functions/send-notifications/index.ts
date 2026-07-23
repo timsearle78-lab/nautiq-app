@@ -180,13 +180,9 @@ function buildHealthSummaryEmail(boatName: string, score: number, overdue: Compo
           <p style="color:#5EC6EE;font-size:13px;margin:6px 0 0;opacity:0.85;">${boatName} — Boat Health Summary</p>
         </td></tr>
 
-        <!-- Score -->
+        <!-- Summary -->
         <tr><td style="padding:28px 28px 20px;text-align:center;">
-          <div style="display:inline-block;background:#F9FAFB;border:2px solid ${color};border-radius:99px;padding:12px 28px;">
-            <span style="color:${color};font-size:40px;font-weight:800;">${score}</span>
-            <span style="color:#6B7280;font-size:16px;font-weight:500;"> / 100</span>
-          </div>
-          <p style="color:#6B7280;font-size:14px;margin:12px 0 0;">${totalIssues} item${totalIssues !== 1 ? "s" : ""} need${totalIssues === 1 ? "s" : ""} your attention</p>
+          <p style="color:#6B7280;font-size:14px;margin:0;">${totalIssues} item${totalIssues !== 1 ? "s" : ""} need${totalIssues === 1 ? "s" : ""} your attention</p>
         </td></tr>
 
         ${overdue.length > 0 ? `
@@ -518,7 +514,7 @@ Deno.serve(async (req) => {
         const cooldownOk = !lastSent || (now.getTime() - lastSent.getTime()) > cooldownMs;
 
         if (shouldSend && cooldownOk) {
-          const subject = `NautIQ Update: ${boat.name} health report — ${healthScore}/100`;
+          const subject = `NautIQ Update: ${boat.name} health report`;
           const html = buildHealthSummaryEmail(boat.name, healthScore, overdue, dueSoon, inventoryIssues);
           await sendEmail(pref.email, subject, html);
 
