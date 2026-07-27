@@ -1,4 +1,4 @@
-const CACHE = "nautiq-v1";
+const CACHE = "nautiq-v2";
 const STATIC = ["/", "/offline"];
 
 self.addEventListener("install", (e) => {
@@ -34,8 +34,10 @@ self.addEventListener("fetch", (e) => {
     e.respondWith(
       fetch(request)
         .then((res) => {
-          const clone = res.clone();
-          caches.open(CACHE).then((c) => c.put(request, clone));
+          if (res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE).then((c) => c.put(request, clone));
+          }
           return res;
         })
         .catch(() => caches.match("/offline") ?? caches.match("/"))
@@ -43,13 +45,15 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // Static assets (_next/static): cache-first
+  // Static assets (_next/static): cache-first, but only cache successful responses
   if (url.pathname.startsWith("/_next/static/")) {
     e.respondWith(
       caches.match(request).then((cached) => {
         if (cached) return cached;
         return fetch(request).then((res) => {
-          caches.open(CACHE).then((c) => c.put(request, res.clone()));
+          if (res.ok) {
+            caches.open(CACHE).then((c) => c.put(request, res.clone()));
+          }
           return res;
         });
       })
