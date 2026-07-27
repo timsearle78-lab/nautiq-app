@@ -93,7 +93,11 @@ Each component has a service interval (time-based and/or engine-hour-based). Nau
     title: "How to manage spare parts (inventory)",
     content: `The Inventory tab shows all your spare parts and supplies. Each item has a current quantity and an optional minimum quantity — when stock drops below the minimum, it shows as low stock.
 
-To filter to low-stock items only, use the "Low stock only" toggle at the top of the Inventory page. It applies instantly — no need to tap Apply.
+To filter inventory, use the filter bar at the top of the Inventory page:
+- Tap a status chip (All, OK, Low, Missing, Expiring) to show only items with that status.
+- Use the "All components" dropdown to show only items linked to a specific boat component.
+- Both filters can be combined — e.g. show Low stock items for the Engine only.
+- Tap "All" to clear the status filter, or reset the dropdown to "All components" to clear the component filter.
 
 To add an item manually:
 1. Go to the Inventory tab and tap "+ Add item."

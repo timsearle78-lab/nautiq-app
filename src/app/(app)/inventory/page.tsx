@@ -11,17 +11,18 @@ import { getSelectedBoatId } from "@/lib/selected-boat";
 
 import { AddInventorySheet } from "@/components/inventory/add-inventory-sheet";
 import { InventoryTable } from "@/components/inventory/inventory-table";
-import { LowStockToggle } from "@/components/inventory/low-stock-toggle";
+import { InventoryFilters } from "@/components/inventory/inventory-filters";
 
 type InventoryPageProps = {
-  searchParams: Promise<{ low?: string }>;
+  searchParams: Promise<{ status?: string; component?: string }>;
 };
 
 export default async function InventoryPage({ searchParams }: InventoryPageProps) {
   noStore();
 
   const params = await searchParams;
-  const lowOnly = params.low === "1";
+  const statusFilter = params.status ?? "";
+  const componentFilter = params.component ?? "";
 
   const supabase = await createClient();
 
@@ -79,12 +80,25 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     ),
   ].sort();
 
-  const filteredItems = lowOnly
-    ? inventoryItems.filter(
-        (item) =>
-          item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity)
-      )
-    : inventoryItems;
+  const today2 = new Date(); today2.setHours(0, 0, 0, 0);
+  const in90Days2 = new Date(today2); in90Days2.setDate(in90Days2.getDate() + 90);
+
+  const filteredItems = inventoryItems.filter((item) => {
+    if (componentFilter && item.component_id !== componentFilter) return false;
+    if (statusFilter) {
+      const isMissing = item.is_critical && Number(item.quantity) <= 0;
+      const isLow = !isMissing && item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity);
+      const isExpiring = !!item.expiry_date && (() => {
+        const exp = new Date(item.expiry_date!); exp.setHours(0, 0, 0, 0);
+        return exp <= in90Days2;
+      })();
+      if (statusFilter === "missing" && !isMissing) return false;
+      if (statusFilter === "low" && !isLow) return false;
+      if (statusFilter === "expiring" && !isExpiring) return false;
+      if (statusFilter === "ok" && (isMissing || isLow)) return false;
+    }
+    return true;
+  });
 
   const lowStockCount = inventoryItems.filter(
     (item) => item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity)
@@ -191,7 +205,11 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
         </div>
       </div>
 
-      <LowStockToggle active={lowOnly} />
+      <InventoryFilters
+        status={statusFilter}
+        componentId={componentFilter}
+        components={components}
+      />
 
       <InventoryTable boatId={activeBoatId} items={filteredItems} />
     </main>

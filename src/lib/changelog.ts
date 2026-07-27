@@ -10,6 +10,7 @@ export const CHANGELOG: Release[] = [
     date: "2026-07-27",
     label: "July 2026 update",
     features: [
+      "Filter inventory by status (OK, Low, Missing, Expiring) or by component — filters can be combined",
       "Fixed an issue on some desktop browsers where menus and quick-action buttons weren't responding to clicks",
     ],
   },
