@@ -21,20 +21,37 @@ The app has five main areas:
 - Profile: Account settings, boat details, boat report PDF download, and this help guide.`,
   },
   {
+    id: "settings",
+    title: "Settings overview",
+    content: `Settings are reached via the Profile tab (bottom right) → Settings. The Settings page is divided into four sections: Your boats, Systems, Notifications, and Account.`,
+  },
+  {
     id: "boat",
     title: "How to add or edit a boat",
     content: `When you first sign up, NautIQ walks you through adding your boat with a setup wizard. It will ask for your boat's name, type, propulsion, hull design, and hull material — then automatically create common systems and components for that type of vessel.
 
-To add another boat or edit an existing one:
-1. Tap the Profile tab (bottom right).
-2. Tap Settings.
-3. Scroll to your boat — you can edit the name, type, propulsion, hull design, hull material, and dimensions (length, beam, draft). You can also upload a photo.
-4. To add a new boat, scroll to the bottom of the Settings page and use the "Add boat" section.
-5. You can switch between boats using the boat selector in the top-right corner of the app.
+To edit an existing boat:
+1. Go to Profile → Settings.
+2. Find your boat card and edit any of these fields:
+   - Name (required)
+   - Type: Motorboat, Keeler Yacht, Trailer Yacht, Catamaran, RIB, Other
+   - Propulsion: Inboard diesel, Inboard petrol, Outboard, Sail, Sail + auxiliary, Electric, Hybrid
+   - Hull design: Monohull, Catamaran, Trimaran, Pontoon, Semi-displacement, Planing, Displacement
+   - Hull material: Fibreglass (GRP), Aluminium, Steel, Wood, Carbon fibre, Ferro-cement, Inflatable (Hypalon/PVC)
+   - Dimensions: Length (LOA), Beam, Draft — in metres
+   - Boat photo: tap "Upload photo" to add a circular avatar image (JPG, PNG or WebP).
+   - Boat description (optional): free-text field — describe your boat in plain English (builder, year, engine make/model, sails, electronics, any quirks). The AI reads this in every conversation to give better advice.
+3. Tap "Save changes."
 
-Boat specs are used to tailor component suggestions on the Home screen. For example, an electric boat will be prompted to add a drive battery pack and BMS, while a wooden boat will see hull caulking suggestions.
+To add a second boat:
+1. Scroll to the bottom of the Settings page and use the "Add a new boat" section.
+2. Enter a name and type, then tap "Add boat." Default systems and components are created automatically.
+3. Switch between boats using the boat selector in the top-right corner of the app.
 
-There is also a free-text Boat description field — describe your boat in plain English (builder, year, engine make/model, sails, electronics, any quirks). The AI assistant reads this description in every conversation, so the more detail you add, the better its maintenance advice and component suggestions will be.`,
+To delete a boat:
+1. Scroll to the bottom of that boat's card in Settings and tap "Permanently delete this boat."
+2. A confirmation dialog appears — type the exact boat name to enable the delete button.
+3. This removes all maintenance records, components, systems, trips, and inventory for that boat. It cannot be undone.`,
   },
   {
     id: "trips",
@@ -84,9 +101,32 @@ When you set up your boat, NautIQ creates a default set of systems and component
 - Add new components from the Maintain tab → "Add component."
 - Edit a component (name, service intervals, notes) by tapping it and scrolling to the edit form.
 - Delete a component from the Danger Zone at the bottom of the component page.
-- Add or remove systems from Profile → Settings → Systems.
+
+To manage systems:
+1. Go to Profile → Settings → Systems section.
+2. Each existing system has a trash icon — tap it and confirm to delete the system.
+3. To add a new system, type its name (e.g. "Engine," "Electrical," "Deck") in the text field and tap "Add."
 
 Each component has a service interval (time-based and/or engine-hour-based). NautIQ uses your trip engine hours to track hours since last service.`,
+  },
+  {
+    id: "notifications",
+    title: "How to set up email notifications",
+    content: `NautIQ can send you email alerts about your boat's maintenance status. Configure these in Profile → Settings → Notifications.
+
+Notification email: by default, alerts go to your account email. Enter a different address here if you want notifications sent elsewhere.
+
+Boat health summary: choose how often you receive a health digest email.
+- Off: no summary emails.
+- Daily: an email every day while your boat needs attention.
+- Weekly: one email per week while your boat needs attention. When "Weekly" is selected, a day-of-week picker appears (Sunday–Saturday) so you choose which day the email arrives.
+Note: summary emails are only sent when there are issues to report — if everything is healthy, no email is sent.
+
+Overdue maintenance alerts: tick this checkbox to receive an email the moment a component becomes overdue. Each component can trigger at most one alert every 7 days (so you won't be spammed if an overdue item isn't fixed immediately).
+
+Tap "Save preferences" to apply any changes.
+
+Check now: tap this button to run the notification check immediately. You'll see a confirmation message once it completes. Emails will only be sent if issues are found.`,
   },
   {
     id: "inventory",
@@ -202,7 +242,9 @@ APP USAGE GUIDE (answer "how do I" questions using this):
 
 OVERVIEW: NautIQ has 5 sections — Home/Chat (AI assistant), Trips (engine hours log), Maintain (component service tracking), Inventory (spare parts), Profile (settings/help/report).
 
-BOAT SETUP: First-time wizard asks for name, type, propulsion, hull design, hull material, and an optional free-text description — then creates systems and components automatically. Edit boat specs (including dimensions: length, beam, draft) and description in Profile → Settings. Add more boats in Profile → Settings. Switch boats via the top-right selector. Boat specs and description refine component suggestions and AI advice.
+BOAT SETUP: First-time wizard asks for name, type, propulsion, hull design, hull material, and an optional free-text description — then creates systems and components automatically. Edit boat specs (name, type, propulsion, hull design, hull material, dimensions: length/beam/draft, photo, description) in Profile → Settings → Your boats. Add more boats via the "Add a new boat" section at the bottom of Settings. Switch boats via the top-right selector. To delete a boat, tap "Permanently delete this boat" in its settings card and confirm by typing the boat name — this removes all data and cannot be undone. Boat specs and description refine component suggestions and AI advice.
+
+SYSTEMS: Manage systems (groups of components) in Profile → Settings → Systems. Add a system by typing its name and tapping "Add." Delete a system using the trash icon next to it.
 
 LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving (GPS location captured), "Stop Trip" when back (GPS location captured again); (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours."
 
@@ -214,7 +256,7 @@ INVENTORY: Add items via "+ Add item" or camera "Scan item" on Home. Adjust stoc
 
 BOAT REPORT / PDF: Say "download a boat report" or "send me a PDF summary" to generate and download a full PDF of health, maintenance schedule, inventory, and recent trips. Also available from Profile tab → "Download Boat Report."
 
-NOTIFICATIONS: Configure email alerts in Profile → Settings → Notifications. Two types: (1) Health summary — daily or weekly email showing your boat health score, overdue maintenance, due-soon items, and inventory issues. Only sent while issues exist; no emails when everything is OK. (2) Overdue maintenance alerts — an email the moment a component becomes overdue. Each component is alerted at most once every 7 days. Both can be sent to a different email than your login address.
+NOTIFICATIONS: Configure in Profile → Settings → Notifications. Options: (1) Notification email — defaults to your login email; enter another address to redirect alerts. (2) Boat health summary — Off / Daily / Weekly; emails only sent while issues exist. Weekly mode shows a day-of-week picker. (3) Overdue maintenance alerts — checkbox; sends an email when a component goes overdue, at most once per component per 7 days. Tap "Save preferences" to save. Use "Check now" to trigger an immediate check (sends emails if issues found).
 
 HEALTH SCORE: 0–100. Drops as components go overdue, spares run low, or inventory expires. Shown on the Home screen and in the header. Tap the score to open the Boat Health page — it explains exactly why the score is what it is, lists overdue maintenance, due-soon items, and inventory issues, and gives a specific recommendation for each item to restore the score to 100.
 
