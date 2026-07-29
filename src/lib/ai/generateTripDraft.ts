@@ -1,8 +1,8 @@
 import { generateText } from "ai";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 
-const google = createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY });
+const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const tripDraftSchema = z.object({
   started_at: z.string().nullable().default(null),
@@ -77,7 +77,7 @@ export async function generateTripDraftFromAI(
   const timezone = context?.timezone ?? "Pacific/Auckland";
 
   const { text } = await generateText({
-    model: google("gemini-2.0-flash"),
+    model: anthropic("claude-haiku-4-5-20251001"),
     system:
       `You extract structured boat trip logs from user notes. Today is ${currentDate} (${timezone}).` +
       "\n\nRules:" +

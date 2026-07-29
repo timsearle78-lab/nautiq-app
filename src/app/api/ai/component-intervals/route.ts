@@ -1,5 +1,5 @@
 import { generateText } from "ai";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,7 +13,7 @@ const intervalSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!process.env.ANTHROPIC_API_KEY) {
     return Response.json({ error: "AI not configured" }, { status: 503 });
   }
 
@@ -27,10 +27,10 @@ export async function POST(req: Request) {
   }
 
   try {
-    const google = createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY });
+    const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
     const { text } = await generateText({
-      model: google("gemini-2.0-flash"),
+      model: anthropic("claude-haiku-4-5-20251001"),
       system: "You are a marine maintenance expert. Respond ONLY with a single valid JSON object — no markdown, no explanation, no extra text.",
       prompt: `A boat owner is adding a component called "${componentName.trim()}"${boatType ? ` to their ${boatType}` : ""}.
 

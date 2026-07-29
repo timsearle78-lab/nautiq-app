@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateObject } from "ai";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 
-const google = createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY });
+const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const schema = z.object({
   engine_hours: z.number().nullable(),
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const mediaType = (file.type || "image/jpeg") as "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 
     const { object } = await generateObject({
-      model: google("gemini-2.0-flash"),
+      model: anthropic("claude-haiku-4-5-20251001"),
       schema,
       messages: [
         {
