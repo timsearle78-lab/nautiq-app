@@ -227,7 +227,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   function handleTextareaChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setInput(e.target.value);
     e.target.style.height = "auto";
-    e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+    e.target.style.height = e.target.scrollHeight + "px";
   }
 
   function handleVoice() {
@@ -495,7 +495,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             onKeyDown={handleKeyDown}
             placeholder="Ask anything or describe a trip…"
             className="flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-ocean-500 focus:bg-white focus:outline-none"
-            style={{ minHeight: "40px", maxHeight: "120px" }}
+            style={{ minHeight: "40px" }}
           />
 
           <div className="relative group">
