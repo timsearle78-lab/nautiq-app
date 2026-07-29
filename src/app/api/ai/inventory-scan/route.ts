@@ -28,22 +28,22 @@ export async function POST(req: NextRequest) {
             { type: "image", image: base64, mediaType },
             {
               type: "text",
-              text: `You are scanning a boat parts / marine supplies photo. This could be a product label, packaging, receipt, or physical item.
+              text: `You are an inventory scanning assistant for a boat. The user may photograph any physical item they want to track — marine parts, safety gear, tools, personal items, clothing, food, drinks, or anything else kept on board.
 
-Extract inventory information and respond with ONLY valid JSON (no markdown, no explanation):
+Identify what the item is and respond with ONLY valid JSON (no markdown, no explanation):
 {
-  "itemName": "short descriptive name (e.g. 'Engine oil', 'Fuel filter', 'Life jacket', 'Impeller')",
-  "quantity": <number, best guess from label/receipt, default 1>,
-  "unit": "choose the most appropriate: L | mL | ea | kg | g | m | pair | set | roll | box | can | tube | bottle — or null if unknown. Use 'ea' for countable individual items (life jacket, filter, impeller, flare, etc). Use 'L' for liquid volume. Use 'can'/'tube'/'bottle' for packaged consumables.",
-  "category": "choose one: Engine | Safety | Electrical | Plumbing | Rigging | Navigation | Deck | Consumables — or null",
+  "itemName": "short descriptive name (e.g. 'Polarised sunglasses', 'Engine oil', 'Life jacket', 'Sunscreen SPF50')",
+  "quantity": <number, best guess from packaging/label, default 1>,
+  "unit": "choose the most appropriate: L | mL | ea | kg | g | m | pair | set | roll | box | can | tube | bottle — or null if unknown. Use 'pair' for items that come in pairs (sunglasses, gloves). Use 'ea' for single countable items. Use 'L' for liquids.",
+  "category": "choose one: Engine | Safety | Electrical | Plumbing | Rigging | Navigation | Deck | Consumables | Personal | Tools | Other — or null",
   "manufacturer": "brand name if visible, or null",
   "sku": "part number or model number if visible on label, or null",
-  "is_critical": <true if this is a safety or emergency item (life jacket, flare, fire extinguisher, EPIRB, bilge pump, etc), false otherwise>,
-  "notes": "any other useful info not captured above, or null",
+  "is_critical": <true only for safety-critical items: life jacket, flare, fire extinguisher, EPIRB, bilge pump, first aid kit>,
+  "notes": "any other useful info, or null",
   "confidence": "high|medium|low"
 }
 
-If you cannot identify a marine spare part or supply, return: {"error": "not_recognized"}`,
+If the image is completely unidentifiable (e.g. blank, too dark, not an item), return: {"error": "not_recognized"}`,
             },
           ],
         },

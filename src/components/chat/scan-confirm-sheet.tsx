@@ -1,10 +1,9 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { X, ScanLine } from "lucide-react";
+import { X, ScanLine, ChevronDown, ChevronUp } from "lucide-react";
 import SaveSuccessSheet from "@/components/ui/save-success-sheet";
 import { createInventoryItem, adjustInventoryStock } from "@/lib/inventory/actions";
-import VoiceTextarea from "@/components/ui/voice-textarea";
 
 export type ScanResult = {
   itemName: string;
@@ -23,6 +22,8 @@ export type ScanResult = {
 const inputCls =
   "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100";
 
+const UNITS = ["ea", "pair", "set", "L", "mL", "kg", "g", "m", "roll", "box", "can", "tube", "bottle"];
+
 interface Props {
   boatId: string;
   scanResult: ScanResult;
@@ -33,9 +34,11 @@ interface Props {
 
 export default function ScanConfirmSheet({ boatId, scanResult, components, onClose, onSaved }: Props) {
   const [mode, setMode] = useState<"update" | "new">(scanResult.matchedItem ? "update" : "new");
-  const [notes, setNotes] = useState(scanResult.notes ?? "");
-  const [adjustNotes, setAdjustNotes] = useState("");
+  const [showDetails, setShowDetails] = useState(false);
   const [savedOk, setSavedOk] = useState(false);
+  const [qty, setQty] = useState(String(scanResult.quantity || 1));
+  const [unit, setUnit] = useState(scanResult.unit ?? "ea");
+  const [txType, setTxType] = useState("add");
 
   const [createState, createAction, createPending] = useActionState(
     async (prev: { error?: string; success?: string }, fd: FormData) => {
@@ -63,83 +66,88 @@ export default function ScanConfirmSheet({ boatId, scanResult, components, onClo
     <>
       <div className="fixed inset-0 z-40 bg-black/30" onClick={onClose} />
       <div className="fixed bottom-16 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl animate-in slide-in-from-bottom duration-200 max-h-[calc(100dvh-4rem)] overflow-y-auto">
-        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 sticky top-0 bg-white">
-          <div>
-            <div className="flex items-center gap-2">
-              <ScanLine size={16} className="text-ocean-600" />
-              <h2 className="text-base font-semibold text-slate-900">
-                {mode === "update" ? "Update existing item" : "Add inventory item"}
+
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 sticky top-0 bg-white z-10">
+          <div className="flex items-center gap-2">
+            <ScanLine size={16} className="text-ocean-600" />
+            <div>
+              <h2 className="text-base font-semibold text-slate-900 leading-tight">
+                {scanResult.itemName}
               </h2>
+              <p className="text-xs text-slate-400">
+                AI identified · {scanResult.confidence === "low" ? "low confidence" : scanResult.confidence === "high" ? "high confidence" : "medium confidence"}
+              </p>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              AI scanned: <span className="font-medium text-slate-700">{scanResult.itemName}</span>
-              {scanResult.confidence === "low" && " · low confidence"}
-            </p>
           </div>
           <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100">
             <X size={18} />
           </button>
         </div>
 
-        {/* Mode toggle when a match was found */}
-        {matched && (
-          <div className="px-4 pt-3">
-            <div className="rounded-xl border border-ocean-200 bg-ocean-50 p-3">
-              <p className="text-xs font-semibold text-ocean-700 mb-0.5">Similar item found</p>
-              <p className="text-sm text-slate-700">
-                <span className="font-medium">{matched.name}</span>
-                {" · "}current stock: <span className="font-semibold">{matched.quantity}{matched.unit ? ` ${matched.unit}` : ""}</span>
-              </p>
-              <div className="flex gap-2 mt-2">
-                <button
-                  onClick={() => setMode("update")}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${mode === "update" ? "bg-ocean-600 text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-                >
-                  Update this item
-                </button>
-                <button
-                  onClick={() => setMode("new")}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${mode === "new" ? "bg-ocean-600 text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-                >
-                  Add as new
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <div className="px-4 py-5 pb-8 space-y-5">
 
-        <div className="px-4 py-4 pb-8 space-y-4">
-          {mode === "update" && matched ? (
+          {/* Matched item — update flow */}
+          {matched && mode === "update" && (
             <form action={adjustAction} className="space-y-4">
               <input type="hidden" name="boat_id" value={boatId} />
               <input type="hidden" name="inventory_item_id" value={matched.id} />
 
+              <div className="rounded-xl border border-ocean-200 bg-ocean-50 p-3.5 space-y-1">
+                <p className="text-xs font-semibold text-ocean-700">Matched existing item</p>
+                <p className="text-sm font-medium text-slate-800">{matched.name}</p>
+                <p className="text-xs text-slate-500">
+                  Current stock: <span className="font-semibold text-slate-700">{matched.quantity}{matched.unit ? ` ${matched.unit}` : ""}</span>
+                </p>
+              </div>
+
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">Transaction type</label>
-                <select name="transaction_type" defaultValue="add" className={inputCls}>
-                  <option value="add">Add to stock (bought/received)</option>
-                  <option value="consume">Remove from stock (used)</option>
-                  <option value="correct">Set stock to exact quantity</option>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">What do you want to do?</label>
+                <select
+                  name="transaction_type"
+                  value={txType}
+                  onChange={e => setTxType(e.target.value)}
+                  className={inputCls}
+                >
+                  <option value="add">Add to stock (bought / received)</option>
+                  <option value="consume">Remove from stock (used / lost)</option>
+                  <option value="correct">Set exact quantity</option>
                 </select>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">Quantity</label>
-                <input
-                  name="quantity_delta"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  defaultValue={scanResult.quantity}
-                  required
-                  className={inputCls}
-                />
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">Notes</label>
-                <VoiceTextarea value={adjustNotes} onChange={setAdjustNotes} placeholder="Optional reason or detail…" rows={2} />
-                <input type="hidden" name="notes" value={adjustNotes} />
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  {txType === "correct" ? "New total quantity" : "Quantity"}
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    name="quantity_delta"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={qty}
+                    onChange={e => setQty(e.target.value)}
+                    required
+                    className={`${inputCls} flex-1`}
+                  />
+                  <select
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-ocean-500"
+                    value={unit}
+                    onChange={e => setUnit(e.target.value)}
+                  >
+                    {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                  </select>
+                </div>
+                {txType === "add" && (
+                  <p className="mt-1 text-xs text-slate-400">
+                    New total: {(Number(matched.quantity) + Number(qty || 0)).toFixed(qty.includes(".") ? 2 : 0)}{matched.unit ? ` ${matched.unit}` : ""}
+                  </p>
+                )}
+                {txType === "consume" && (
+                  <p className="mt-1 text-xs text-slate-400">
+                    New total: {Math.max(0, Number(matched.quantity) - Number(qty || 0)).toFixed(qty.includes(".") ? 2 : 0)}{matched.unit ? ` ${matched.unit}` : ""}
+                  </p>
+                )}
               </div>
 
               {adjustState.error && <p className="text-sm text-red-600">{adjustState.error}</p>}
@@ -150,85 +158,132 @@ export default function ScanConfirmSheet({ boatId, scanResult, components, onClo
                 className="w-full rounded-xl py-3.5 text-base font-semibold text-white transition disabled:opacity-50"
                 style={{ background: "linear-gradient(135deg,#15A0D6,#0B7EB8)" }}
               >
-                {adjustPending ? "Saving…" : `Update "${matched.name}"`}
+                {adjustPending ? "Saving…" : "Update stock"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setMode("new")}
+                className="w-full text-center text-sm text-slate-400 hover:text-slate-600 transition"
+              >
+                Not the same item? Add as new instead
               </button>
             </form>
-          ) : (
+          )}
+
+          {/* New item flow */}
+          {mode === "new" && (
             <form action={createAction} className="space-y-4">
               <input type="hidden" name="boat_id" value={boatId} />
+              <input type="hidden" name="name" value={scanResult.itemName} />
+              <input type="hidden" name="category" value={scanResult.category ?? ""} />
+              <input type="hidden" name="manufacturer" value={scanResult.manufacturer ?? ""} />
+              <input type="hidden" name="sku" value={scanResult.sku ?? ""} />
+              <input type="hidden" name="notes" value={scanResult.notes ?? ""} />
+              <input type="hidden" name="component_id" value={scanResult.suggestedComponentId ?? ""} />
+
+              {matched && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+                  <p className="text-xs text-slate-500">Adding as a separate item from <span className="font-medium text-slate-700">{matched.name}</span></p>
+                </div>
+              )}
+
+              {!matched && (
+                <div className="rounded-xl border border-slate-100 bg-slate-50 p-3.5">
+                  <p className="text-sm text-slate-600">
+                    <span className="font-semibold text-slate-800">{scanResult.itemName}</span> isn&apos;t in your inventory yet.
+                  </p>
+                </div>
+              )}
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">Name <span className="text-red-500">*</span></label>
-                <input name="name" required defaultValue={scanResult.itemName} className={inputCls} />
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Category</label>
-                  <input name="category" defaultValue={scanResult.category ?? ""} className={inputCls} placeholder="Engine" />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Linked component</label>
-                  <select name="component_id" defaultValue={scanResult.suggestedComponentId ?? ""} className={inputCls}>
-                    <option value="">None</option>
-                    {components.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">How many do you have on board?</label>
+                <div className="flex gap-2">
+                  <input
+                    name="quantity"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={qty}
+                    onChange={e => setQty(e.target.value)}
+                    required
+                    className={`${inputCls} flex-1`}
+                  />
+                  <select
+                    name="unit"
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-ocean-500"
+                    value={unit}
+                    onChange={e => setUnit(e.target.value)}
+                  >
+                    {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                   </select>
                 </div>
               </div>
 
-              <div className="grid gap-3 grid-cols-3">
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Qty <span className="text-red-500">*</span></label>
-                  <input name="quantity" type="number" min="0" step="0.01" defaultValue={scanResult.quantity} required className={inputCls} />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Min qty</label>
-                  <input name="minimum_quantity" type="number" min="0" step="0.01" className={inputCls} />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Unit</label>
-                  <select name="unit" defaultValue={scanResult.unit ?? ""} className={inputCls}>
-                    <option value="">—</option>
-                    <option value="ea">ea</option>
-                    <option value="L">L</option>
-                    <option value="mL">mL</option>
-                    <option value="kg">kg</option>
-                    <option value="g">g</option>
-                    <option value="m">m</option>
-                    <option value="pair">pair</option>
-                    <option value="set">set</option>
-                    <option value="roll">roll</option>
-                    <option value="box">box</option>
-                    <option value="can">can</option>
-                    <option value="tube">tube</option>
-                    <option value="bottle">bottle</option>
-                  </select>
-                </div>
-              </div>
+              {/* Optional details — collapsed by default */}
+              <button
+                type="button"
+                onClick={() => setShowDetails(v => !v)}
+                className="flex items-center gap-1.5 text-sm text-ocean-600 hover:text-ocean-700 transition font-medium"
+              >
+                {showDetails ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                {showDetails ? "Hide details" : "Add more details (name, category, notes…)"}
+              </button>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Manufacturer</label>
-                  <input name="manufacturer" defaultValue={scanResult.manufacturer ?? ""} className={inputCls} placeholder="Optional" />
+              {showDetails && (
+                <div className="space-y-3 rounded-xl border border-slate-100 bg-slate-50 p-3.5">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">Name</label>
+                    <input
+                      name="name_override"
+                      defaultValue={scanResult.itemName}
+                      className={inputCls}
+                      onChange={e => {
+                        const hidden = e.currentTarget.form?.elements.namedItem("name") as HTMLInputElement | null;
+                        if (hidden) hidden.value = e.currentTarget.value;
+                      }}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-600">Category</label>
+                      <input name="category_override" defaultValue={scanResult.category ?? ""} placeholder="e.g. Personal" className={inputCls}
+                        onChange={e => {
+                          const hidden = e.currentTarget.form?.elements.namedItem("category") as HTMLInputElement | null;
+                          if (hidden) hidden.value = e.currentTarget.value;
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-600">Linked component</label>
+                      <select name="component_id" defaultValue={scanResult.suggestedComponentId ?? ""} className={inputCls}>
+                        <option value="">None</option>
+                        {components.map((c) => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-600">Min qty (low stock alert)</label>
+                      <input name="minimum_quantity" type="number" min="0" step="1" className={inputCls} placeholder="0" />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-600">Manufacturer</label>
+                      <input name="manufacturer" defaultValue={scanResult.manufacturer ?? ""} className={inputCls} placeholder="Optional" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">Notes</label>
+                    <input name="notes" defaultValue={scanResult.notes ?? ""} className={inputCls} placeholder="Optional" />
+                  </div>
+                  <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer">
+                    <input type="checkbox" name="is_critical" defaultChecked={scanResult.is_critical} className="rounded border-slate-300 text-ocean-600 focus:ring-ocean-500" />
+                    Mark as critical spare
+                  </label>
                 </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">SKU / Part #</label>
-                  <input name="sku" defaultValue={scanResult.sku ?? ""} className={inputCls} placeholder="Optional" />
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">Notes</label>
-                <VoiceTextarea value={notes} onChange={setNotes} placeholder="Additional details…" rows={2} />
-                <input type="hidden" name="notes" value={notes} />
-              </div>
-
-              <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer">
-                <input type="checkbox" name="is_critical" defaultChecked={scanResult.is_critical} className="rounded border-slate-300 text-ocean-600 focus:ring-ocean-500" />
-                Mark as critical spare
-              </label>
+              )}
 
               {createState.error && <p className="text-sm text-red-600">{createState.error}</p>}
 
@@ -238,7 +293,7 @@ export default function ScanConfirmSheet({ boatId, scanResult, components, onClo
                 className="w-full rounded-xl py-3.5 text-base font-semibold text-white transition disabled:opacity-50"
                 style={{ background: "linear-gradient(135deg,#15A0D6,#0B7EB8)" }}
               >
-                {createPending ? "Saving…" : "Add to inventory"}
+                {createPending ? "Saving…" : `Add ${qty || "1"} ${unit} to inventory`}
               </button>
             </form>
           )}

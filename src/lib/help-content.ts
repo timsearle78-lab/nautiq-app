@@ -107,7 +107,9 @@ To add an item manually:
 To scan an item:
 1. Open the ☰ menu and tap "Scan item."
 2. Choose "Take photo" to use your camera, or "Choose from device" to pick an existing image.
-3. The AI will identify the item and pre-fill the form. If a similar item already exists in your inventory, it will offer to update the existing item's quantity instead of creating a duplicate.
+3. The AI identifies what the item is — this works for anything on board, not just marine parts (e.g. sunglasses, sunscreen, tools, food).
+4. If a matching item already exists in your inventory, it shows the current stock and lets you add to it, remove from it, or set an exact count.
+5. If it's a new item, it asks "How many do you have on board?" — enter the quantity, pick a unit, and tap Add. Use "Add more details" to set the name, category, component link, or notes.
 
 To adjust stock (used or restocked a part):
 - On any inventory item's page, tap "+ Add" or "Use" to update the quantity.
