@@ -284,8 +284,16 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           .filter((x) => x.score >= 0.4)
           .sort((a, b) => b.score - a.score)[0]?.c.id ?? null;
 
+        const itemName = data.itemName ?? "Scanned item";
+        const scanMsg = matchedItem
+          ? `📷 Scanned image — identified **${itemName}**. This matches **${matchedItem.name}** already in your inventory (${matchedItem.quantity}${matchedItem.unit ? ` ${matchedItem.unit}` : ""} in stock). Update the quantity below.`
+          : `📷 Scanned image — identified **${itemName}**. This isn't in your inventory yet. Add it below.`;
+        setMessages((prev) => [
+          ...prev,
+          { id: `scan-${Date.now()}`, role: "assistant", content: scanMsg, parts: [{ type: "text", text: scanMsg }] },
+        ]);
         setScanResult({
-          itemName: data.itemName ?? "Scanned item",
+          itemName,
           quantity: data.quantity ?? 1,
           unit: data.unit ?? null,
           category: data.category ?? null,
@@ -298,10 +306,10 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           suggestedComponentId,
         });
       } else {
-        sendMessage({ text: "I just scanned a spare part — can you help me update inventory?" });
+        sendMessage({ text: "I just scanned an item — can you help me update inventory?" });
       }
     } catch {
-      sendMessage({ text: "I just scanned a spare part — can you help me update inventory?" });
+      sendMessage({ text: "I just scanned an item — can you help me update inventory?" });
     } finally {
       setScanningInventory(false);
       if (inventoryScanRef.current) inventoryScanRef.current.value = "";

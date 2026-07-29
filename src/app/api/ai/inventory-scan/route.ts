@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { text } = await generateText({
-      model: groq("llama-3.3-70b-versatile"),
+      model: groq("llama-3.2-11b-vision-preview"),
       messages: [
         {
           role: "user",
