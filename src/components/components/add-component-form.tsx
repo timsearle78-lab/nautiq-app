@@ -208,7 +208,7 @@ export function AddComponentForm({
         <label className="mb-1 block text-sm font-medium text-slate-700">System <span className="text-red-500">*</span></label>
         <select
           name="system_id"
-          className={inputCls}
+          className="select-field"
           value={systemId}
           onChange={(e) => setSystemId(e.target.value)}
           required

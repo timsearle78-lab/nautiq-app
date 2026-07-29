@@ -81,7 +81,7 @@ export default function LogMaintenanceSheet({
                 value={selectedComponentId}
                 onChange={(e) => setSelectedComponentId(e.target.value)}
                 required
-                className={inputCls}
+                className="select-field"
               >
                 <option value="">Select a component…</option>
                 {components.map((c) => (
