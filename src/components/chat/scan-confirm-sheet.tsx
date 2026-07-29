@@ -107,7 +107,7 @@ export default function ScanConfirmSheet({ boatId, scanResult, components, onClo
                   name="transaction_type"
                   value={txType}
                   onChange={e => setTxType(e.target.value)}
-                  className={inputCls}
+                  className="select-field"
                 >
                   <option value="add">Add to stock (bought / received)</option>
                   <option value="consume">Remove from stock (used / lost)</option>
@@ -131,7 +131,7 @@ export default function ScanConfirmSheet({ boatId, scanResult, components, onClo
                     className={`${inputCls} flex-1`}
                   />
                   <select
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-ocean-500"
+                    className="select-field"
                     value={unit}
                     onChange={e => setUnit(e.target.value)}
                   >
@@ -211,7 +211,7 @@ export default function ScanConfirmSheet({ boatId, scanResult, components, onClo
                   />
                   <select
                     name="unit"
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-ocean-500"
+                    className="select-field"
                     value={unit}
                     onChange={e => setUnit(e.target.value)}
                   >
@@ -256,7 +256,7 @@ export default function ScanConfirmSheet({ boatId, scanResult, components, onClo
                     </div>
                     <div>
                       <label className="mb-1 block text-xs font-medium text-slate-600">Linked component</label>
-                      <select name="component_id" defaultValue={scanResult.suggestedComponentId ?? ""} className={inputCls}>
+                      <select name="component_id" defaultValue={scanResult.suggestedComponentId ?? ""} className="select-field">
                         <option value="">None</option>
                         {components.map((c) => (
                           <option key={c.id} value={c.id}>{c.name}</option>

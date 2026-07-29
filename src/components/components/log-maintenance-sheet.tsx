@@ -50,7 +50,7 @@ export default function LogMaintenanceSheet({
 
   if (saved) return <SaveSuccessSheet message="Maintenance logged!" />;
 
-  const inputCls = "w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none";
+  const inputCls = "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100";
 
   return (
     <>
@@ -147,7 +147,7 @@ export default function LogMaintenanceSheet({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Item</label>
-                <select name="inventory_item_id" defaultValue="" className={inputCls}>
+                <select name="inventory_item_id" defaultValue="" className="select-field">
                   <option value="">None</option>
                   {inventoryOptions.map((item) => (
                     <option key={item.id} value={item.id}>
