@@ -48,7 +48,7 @@ If the image is completely unidentifiable (e.g. blank, too dark, not an item), r
           ],
         },
       ],
-      maxTokens: 300,
+      maxOutputTokens: 300,
     });
 
     const cleaned = text.trim().replace(/```json\n?|```/g, "").trim();
