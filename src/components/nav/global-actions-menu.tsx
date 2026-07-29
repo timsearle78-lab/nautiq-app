@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { X, ScanLine, PackagePlus, PackageMinus, Plus, RotateCcw } from "lucide-react";
+import { X, ScanLine, PackagePlus, PackageMinus, Plus } from "lucide-react";
 import TripTimerButton from "@/components/nav/trip-timer-button";
 import LogTripSheet from "@/components/chat/log-trip-sheet";
 import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
@@ -130,15 +130,6 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
                   Used item
                 </button>
 
-                {isChat && (
-                  <button
-                    onClick={() => { close(); window.dispatchEvent(new CustomEvent("nautiq:reset-chat")); }}
-                    className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-500 hover:bg-slate-50 transition"
-                  >
-                    <RotateCcw size={16} />
-                    New chat
-                  </button>
-                )}
               </div>
             </div>
 

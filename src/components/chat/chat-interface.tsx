@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Mic, Send, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Camera, FolderOpen, X } from "lucide-react";
+import { Mic, Send, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Camera, FolderOpen, X, RotateCcw } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
 import Link from "next/link";
 import MessageBubble from "./message-bubble";
@@ -487,6 +487,21 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             className="flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-ocean-500 focus:bg-white focus:outline-none"
             style={{ minHeight: "40px", maxHeight: "120px" }}
           />
+
+          <div className="relative group">
+            <button
+              type="button"
+              onClick={() => setMessages([])}
+              className="flex shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 transition hover:border-slate-300 hover:text-slate-600"
+              style={{ width: 40, height: 40 }}
+              aria-label="New chat"
+            >
+              <RotateCcw size={15} />
+            </button>
+            <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-2.5 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+              New chat
+            </span>
+          </div>
 
           <button
             onClick={handleSend}
