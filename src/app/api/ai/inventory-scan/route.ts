@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateText } from "ai";
-import { createGroq } from "@ai-sdk/groq";
+import { createAnthropic } from "@ai-sdk/anthropic";
 
-const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
+const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { text } = await generateText({
-      model: groq("meta-llama/llama-4-maverick-17b-128e-instruct"),
+      model: anthropic("claude-haiku-4-5-20251001"),
       messages: [
         {
           role: "user",
@@ -48,7 +48,7 @@ If the image is completely unidentifiable (e.g. blank, too dark, not an item), r
           ],
         },
       ],
-      maxOutputTokens: 200,
+      maxTokens: 300,
     });
 
     const cleaned = text.trim().replace(/```json\n?|```/g, "").trim();
