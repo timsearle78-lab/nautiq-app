@@ -7,11 +7,11 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
-    date: "2026-07-27",
+    date: "2026-07-29",
     label: "July 2026 update",
     features: [
+      "Tap any inventory stat tile (Low stock, Critical missing, Stocked, Expiring soon) to instantly filter the list — tap again to clear",
       "Scan any item with your camera — AI identifies it, matches it to your existing inventory, and lets you add to the count or create a new item in one step",
-      "Filter inventory by status (OK, Low, Missing, Expiring) or by component — filters can be combined",
       "Fixed an issue on some desktop browsers where menus and quick-action buttons weren't responding to clicks",
     ],
   },
