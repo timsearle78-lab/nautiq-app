@@ -306,9 +306,11 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           suggestedComponentId,
         });
       } else {
+        console.error("Scan failed:", data);
         sendMessage({ text: "I just scanned an item — can you help me update inventory?" });
       }
-    } catch {
+    } catch (err) {
+      console.error("Scan error:", err);
       sendMessage({ text: "I just scanned an item — can you help me update inventory?" });
     } finally {
       setScanningInventory(false);

@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { text } = await generateText({
-      model: groq("llama-3.2-11b-vision-preview"),
+      model: groq("meta-llama/llama-4-maverick-17b-128e-instruct"),
       messages: [
         {
           role: "user",
@@ -51,9 +51,11 @@ If the image is completely unidentifiable (e.g. blank, too dark, not an item), r
       maxOutputTokens: 200,
     });
 
-    const parsed = JSON.parse(text.trim().replace(/```json\n?|```/g, "").trim());
+    const cleaned = text.trim().replace(/```json\n?|```/g, "").trim();
+    const parsed = JSON.parse(cleaned);
     return NextResponse.json(parsed);
-  } catch {
-    return NextResponse.json({ error: "parse_failed" });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: "parse_failed", detail: msg });
   }
 }
