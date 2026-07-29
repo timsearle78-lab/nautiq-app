@@ -1,8 +1,8 @@
 import { generateText } from "ai";
-import { createGroq } from "@ai-sdk/groq";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { z } from "zod";
 
-const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
+const google = createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY });
 
 const tripDraftSchema = z.object({
   started_at: z.string().nullable().default(null),
@@ -77,7 +77,7 @@ export async function generateTripDraftFromAI(
   const timezone = context?.timezone ?? "Pacific/Auckland";
 
   const { text } = await generateText({
-    model: groq("llama-3.3-70b-versatile"),
+    model: google("gemini-2.0-flash"),
     system:
       `You extract structured boat trip logs from user notes. Today is ${currentDate} (${timezone}).` +
       "\n\nRules:" +

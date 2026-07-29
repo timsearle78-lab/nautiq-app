@@ -1,5 +1,5 @@
 import { streamText, zodSchema, convertToModelMessages, stepCountIs } from "ai";
-import { createGroq } from "@ai-sdk/groq";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { generateTripDraftFromAI } from "@/lib/ai/generateTripDraft";
@@ -21,8 +21,8 @@ async function logChatError(
 }
 
 export async function POST(req: Request) {
-  if (!process.env.GROQ_API_KEY) {
-    return Response.json({ error: "GROQ_API_KEY is not configured on the server." }, { status: 500 });
+  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    return Response.json({ error: "GOOGLE_GENERATIVE_AI_API_KEY is not configured on the server." }, { status: 500 });
   }
 
   const supabase = await createClient();
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
     let result;
     try {
       result = streamText({
-      model: createGroq({ apiKey: process.env.GROQ_API_KEY })("llama-3.3-70b-versatile"),
+      model: createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY })("gemini-2.0-flash"),
       stopWhen: stepCountIs(1),
       system: `You are NautIQ, a practical boat assistant for "${boat.name}".
 ${boatSpec ? `Boat specs: ${boatSpec}.` : ""}${(boat as { description?: string | null }).description ? `\nOwner's description: ${(boat as { description?: string | null }).description}` : ""}

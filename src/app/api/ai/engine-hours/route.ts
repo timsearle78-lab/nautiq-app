@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateObject } from "ai";
-import { createGroq } from "@ai-sdk/groq";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { z } from "zod";
 
-const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
+const google = createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY });
 
 const schema = z.object({
   engine_hours: z.number().nullable(),
@@ -24,8 +24,7 @@ export async function POST(req: NextRequest) {
     const mediaType = (file.type || "image/jpeg") as "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 
     const { object } = await generateObject({
-      model: groq("llama-3.3-70b-versatile"),
-      providerOptions: { groq: { structuredOutputs: false } },
+      model: google("gemini-2.0-flash"),
       schema,
       messages: [
         {
