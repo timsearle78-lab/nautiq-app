@@ -299,7 +299,12 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
       // Still apply stock penalty even when service history is missing
       risk_score = stockPenalty > 0 ? stockPenalty : null;
     } else {
-      const baseScore = Math.round(maxRatio * 100);
+      // Below due: linear 0→100. Once overdue: quadratic escalation so that
+      // being long overdue pushes the boat health score down significantly more
+      // than being just overdue (e.g. 2× overdue → risk 400, 3× → risk 900).
+      const baseScore = maxRatio >= 1
+        ? Math.round(100 * maxRatio * maxRatio)
+        : Math.round(maxRatio * 100);
       risk_score = baseScore + stockPenalty;
       // Status reflects maintenance interval only — inventory penalties affect risk_score
       // but not the maintenance status label (inventory issues are surfaced separately).
