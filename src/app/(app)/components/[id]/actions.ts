@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 export type MaintenanceActionState = {
   error?: string;
   success?: string;
+  eventId?: string;
 };
 
 function parseOptionalNumber(value: FormDataEntryValue | null): number | null {
@@ -55,7 +56,7 @@ export async function logMaintenance(
     if (!performedAt) return { error: "Performed date is required." };
     if (!workDone) return { error: "Work done is required." };
 
-    const { error: insertError } = await supabase
+    const { data: insertedEvent, error: insertError } = await supabase
       .from("maintenance_events")
       .insert({
         user_id: user.id,
@@ -66,11 +67,15 @@ export async function logMaintenance(
         notes,
         vendor,
         engine_hours_at_service: engineHoursAtService,
-      });
+      })
+      .select("id")
+      .single();
 
     if (insertError) {
       return { error: `Failed to log maintenance: ${insertError.message}` };
     }
+
+    const eventId = insertedEvent?.id as string | undefined;
 
     const componentUpdatePayload: {
       last_serviced_at: string;
@@ -127,7 +132,7 @@ export async function logMaintenance(
     revalidatePath(`/inventory?boat=${boatId}`);
     revalidatePath("/inventory");
 
-    return { success: "Maintenance logged." };
+    return { success: "Maintenance logged.", eventId };
   } catch (error) {
     return {
       error:

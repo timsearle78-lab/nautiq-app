@@ -7,6 +7,17 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-08-05",
+    label: "August 2026 update",
+    features: [
+      "Attach photos to maintenance records — use your camera or choose from your library (up to 3 photos per entry)",
+      "Photos appear as thumbnails in the maintenance history and can be tapped to view full size",
+      "Delete maintenance records directly from the component page — with a confirm step to avoid accidents",
+      "Boat health score now degrades faster the longer a component is overdue — a component 2× past its service interval hurts the score significantly more than one just past due",
+      "Delete trips from the Trips page with inline confirmation",
+    ],
+  },
+  {
     date: "2026-07-29",
     label: "July 2026 update",
     features: [

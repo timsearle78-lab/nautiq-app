@@ -235,6 +235,16 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                       </td>
                       <td className="py-3 pr-4">
                         <div className="font-medium">{row.work_done ?? "Maintenance"}</div>
+                        {row.photo_urls && row.photo_urls.length > 0 && (
+                          <div className="flex gap-1 mt-1.5 flex-wrap">
+                            {row.photo_urls.map((url, i) => (
+                              <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={url} alt={`Photo ${i + 1}`} className="w-12 h-12 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition" />
+                              </a>
+                            ))}
+                          </div>
+                        )}
                       </td>
                       <td className="py-3 pr-4">{row.engine_hours_at_service ?? "—"}</td>
                       <td className="py-3 pr-4">{row.vendor ?? "—"}</td>

@@ -80,11 +80,16 @@ To log maintenance:
 1. Go to the Maintain tab and tap a component, or go directly to a component's page from anywhere in the app.
 2. Tap the "Log Maintenance" button at the top of the component page.
 3. Fill in the date, work done, engine hours at the time of service, vendor, and any notes. You can also mark a spare part as consumed.
-4. Tap "Save maintenance record."
+4. Optionally attach up to 3 photos — tap "Camera" to take a photo or "Choose" to pick from your device's library. Thumbnails appear in the form and can be removed before saving.
+5. Tap "Save maintenance record." Photos are uploaded automatically after the record is saved.
 
 You can also tap "+ Log Maintenance" on the Home screen to log maintenance without navigating to the component page first — just pick the component from the dropdown.
 
 After logging, the component's health score resets and the next due date is recalculated.
+
+To delete a maintenance record, go to the component page, find the record in the maintenance history table, and tap the trash icon. Confirm by tapping "Yes" in the inline confirmation.
+
+Photos attached to a maintenance record appear as small thumbnails in the history table — tap any thumbnail to open the full-size image.
 
 The Maintenance Overview shows all components sorted by urgency. Use the "All Components" button to see the full component list.
 
@@ -248,7 +253,7 @@ SYSTEMS: Manage systems (groups of components) in Profile → Settings → Syste
 
 LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving (GPS location captured), "Stop Trip" when back (GPS location captured again); (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours."
 
-MAINTENANCE: Each component has a time/engine-hour service interval. NautIQ uses a predictive timeline to estimate due dates based on average usage. Risk score shows overdue/due soon/healthy. Log maintenance via "Log Maintenance" button on the component page or from the Home screen. Fill in date, work done, engine hours, optional spare consumed. The Maintenance Overview shows components sorted by urgency; use "All Components" for the full list. On the Home screen, a yellow card suggests components typical for your boat type that you haven't added yet — tap "Add" on any suggestion to add it.
+MAINTENANCE: Each component has a time/engine-hour service interval. NautIQ uses a predictive timeline to estimate due dates based on average usage. Risk score shows overdue/due soon/healthy. Log maintenance via "Log Maintenance" button on the component page or from the Home screen. Fill in date, work done, engine hours, optional spare consumed. Optionally attach up to 3 photos per record — tap "Camera" to take a photo or "Choose" to pick from your library; thumbnails appear in the history table. To delete a maintenance record, tap the trash icon on the history row and confirm with Yes. The Maintenance Overview shows components sorted by urgency; use "All Components" for the full list. On the Home screen, a yellow card suggests components typical for your boat type that you haven't added yet — tap "Add" on any suggestion to add it.
 
 COMPONENTS & SYSTEMS: Components = individual parts needing service (engine, impeller, life jackets…). Systems = groups (Engine, Safety, Electrical…). Add/edit from Maintain tab. Delete from Danger Zone on component page.
 
