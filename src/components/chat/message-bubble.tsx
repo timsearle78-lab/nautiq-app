@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { UIMessage } from "ai";
 import TripDraftCard from "./trip-draft-card";
 import InventoryAdjustCard from "./inventory-adjust-card";
-import { MaintenanceListCard, InventoryListCard, TripHistoryCard, BoatSummaryCard } from "./data-cards";
+import { MaintenanceListCard, MaintenanceHistoryCard, InventoryListCard, TripHistoryCard, BoatSummaryCard } from "./data-cards";
 import ReportCard from "./report-card";
 
 interface MessageBubbleProps {
@@ -123,6 +123,15 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
             <InventoryListCard
               key={i}
               items={(output as unknown as Parameters<typeof InventoryListCard>[0]["items"])}
+            />
+          );
+        }
+
+        if (toolName === "getMaintenanceHistory") {
+          return (
+            <MaintenanceHistoryCard
+              key={i}
+              items={(output as unknown as Parameters<typeof MaintenanceHistoryCard>[0]["items"])}
             />
           );
         }
