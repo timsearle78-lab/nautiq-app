@@ -42,7 +42,7 @@ export function DeleteMaintenanceEventButton({
       </button>
 
       {confirming && (
-        <div className="absolute right-0 top-full z-10 mt-1 w-32 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+        <div className="absolute right-0 bottom-full z-10 mb-1 w-32 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
           {error ? (
             <p className="mb-1.5 text-center text-xs text-red-500">{error}</p>
           ) : (
