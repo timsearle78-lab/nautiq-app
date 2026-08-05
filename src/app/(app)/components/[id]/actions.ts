@@ -136,6 +136,24 @@ export async function logMaintenance(
   }
 }
 
+export async function deleteMaintenanceEvent(eventId: string, componentId: string): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const { error } = await supabase
+    .from("maintenance_events")
+    .delete()
+    .eq("id", eventId)
+    .eq("user_id", user.id);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/components/${componentId}`);
+  revalidatePath("/components");
+  revalidatePath("/maintenance");
+}
+
 export type ComponentActionState = { error?: string; success?: string };
 
 export async function updateComponent(

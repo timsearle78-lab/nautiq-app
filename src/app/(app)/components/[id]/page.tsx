@@ -16,6 +16,7 @@ import { getComponentHealthSummary } from "@/lib/components/health";
 import { LogMaintenanceForm } from "@/components/components/log-maintenance-form";
 import { EditComponentForm } from "@/components/components/edit-component-form";
 import LogMaintenanceButton from "@/components/components/log-maintenance-button";
+import { DeleteMaintenanceEventButton } from "@/components/components/delete-maintenance-event-button";
 
 type ComponentPageProps = {
   params: Promise<{ id: string }>;
@@ -221,6 +222,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                     <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Work</th>
                     <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Engine hrs</th>
                     <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Vendor</th>
+                    <th className="py-2 text-xs font-medium text-slate-500 uppercase tracking-wide"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -236,6 +238,9 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                       </td>
                       <td className="py-3 pr-4">{row.engine_hours_at_service ?? "—"}</td>
                       <td className="py-3 pr-4">{row.vendor ?? "—"}</td>
+                      <td className="py-3 text-right">
+                        <DeleteMaintenanceEventButton eventId={row.id} componentId={component.id} />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
