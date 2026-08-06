@@ -19,7 +19,12 @@ export async function POST(
     .eq("user_id", user.id)
     .single();
 
-  if (!event) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!event) {
+    // Retry without user_id check to diagnose whether the event exists at all
+    const { data: anyEvent } = await supabase.from("maintenance_events").select("id, user_id").eq("id", eventId).single();
+    console.error("Photo upload: event not found for user", user.id, "eventId", eventId, "anyEvent:", anyEvent);
+    return NextResponse.json({ error: "Not found", eventId, userId: user.id, anyEvent }, { status: 404 });
+  }
 
   const formData = await req.formData();
   const files = formData.getAll("photos") as File[];
