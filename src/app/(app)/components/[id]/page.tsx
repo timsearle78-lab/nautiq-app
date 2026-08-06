@@ -240,7 +240,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                             {row.photo_urls.map((url, i) => (
                               <a key={i} href={url} target="_blank" rel="noopener noreferrer">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={url} alt={`Photo ${i + 1}`} className="w-12 h-12 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition" />
+                                <img src={url} alt={`Photo ${i + 1}`} loading="eager" className="w-12 h-12 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition" />
                               </a>
                             ))}
                           </div>
