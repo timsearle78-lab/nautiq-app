@@ -7,6 +7,13 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-08-06",
+    label: "August 2026 update",
+    features: [
+      "Email your maintenance logs to log@nautiq.cloud — NautIQ reads the email, extracts the details, and has a pre-filled maintenance record ready when you next open the app",
+    ],
+  },
+  {
     date: "2026-08-05",
     label: "August 2026 update",
     features: [

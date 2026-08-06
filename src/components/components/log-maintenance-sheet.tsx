@@ -10,6 +10,14 @@ import VoiceTextarea from "@/components/ui/voice-textarea";
 type InventoryOption = { id: string; name: string; quantity: number; unit: string | null };
 type ComponentOption = { id: string; name: string };
 
+type Prefill = {
+  workDone?: string;
+  performedAt?: string;
+  engineHours?: number;
+  vendor?: string;
+  notes?: string;
+};
+
 interface Props {
   boatId: string;
   componentId: string | null;
@@ -17,6 +25,7 @@ interface Props {
   inventoryOptions: InventoryOption[];
   onClose: () => void;
   onSaved: () => void;
+  prefill?: Prefill;
 }
 
 function todayLocal() {
@@ -32,9 +41,10 @@ export default function LogMaintenanceSheet({
   inventoryOptions,
   onClose,
   onSaved,
+  prefill,
 }: Props) {
   const [selectedComponentId, setSelectedComponentId] = useState(initialComponentId ?? "");
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState(prefill?.notes ?? "");
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
@@ -136,7 +146,7 @@ export default function LogMaintenanceSheet({
               <input
                 name="performed_at"
                 type="date"
-                defaultValue={todayLocal()}
+                defaultValue={prefill?.performedAt ?? todayLocal()}
                 required
                 className={inputCls}
               />
@@ -149,6 +159,7 @@ export default function LogMaintenanceSheet({
                 min="0"
                 step="0.1"
                 placeholder="Optional"
+                defaultValue={prefill?.engineHours ?? ""}
                 className={inputCls}
               />
             </div>
@@ -163,12 +174,13 @@ export default function LogMaintenanceSheet({
                 name="work_done"
                 required
                 placeholder="e.g. Replaced impeller"
+                defaultValue={prefill?.workDone ?? ""}
                 className={inputCls}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Vendor</label>
-              <input name="vendor" placeholder="Optional" className={inputCls} />
+              <input name="vendor" placeholder="Optional" defaultValue={prefill?.vendor ?? ""} className={inputCls} />
             </div>
           </div>
 
