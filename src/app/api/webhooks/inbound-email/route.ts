@@ -13,7 +13,11 @@ function adminClient() {
 // Verify the Resend webhook signature so only Resend can call this endpoint.
 async function verifySignature(req: NextRequest, rawBody: string): Promise<boolean> {
   const secret = process.env.RESEND_WEBHOOK_SECRET;
-  if (!secret) return true; // skip in dev if not configured
+  if (!secret) {
+    if (process.env.NODE_ENV === "development") return true;
+    console.error("RESEND_WEBHOOK_SECRET is not configured");
+    return false;
+  }
 
   const svixId = req.headers.get("svix-id");
   const svixTimestamp = req.headers.get("svix-timestamp");
