@@ -38,6 +38,14 @@ export async function generateBoatPdf(): Promise<void> {
       fuel_added_litres: number | null;
       notes: string | null;
     }>;
+    maintenanceHistory: Array<{
+      performed_at: string | null;
+      work_done: string | null;
+      vendor: string | null;
+      engine_hours_at_service: number | null;
+      notes: string | null;
+      components: { name: string } | null;
+    }>;
   };
 
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
@@ -224,6 +232,30 @@ export async function generateBoatPdf(): Promise<void> {
       }),
       styles: { fontSize: 8, cellPadding: 2.5 },
       headStyles: { fillColor: [11, 126, 184], textColor: 255, fontStyle: "bold", fontSize: 8 },
+    });
+    y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
+  }
+
+  // ── Maintenance history ───────────────────────────────────────────
+  if (data.maintenanceHistory.length > 0) {
+    if (y > 230) { doc.addPage(); y = 20; }
+    sectionHeader("Maintenance History (last 50)");
+    autoTable(doc, {
+      startY: y,
+      margin: { left: margin, right: margin },
+      head: [["Date", "Component", "Work Done", "Engine hrs", "Vendor"]],
+      body: data.maintenanceHistory.map(m => [
+        m.performed_at
+          ? new Date(m.performed_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
+          : "—",
+        m.components?.name ?? "—",
+        m.work_done ?? "—",
+        m.engine_hours_at_service != null ? m.engine_hours_at_service.toFixed(1) : "—",
+        m.vendor ?? "—",
+      ]),
+      styles: { fontSize: 8, cellPadding: 2.5 },
+      headStyles: { fillColor: [11, 126, 184], textColor: 255, fontStyle: "bold", fontSize: 8 },
+      columnStyles: { 2: { cellWidth: 60 } },
     });
   }
 

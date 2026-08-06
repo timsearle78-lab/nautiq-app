@@ -21,7 +21,7 @@ export async function GET() {
 
   const boat: BoatRow = boatList.find((b) => b.id === selectedId) ?? boatList[0];
 
-  const [health, inventoryRes, engineHoursRes, tripsRes] = await Promise.all([
+  const [health, inventoryRes, engineHoursRes, tripsRes, maintenanceRes] = await Promise.all([
     getBoatHealth(boat.id, supabase),
     supabase
       .from("inventory_items")
@@ -35,6 +35,12 @@ export async function GET() {
       .eq("boat_id", boat.id)
       .order("started_at", { ascending: false })
       .limit(10),
+    supabase
+      .from("maintenance_events")
+      .select("performed_at,work_done,vendor,engine_hours_at_service,notes,components(name)")
+      .eq("boat_id", boat.id)
+      .order("performed_at", { ascending: false })
+      .limit(50),
   ]);
 
   return Response.json({
@@ -44,5 +50,6 @@ export async function GET() {
     health,
     inventory: inventoryRes.data ?? [],
     recentTrips: tripsRes.data ?? [],
+    maintenanceHistory: maintenanceRes.data ?? [],
   });
 }

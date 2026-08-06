@@ -11,6 +11,8 @@ export const CHANGELOG: Release[] = [
     label: "August 2026 update",
     features: [
       "Email your maintenance logs to log@nautiq.cloud — NautIQ reads the email, extracts the details, and has a pre-filled maintenance record ready when you next open the app",
+      "Boat Report PDF now includes a full Maintenance History section (last 50 records)",
+      "What's New release notes now available in the Profile sheet — tap your avatar to see the full history",
     ],
   },
   {
