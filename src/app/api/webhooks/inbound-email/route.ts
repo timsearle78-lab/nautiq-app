@@ -112,6 +112,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing email_id" }, { status: 400 });
   }
 
+  // Only process emails addressed to log@nautiq.cloud
+  const receivedFor = (data.received_for as string[] | undefined) ?? [];
+  const isForLogAddress = receivedFor.some((addr) => addr.toLowerCase() === "log@nautiq.cloud");
+  if (!isForLogAddress) {
+    return NextResponse.json({ ok: true, skipped: true });
+  }
+
   // Fetch full email content from Resend API
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey) {
