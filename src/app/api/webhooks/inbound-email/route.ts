@@ -112,12 +112,11 @@ export async function POST(req: NextRequest) {
   const text: string = (data.text as string) ?? (data.plain_text as string) ?? "";
   const html: string = (data.html as string) ?? "";
 
-  // Strip HTML to plain text as fallback
-  const body = text || html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  // Strip HTML to plain text as fallback; fall back to subject alone if no body
+  const body = text || html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() || subject;
 
-  if (!from || !body) {
-    console.error("Missing from or body. Top-level keys:", Object.keys(payload), "| data keys:", Object.keys(data), "| from:", JSON.stringify(from), "| text:", JSON.stringify(text.slice(0, 100)), "| html:", JSON.stringify(html.slice(0, 100)));
-    return NextResponse.json({ error: "Missing from or body", debug: { topLevelKeys: Object.keys(payload), dataKeys: Object.keys(data) } }, { status: 400 });
+  if (!from) {
+    return NextResponse.json({ error: "Missing from" }, { status: 400 });
   }
 
   // Extract sender email from "Name <email>" format
