@@ -118,11 +118,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "RESEND_API_KEY not configured" }, { status: 500 });
   }
 
-  const emailRes = await fetch(`https://api.resend.com/emails/${emailId}`, {
+  const emailRes = await fetch(`https://api.resend.com/emails/received/${emailId}`, {
     headers: { Authorization: `Bearer ${resendKey}` },
   });
   if (!emailRes.ok) {
-    console.error("Failed to fetch email from Resend:", emailRes.status, await emailRes.text());
+    console.error("Failed to fetch email from Resend:", emailRes.status, emailRes.statusText, await emailRes.text());
     return NextResponse.json({ error: "Failed to retrieve email" }, { status: 500 });
   }
 
