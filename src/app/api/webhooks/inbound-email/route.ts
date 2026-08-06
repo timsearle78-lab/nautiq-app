@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "RESEND_API_KEY not configured" }, { status: 500 });
   }
 
-  const emailRes = await fetch(`https://api.resend.com/emails/received/${emailId}`, {
+  const emailRes = await fetch(`https://api.resend.com/emails/receiving/${emailId}`, {
     headers: { Authorization: `Bearer ${resendKey}` },
   });
   if (!emailRes.ok) {
