@@ -105,11 +105,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  // Resend inbound email payload shape
-  const from: string = (payload.from as string) ?? "";
-  const subject: string = (payload.subject as string) ?? "";
-  const text: string = (payload.text as string) ?? (payload.plain_text as string) ?? "";
-  const html: string = (payload.html as string) ?? "";
+  // Resend inbound email payload shape — email fields are nested under `data`
+  const data = (payload.data ?? payload) as Record<string, unknown>;
+  const from: string = (data.from as string) ?? "";
+  const subject: string = (data.subject as string) ?? "";
+  const text: string = (data.text as string) ?? (data.plain_text as string) ?? "";
+  const html: string = (data.html as string) ?? "";
 
   // Strip HTML to plain text as fallback
   const body = text || html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
