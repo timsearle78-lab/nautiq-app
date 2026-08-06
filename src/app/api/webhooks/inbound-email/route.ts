@@ -105,12 +105,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  // Resend inbound email payload shape — email fields are nested under `data`
-  const data = (payload.data ?? payload) as Record<string, unknown>;
-  const from: string = (data.from as string) ?? "";
-  const subject: string = (data.subject as string) ?? "";
-  const text: string = (data.text as string) ?? (data.plain_text as string) ?? "";
-  const html: string = (data.html as string) ?? "";
+  // Extract email_id from webhook envelope
+  const data = (payload.data ?? {}) as Record<string, unknown>;
+  const emailId = data.email_id as string | undefined;
+  if (!emailId) {
+    return NextResponse.json({ error: "Missing email_id" }, { status: 400 });
+  }
+
+  // Fetch full email content from Resend API
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey) {
+    return NextResponse.json({ error: "RESEND_API_KEY not configured" }, { status: 500 });
+  }
+
+  const emailRes = await fetch(`https://api.resend.com/emails/${emailId}`, {
+    headers: { Authorization: `Bearer ${resendKey}` },
+  });
+  if (!emailRes.ok) {
+    console.error("Failed to fetch email from Resend:", emailRes.status, await emailRes.text());
+    return NextResponse.json({ error: "Failed to retrieve email" }, { status: 500 });
+  }
+
+  const email = await emailRes.json() as Record<string, unknown>;
+  const from: string = (email.from as string) ?? (data.from as string) ?? "";
+  const subject: string = (email.subject as string) ?? (data.subject as string) ?? "";
+  const text: string = (email.text as string) ?? "";
+  const html: string = (email.html as string) ?? "";
 
   // Strip HTML to plain text as fallback; fall back to subject alone if no body
   const body = text || html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() || subject;
