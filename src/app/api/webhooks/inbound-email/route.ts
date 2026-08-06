@@ -121,12 +121,13 @@ export async function POST(req: NextRequest) {
   const emailRes = await fetch(`https://api.resend.com/emails/receiving/${emailId}`, {
     headers: { Authorization: `Bearer ${resendKey}` },
   });
+  const emailResText = await emailRes.text();
   if (!emailRes.ok) {
-    console.error("Failed to fetch email from Resend:", emailRes.status, emailRes.statusText, await emailRes.text());
-    return NextResponse.json({ error: "Failed to retrieve email" }, { status: 500 });
+    console.error("Failed to fetch email from Resend:", emailRes.status, emailResText);
+    return NextResponse.json({ error: "Failed to retrieve email", status: emailRes.status, detail: emailResText, emailId }, { status: 500 });
   }
 
-  const email = await emailRes.json() as Record<string, unknown>;
+  const email = JSON.parse(emailResText) as Record<string, unknown>;
   const from: string = (email.from as string) ?? (data.from as string) ?? "";
   const subject: string = (email.subject as string) ?? (data.subject as string) ?? "";
   const text: string = (email.text as string) ?? "";
