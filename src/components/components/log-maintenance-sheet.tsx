@@ -60,10 +60,16 @@ export default function LogMaintenanceSheet({
         try {
           const photoFormData = new FormData();
           photos.forEach((f) => photoFormData.append("photos", f));
-          await fetch(`/api/maintenance-events/${result.eventId}/photos`, {
+          const photoRes = await fetch(`/api/maintenance-events/${result.eventId}/photos`, {
             method: "POST",
             body: photoFormData,
           });
+          if (!photoRes.ok) {
+            const detail = await photoRes.json().catch(() => ({}));
+            console.error("Photo upload failed:", photoRes.status, detail);
+          }
+        } catch (e) {
+          console.error("Photo upload error:", e);
         } finally {
           setUploadingPhotos(false);
         }
