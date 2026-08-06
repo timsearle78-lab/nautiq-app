@@ -116,7 +116,8 @@ export async function POST(req: NextRequest) {
   const body = text || html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
   if (!from || !body) {
-    return NextResponse.json({ error: "Missing from or body" }, { status: 400 });
+    console.error("Missing from or body. Top-level keys:", Object.keys(payload), "| data keys:", Object.keys(data), "| from:", JSON.stringify(from), "| text:", JSON.stringify(text.slice(0, 100)), "| html:", JSON.stringify(html.slice(0, 100)));
+    return NextResponse.json({ error: "Missing from or body", debug: { topLevelKeys: Object.keys(payload), dataKeys: Object.keys(data) } }, { status: 400 });
   }
 
   // Extract sender email from "Name <email>" format
