@@ -7,6 +7,33 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-08-06",
+    label: "August 2026 update",
+    features: [
+      "Email your maintenance logs to log@nautiq.cloud — NautIQ reads the email, extracts the details, and has a pre-filled maintenance record ready when you next open the app",
+    ],
+  },
+  {
+    date: "2026-08-05",
+    label: "August 2026 update",
+    features: [
+      "Attach photos to maintenance records — use your camera or choose from your library (up to 3 photos per entry)",
+      "Photos appear as thumbnails in the maintenance history and can be tapped to view full size",
+      "Delete maintenance records directly from the component page — with a confirm step to avoid accidents",
+      "Boat health score now degrades faster the longer a component is overdue — a component 2× past its service interval hurts the score significantly more than one just past due",
+      "Delete trips from the Trips page with inline confirmation",
+    ],
+  },
+  {
+    date: "2026-07-29",
+    label: "July 2026 update",
+    features: [
+      "Tap any inventory stat tile (Low stock, Critical missing, Stocked, Expiring soon) to instantly filter the list — tap again to clear",
+      "Scan any item with your camera — AI identifies it, matches it to your existing inventory, and lets you add to the count or create a new item in one step",
+      "Fixed an issue on some desktop browsers where menus and quick-action buttons weren't responding to clicks",
+    ],
+  },
+  {
     date: "2026-07-10",
     label: "July 2026 update",
     features: [

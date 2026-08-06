@@ -302,14 +302,14 @@ export default function OnboardingPage() {
                 <select
                   value={boatType}
                   onChange={(e) => setBoatType(e.target.value)}
-                  className={inputCls}
+                  className="select-field"
                 >
                   {BOAT_TYPES.map((t) => <option key={t}>{t}</option>)}
                 </select>
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-white/80">Propulsion <span className="text-white/40 font-normal">(optional)</span></label>
-                <select value={propulsion} onChange={(e) => setPropulsion(e.target.value)} className={inputCls}>
+                <select value={propulsion} onChange={(e) => setPropulsion(e.target.value)} className="select-field">
                   <option value="">Select propulsion</option>
                   {PROPULSION_TYPES.map((t) => <option key={t}>{t}</option>)}
                 </select>
@@ -317,14 +317,14 @@ export default function OnboardingPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-white/80">Hull design <span className="text-white/40 font-normal">(optional)</span></label>
-                  <select value={hullDesign} onChange={(e) => setHullDesign(e.target.value)} className={inputCls}>
+                  <select value={hullDesign} onChange={(e) => setHullDesign(e.target.value)} className="select-field">
                     <option value="">Select design</option>
                     {HULL_DESIGNS.map((t) => <option key={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-white/80">Hull material <span className="text-white/40 font-normal">(optional)</span></label>
-                  <select value={hullMaterial} onChange={(e) => setHullMaterial(e.target.value)} className={inputCls}>
+                  <select value={hullMaterial} onChange={(e) => setHullMaterial(e.target.value)} className="select-field">
                     <option value="">Select material</option>
                     {HULL_MATERIALS.map((t) => <option key={t}>{t}</option>)}
                   </select>

@@ -191,6 +191,61 @@ export function TripHistoryCard({ trips }: { trips: TripItem[] }) {
   );
 }
 
+// ── Maintenance history ─────────────────────────────────────────────────────
+
+type MaintenanceHistoryItem = {
+  id: string;
+  performedAt: string | null;
+  workDone: string | null;
+  component: string | null;
+  vendor: string | null;
+  engineHours: number | null;
+  notes: string | null;
+};
+
+export function MaintenanceHistoryCard({ items }: { items: MaintenanceHistoryItem[] }) {
+  if (items.length === 0) {
+    return (
+      <div className="mt-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500">
+        No maintenance records found.
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-2 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50">
+        <span className="text-sm font-semibold text-slate-800">Maintenance history</span>
+      </div>
+      <ul className="divide-y divide-slate-100">
+        {items.map((item) => {
+          const date = item.performedAt
+            ? new Date(item.performedAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
+            : null;
+          return (
+            <li key={item.id} className="px-4 py-3 space-y-0.5">
+              <div className="flex items-start justify-between gap-2">
+                <div className="text-sm font-semibold text-slate-800">{item.workDone ?? "Maintenance"}</div>
+                <div className="text-xs text-slate-400 shrink-0">{date ?? "—"}</div>
+              </div>
+              {item.component && (
+                <div className="text-xs text-ocean-600 font-medium">{item.component}</div>
+              )}
+              <div className="flex flex-wrap gap-x-3 text-xs text-slate-400">
+                {item.engineHours != null && <span>{item.engineHours}h engine</span>}
+                {item.vendor && <span>{item.vendor}</span>}
+              </div>
+              {item.notes && (
+                <div className="text-xs text-slate-400 line-clamp-2">{item.notes}</div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 // ── Boat summary ────────────────────────────────────────────────────────────
 
 type BoatSummary = {

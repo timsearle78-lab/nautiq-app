@@ -47,7 +47,7 @@ export function NotificationPreferencesForm({ prefs, userEmail }: { prefs: Prefs
 
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">Boat health summary</label>
-          <select name="health_summary" value={healthSummary} onChange={e => setHealthSummary(e.target.value as Prefs["health_summary"])} className={inputCls}>
+          <select name="health_summary" value={healthSummary} onChange={e => setHealthSummary(e.target.value as Prefs["health_summary"])} className="select-field">
             <option value="none">Off — no health summary emails</option>
             <option value="daily">Daily — sent each day while issues exist</option>
             <option value="weekly">Weekly — sent once a week while issues exist</option>
@@ -58,7 +58,7 @@ export function NotificationPreferencesForm({ prefs, userEmail }: { prefs: Prefs
         {healthSummary === "weekly" && (
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Weekly summary day</label>
-            <select name="health_summary_day" defaultValue={String(defaults.health_summary_day)} className={inputCls}>
+            <select name="health_summary_day" defaultValue={String(defaults.health_summary_day)} className="select-field">
               {DAYS.map((d, i) => (
                 <option key={i} value={String(i)}>{d}</option>
               ))}

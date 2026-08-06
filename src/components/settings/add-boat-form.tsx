@@ -21,7 +21,7 @@ export function AddBoatForm() {
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">Type</label>
-          <select name="type" className={inputCls}>
+          <select name="type" className="select-field">
             <option value="">Select type</option>
             {BOAT_TYPES.map((t) => (
               <option key={t} value={t}>{t}</option>

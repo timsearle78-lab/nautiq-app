@@ -67,7 +67,7 @@ export function EditComponentForm({
             <label className="block text-sm font-medium text-slate-700 mb-1">
               System
             </label>
-            <select name="system_id" defaultValue={systemId ?? ""} className={inputCls}>
+            <select name="system_id" defaultValue={systemId ?? ""} className="select-field">
               <option value="">None</option>
               {systems.map((s) => (
                 <option key={s.id} value={s.id}>

@@ -40,7 +40,7 @@ export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">Type</label>
-          <select name="type" defaultValue={type ?? ""} className={inputCls}>
+          <select name="type" defaultValue={type ?? ""} className="select-field">
             <option value="">Select type</option>
             {BOAT_TYPES.map((t) => (
               <option key={t} value={t}>{t}</option>
@@ -53,7 +53,7 @@ export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">Propulsion</label>
-          <select name="propulsion" defaultValue={propulsion ?? ""} className={inputCls}>
+          <select name="propulsion" defaultValue={propulsion ?? ""} className="select-field">
             <option value="">Select propulsion</option>
             {PROPULSION_TYPES.map((t) => (
               <option key={t} value={t}>{t}</option>
@@ -62,7 +62,7 @@ export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">Hull design</label>
-          <select name="hull_design" defaultValue={hull_design ?? ""} className={inputCls}>
+          <select name="hull_design" defaultValue={hull_design ?? ""} className="select-field">
             <option value="">Select hull design</option>
             {HULL_DESIGNS.map((t) => (
               <option key={t} value={t}>{t}</option>
@@ -73,7 +73,7 @@ export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull
 
       <div>
         <label className="mb-1.5 block text-sm font-medium text-slate-700">Hull material</label>
-        <select name="hull_material" defaultValue={hull_material ?? ""} className={inputCls}>
+        <select name="hull_material" defaultValue={hull_material ?? ""} className="select-field">
           <option value="">Select hull material</option>
           {HULL_MATERIALS.map((t) => (
             <option key={t} value={t}>{t}</option>

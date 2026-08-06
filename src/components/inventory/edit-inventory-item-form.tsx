@@ -69,7 +69,7 @@ export function EditInventoryItemForm({
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-slate-700">Linked component</label>
-              <select name="component_id" defaultValue={item.component_id ?? ""} className={inputCls}>
+              <select name="component_id" defaultValue={item.component_id ?? ""} className="select-field">
                 <option value="">None</option>
                 {components.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
@@ -89,7 +89,7 @@ export function EditInventoryItemForm({
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-slate-700">Unit</label>
-              <select name="unit" defaultValue={item.unit ?? ""} className={inputCls}>
+              <select name="unit" defaultValue={item.unit ?? ""} className="select-field">
                 <option value="">— select —</option>
                 <option value="ea">ea (each)</option>
                 <option value="L">L (litres)</option>

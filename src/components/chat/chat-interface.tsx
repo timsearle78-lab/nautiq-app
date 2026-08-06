@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Mic, Send, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Camera, FolderOpen, X } from "lucide-react";
+import { Mic, Send, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Camera, FolderOpen, X, RotateCcw } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
 import Link from "next/link";
 import MessageBubble from "./message-bubble";
@@ -14,7 +14,9 @@ import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import WhatsNewCard from "@/components/chat/whats-new-card";
 import MissingComponentsCard from "@/components/chat/missing-components-card";
+import MaintenanceDraftCard from "@/components/chat/maintenance-draft-card";
 import type { SuggestedComponent } from "@/lib/component-suggestions";
+import type { MaintenanceDraft } from "@/lib/maintenance-drafts";
 
 interface Boat {
   id: string;
@@ -41,6 +43,7 @@ interface ChatInterfaceProps {
   components: { id: string; name: string }[];
   inventoryItems: { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];
   missingSuggestions: SuggestedComponent[];
+  pendingDrafts: MaintenanceDraft[];
 }
 
 function tokenize(s: string) {
@@ -139,7 +142,7 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
   );
 }
 
-export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions }: ChatInterfaceProps) {
+export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -151,6 +154,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const [scanningInventory, setScanningInventory] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [showScanPicker, setShowScanPicker] = useState(false);
+  const [drafts, setDrafts] = useState<MaintenanceDraft[]>(initialDrafts);
 
   const router = useRouter();
   const onTripSaved = useCallback(() => router.refresh(), [router]);
@@ -227,7 +231,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   function handleTextareaChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setInput(e.target.value);
     e.target.style.height = "auto";
-    e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+    e.target.style.height = e.target.scrollHeight + "px";
   }
 
   function handleVoice() {
@@ -284,8 +288,16 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           .filter((x) => x.score >= 0.4)
           .sort((a, b) => b.score - a.score)[0]?.c.id ?? null;
 
+        const itemName = data.itemName ?? "Scanned item";
+        const scanMsg = matchedItem
+          ? `📷 Scanned image — identified **${itemName}**. This matches **${matchedItem.name}** already in your inventory (${matchedItem.quantity}${matchedItem.unit ? ` ${matchedItem.unit}` : ""} in stock). Update the quantity below.`
+          : `📷 Scanned image — identified **${itemName}**. This isn't in your inventory yet. Add it below.`;
+        setMessages((prev) => [
+          ...prev,
+          { id: `scan-${Date.now()}`, role: "assistant", content: scanMsg, parts: [{ type: "text", text: scanMsg }] },
+        ]);
         setScanResult({
-          itemName: data.itemName ?? "Scanned item",
+          itemName,
           quantity: data.quantity ?? 1,
           unit: data.unit ?? null,
           category: data.category ?? null,
@@ -298,10 +310,12 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           suggestedComponentId,
         });
       } else {
-        sendMessage({ text: "I just scanned a spare part — can you help me update inventory?" });
+        console.error("Scan failed:", data);
+        sendMessage({ text: "I just scanned an item — can you help me update inventory?" });
       }
-    } catch {
-      sendMessage({ text: "I just scanned a spare part — can you help me update inventory?" });
+    } catch (err) {
+      console.error("Scan error:", err);
+      sendMessage({ text: "I just scanned an item — can you help me update inventory?" });
     } finally {
       setScanningInventory(false);
       if (inventoryScanRef.current) inventoryScanRef.current.value = "";
@@ -323,6 +337,16 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       {/* Messages / health area */}
       <div className="flex-1 overflow-y-auto">
         <WhatsNewCard />
+        {drafts.map((draft) => (
+          <MaintenanceDraftCard
+            key={draft.id}
+            draft={draft}
+            boatId={boat.id}
+            components={components}
+            inventoryOptions={inventoryItems.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity, unit: i.unit }))}
+            onDone={() => setDrafts((prev) => prev.filter((d) => d.id !== draft.id))}
+          />
+        ))}
         <MissingComponentsCard boatType={boat.type ?? null} suggestions={missingSuggestions} />
         {messages.length === 0 ? (
           /* Empty state: gauge + stats + maintenance */
@@ -485,8 +509,23 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             onKeyDown={handleKeyDown}
             placeholder="Ask anything or describe a trip…"
             className="flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-ocean-500 focus:bg-white focus:outline-none"
-            style={{ minHeight: "40px", maxHeight: "120px" }}
+            style={{ minHeight: "40px" }}
           />
+
+          <div className="relative group">
+            <button
+              type="button"
+              onClick={() => setMessages([])}
+              className="flex shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 transition hover:border-slate-300 hover:text-slate-600"
+              style={{ width: 40, height: 40 }}
+              aria-label="New chat"
+            >
+              <RotateCcw size={15} />
+            </button>
+            <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-2.5 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+              New chat
+            </span>
+          </div>
 
           <button
             onClick={handleSend}

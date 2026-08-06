@@ -53,6 +53,7 @@ export type MaintenanceHistoryRow = {
   vendor: string | null;
   invoice_ref: string | null;
   engine_hours_at_service: number | null;
+  photo_urls: string[] | null;
   created_at: string;
 };
 
@@ -141,6 +142,7 @@ export async function getComponentMaintenanceHistory(componentId: string): Promi
       vendor,
       invoice_ref,
       engine_hours_at_service,
+      photo_urls,
       created_at
     `)
         .eq("component_id", componentId)

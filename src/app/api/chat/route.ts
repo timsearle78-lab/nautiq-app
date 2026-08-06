@@ -1,5 +1,5 @@
 import { streamText, zodSchema, convertToModelMessages, stepCountIs } from "ai";
-import { createGroq } from "@ai-sdk/groq";
+import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { generateTripDraftFromAI } from "@/lib/ai/generateTripDraft";
@@ -21,8 +21,8 @@ async function logChatError(
 }
 
 export async function POST(req: Request) {
-  if (!process.env.GROQ_API_KEY) {
-    return Response.json({ error: "GROQ_API_KEY is not configured on the server." }, { status: 500 });
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return Response.json({ error: "ANTHROPIC_API_KEY is not configured on the server." }, { status: 500 });
   }
 
   const supabase = await createClient();
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
     let result;
     try {
       result = streamText({
-      model: createGroq({ apiKey: process.env.GROQ_API_KEY })("llama-3.3-70b-versatile"),
+      model: createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY })("claude-haiku-4-5-20251001"),
       stopWhen: stepCountIs(1),
       system: `You are NautIQ, a practical boat assistant for "${boat.name}".
 ${boatSpec ? `Boat specs: ${boatSpec}.` : ""}${(boat as { description?: string | null }).description ? `\nOwner's description: ${(boat as { description?: string | null }).description}` : ""}
@@ -95,13 +95,15 @@ TOOL SELECTION RULES — follow these exactly (only for data/action requests, no
 
 4. ADDING/BUYING A PART: If the owner wants to add a new item to inventory, restock, buy, or purchase parts (e.g. "add 5m of rope", "I bought a new filter", "add dyneema rope to inventory") → call draftInventoryAdd.
 
-5. MAINTENANCE QUESTIONS: "what do I need to do", "what's due" → call getUpcomingMaintenance.
+5. UPCOMING MAINTENANCE: "what do I need to do", "what's due", "what maintenance is coming up" → call getUpcomingMaintenance.
 
-6. INVENTORY QUESTIONS: "show my inventory", "what spares do I have" → call getInventoryStatus.
+6. PAST MAINTENANCE: If the owner asks what maintenance they HAVE DONE, recently completed, or their maintenance history (e.g. "what maintenance have I done", "show maintenance history", "what have I serviced", "what did I fix") → call getMaintenanceHistory. Do NOT call getTripHistory for these.
 
-7. BOAT HEALTH: General health questions → call getBoatSummary.
+7. INVENTORY QUESTIONS: "show my inventory", "what spares do I have" → call getInventoryStatus.
 
-8. REPORT / PDF: If the user asks for a report, summary PDF, or to send/download a boat report → call requestBoatReport.
+8. BOAT HEALTH: General health questions → call getBoatSummary.
+
+9. REPORT / PDF: If the user asks for a report, summary PDF, or to send/download a boat report → call requestBoatReport.
 
 The UI renders tool results as formatted cards automatically — do NOT add any text after calling any tool. The card is the response.`,
       messages: modelMessages,
@@ -323,6 +325,43 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
               reason,
               boatId,
             };
+          },
+        },
+
+        getMaintenanceHistory: {
+          description: "Get recent maintenance records — what work has been done on the boat",
+          inputSchema: zodSchema(
+            z.object({
+              limit: z.number().optional().describe("Number of records to return, default 10"),
+            })
+          ),
+          execute: async ({ limit: n = 10 }: { limit?: number }) => {
+            const { data } = await supabase
+              .from("maintenance_events")
+              .select("id, performed_at, work_done, vendor, engine_hours_at_service, notes, component:components(name)")
+              .eq("boat_id", boatId)
+              .order("performed_at", { ascending: false, nullsFirst: false })
+              .limit(n);
+
+            type EventRow = {
+              id: string;
+              performed_at: string | null;
+              work_done: string | null;
+              vendor: string | null;
+              engine_hours_at_service: number | null;
+              notes: string | null;
+              component: { name: string }[] | null;
+            };
+
+            return ((data ?? []) as EventRow[]).map((e) => ({
+              id: e.id,
+              performedAt: e.performed_at,
+              workDone: e.work_done,
+              component: Array.isArray(e.component) ? e.component[0]?.name ?? null : (e.component as { name: string } | null)?.name ?? null,
+              vendor: e.vendor,
+              engineHours: e.engine_hours_at_service,
+              notes: e.notes,
+            }));
           },
         },
 

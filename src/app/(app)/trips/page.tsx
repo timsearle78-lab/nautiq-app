@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { AddTripButton } from "@/components/trips/add-trip-button";
 import { EngineHoursChart } from "@/components/trips/engine-hours-chart";
+import { DeleteTripButton } from "@/components/trips/delete-trip-button";
 
 
 export const dynamic = "force-dynamic";
@@ -259,11 +260,14 @@ export default async function TripsPage() {
                         <div className="text-xs text-slate-400 mt-1 line-clamp-2">{trip.notes}</div>
                       )}
                     </div>
-                    {src && (
-                      <span className="flex-shrink-0 text-xs font-medium text-ocean-600 bg-ocean-50 border border-ocean-200 rounded-full px-2 py-0.5">
-                        {src}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {src && (
+                        <span className="text-xs font-medium text-ocean-600 bg-ocean-50 border border-ocean-200 rounded-full px-2 py-0.5">
+                          {src}
+                        </span>
+                      )}
+                      <DeleteTripButton tripId={trip.id} />
+                    </div>
                   </div>
                 </li>
               );
