@@ -8,6 +8,7 @@ import { BoatImageUpload } from "@/components/settings/boat-image-upload";
 import { DeleteBoatDialog } from "@/components/settings/delete-boat-dialog";
 import { NotificationPreferencesForm } from "@/components/settings/notification-preferences-form";
 import { ResetPasswordButton } from "@/components/settings/reset-password-button";
+import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog";
 
 export const dynamic = "force-dynamic";
 
@@ -155,6 +156,11 @@ export default async function SettingsPage() {
         <div className="px-4 py-4 space-y-4">
           <p className="text-sm text-slate-500">{user.email}</p>
           <ResetPasswordButton email={user.email ?? ""} />
+        </div>
+        <div className="px-4 py-4 border-t border-red-100 bg-red-50/40">
+          <p className="text-xs font-semibold text-red-700 mb-1">Danger zone</p>
+          <p className="text-xs text-red-500 mb-3">Permanently delete your account and all data. This cannot be undone.</p>
+          <DeleteAccountDialog />
         </div>
       </section>
     </main>
