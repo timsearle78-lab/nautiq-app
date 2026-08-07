@@ -12,6 +12,7 @@ export const CHANGELOG: Release[] = [
     features: [
       "Privacy Policy and Terms of Service now accessible from the Profile sheet and sign-in screens",
       "Improved error handling — unexpected errors are caught gracefully and reported automatically",
+      "Reset your password directly from Settings → Account",
     ],
   },
   {

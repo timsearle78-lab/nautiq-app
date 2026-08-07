@@ -7,6 +7,7 @@ import { SystemsManager } from "@/components/settings/systems-manager";
 import { BoatImageUpload } from "@/components/settings/boat-image-upload";
 import { DeleteBoatDialog } from "@/components/settings/delete-boat-dialog";
 import { NotificationPreferencesForm } from "@/components/settings/notification-preferences-form";
+import { ResetPasswordButton } from "@/components/settings/reset-password-button";
 
 export const dynamic = "force-dynamic";
 
@@ -151,8 +152,9 @@ export default async function SettingsPage() {
         <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
           <span className="text-sm font-semibold text-slate-700">Account</span>
         </div>
-        <div className="px-4 py-4">
+        <div className="px-4 py-4 space-y-4">
           <p className="text-sm text-slate-500">{user.email}</p>
+          <ResetPasswordButton email={user.email ?? ""} />
         </div>
       </section>
     </main>
