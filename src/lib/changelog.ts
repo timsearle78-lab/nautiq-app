@@ -7,6 +7,14 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-08-07",
+    label: "August 2026 update",
+    features: [
+      "Privacy Policy and Terms of Service now accessible from the Profile sheet and sign-in screens",
+      "Improved error handling — unexpected errors are caught gracefully and reported automatically",
+    ],
+  },
+  {
     date: "2026-08-06",
     label: "August 2026 update",
     features: [

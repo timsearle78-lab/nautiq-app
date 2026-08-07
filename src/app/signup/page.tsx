@@ -256,6 +256,13 @@ export default function SignupPage() {
                 Sign in
               </Link>
             </p>
+
+            <p className="mt-4" style={{ fontSize: 12, color: "#8593A0" }}>
+              By creating an account you agree to our{" "}
+              <Link href="/legal/terms" style={{ color: "#0B7EB8" }} className="hover:underline">Terms of Service</Link>
+              {" "}and{" "}
+              <Link href="/legal/privacy" style={{ color: "#0B7EB8" }} className="hover:underline">Privacy Policy</Link>.
+            </p>
           </div>
         </div>
       </div>

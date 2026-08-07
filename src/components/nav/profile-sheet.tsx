@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { X, LogOut, Settings, HelpCircle, Sparkles, ChevronLeft } from "lucide-react";
+import { X, LogOut, Settings, HelpCircle, Sparkles, ChevronLeft, Shield } from "lucide-react";
 import BoatReportButton from "@/components/reports/boat-report-button";
 import { CHANGELOG } from "@/lib/changelog";
 
@@ -92,6 +92,14 @@ export default function ProfileSheet({ email, initials, onClose }: ProfileSheetP
               >
                 <HelpCircle size={18} className="text-slate-400" />
                 Help & Support
+              </Link>
+              <Link
+                href="/legal/privacy"
+                onClick={onClose}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium text-sm hover:bg-slate-50 transition-colors"
+              >
+                <Shield size={18} className="text-slate-400" />
+                Privacy & Terms
               </Link>
               <Link
                 href="/settings"
