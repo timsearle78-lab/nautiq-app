@@ -110,194 +110,199 @@ function scoreColor(score: number) {
   return "#D83A3A";
 }
 
-function buildHealthSummaryEmail(boatName: string, score: number, overdue: ComponentHealth[], dueSoon: ComponentHealth[], inventoryIssues: InventoryIssue[]) {
-  const color = scoreColor(score);
-  const totalIssues = overdue.length + dueSoon.length + inventoryIssues.length;
+const EMAIL_FONT = `@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');`;
 
-  const overdueRows = overdue.map((c) => `
-    <tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #F3F4F6;">
-        <strong style="color:#111827;font-size:14px;">${c.componentName}</strong>
-        ${c.systemName ? `<br><span style="color:#9CA3AF;font-size:12px;">${c.systemName}</span>` : ""}
-      </td>
-      <td style="padding:8px 12px;border-bottom:1px solid #F3F4F6;text-align:right;">
-        <span style="background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;border-radius:99px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap;">Overdue</span>
-      </td>
-    </tr>`).join("");
+const LOGO_SVG = `<table role="presentation" cellpadding="0" cellspacing="0"><tr>
+  <td style="vertical-align:middle;padding-right:9px;">
+    <svg width="24" height="24" viewBox="0 0 100 100" fill="none" stroke="#5EC6EE" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="50" cy="18" r="9"/>
+      <line x1="50" y1="27" x2="50" y2="84"/>
+      <line x1="26" y1="43" x2="74" y2="43"/>
+      <path d="M16 56 C 16 76, 32 86, 50 86 C 68 86, 84 76, 84 56"/>
+    </svg>
+  </td>
+  <td style="vertical-align:middle;">
+    <span style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:22px;font-weight:800;letter-spacing:-0.5px;line-height:1;"><span style="color:#FFFFFF;">Naut</span><span style="color:#5EC6EE;">IQ</span></span>
+  </td>
+</tr></table>`;
 
-  const dueSoonRows = dueSoon.map((c) => `
-    <tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #F3F4F6;">
-        <strong style="color:#111827;font-size:14px;">${c.componentName}</strong>
-        ${c.systemName ? `<br><span style="color:#9CA3AF;font-size:12px;">${c.systemName}</span>` : ""}
-        ${c.predictedDueDate ? `<br><span style="color:#D97706;font-size:12px;">Due ${formatDate(c.predictedDueDate)}</span>` : ""}
-      </td>
-      <td style="padding:8px 12px;border-bottom:1px solid #F3F4F6;text-align:right;">
-        <span style="background:#FFFBEB;color:#D97706;border:1px solid #FDE68A;border-radius:99px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap;">Due soon</span>
-      </td>
-    </tr>`).join("");
+const EMAIL_HEADER_STYLE = `background:radial-gradient(120% 140% at 85% 0%,#0D4A73 0%,#0B2942 50%,#061D31 100%);padding:24px 32px;`;
 
-  const inventoryRows = inventoryIssues.slice(0, 5).map((i) => {
-    const badgeBg = (i.issue === "expired" || i.issue === "out_of_stock") ? "#FEF2F2" : "#FFFBEB";
-    const badgeColor = (i.issue === "expired" || i.issue === "out_of_stock") ? "#DC2626" : "#D97706";
-    const badgeBorder = (i.issue === "expired" || i.issue === "out_of_stock") ? "#FECACA" : "#FDE68A";
-    const badgeLabel = i.issue === "expired" ? "Expired" : i.issue === "out_of_stock" ? "Out of stock" : i.issue === "expiring_soon" ? "Expiring soon" : "Low stock";
-    return `
-    <tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #F3F4F6;">
-        <strong style="color:#111827;font-size:14px;">${i.name}</strong>
-        ${i.is_critical ? `<br><span style="color:#9CA3AF;font-size:12px;">Critical spare</span>` : ""}
-      </td>
-      <td style="padding:8px 12px;border-bottom:1px solid #F3F4F6;text-align:right;">
-        <span style="background:${badgeBg};color:${badgeColor};border:1px solid ${badgeBorder};border-radius:99px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap;">${badgeLabel}</span>
-      </td>
-    </tr>`;
-  }).join("");
+const EMAIL_BODY_FONT = `font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;`;
 
+function emailShell(bodyContent: string) {
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F9FAFB;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>${EMAIL_FONT}</style>
+</head>
+<body style="margin:0;padding:0;background:#EEF1F5;${EMAIL_BODY_FONT}">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF1F5;">
     <tr><td align="center" style="padding:32px 16px;">
-      <table role="presentation" width="100%" style="max-width:560px;background:#FFFFFF;border-radius:16px;border:1px solid #E5E7EB;overflow:hidden;">
-
-        <!-- Header -->
-        <tr><td style="background:#0B2942;padding:24px 28px;">
-          <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-            <td style="vertical-align:middle;padding-right:8px;">
-              <svg width="22" height="22" viewBox="0 0 100 100" fill="none" stroke="#5EC6EE" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="50" cy="18" r="9"/>
-                <line x1="50" y1="27" x2="50" y2="84"/>
-                <line x1="26" y1="43" x2="74" y2="43"/>
-                <path d="M16 56 C 16 76, 32 86, 50 86 C 68 86, 84 76, 84 56"/>
-              </svg>
-            </td>
-            <td style="vertical-align:middle;">
-              <span style="font-size:20px;font-weight:800;letter-spacing:-0.5px;"><span style="color:#FFFFFF;">Naut</span><span style="color:#5EC6EE;">IQ</span></span>
-            </td>
-          </tr></table>
-          <p style="color:#5EC6EE;font-size:13px;margin:6px 0 0;opacity:0.85;">${boatName} — Boat Health Summary</p>
-        </td></tr>
-
-        <!-- Summary -->
-        <tr><td style="padding:28px 28px 20px;text-align:center;">
-          <p style="color:#6B7280;font-size:14px;margin:0;">${totalIssues} item${totalIssues !== 1 ? "s" : ""} need${totalIssues === 1 ? "s" : ""} your attention</p>
-        </td></tr>
-
-        ${overdue.length > 0 ? `
-        <!-- Overdue maintenance -->
-        <tr><td style="padding:0 28px 8px;">
-          <p style="color:#DC2626;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 8px;">⚠️ Overdue maintenance</p>
-          <table role="presentation" width="100%" style="border:1px solid #FECACA;border-radius:10px;overflow:hidden;background:#FEF2F2;">
-            ${overdueRows}
-          </table>
-        </td></tr>` : ""}
-
-        ${dueSoon.length > 0 ? `
-        <!-- Due soon -->
-        <tr><td style="padding:16px 28px 8px;">
-          <p style="color:#D97706;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 8px;">🕐 Coming up</p>
-          <table role="presentation" width="100%" style="border:1px solid #FDE68A;border-radius:10px;overflow:hidden;background:#FFFBEB;">
-            ${dueSoonRows}
-          </table>
-        </td></tr>` : ""}
-
-        ${inventoryIssues.length > 0 ? `
-        <!-- Inventory -->
-        <tr><td style="padding:16px 28px 8px;">
-          <p style="color:#374151;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 8px;">📦 Inventory issues</p>
-          <table role="presentation" width="100%" style="border:1px solid #E5E7EB;border-radius:10px;overflow:hidden;">
-            ${inventoryRows}
-          </table>
-        </td></tr>` : ""}
-
-        <!-- CTA -->
-        <tr><td style="padding:24px 28px 28px;text-align:center;">
-          <a href="${APP_URL}/health" style="display:inline-block;background:linear-gradient(135deg,#15A0D6,#0B7EB8);color:#FFFFFF;text-decoration:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:600;letter-spacing:0.2px;">
-            View full health report →
-          </a>
-        </td></tr>
-
-        <!-- Footer -->
-        <tr><td style="padding:16px 28px;border-top:1px solid #F3F4F6;text-align:center;">
-          <p style="color:#9CA3AF;font-size:12px;margin:0;">
-            You're receiving this because you enabled health summary emails in NautIQ.<br>
-            <a href="${APP_URL}/settings" style="color:#6B7280;">Manage notification preferences</a>
-          </p>
-        </td></tr>
-
+      <table role="presentation" width="100%" style="max-width:560px;background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(11,41,66,0.10);">
+        ${bodyContent}
       </table>
+      <p style="margin:16px 0 0;font-size:12px;color:#8593A0;${EMAIL_BODY_FONT}">NautIQ · <a href="${APP_URL}" style="color:#8593A0;text-decoration:none;">nautiq.app</a></p>
     </td></tr>
   </table>
 </body>
 </html>`;
 }
 
-function buildOverdueAlertEmail(boatName: string, component: ComponentHealth) {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F9FAFB;">
-    <tr><td align="center" style="padding:32px 16px;">
-      <table role="presentation" width="100%" style="max-width:520px;background:#FFFFFF;border-radius:16px;border:1px solid #E5E7EB;overflow:hidden;">
+function buildHealthSummaryEmail(boatName: string, score: number, overdue: ComponentHealth[], dueSoon: ComponentHealth[], inventoryIssues: InventoryIssue[]) {
+  const totalIssues = overdue.length + dueSoon.length + inventoryIssues.length;
 
-        <tr><td style="background:#0B2942;padding:24px 28px;">
-          <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-            <td style="vertical-align:middle;padding-right:8px;">
-              <svg width="22" height="22" viewBox="0 0 100 100" fill="none" stroke="#5EC6EE" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="50" cy="18" r="9"/>
-                <line x1="50" y1="27" x2="50" y2="84"/>
-                <line x1="26" y1="43" x2="74" y2="43"/>
-                <path d="M16 56 C 16 76, 32 86, 50 86 C 68 86, 84 76, 84 56"/>
-              </svg>
-            </td>
-            <td style="vertical-align:middle;">
-              <span style="font-size:20px;font-weight:800;letter-spacing:-0.5px;"><span style="color:#FFFFFF;">Naut</span><span style="color:#5EC6EE;">IQ</span></span>
-            </td>
-          </tr></table>
-          <p style="color:#5EC6EE;font-size:13px;margin:6px 0 0;opacity:0.85;">${boatName}</p>
-        </td></tr>
+  const overdueRows = overdue.map((c, i) => `
+    <tr>
+      <td style="padding:10px 16px;${i < overdue.length - 1 ? "border-bottom:1px solid #FECACA;" : ""}">
+        <span style="font-size:14px;font-weight:600;color:#0F2335;">${c.componentName}</span>
+        ${c.systemName ? `<br><span style="font-size:12px;color:#8593A0;">${c.systemName}</span>` : ""}
+      </td>
+      <td style="padding:10px 16px;text-align:right;${i < overdue.length - 1 ? "border-bottom:1px solid #FECACA;" : ""}">
+        <span style="background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;border-radius:99px;padding:3px 10px;font-size:12px;font-weight:700;white-space:nowrap;">Overdue</span>
+      </td>
+    </tr>`).join("");
 
-        <tr><td style="padding:28px 28px 20px;">
-          <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:20px 24px;">
-            <p style="color:#DC2626;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 6px;">⚠️ Maintenance overdue</p>
-            <p style="color:#111827;font-size:22px;font-weight:700;margin:0 0 4px;">${component.componentName}</p>
-            ${component.systemName ? `<p style="color:#6B7280;font-size:14px;margin:0;">${component.systemName}</p>` : ""}
-          </div>
+  const dueSoonRows = dueSoon.map((c, i) => `
+    <tr>
+      <td style="padding:10px 16px;${i < dueSoon.length - 1 ? "border-bottom:1px solid #FDE68A;" : ""}">
+        <span style="font-size:14px;font-weight:600;color:#0F2335;">${c.componentName}</span>
+        ${c.systemName ? `<br><span style="font-size:12px;color:#8593A0;">${c.systemName}</span>` : ""}
+        ${c.predictedDueDate ? `<br><span style="font-size:12px;color:#C8841A;">Due ${formatDate(c.predictedDueDate)}</span>` : ""}
+      </td>
+      <td style="padding:10px 16px;text-align:right;${i < dueSoon.length - 1 ? "border-bottom:1px solid #FDE68A;" : ""}">
+        <span style="background:#FFFBEB;color:#C8841A;border:1px solid #FDE68A;border-radius:99px;padding:3px 10px;font-size:12px;font-weight:700;white-space:nowrap;">Due soon</span>
+      </td>
+    </tr>`).join("");
 
-          ${component.daysSinceService != null ? `
-          <table role="presentation" width="100%" style="margin:20px 0;border:1px solid #E5E7EB;border-radius:10px;overflow:hidden;">
-            <tr style="background:#F9FAFB;">
-              <td style="padding:12px 16px;font-size:12px;color:#6B7280;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #E5E7EB;">Days since last service</td>
-              ${component.hoursSinceService != null ? `<td style="padding:12px 16px;font-size:12px;color:#6B7280;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #E5E7EB;border-left:1px solid #E5E7EB;">Engine hours since</td>` : ""}
-            </tr>
-            <tr>
-              <td style="padding:12px 16px;font-size:24px;font-weight:700;color:#DC2626;">${component.daysSinceService}</td>
-              ${component.hoursSinceService != null ? `<td style="padding:12px 16px;font-size:24px;font-weight:700;color:#DC2626;border-left:1px solid #E5E7EB;">${component.hoursSinceService.toFixed(1)}</td>` : ""}
-            </tr>
-          </table>` : ""}
+  const inventoryRows = inventoryIssues.slice(0, 5).map((item, i) => {
+    const isRed = item.issue === "expired" || item.issue === "out_of_stock";
+    const badgeBg = isRed ? "#FEF2F2" : "#FFFBEB";
+    const badgeColor = isRed ? "#DC2626" : "#C8841A";
+    const badgeBorder = isRed ? "#FECACA" : "#FDE68A";
+    const borderColor = isRed ? "#FECACA" : "#FDE68A";
+    const badgeLabel = item.issue === "expired" ? "Expired" : item.issue === "out_of_stock" ? "Out of stock" : item.issue === "expiring_soon" ? "Expiring soon" : "Low stock";
+    return `
+    <tr>
+      <td style="padding:10px 16px;${i < Math.min(inventoryIssues.length, 5) - 1 ? `border-bottom:1px solid ${borderColor};` : ""}">
+        <span style="font-size:14px;font-weight:600;color:#0F2335;">${item.name}</span>
+        ${item.is_critical ? `<br><span style="font-size:12px;color:#8593A0;">Critical spare</span>` : ""}
+      </td>
+      <td style="padding:10px 16px;text-align:right;${i < Math.min(inventoryIssues.length, 5) - 1 ? `border-bottom:1px solid ${borderColor};` : ""}">
+        <span style="background:${badgeBg};color:${badgeColor};border:1px solid ${badgeBorder};border-radius:99px;padding:3px 10px;font-size:12px;font-weight:700;white-space:nowrap;">${badgeLabel}</span>
+      </td>
+    </tr>`;
+  }).join("");
 
-          <p style="color:#374151;font-size:14px;line-height:1.6;margin:0 0 20px;">Log a completed service in NautIQ to clear this alert and reset the maintenance interval.</p>
-
-          <a href="${APP_URL}/maintain" style="display:inline-block;background:linear-gradient(135deg,#15A0D6,#0B7EB8);color:#FFFFFF;text-decoration:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;">
-            Log maintenance →
-          </a>
-        </td></tr>
-
-        <tr><td style="padding:16px 28px;border-top:1px solid #F3F4F6;text-align:center;">
-          <p style="color:#9CA3AF;font-size:12px;margin:0;">
-            You're receiving this because you enabled overdue alerts in NautIQ.<br>
-            <a href="${APP_URL}/settings" style="color:#6B7280;">Manage notification preferences</a>
-          </p>
-        </td></tr>
-
-      </table>
+  const body = `
+    <!-- Header -->
+    <tr><td style="${EMAIL_HEADER_STYLE}">
+      ${LOGO_SVG}
+      <p style="color:rgba(159,186,206,0.85);font-size:13px;margin:8px 0 0;${EMAIL_BODY_FONT}">${boatName} — Boat Health Summary</p>
     </td></tr>
-  </table>
-</body>
-</html>`;
+
+    <!-- Intro -->
+    <tr><td style="padding:28px 32px 20px;">
+      <p style="font-size:15px;color:#0F2335;font-weight:600;margin:0 0 4px;">${totalIssues} item${totalIssues !== 1 ? "s" : ""} need${totalIssues === 1 ? "s" : ""} your attention</p>
+      <p style="font-size:14px;color:#8593A0;margin:0;line-height:1.5;">Here's a summary of your boat's maintenance status.</p>
+    </td></tr>
+
+    ${overdue.length > 0 ? `
+    <!-- Overdue -->
+    <tr><td style="padding:0 32px 16px;">
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#DC2626;margin:0 0 8px;">Overdue maintenance</p>
+      <table role="presentation" width="100%" style="border:1.5px solid #FECACA;border-radius:12px;overflow:hidden;background:#FEF9F9;">
+        ${overdueRows}
+      </table>
+    </td></tr>` : ""}
+
+    ${dueSoon.length > 0 ? `
+    <!-- Due soon -->
+    <tr><td style="padding:0 32px 16px;">
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#C8841A;margin:0 0 8px;">Coming up</p>
+      <table role="presentation" width="100%" style="border:1.5px solid #FDE68A;border-radius:12px;overflow:hidden;background:#FFFDF5;">
+        ${dueSoonRows}
+      </table>
+    </td></tr>` : ""}
+
+    ${inventoryIssues.length > 0 ? `
+    <!-- Inventory -->
+    <tr><td style="padding:0 32px 16px;">
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#475569;margin:0 0 8px;">Inventory issues</p>
+      <table role="presentation" width="100%" style="border:1.5px solid #E0E6EC;border-radius:12px;overflow:hidden;">
+        ${inventoryRows}
+      </table>
+    </td></tr>` : ""}
+
+    <!-- CTA -->
+    <tr><td style="padding:8px 32px 32px;text-align:center;">
+      <a href="${APP_URL}/health" style="display:inline-block;background:linear-gradient(135deg,#15A0D6,#0B7EB8);color:#FFFFFF;text-decoration:none;border-radius:12px;padding:13px 32px;font-size:14px;font-weight:700;letter-spacing:0.1px;${EMAIL_BODY_FONT}box-shadow:0 4px 12px rgba(11,126,184,0.28);">
+        View full health report →
+      </a>
+    </td></tr>
+
+    <!-- Footer -->
+    <tr><td style="padding:16px 32px;border-top:1px solid #EEF1F5;text-align:center;background:#F8FAFC;">
+      <p style="color:#8593A0;font-size:12px;margin:0;line-height:1.6;${EMAIL_BODY_FONT}">
+        You're receiving this because you enabled health summary emails in NautIQ.<br>
+        <a href="${APP_URL}/settings" style="color:#0B7EB8;text-decoration:none;">Manage notification preferences</a>
+      </p>
+    </td></tr>`;
+
+  return emailShell(body);
+}
+
+function buildOverdueAlertEmail(boatName: string, component: ComponentHealth) {
+  const body = `
+    <!-- Header -->
+    <tr><td style="${EMAIL_HEADER_STYLE}">
+      ${LOGO_SVG}
+      <p style="color:rgba(159,186,206,0.85);font-size:13px;margin:8px 0 0;${EMAIL_BODY_FONT}">${boatName}</p>
+    </td></tr>
+
+    <!-- Alert card -->
+    <tr><td style="padding:28px 32px 0;">
+      <div style="background:#FEF2F2;border:1.5px solid #FECACA;border-radius:14px;padding:20px 24px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#DC2626;margin:0 0 8px;">Maintenance overdue</p>
+        <p style="font-size:22px;font-weight:800;color:#0F2335;margin:0 0 4px;letter-spacing:-0.3px;${EMAIL_BODY_FONT}">${component.componentName}</p>
+        ${component.systemName ? `<p style="font-size:14px;color:#8593A0;margin:0;">${component.systemName}</p>` : ""}
+      </div>
+    </td></tr>
+
+    ${component.daysSinceService != null ? `
+    <!-- Stats -->
+    <tr><td style="padding:20px 32px 0;">
+      <table role="presentation" width="100%" style="border:1.5px solid #E0E6EC;border-radius:12px;overflow:hidden;">
+        <tr style="background:#F8FAFC;">
+          <td style="padding:10px 16px;font-size:11px;color:#8593A0;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid #E0E6EC;">Days since last service</td>
+          ${component.hoursSinceService != null ? `<td style="padding:10px 16px;font-size:11px;color:#8593A0;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid #E0E6EC;border-left:1px solid #E0E6EC;">Engine hours since</td>` : ""}
+        </tr>
+        <tr>
+          <td style="padding:12px 16px;font-size:28px;font-weight:800;color:#DC2626;${EMAIL_BODY_FONT}">${component.daysSinceService}</td>
+          ${component.hoursSinceService != null ? `<td style="padding:12px 16px;font-size:28px;font-weight:800;color:#DC2626;border-left:1px solid #E0E6EC;${EMAIL_BODY_FONT}">${component.hoursSinceService.toFixed(1)}</td>` : ""}
+        </tr>
+      </table>
+    </td></tr>` : ""}
+
+    <!-- Body text + CTA -->
+    <tr><td style="padding:24px 32px 32px;">
+      <p style="font-size:14px;color:#475569;line-height:1.65;margin:0 0 24px;">Log a completed service in NautIQ to clear this alert and reset the maintenance interval.</p>
+      <a href="${APP_URL}/maintain" style="display:inline-block;background:linear-gradient(135deg,#15A0D6,#0B7EB8);color:#FFFFFF;text-decoration:none;border-radius:12px;padding:13px 28px;font-size:14px;font-weight:700;${EMAIL_BODY_FONT}box-shadow:0 4px 12px rgba(11,126,184,0.28);">
+        Log maintenance →
+      </a>
+    </td></tr>
+
+    <!-- Footer -->
+    <tr><td style="padding:16px 32px;border-top:1px solid #EEF1F5;text-align:center;background:#F8FAFC;">
+      <p style="color:#8593A0;font-size:12px;margin:0;line-height:1.6;${EMAIL_BODY_FONT}">
+        You're receiving this because you enabled overdue alerts in NautIQ.<br>
+        <a href="${APP_URL}/settings" style="color:#0B7EB8;text-decoration:none;">Manage notification preferences</a>
+      </p>
+    </td></tr>`;
+
+  return emailShell(body);
 }
 
 // ---------------------------------------------------------------------------
