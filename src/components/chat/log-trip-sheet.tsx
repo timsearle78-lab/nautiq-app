@@ -12,6 +12,10 @@ interface LogTripSheetProps {
   boatId: string;
   prefillEngineHours?: number | null;
   prefillStartedAt?: string | null;
+  prefillEndedAt?: string | null;
+  prefillFuelLitres?: number | null;
+  prefillNotes?: string | null;
+  prefillSource?: string;
   prefillStartCoords?: GpsCoords | null;
   prefillEndCoords?: GpsCoords | null;
   onClose: () => void;
@@ -55,12 +59,16 @@ export default function LogTripSheet({
   boatId,
   prefillEngineHours,
   prefillStartedAt,
+  prefillEndedAt,
+  prefillFuelLitres,
+  prefillNotes,
+  prefillSource,
   prefillStartCoords,
   prefillEndCoords,
   onClose,
   onSaved,
 }: LogTripSheetProps) {
-  const hasTimer = !!prefillStartedAt;
+  const hasTimer = !!prefillStartedAt && !prefillSource;
 
   const [date, setDate] = useState(
     prefillStartedAt ? toLocalDate(prefillStartedAt) : todayLocal()
@@ -68,12 +76,14 @@ export default function LogTripSheet({
   const [startTime, setStartTime] = useState(
     prefillStartedAt ? toLocalTime(prefillStartedAt) : ""
   );
-  const [endTime, setEndTime] = useState(hasTimer ? nowLocalTime() : "");
+  const [endTime, setEndTime] = useState(
+    prefillEndedAt ? toLocalTime(prefillEndedAt) : hasTimer ? nowLocalTime() : ""
+  );
   const [engineHours, setEngineHours] = useState(
     prefillEngineHours?.toString() ?? ""
   );
-  const [fuelLitres, setFuelLitres] = useState("");
-  const [notes, setNotes] = useState("");
+  const [fuelLitres, setFuelLitres] = useState(prefillFuelLitres?.toString() ?? "");
+  const [notes, setNotes] = useState(prefillNotes ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
@@ -97,7 +107,7 @@ export default function LogTripSheet({
           engine_hours_delta: hours,
           fuel_added_litres: fuelLitres ? parseFloat(fuelLitres) : null,
           notes: notes || null,
-          source: "manual",
+          source: prefillSource ?? "manual",
           start_latitude: prefillStartCoords?.latitude ?? null,
           start_longitude: prefillStartCoords?.longitude ?? null,
           end_latitude: prefillEndCoords?.latitude ?? null,
