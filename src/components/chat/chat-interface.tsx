@@ -518,7 +518,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             value={input}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
-            placeholder="Ask anything or describe a trip…"
+            placeholder="Ask me anything…"
             className="flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-ocean-500 focus:bg-white focus:outline-none"
             style={{ minHeight: "40px" }}
           />
