@@ -13,6 +13,7 @@ export const CHANGELOG: Release[] = [
       "Privacy Policy and Terms of Service now accessible from the Profile sheet and sign-in screens",
       "Improved error handling — unexpected errors are caught gracefully and reported automatically",
       "Reset your password directly from Settings → Account",
+      "Log trips by email — send trip details to log@nautiq.cloud and a draft appears in the chat to review and save",
     ],
   },
   {

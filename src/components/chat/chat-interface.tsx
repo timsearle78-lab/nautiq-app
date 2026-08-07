@@ -15,8 +15,10 @@ import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import WhatsNewCard from "@/components/chat/whats-new-card";
 import MissingComponentsCard from "@/components/chat/missing-components-card";
 import MaintenanceDraftCard from "@/components/chat/maintenance-draft-card";
+import EmailTripDraftCard from "@/components/chat/email-trip-draft-card";
 import type { SuggestedComponent } from "@/lib/component-suggestions";
 import type { MaintenanceDraft } from "@/lib/maintenance-drafts";
+import type { TripDraftFromEmail } from "@/lib/trip-drafts";
 
 interface Boat {
   id: string;
@@ -44,6 +46,7 @@ interface ChatInterfaceProps {
   inventoryItems: { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];
   missingSuggestions: SuggestedComponent[];
   pendingDrafts: MaintenanceDraft[];
+  pendingTripDrafts: TripDraftFromEmail[];
 }
 
 function tokenize(s: string) {
@@ -142,7 +145,7 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
   );
 }
 
-export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts }: ChatInterfaceProps) {
+export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -155,6 +158,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [showScanPicker, setShowScanPicker] = useState(false);
   const [drafts, setDrafts] = useState<MaintenanceDraft[]>(initialDrafts);
+  const [tripDrafts, setTripDrafts] = useState<TripDraftFromEmail[]>(initialTripDrafts);
 
   const router = useRouter();
   const onTripSaved = useCallback(() => router.refresh(), [router]);
@@ -337,6 +341,13 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       {/* Messages / health area */}
       <div className="flex-1 overflow-y-auto">
         <WhatsNewCard />
+        {tripDrafts.map((draft) => (
+          <EmailTripDraftCard
+            key={draft.id}
+            draft={draft}
+            onDone={() => setTripDrafts((prev) => prev.filter((d) => d.id !== draft.id))}
+          />
+        ))}
         {drafts.map((draft) => (
           <MaintenanceDraftCard
             key={draft.id}

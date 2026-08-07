@@ -33,17 +33,32 @@ async function verifySignature(req: NextRequest, rawBody: string): Promise<boole
   return svixSignature.split(" ").some((s) => s.replace(/^v1,/, "") === computed);
 }
 
-async function parseEmailWithAI(subject: string, body: string): Promise<{
+type MaintenanceParsed = {
+  type: "maintenance";
   component_name: string | null;
   work_done: string | null;
   performed_at: string | null;
   engine_hours: number | null;
   vendor: string | null;
   notes: string | null;
-}> {
-  const empty = { component_name: null, work_done: null, performed_at: null, engine_hours: null, vendor: null, notes: null };
+};
+
+type TripParsed = {
+  type: "trip";
+  started_at: string | null;
+  ended_at: string | null;
+  engine_hours: number | null;
+  fuel_litres: number | null;
+  notes: string | null;
+  issues: string | null;
+};
+
+type ParsedEmail = MaintenanceParsed | TripParsed;
+
+async function parseEmailWithAI(subject: string, body: string): Promise<ParsedEmail> {
+  const maintenanceEmpty: MaintenanceParsed = { type: "maintenance", component_name: null, work_done: null, performed_at: null, engine_hours: null, vendor: null, notes: null };
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return empty;
+  if (!apiKey) return maintenanceEmpty;
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -56,22 +71,36 @@ async function parseEmailWithAI(subject: string, body: string): Promise<{
     },
     body: JSON.stringify({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 512,
+      max_tokens: 600,
       messages: [
         {
           role: "user",
-          content: `Extract maintenance log details from this email. Today is ${today}.
+          content: `Classify and extract details from this boat log email. Today is ${today}.
 
 Subject: ${subject}
 Body:
 ${body}
 
-Return ONLY a JSON object with these fields (use null if not mentioned):
+First decide if this email is logging a TRIP (went out on the water, motor run, sailing) or MAINTENANCE (service, repair, replacement, inspection of a component).
+
+If TRIP, return ONLY this JSON:
 {
-  "component_name": "name of the component or part serviced (e.g. 'Impeller', 'Engine', 'Standing rigging')",
+  "type": "trip",
+  "started_at": "ISO datetime YYYY-MM-DDTHH:MM:00 or YYYY-MM-DD if time unknown, or today's date if 'today'/'this morning' etc., or null",
+  "ended_at": "ISO datetime or null",
+  "engine_hours": number of engine hours run (not total hours) or null,
+  "fuel_litres": litres of fuel added or null,
+  "notes": "destination, route, conditions, or other trip details, or null",
+  "issues": "any problems observed during the trip, or null"
+}
+
+If MAINTENANCE, return ONLY this JSON:
+{
+  "type": "maintenance",
+  "component_name": "name of the component or part serviced (e.g. 'Impeller', 'Engine oil', 'Standing rigging')",
   "work_done": "short description of the work performed (e.g. 'Replaced impeller', 'Oil change')",
   "performed_at": "ISO date YYYY-MM-DD when the work was done, or today if only 'today' or 'this morning' etc.",
-  "engine_hours": number or null,
+  "engine_hours": total engine hours at time of service or null,
   "vendor": "who did the work or where parts were bought, or null",
   "notes": "any extra details worth keeping, or null"
 }`,
@@ -80,17 +109,17 @@ Return ONLY a JSON object with these fields (use null if not mentioned):
     }),
   });
 
-  if (!res.ok) return empty;
+  if (!res.ok) return maintenanceEmpty;
 
   const data = await res.json();
   const text: string = data.content?.[0]?.text ?? "";
   const match = text.match(/\{[\s\S]*\}/);
-  if (!match) return empty;
+  if (!match) return maintenanceEmpty;
 
   try {
-    return JSON.parse(match[0]);
+    return JSON.parse(match[0]) as ParsedEmail;
   } catch {
-    return empty;
+    return maintenanceEmpty;
   }
 }
 
@@ -183,25 +212,42 @@ export async function POST(req: NextRequest) {
   // Parse the email with AI
   const parsed = await parseEmailWithAI(subject, body);
 
-  // Save the draft
-  const { error: insertError } = await supabase.from("maintenance_drafts").insert({
-    user_id: user.id,
-    boat_id: boatId,
-    email_from: senderEmail,
-    email_subject: subject,
-    email_body: body.slice(0, 4000),
-    parsed_component_name: parsed.component_name,
-    parsed_work_done: parsed.work_done,
-    parsed_performed_at: parsed.performed_at,
-    parsed_engine_hours: parsed.engine_hours,
-    parsed_vendor: parsed.vendor,
-    parsed_notes: parsed.notes,
-  });
+  let insertError;
+
+  if (parsed.type === "trip") {
+    ({ error: insertError } = await supabase.from("trip_drafts").insert({
+      user_id: user.id,
+      boat_id: boatId,
+      email_from: senderEmail,
+      email_subject: subject,
+      email_body: body.slice(0, 4000),
+      parsed_started_at: parsed.started_at,
+      parsed_ended_at: parsed.ended_at,
+      parsed_engine_hours: parsed.engine_hours,
+      parsed_fuel_litres: parsed.fuel_litres,
+      parsed_notes: parsed.notes,
+      parsed_issues: parsed.issues,
+    }));
+  } else {
+    ({ error: insertError } = await supabase.from("maintenance_drafts").insert({
+      user_id: user.id,
+      boat_id: boatId,
+      email_from: senderEmail,
+      email_subject: subject,
+      email_body: body.slice(0, 4000),
+      parsed_component_name: parsed.component_name,
+      parsed_work_done: parsed.work_done,
+      parsed_performed_at: parsed.performed_at,
+      parsed_engine_hours: parsed.engine_hours,
+      parsed_vendor: parsed.vendor,
+      parsed_notes: parsed.notes,
+    }));
+  }
 
   if (insertError) {
     console.error("Failed to insert draft:", insertError.message);
     return NextResponse.json({ error: "Failed to save draft" }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, draftType: parsed.type });
 }

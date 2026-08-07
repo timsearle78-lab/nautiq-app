@@ -5,6 +5,7 @@ import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
 import { getMissingComponents } from "@/lib/component-suggestions";
 import { getPendingDrafts } from "@/lib/maintenance-drafts";
+import { getPendingTripDrafts } from "@/lib/trip-drafts";
 import ChatInterface from "@/components/chat/chat-interface";
 
 export const dynamic = "force-dynamic";
@@ -40,12 +41,13 @@ export default async function ChatPage() {
 
   if (!boat) redirect("/onboarding");
 
-  const [engineHoursRes, health, componentsRes, inventoryRes, pendingDrafts] = await Promise.all([
+  const [engineHoursRes, health, componentsRes, inventoryRes, pendingDrafts, pendingTripDrafts] = await Promise.all([
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
     getBoatHealth(boat.id),
     supabase.from("components").select("id, name").eq("boat_id", boat.id).order("name"),
     supabase.from("inventory_items").select("id, name, quantity, unit, minimum_quantity").eq("boat_id", boat.id).order("name"),
     getPendingDrafts(),
+    getPendingTripDrafts(),
   ]);
 
   const components = (componentsRes.data ?? []) as { id: string; name: string }[];
@@ -87,6 +89,7 @@ export default async function ChatPage() {
       inventoryItems={inventoryItems}
       missingSuggestions={missingSuggestions}
       pendingDrafts={pendingDrafts}
+      pendingTripDrafts={pendingTripDrafts}
     />
   );
 }
