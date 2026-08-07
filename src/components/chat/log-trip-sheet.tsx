@@ -23,13 +23,14 @@ interface LogTripSheetProps {
 }
 
 function toLocalDate(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-CA"); // YYYY-MM-DD in local tz
+  // Read the date portion directly from the ISO string — the AI stores
+  // the user's intended local time as-if-UTC in timestamptz columns,
+  // so the UTC date/time IS the intended local date/time.
+  return iso.slice(0, 10);
 }
 
 function toLocalTime(iso: string) {
-  const d = new Date(iso);
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  return iso.slice(11, 16); // "HH:MM" — UTC portion = intended local time
 }
 
 function todayLocal() {
