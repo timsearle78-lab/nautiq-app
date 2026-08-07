@@ -75,6 +75,7 @@ function fmtTime(iso: string | null) {
 function sourceLabel(source: string | null) {
   if (source === "ai_quick_log") return "AI";
   if (source === "manual") return "Manual";
+  if (source === "email") return "Email";
   return null;
 }
 
