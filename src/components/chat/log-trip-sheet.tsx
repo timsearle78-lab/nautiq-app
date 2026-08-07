@@ -43,8 +43,8 @@ function nowLocalTime() {
 
 function buildIso(date: string, time: string) {
   if (!date) return null;
-  if (!time) return `${date}T00:00:00`;
-  return new Date(`${date}T${time}:00`).toISOString();
+  // Store as local datetime string — no UTC conversion so times display correctly
+  return time ? `${date}T${time}:00` : `${date}T00:00:00`;
 }
 
 function coordsLink(coords: GpsCoords) {
@@ -70,11 +70,14 @@ export default function LogTripSheet({
 }: LogTripSheetProps) {
   const hasTimer = !!prefillStartedAt && !prefillSource;
 
-  const [date, setDate] = useState(
+  const [startDate, setStartDate] = useState(
     prefillStartedAt ? toLocalDate(prefillStartedAt) : todayLocal()
   );
   const [startTime, setStartTime] = useState(
     prefillStartedAt ? toLocalTime(prefillStartedAt) : ""
+  );
+  const [endDate, setEndDate] = useState(
+    prefillEndedAt ? toLocalDate(prefillEndedAt) : prefillStartedAt ? toLocalDate(prefillStartedAt) : todayLocal()
   );
   const [endTime, setEndTime] = useState(
     prefillEndedAt ? toLocalTime(prefillEndedAt) : hasTimer ? nowLocalTime() : ""
@@ -89,7 +92,7 @@ export default function LogTripSheet({
   const [saved, setSaved] = useState(false);
 
   async function handleSave() {
-    if (!date) { setError("Enter a date for this trip"); return; }
+    if (!startDate) { setError("Enter a start date for this trip"); return; }
     const hours = parseFloat(engineHours);
     if (!hours || hours <= 0) { setError("Enter engine hours for this trip"); return; }
 
@@ -102,8 +105,8 @@ export default function LogTripSheet({
         signal: AbortSignal.timeout(15000),
         body: JSON.stringify({
           boatId,
-          started_at: buildIso(date, startTime),
-          ended_at: buildIso(date, endTime),
+          started_at: buildIso(startDate, startTime),
+          ended_at: endTime ? buildIso(endDate, endTime) : null,
           engine_hours_delta: hours,
           fuel_added_litres: fuelLitres ? parseFloat(fuelLitres) : null,
           notes: notes || null,
@@ -142,7 +145,7 @@ export default function LogTripSheet({
               <h2 className="text-base font-semibold text-slate-900">Log Trip</h2>
             </div>
             {hasTimer && (
-              <p className="text-xs text-ocean-600 mt-0.5">Trip timer stopped — times pre-filled</p>
+              <p className="text-xs text-ocean-600 mt-0.5">Trip timer stopped — date and times pre-filled</p>
             )}
           </div>
           <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100">
@@ -151,19 +154,23 @@ export default function LogTripSheet({
         </div>
 
         <div className="p-4 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Date <span className="text-red-500">*</span></label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
-            />
-          </div>
-
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Departure</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Departure date <span className="text-red-500">*</span></label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setStartDate(val);
+                  // Keep end date in sync if it matched the old start date
+                  if (endDate === startDate) setEndDate(val);
+                }}
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Departure time</label>
               <input
                 type="time"
                 value={startTime}
@@ -171,8 +178,20 @@ export default function LogTripSheet({
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Return</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Return date</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Return time</label>
               <input
                 type="time"
                 value={endTime}

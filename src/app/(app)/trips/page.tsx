@@ -66,9 +66,9 @@ function fmtDate(iso: string | null) {
 
 function fmtTime(iso: string | null) {
   if (!iso) return null;
+  // Date-only or midnight entries have no time component — don't show a time
+  if (/T00:00:00/.test(iso) || !/T\d{2}:\d{2}/.test(iso)) return null;
   const d = new Date(iso);
-  // If midnight UTC, likely date-only entry — don't show time
-  if (d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0) return null;
   return d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
 }
 
