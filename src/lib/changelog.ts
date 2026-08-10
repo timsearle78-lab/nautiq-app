@@ -11,6 +11,7 @@ export const CHANGELOG: Release[] = [
     label: "August 2026 update",
     features: [
       "Dark mode — switch between Light and Dark in Settings → Appearance for comfortable use at night or in low light",
+      "Admin dashboard at /admin — view all users, signup dates, last sign-in, and usage stats (admin accounts only)",
     ],
   },
   {
