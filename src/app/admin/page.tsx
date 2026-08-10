@@ -3,6 +3,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 
+
 export const dynamic = "force-dynamic";
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
