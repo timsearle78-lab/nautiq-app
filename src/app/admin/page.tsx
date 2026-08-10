@@ -183,7 +183,6 @@ export default async function AdminPage() {
                         <DeleteUserDialog
                           userId={u.id}
                           userEmail={u.email ?? ""}
-                          onDeleted={() => window.location.reload()}
                         />
                       )}
                     </td>
