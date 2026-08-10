@@ -77,7 +77,7 @@ export default async function AdminPage() {
   }
 
   const tripCountByUser = new Map<string, number>();
-  for (const t of (tripRows ?? []) as { boat_id: string; boats: { user_id: string } }[]) {
+  for (const t of (tripRows ?? []) as unknown as { boat_id: string; boats: { user_id: string } }[]) {
     const uid = t.boats?.user_id;
     if (uid) tripCountByUser.set(uid, (tripCountByUser.get(uid) ?? 0) + 1);
   }
