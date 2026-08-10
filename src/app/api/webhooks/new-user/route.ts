@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "timsearle78@gmail.com";
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "timsearle78@gmail.com")
+  .split(",")
+  .map((e) => e.trim())
+  .filter(Boolean);
 
 export async function POST(req: Request) {
   // Verify shared secret set in the Supabase database webhook header
@@ -37,7 +40,7 @@ export async function POST(req: Request) {
     },
     body: JSON.stringify({
       from: "NautIQ <noreply@nautiq.cloud>",
-      to: ADMIN_EMAIL,
+      to: ADMIN_EMAILS,
       subject: `New NautIQ signup: ${email}`,
       html: `
       <p style="font-family:system-ui,sans-serif;font-size:15px;color:#0F2335;">

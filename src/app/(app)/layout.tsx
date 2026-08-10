@@ -33,6 +33,8 @@ export default async function AppLayout({
 
   const email = user.email ?? "";
   const initials = email.slice(0, 2).toUpperCase();
+  const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim()).filter(Boolean);
+  const isAdmin = adminEmails.includes(email);
 
   return (
     <div className="flex flex-col h-[100dvh] bg-slate-50">
@@ -44,7 +46,7 @@ export default async function AppLayout({
       </main>
       <ScrollToTop />
       <GlobalActionsMenu boatId={boatId} />
-      <BottomNav userEmail={email} userInitials={initials} />
+      <BottomNav userEmail={email} userInitials={initials} isAdmin={isAdmin} />
     </div>
   );
 }

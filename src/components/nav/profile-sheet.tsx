@@ -4,17 +4,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { X, LogOut, Settings, HelpCircle, Sparkles, ChevronLeft, Shield } from "lucide-react";
+import { X, LogOut, Settings, HelpCircle, Sparkles, ChevronLeft, Shield, LayoutDashboard } from "lucide-react";
 import BoatReportButton from "@/components/reports/boat-report-button";
 import { CHANGELOG } from "@/lib/changelog";
 
 interface ProfileSheetProps {
   email: string;
   initials: string;
+  isAdmin?: boolean;
   onClose: () => void;
 }
 
-export default function ProfileSheet({ email, initials, onClose }: ProfileSheetProps) {
+export default function ProfileSheet({ email, initials, isAdmin, onClose }: ProfileSheetProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showChangelog, setShowChangelog] = useState(false);
@@ -74,9 +75,24 @@ export default function ProfileSheet({ email, initials, onClose }: ProfileSheetP
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-medium text-slate-800 truncate">{email}</p>
+                {isAdmin && (
+                  <span className="inline-block mt-1 text-xs font-medium text-ocean-600 bg-ocean-50 border border-ocean-200 rounded-full px-2 py-0.5">
+                    Admin
+                  </span>
+                )}
               </div>
             </div>
             <div className="px-5 pb-6 space-y-3">
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  onClick={onClose}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-ocean-200 bg-ocean-50 text-ocean-700 font-medium text-sm hover:bg-ocean-100 transition-colors"
+                >
+                  <LayoutDashboard size={18} className="text-ocean-500" />
+                  Admin dashboard
+                </Link>
+              )}
               <BoatReportButton />
               <button
                 onClick={() => setShowChangelog(true)}

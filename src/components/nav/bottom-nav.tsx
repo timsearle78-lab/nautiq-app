@@ -25,9 +25,10 @@ const tabs: Tab[] = [
 interface BottomNavProps {
   userEmail: string;
   userInitials: string;
+  isAdmin?: boolean;
 }
 
-export default function BottomNav({ userEmail, userInitials }: BottomNavProps) {
+export default function BottomNav({ userEmail, userInitials, isAdmin }: BottomNavProps) {
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -86,6 +87,7 @@ export default function BottomNav({ userEmail, userInitials }: BottomNavProps) {
         <ProfileSheet
           email={userEmail}
           initials={userInitials}
+          isAdmin={isAdmin}
           onClose={() => setProfileOpen(false)}
         />
       )}
