@@ -143,7 +143,7 @@ export default function SignupPage() {
                   onChange={(e) => setName(e.target.value)}
                   style={inputStyle}
                   {...focusHandlers}
-                  placeholder="Tim"
+                  placeholder="Joe Bloggs"
                 />
               </div>
 
