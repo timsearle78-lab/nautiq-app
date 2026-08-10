@@ -63,24 +63,26 @@ export default async function AdminPage() {
   // Fetch all auth users (up to 1000)
   const { data: { users } } = await adminClient.auth.admin.listUsers({ perPage: 1000 });
 
-  // Fetch boat counts per user
+  // Fetch all boats to build user→boat and boat→user maps
   const { data: boatRows } = await adminClient
     .from("boats")
-    .select("user_id");
-
-  // Fetch trip counts per boat owner (via boats join)
-  const { data: tripRows } = await adminClient
-    .from("trips")
-    .select("boat_id, boats!inner(user_id)");
+    .select("id, user_id");
 
   const boatCountByUser = new Map<string, number>();
-  for (const b of boatRows ?? []) {
+  const userByBoat = new Map<string, string>();
+  for (const b of (boatRows ?? []) as { id: string; user_id: string }[]) {
     boatCountByUser.set(b.user_id, (boatCountByUser.get(b.user_id) ?? 0) + 1);
+    userByBoat.set(b.id, b.user_id);
   }
 
+  // Fetch trip counts — map via boat→user without a join
+  const { data: tripRows } = await adminClient
+    .from("trips")
+    .select("boat_id");
+
   const tripCountByUser = new Map<string, number>();
-  for (const t of (tripRows ?? []) as unknown as { boat_id: string; boats: { user_id: string } }[]) {
-    const uid = t.boats?.user_id;
+  for (const t of (tripRows ?? []) as { boat_id: string }[]) {
+    const uid = userByBoat.get(t.boat_id);
     if (uid) tripCountByUser.set(uid, (tripCountByUser.get(uid) ?? 0) + 1);
   }
 
