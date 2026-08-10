@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "timsearle78@gmail.com";
 
 export async function POST(req: Request) {
@@ -30,11 +28,17 @@ export async function POST(req: Request) {
       })
     : "unknown";
 
-  await resend.emails.send({
-    from: "NautIQ <noreply@nautiq.cloud>",
-    to: ADMIN_EMAIL,
-    subject: `New NautIQ signup: ${email}`,
-    html: `
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+    },
+    body: JSON.stringify({
+      from: "NautIQ <noreply@nautiq.cloud>",
+      to: ADMIN_EMAIL,
+      subject: `New NautIQ signup: ${email}`,
+      html: `
       <p style="font-family:system-ui,sans-serif;font-size:15px;color:#0F2335;">
         A new user just signed up for NautIQ.
       </p>
@@ -46,6 +50,7 @@ export async function POST(req: Request) {
         View all users at <a href="https://nautiq.cloud/admin" style="color:#0B7EB8;">nautiq.cloud/admin</a>
       </p>
     `,
+    }),
   });
 
   return NextResponse.json({ ok: true });
