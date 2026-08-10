@@ -7,6 +7,13 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-08-10",
+    label: "August 2026 update",
+    features: [
+      "Dark mode — switch between Light and Dark in Settings → Appearance for comfortable use at night or in low light",
+    ],
+  },
+  {
     date: "2026-08-07",
     label: "August 2026 update",
     features: [

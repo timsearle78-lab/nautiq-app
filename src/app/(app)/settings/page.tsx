@@ -9,6 +9,7 @@ import { DeleteBoatDialog } from "@/components/settings/delete-boat-dialog";
 import { NotificationPreferencesForm } from "@/components/settings/notification-preferences-form";
 import { ResetPasswordButton } from "@/components/settings/reset-password-button";
 import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog";
+import { ThemeToggle } from "@/components/settings/theme-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -135,6 +136,16 @@ export default async function SettingsPage() {
             </div>
           ))
         )}
+      </section>
+
+      {/* Appearance */}
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+          <span className="text-sm font-semibold text-slate-700">Appearance</span>
+        </div>
+        <div className="px-4 py-4">
+          <ThemeToggle />
+        </div>
       </section>
 
       {/* Notifications */}

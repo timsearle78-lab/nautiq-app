@@ -23,7 +23,9 @@ The app has five main areas:
   {
     id: "settings",
     title: "Settings overview",
-    content: `Settings are reached via the Profile tab (bottom right) → Settings. The Settings page is divided into four sections: Your boats, Systems, Notifications, and Account.`,
+    content: `Settings are reached via the Profile tab (bottom right) → Settings. The Settings page is divided into five sections: Your boats, Systems, Appearance, Notifications, and Account.
+
+Appearance: Switch between Light mode and Dark mode. Dark mode uses a deep navy colour scheme optimised for night-time or low-light use on the water. Your preference is saved and applied automatically on every visit.`,
   },
   {
     id: "boat",

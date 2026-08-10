@@ -103,3 +103,72 @@ button:disabled,
 [role="button"][aria-disabled="true"] {
   cursor: not-allowed;
 }
+
+/* ── Dark mode ─────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --background: #0D1B2A;
+  --foreground: #EEF4F9;
+  color-scheme: dark;
+}
+
+/* Backgrounds */
+[data-theme="dark"] .bg-white          { background-color: #132334 !important; }
+[data-theme="dark"] .bg-slate-50       { background-color: #0D1B2A !important; }
+[data-theme="dark"] .bg-slate-100      { background-color: #1A2E42 !important; }
+[data-theme="dark"] .bg-slate-200      { background-color: #1F3347 !important; }
+[data-theme="dark"] .bg-white\/80      { background-color: rgba(19,35,52,0.9) !important; }
+[data-theme="dark"] .bg-black\/30      { background-color: rgba(0,0,0,0.6) !important; }
+
+/* Text */
+[data-theme="dark"] .text-slate-900    { color: #EEF4F9 !important; }
+[data-theme="dark"] .text-slate-800    { color: #D4E4F0 !important; }
+[data-theme="dark"] .text-slate-700    { color: #B4C8D8 !important; }
+[data-theme="dark"] .text-slate-600    { color: #8FAABD !important; }
+[data-theme="dark"] .text-slate-500    { color: #6B8599 !important; }
+[data-theme="dark"] .text-slate-400    { color: #506070 !important; }
+
+/* Borders */
+[data-theme="dark"] .border-slate-200  { border-color: #233D55 !important; }
+[data-theme="dark"] .border-slate-100  { border-color: #1A3048 !important; }
+[data-theme="dark"] .border-slate-300  { border-color: #2D4F6A !important; }
+[data-theme="dark"] .border-dashed.border-slate-300 { border-color: #2D4F6A !important; }
+[data-theme="dark"] .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: #1A3048 !important; }
+[data-theme="dark"] .divide-y.divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: #1A3048 !important; }
+
+/* Inputs, textareas, selects */
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+[data-theme="dark"] textarea,
+[data-theme="dark"] .select-field {
+  background-color: #1A2E42 !important;
+  color: #EEF4F9 !important;
+  border-color: #233D55 !important;
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder { color: #506070 !important; }
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.6); }
+
+/* Danger zone */
+[data-theme="dark"] .bg-red-50\/40     { background-color: rgba(127,29,29,0.25) !important; }
+[data-theme="dark"] .border-red-100    { border-color: rgba(127,29,29,0.4) !important; }
+[data-theme="dark"] .bg-red-50         { background-color: rgba(127,29,29,0.2) !important; }
+
+/* Ocean tint backgrounds — lighten slightly for dark surfaces */
+[data-theme="dark"] .bg-ocean-50       { background-color: #0B2542 !important; }
+[data-theme="dark"] .bg-ocean-100      { background-color: #0D2E50 !important; }
+[data-theme="dark"] .border-ocean-200  { border-color: #1A4A6A !important; }
+
+/* Shadow softening */
+[data-theme="dark"] .shadow-sm         { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.4) !important; }
+[data-theme="dark"] .shadow-xl         { box-shadow: 0 20px 48px -8px rgba(0,0,0,0.6) !important; }
+
+/* Bottom sheet / overlay */
+[data-theme="dark"] .rounded-t-2xl.bg-white { background-color: #132334 !important; }
+
+/* Nav bar */
+[data-theme="dark"] .border-t.border-slate-200 { border-color: #1A3048 !important; }
+
+/* Inline theme toggle pill — keep its own styling in dark */
+[data-theme="dark"] .bg-slate-50.rounded-xl { background-color: #1A2E42 !important; }
+[data-theme="dark"] .bg-slate-700 { background-color: #233D55 !important; }
+
