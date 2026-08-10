@@ -161,7 +161,7 @@ export default async function AdminPage() {
                       <div className="text-xs text-slate-400">{daysSince(u.created_at)}</div>
                     </td>
                     <td className="px-4 py-3 text-slate-600">
-                      {fmtDateTime(u.last_sign_in_at)}
+                      {fmtDateTime(u.last_sign_in_at ?? null)}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span className={boats > 0 ? "font-semibold text-slate-800" : "text-slate-400"}>{boats}</span>
