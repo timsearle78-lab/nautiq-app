@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { DeleteUserDialog } from "@/components/admin/delete-user-dialog";
 
 
 export const dynamic = "force-dynamic";
@@ -140,6 +141,7 @@ export default async function AdminPage() {
                 <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Last sign-in</th>
                 <th className="text-center px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Boats</th>
                 <th className="text-center px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Trips</th>
+                <th className="px-4 py-2.5"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -169,6 +171,15 @@ export default async function AdminPage() {
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span className={trips > 0 ? "font-semibold text-slate-800" : "text-slate-400"}>{trips}</span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {!isAdmin && (
+                        <DeleteUserDialog
+                          userId={u.id}
+                          userEmail={u.email ?? ""}
+                          onDeleted={() => window.location.reload()}
+                        />
+                      )}
                     </td>
                   </tr>
                 );
