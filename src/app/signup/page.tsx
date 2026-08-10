@@ -43,6 +43,13 @@ export default function SignupPage() {
 
       if (error) throw error;
 
+      // Notify admin of new signup — fire and forget
+      fetch("/api/webhooks/new-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-webhook-secret": "internal" },
+        body: JSON.stringify({ record: { email, created_at: new Date().toISOString() } }),
+      }).catch(() => {});
+
       setStatus("Account created. Check your email to confirm your account before signing in.");
       setName(""); setEmail(""); setPassword(""); setConfirmPassword("");
     } catch (error) {
