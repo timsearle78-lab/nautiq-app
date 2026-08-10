@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "timsearle78@gmail.com")
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
   .split(",")
   .map((e) => e.trim())
   .filter(Boolean);

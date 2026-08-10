@@ -33,7 +33,7 @@ export default async function AppLayout({
 
   const email = user.email ?? "";
   const initials = email.slice(0, 2).toUpperCase();
-  const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim()).filter(Boolean);
+  const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim()).filter(Boolean); // empty if env var not set — no fallback
   const isAdmin = adminEmails.includes(email);
 
   return (
