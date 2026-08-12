@@ -76,6 +76,7 @@ export async function POST(req: Request) {
       model: createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY })("claude-haiku-4-5-20251001"),
       stopWhen: stepCountIs(1),
       system: `You are NautIQ, a practical boat assistant for "${boat.name}".
+Today's date: ${new Date().toISOString().slice(0, 10)}.
 ${boatSpec ? `Boat specs: ${boatSpec}.` : ""}${(boat as { description?: string | null }).description ? `\nOwner's description: ${(boat as { description?: string | null }).description}` : ""}
 Engine hours: ${engineHours ?? 0}h.
 
@@ -252,11 +253,19 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
             engineHoursAtService?: number;
           }) => {
             try {
-              const { data: components } = await supabase
-                .from("components")
-                .select("id, name, system:systems(name)")
-                .eq("boat_id", boatId)
-                .order("name");
+              const [{ data: components }, { data: inventoryItems }] = await Promise.all([
+                supabase
+                  .from("components")
+                  .select("id, name, system:systems(name)")
+                  .eq("boat_id", boatId)
+                  .order("name"),
+                supabase
+                  .from("inventory_items")
+                  .select("id, name, quantity, unit")
+                  .eq("boat_id", boatId)
+                  .gt("quantity", 0)
+                  .order("name"),
+              ]);
 
               type CompRow = { id: string; name: string; system: { name: string } | { name: string }[] | null };
               const mapped = ((components ?? []) as CompRow[]).map((c) => {
@@ -271,6 +280,7 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
                 notes: notes ?? null,
                 engineHoursAtService: engineHoursAtService ?? null,
                 components: mapped,
+                inventoryItems: (inventoryItems ?? []) as { id: string; name: string; quantity: number; unit: string | null }[],
                 boatId,
               };
             } catch (err) {

@@ -9,6 +9,13 @@ interface Component {
   system_name?: string | null;
 }
 
+interface InventoryItem {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string | null;
+}
+
 interface MaintenanceDraftCardProps {
   componentName: string;
   workDone: string;
@@ -16,16 +23,18 @@ interface MaintenanceDraftCardProps {
   notes?: string;
   engineHoursAtService?: number | null;
   components: Component[];
+  inventoryItems?: InventoryItem[];
   boatId: string;
 }
 
-export default function MaintenanceDraftCard({
+export default function ChatMaintenanceDraftCard({
   componentName,
   workDone,
   performedAt,
   notes: initialNotes,
   engineHoursAtService,
   components,
+  inventoryItems = [],
   boatId,
 }: MaintenanceDraftCardProps) {
   const today = new Date().toISOString().slice(0, 10);
@@ -41,6 +50,8 @@ export default function MaintenanceDraftCard({
   const [work, setWork] = useState(workDone);
   const [notes, setNotes] = useState(initialNotes ?? "");
   const [hours, setHours] = useState(engineHoursAtService?.toString() ?? "");
+  const [inventoryItemId, setInventoryItemId] = useState("");
+  const [inventoryQty, setInventoryQty] = useState("1");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -57,6 +68,7 @@ export default function MaintenanceDraftCard({
   }
 
   const canSave = !!componentId && !!date && !!work.trim();
+  const selectedInvItem = inventoryItems.find((i) => i.id === inventoryItemId);
 
   async function handleSave() {
     if (!canSave) return;
@@ -73,6 +85,8 @@ export default function MaintenanceDraftCard({
           workDone: work,
           notes: notes || null,
           engineHoursAtService: hours ? parseFloat(hours) : null,
+          inventoryItemId: inventoryItemId || null,
+          inventoryQuantityUsed: inventoryItemId ? (parseFloat(inventoryQty) || 1) : 0,
         }),
       });
       if (res.ok) {
@@ -167,6 +181,39 @@ export default function MaintenanceDraftCard({
             step="0.1"
           />
         </div>
+
+        {/* Inventory consumption */}
+        {inventoryItems.length > 0 && (
+          <div className="border-t border-slate-100 pt-3">
+            <label className="block text-xs font-medium text-slate-500 mb-1">Parts used from inventory (optional)</label>
+            <select
+              value={inventoryItemId}
+              onChange={(e) => setInventoryItemId(e.target.value)}
+              className={inputCls}
+            >
+              <option value="">— none —</option>
+              {inventoryItems.map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.name} ({i.quantity} {i.unit ?? "ea"} in stock)
+                </option>
+              ))}
+            </select>
+            {selectedInvItem && (
+              <div className="flex items-center gap-2 mt-2">
+                <label className="text-xs text-slate-500 whitespace-nowrap">Quantity used</label>
+                <input
+                  type="number"
+                  value={inventoryQty}
+                  onChange={(e) => setInventoryQty(e.target.value)}
+                  className="w-24 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-ocean-500 focus:outline-none"
+                  min="1"
+                  step="1"
+                />
+                <span className="text-xs text-slate-400">{selectedInvItem.unit ?? "ea"}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {error && <p className="text-xs text-red-600">{error}</p>}
 
