@@ -190,6 +190,24 @@ export default function LogMaintenanceSheet({
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Cost</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">$</span>
+                <input
+                  name="cost"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  className={`${inputCls} pl-6`}
+                />
+              </div>
+            </div>
+            <div />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Notes</label>
             <VoiceTextarea value={notes} onChange={setNotes} placeholder="Any additional details…" rows={3} />
