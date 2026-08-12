@@ -64,7 +64,7 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
 
       {/* Transaction history */}
       <div>
-        <h2 className="text-base font-semibold text-slate-800 mb-3">Transaction history</h2>
+        <h2 className="text-base font-semibold text-slate-800 mb-3">Inventory history</h2>
         {transactions.length === 0 ? (
           <p className="text-sm text-slate-400">No transactions recorded yet.</p>
         ) : (

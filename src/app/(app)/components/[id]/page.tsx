@@ -207,59 +207,6 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
 
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-          <h2 className="text-base font-semibold text-slate-800">Maintenance history</h2>
-
-          {history.length === 0 ? (
-            <p className="mt-4 text-sm text-slate-500">
-              No maintenance history recorded for this component.
-            </p>
-          ) : (
-            <div className="mt-4 overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200 text-left">
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Date</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Work</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Engine hrs</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Vendor</th>
-                    <th className="py-2 text-xs font-medium text-slate-500 uppercase tracking-wide"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((row: MaintenanceHistoryRow) => (
-                    <tr key={row.id} className="border-b border-slate-100 hover:bg-slate-50 align-top">
-                      <td className="py-3 pr-4">
-                        {row.performed_at
-                          ? new Date(row.performed_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
-                          : "—"}
-                      </td>
-                      <td className="py-3 pr-4">
-                        <div className="font-medium">{row.work_done ?? "Maintenance"}</div>
-                        {row.photo_urls && row.photo_urls.length > 0 && (
-                          <div className="flex gap-1 mt-1.5 flex-wrap">
-                            {row.photo_urls.map((url, i) => (
-                              <a key={i} href={url} target="_blank" rel="noopener noreferrer">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={url} alt={`Photo ${i + 1}`} loading="eager" className="w-12 h-12 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition" />
-                              </a>
-                            ))}
-                          </div>
-                        )}
-                      </td>
-                      <td className="py-3 pr-4">{row.engine_hours_at_service ?? "—"}</td>
-                      <td className="py-3 pr-4">{row.vendor ?? "—"}</td>
-                      <td className="py-3 text-right">
-                        <DeleteMaintenanceEventButton eventId={row.id} componentId={component.id} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
           <h2 className="text-base font-semibold text-slate-800">Linked spares</h2>
 
           {linkedInventory.length === 0 ? (
@@ -303,6 +250,59 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           )}
         </div>
       </section>
+
+      {/* Maintenance history — at the bottom like inventory history */}
+      <div>
+        <h2 className="text-base font-semibold text-slate-800 mb-3">Maintenance history</h2>
+        {history.length === 0 ? (
+          <p className="text-sm text-slate-400">No maintenance history recorded for this component.</p>
+        ) : (
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50">
+                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</th>
+                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Work done</th>
+                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Engine hrs</th>
+                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Vendor</th>
+                    <th className="px-4 py-2.5"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {history.map((row: MaintenanceHistoryRow) => (
+                    <tr key={row.id} className="hover:bg-slate-50/50 align-top">
+                      <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                        {row.performed_at
+                          ? new Date(row.performed_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
+                          : "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-slate-800">{row.work_done ?? "Maintenance"}</div>
+                        {row.photo_urls && row.photo_urls.length > 0 && (
+                          <div className="flex gap-1 mt-1.5 flex-wrap">
+                            {row.photo_urls.map((url, i) => (
+                              <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={url} alt={`Photo ${i + 1}`} loading="eager" className="w-12 h-12 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition" />
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{row.engine_hours_at_service ?? "—"}</td>
+                      <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{row.vendor ?? "—"}</td>
+                      <td className="px-4 py-3 text-right">
+                        <DeleteMaintenanceEventButton eventId={row.id} componentId={component.id} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
 
       <EditComponentForm
         id={component.id}
