@@ -177,6 +177,7 @@ export default function InventoryAdjustCard({
   const [filter, setFilter] = useState("");
   const [selectedId, setSelectedId] = useState(!isPickerMode ? (matches[0]?.id ?? "") : "");
   const [qty, setQty] = useState(initialQty);
+  const [cost, setCost] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -205,6 +206,7 @@ export default function InventoryAdjustCard({
           quantity: qty,
           transactionType,
           reason,
+          cost: cost ? parseFloat(cost) : null,
         }),
       });
       const data = await res.json();
@@ -341,6 +343,25 @@ export default function InventoryAdjustCard({
             className={inputCls}
           />
         </div>
+
+        {/* Cost — only for purchases */}
+        {isAdd && (
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Cost paid (optional)</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">$</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={cost}
+                onChange={(e) => setCost(e.target.value)}
+                className={`${inputCls} pl-6`}
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+        )}
 
         {reason && <p className="text-xs text-slate-400">{reason}</p>}
         {error && <p className="text-xs text-red-600">{error}</p>}

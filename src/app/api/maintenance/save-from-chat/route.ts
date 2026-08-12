@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   if (!user) return new Response("Unauthorized", { status: 401 });
 
   const body = await req.json();
-  const { boatId, componentId, performedAt, workDone, notes, engineHoursAtService, inventoryItemId, inventoryQuantityUsed } = body;
+  const { boatId, componentId, performedAt, workDone, notes, engineHoursAtService, cost, inventoryItemId, inventoryQuantityUsed } = body;
 
   if (!boatId || !componentId || !performedAt || !workDone) {
     return Response.json({ error: "Missing required fields" }, { status: 400 });
@@ -31,6 +31,7 @@ export async function POST(req: Request) {
       work_done: workDone,
       notes: notes ?? null,
       engine_hours_at_service: engineHoursAtService ?? null,
+      cost: cost != null ? Number(cost) : null,
     });
 
   if (insertError) {

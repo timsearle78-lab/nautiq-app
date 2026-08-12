@@ -44,6 +44,7 @@ export async function logMaintenance(
       formData.get("engine_hours_at_service")
     );
 
+    const cost = parseOptionalNumber(formData.get("cost"));
     const inventoryItemId =
       String(formData.get("inventory_item_id") ?? "").trim() || null;
     const consumeInventory = !!inventoryItemId;
@@ -67,6 +68,7 @@ export async function logMaintenance(
         notes,
         vendor,
         engine_hours_at_service: engineHoursAtService,
+        cost: cost ?? null,
       })
       .select("id")
       .single();

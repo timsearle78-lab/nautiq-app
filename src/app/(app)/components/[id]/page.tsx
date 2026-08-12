@@ -279,6 +279,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                     <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Work done</th>
                     <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Engine hrs</th>
                     <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Vendor</th>
+                    <th className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Cost</th>
                     <th className="px-4 py-2.5"></th>
                   </tr>
                 </thead>
@@ -305,6 +306,9 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                       </td>
                       <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{row.engine_hours_at_service ?? "—"}</td>
                       <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{row.vendor ?? "—"}</td>
+                      <td className="px-4 py-3 text-right font-medium text-slate-700 hidden sm:table-cell">
+                        {row.cost != null ? `$${Number(row.cost).toFixed(2)}` : "—"}
+                      </td>
                       <td className="px-4 py-3 text-right">
                         <DeleteMaintenanceEventButton eventId={row.id} componentId={component.id} />
                       </td>

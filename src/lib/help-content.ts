@@ -285,5 +285,7 @@ NAVIGATION: Scroll-to-top button appears at the bottom centre of the screen on a
 
 SIGN IN: On the login page there is a "Stay signed in on this device" toggle (on by default). When enabled, your session persists across browser closes so you don't need to log in each time. Turn it off on shared or public devices.
 
+COST TRACKING: Add a cost when logging maintenance (the "Cost" field in the log form or chat draft card) or when restocking inventory (the "Cost paid" field in the restock card). All costs are visible in Profile → Cost tracker, which shows total spend by year, broken down into maintenance vs parts. Useful for understanding total cost of ownership and for resale documentation.
+
 WELCOME GREETING / PBA: Each time you open the Home screen, your personal boat assistant (PBA) greets you with a personalised summary — recent activity, health status, trip encouragement, and maintenance reminders. The card can be dismissed. You can also ask "give me an update", "how's my boat doing", or "what's new" at any time in chat to get the same personalised briefing.
 `.trim();

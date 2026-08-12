@@ -32,7 +32,7 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
     supabase.from("inventory_items").select("category").eq("boat_id", itemData.boat_id).not("category", "is", null),
     supabase
       .from("inventory_transactions")
-      .select("id, transaction_type, quantity_delta, notes, created_at")
+      .select("id, transaction_type, quantity_delta, cost, notes, created_at")
       .eq("inventory_item_id", id)
       .order("created_at", { ascending: false })
       .limit(50),
@@ -47,7 +47,7 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
     ),
   ].sort();
 
-  type TxRow = { id: string; transaction_type: string; quantity_delta: number; notes: string | null; created_at: string };
+  type TxRow = { id: string; transaction_type: string; quantity_delta: number; cost: number | null; notes: string | null; created_at: string };
   const transactions = (txRes.data ?? []) as TxRow[];
 
   return (
@@ -75,6 +75,7 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
                   <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</th>
                   <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Type</th>
                   <th className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Qty</th>
+                  <th className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Cost</th>
                   <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Notes</th>
                 </tr>
               </thead>
@@ -98,6 +99,9 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
                       </td>
                       <td className={`px-4 py-3 text-right font-semibold tabular-nums ${isAdd ? "text-emerald-700" : "text-red-600"}`}>
                         {isAdd ? "+" : ""}{tx.quantity_delta} {itemData.unit ?? ""}
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium text-slate-700 hidden sm:table-cell">
+                        {isAdd && tx.cost != null ? `$${Number(tx.cost).toFixed(2)}` : "—"}
                       </td>
                       <td className="px-4 py-3 text-slate-500 hidden sm:table-cell">{tx.notes ?? "—"}</td>
                     </tr>

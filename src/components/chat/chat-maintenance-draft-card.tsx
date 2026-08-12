@@ -50,6 +50,7 @@ export default function ChatMaintenanceDraftCard({
   const [work, setWork] = useState(workDone);
   const [notes, setNotes] = useState(initialNotes ?? "");
   const [hours, setHours] = useState(engineHoursAtService?.toString() ?? "");
+  const [cost, setCost] = useState("");
   const [inventoryItemId, setInventoryItemId] = useState("");
   const [inventoryQty, setInventoryQty] = useState("1");
   const [saving, setSaving] = useState(false);
@@ -85,6 +86,7 @@ export default function ChatMaintenanceDraftCard({
           workDone: work,
           notes: notes || null,
           engineHoursAtService: hours ? parseFloat(hours) : null,
+          cost: cost ? parseFloat(cost) : null,
           inventoryItemId: inventoryItemId || null,
           inventoryQuantityUsed: inventoryItemId ? (parseFloat(inventoryQty) || 1) : 0,
         }),
@@ -166,6 +168,23 @@ export default function ChatMaintenanceDraftCard({
             className={inputCls}
             placeholder="e.g. Used 5W-30 synthetic"
           />
+        </div>
+
+        {/* Cost */}
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">Cost (optional)</label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">$</span>
+            <input
+              type="number"
+              value={cost}
+              onChange={(e) => setCost(e.target.value)}
+              className={`${inputCls} pl-6`}
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+            />
+          </div>
         </div>
 
         {/* Engine hours */}

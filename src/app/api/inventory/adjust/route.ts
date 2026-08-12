@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
-  const { itemId, quantity, transactionType = "consume", reason } = await req.json();
+  const { itemId, quantity, transactionType = "consume", reason, cost } = await req.json();
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -37,6 +37,7 @@ export async function POST(req: Request) {
       transaction_type: transactionType === "add" ? "add" : "consume",
       quantity_delta: transactionType === "add" ? delta : -delta,
       notes: reason ?? (transactionType === "add" ? "Restocked" : "Used"),
+      cost: transactionType === "add" && cost != null ? Number(cost) : null,
       user_id: user.id,
       boat_id: item.boat_id,
     }),

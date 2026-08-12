@@ -79,6 +79,24 @@ export function LogMaintenanceForm({
           </div>
         </div>
 
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Cost</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">$</span>
+              <input
+                name="cost"
+                type="number"
+                min="0"
+                step="0.01"
+                className={`${inputCls} pl-6`}
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+          <div />
+        </div>
+
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">Notes</label>
           <textarea name="notes" rows={3} className={`${inputCls} resize-none`} placeholder="Optional notes" />
