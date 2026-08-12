@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { UIMessage } from "ai";
 import ReactMarkdown from "react-markdown";
 import TripDraftCard from "./trip-draft-card";
-import ChatMaintenanceDraftCard from "./chat-maintenance-draft-card";
+import MaintenanceDraftCard from "./maintenance-draft-card";
 import InventoryAdjustCard from "./inventory-adjust-card";
 import { MaintenanceListCard, MaintenanceHistoryCard, InventoryListCard, TripHistoryCard, BoatSummaryCard } from "./data-cards";
 import ReportCard from "./report-card";
@@ -90,16 +90,19 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
         if (toolName === "draftMaintenanceLog") {
           if (output?.components) {
             return (
-              <ChatMaintenanceDraftCard
+              <MaintenanceDraftCard
                 key={i}
-                componentName={String(output.componentName ?? "")}
-                workDone={String(output.workDone ?? "")}
-                performedAt={String(output.performedAt ?? new Date().toISOString().slice(0, 10))}
-                notes={output.notes ? String(output.notes) : undefined}
-                engineHoursAtService={output.engineHoursAtService != null ? Number(output.engineHoursAtService) : null}
-                components={(output.components ?? []) as Parameters<typeof ChatMaintenanceDraftCard>[0]["components"]}
-                inventoryItems={(output.inventoryItems ?? []) as Parameters<typeof ChatMaintenanceDraftCard>[0]["inventoryItems"]}
+                prefill={{
+                  componentName: String(output.componentName ?? ""),
+                  workDone: String(output.workDone ?? ""),
+                  performedAt: String(output.performedAt ?? new Date().toISOString().slice(0, 10)),
+                  notes: output.notes ? String(output.notes) : undefined,
+                  engineHours: output.engineHoursAtService != null ? Number(output.engineHoursAtService) : null,
+                }}
+                components={(output.components ?? []) as Parameters<typeof MaintenanceDraftCard>[0]["components"]}
+                inventoryOptions={(output.inventoryItems ?? []) as Parameters<typeof MaintenanceDraftCard>[0]["inventoryOptions"]}
                 boatId={boatId}
+                onDone={() => {}}
               />
             );
           }
