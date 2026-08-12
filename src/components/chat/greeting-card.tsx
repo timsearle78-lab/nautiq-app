@@ -42,7 +42,7 @@ export default function GreetingCard({ boatId }: GreetingCardProps) {
               >
                 ⚓
               </div>
-              <span className="text-xs font-semibold text-ocean-700">Your PBA</span>
+              <span className="text-xs font-semibold text-ocean-700">NautIQ — Your Personal Boat Assistant</span>
             </div>
             <button
               onClick={() => setDismissed(true)}
