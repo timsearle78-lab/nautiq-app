@@ -1,4 +1,6 @@
 // Client-side only — uses jspdf + jspdf-autotable
+import { formatDate } from "@/lib/format-date";
+
 export async function generateBoatPdf(): Promise<void> {
   const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
     import("jspdf"),
@@ -143,9 +145,6 @@ export async function generateBoatPdf(): Promise<void> {
       if (v === "ok") return "OK";
       return "Unknown";
     };
-    const formatDate = (d: string | null) =>
-      d ? new Date(d).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—";
-
     autoTable(doc, {
       startY: y,
       margin: { left: margin, right: margin },

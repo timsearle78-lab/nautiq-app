@@ -13,6 +13,7 @@ export const CHANGELOG: Release[] = [
       "Log maintenance by chat — just tell the AI what you did (\"I did an oil change\") and a pre-filled maintenance record appears for you to review and save",
       "Personalised welcome greeting — your PBA greets you each time you open the app with a summary of recent activity, maintenance encouragement, and reminders",
       "Cost tracking — log what you spend on maintenance and parts, then see your total cost of ownership by year in the new Cost tracker (Profile → Cost tracker)",
+      "Inventory improvements — creating a new item now captures minimum stock level and critical-safety flag; vendor is now saved when logging maintenance via chat",
     ],
   },
   {

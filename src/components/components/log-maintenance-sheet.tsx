@@ -6,6 +6,7 @@ import SaveSuccessSheet from "@/components/ui/save-success-sheet";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import { logMaintenance } from "@/app/(app)/components/[id]/actions";
 import VoiceTextarea from "@/components/ui/voice-textarea";
+import { todayLocal } from "@/lib/format-date";
 
 type InventoryOption = { id: string; name: string; quantity: number; unit: string | null };
 type ComponentOption = { id: string; name: string };
@@ -26,10 +27,6 @@ interface Props {
   onClose: () => void;
   onSaved: () => void;
   prefill?: Prefill;
-}
-
-function todayLocal() {
-  return new Date().toLocaleDateString("en-CA");
 }
 
 const MAX_PHOTOS = 3;

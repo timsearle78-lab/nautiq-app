@@ -223,7 +223,7 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
               name: i.name,
               category: i.category,
               quantity: i.quantity,
-              minimum: i.minimum_quantity,
+              minimum_quantity: i.minimum_quantity,
               status: i.quantity === 0 ? "missing" : i.quantity <= i.minimum_quantity ? "low" : "ok",
               isCritical: i.is_critical,
             }));

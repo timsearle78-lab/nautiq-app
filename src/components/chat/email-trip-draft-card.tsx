@@ -5,16 +5,13 @@ import { Mail, Anchor, X } from "lucide-react";
 import type { TripDraftFromEmail } from "@/lib/trip-drafts";
 import { dismissTripDraft } from "@/lib/trip-drafts";
 import LogTripSheet from "@/components/chat/log-trip-sheet";
+import { formatDate } from "@/lib/format-date";
 
 interface Props {
   draft: TripDraftFromEmail;
   onDone: () => void;
 }
 
-function formatDate(iso: string | null) {
-  if (!iso) return null;
-  return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
-}
 
 export default function EmailTripDraftCard({ draft, onDone }: Props) {
   const [sheetOpen, setSheetOpen] = useState(false);

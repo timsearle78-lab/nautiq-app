@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Anchor, X } from "lucide-react";
 import type { TripDraft } from "@/lib/ai/generateTripDraft";
 import LogTripSheet from "@/components/chat/log-trip-sheet";
+import { formatDate } from "@/lib/format-date";
 
 interface TripDraftCardProps {
   draft: TripDraft;
@@ -12,12 +13,6 @@ interface TripDraftCardProps {
   onDismiss?: () => void;
 }
 
-function formatDate(iso: string | null) {
-  if (!iso) return null;
-  return new Date(iso.slice(0, 10) + "T12:00:00").toLocaleDateString(undefined, {
-    day: "numeric", month: "short", year: "numeric",
-  });
-}
 
 export default function TripDraftCard({ draft, boatId, onSaved, onDismiss }: TripDraftCardProps) {
   const [sheetOpen, setSheetOpen] = useState(false);

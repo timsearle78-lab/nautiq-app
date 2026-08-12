@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
 import { AddComponentSheet } from "@/components/components/add-component-sheet";
+import { type StatusFilter, normalizeStatus } from "@/lib/component-status";
 
 export const dynamic = "force-dynamic";
 
@@ -29,17 +30,6 @@ type HealthRow = {
   hours_until_due: number | null;
   months_until_due: number | null;
 };
-
-type StatusFilter = "all" | "overdue" | "due_soon" | "ok" | "unknown";
-
-function normalizeStatus(status: string | null): StatusFilter {
-  const value = (status ?? "").toLowerCase();
-
-  if (value === "overdue") return "overdue";
-  if (value === "due soon") return "due_soon";
-  if (value === "ok") return "ok";
-  return "unknown";
-}
 
 function parseStatusFilter(value: string | undefined): StatusFilter {
   if (value === "overdue") return "overdue";

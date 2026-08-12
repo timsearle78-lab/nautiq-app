@@ -7,6 +7,8 @@ import { getBoatHealth } from "@/lib/components/health";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { AlertTriangle, CheckCircle, Clock, HelpCircle, Package, ShieldAlert } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
+import { formatDate } from "@/lib/format-date";
+import { normalizeStatus } from "@/lib/component-status";
 
 type BoatRow = { id: string; name: string; type: string | null };
 
@@ -22,18 +24,6 @@ type InventoryIssue = {
   component_name: string | null;
 };
 
-function normalizeStatus(s: string | null) {
-  const v = (s ?? "").toLowerCase();
-  if (v === "overdue") return "overdue";
-  if (v === "due soon" || v === "due_soon") return "due_soon";
-  if (v === "ok") return "ok";
-  return "unknown";
-}
-
-function formatDate(v: string | null) {
-  if (!v) return "—";
-  return new Date(v).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
-}
 
 function issueLabel(issue: InventoryIssue): { text: string; cls: string } {
   if (issue.issue === "expired") return { text: "Expired", cls: "bg-red-50 text-red-600 border-red-200" };
@@ -337,7 +327,7 @@ export default async function HealthPage() {
         ) : (
           realHealth
             .sort((a, b) => {
-              const rank = { overdue: 0, due_soon: 1, ok: 2, unknown: 3 };
+              const rank: Record<string, number> = { overdue: 0, due_soon: 1, ok: 2, unknown: 3 };
               return (rank[normalizeStatus(a.status)] ?? 3) - (rank[normalizeStatus(b.status)] ?? 3);
             })
             .map((row) => {

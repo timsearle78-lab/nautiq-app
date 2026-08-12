@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
 import { AddComponentSheet } from "@/components/components/add-component-sheet";
+import { formatDate } from "@/lib/format-date";
+import { type StatusFilter, normalizeStatus } from "@/lib/component-status";
 
 export const dynamic = "force-dynamic";
 
@@ -43,17 +45,6 @@ type TimelineRow = {
 };
 
 const HORIZONS = [30, 90, 180] as const;
-
-type StatusFilter = "all" | "overdue" | "due_soon" | "ok" | "unknown";
-
-function normalizeStatus(status: string | null): StatusFilter {
-  const value = (status ?? "").toLowerCase();
-
-  if (value === "overdue") return "overdue";
-  if (value === "due soon") return "due_soon";
-  if (value === "ok") return "ok";
-  return "unknown";
-}
 
 function timelineStatusLabel(status: TimelineRow["status"]) {
   switch (status) {
@@ -104,15 +95,6 @@ function parseHorizon(value: string | undefined) {
   return 90;
 }
 
-function formatDate(value: string | null) {
-  if (!value) return "—";
-  return new Date(value).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
-}
-
-function formatPredictedDue(value: string | null) {
-  if (!value) return "—";
-  return new Date(value).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
-}
 
 export default async function MaintenancePage({
   searchParams,

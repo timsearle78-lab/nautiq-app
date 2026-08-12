@@ -75,7 +75,7 @@ type InventoryItem = {
   name: string;
   category: string;
   quantity: number;
-  minimum: number;
+  minimum_quantity: number;
   status: "missing" | "low" | "ok";
   isCritical: boolean;
 };

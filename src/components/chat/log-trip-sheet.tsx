@@ -7,6 +7,7 @@ import NautiqAnchorIcon from "@/components/ui/nautiq-anchor-icon";
 import VoiceTextarea from "@/components/ui/voice-textarea";
 import SaveSuccessSheet from "@/components/ui/save-success-sheet";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
+import { todayLocal } from "@/lib/format-date";
 
 interface LogTripSheetProps {
   boatId: string;
@@ -31,10 +32,6 @@ function toLocalDate(iso: string) {
 
 function toLocalTime(iso: string) {
   return iso.slice(11, 16); // "HH:MM" — UTC portion = intended local time
-}
-
-function todayLocal() {
-  return new Date().toLocaleDateString("en-CA");
 }
 
 function nowLocalTime() {
