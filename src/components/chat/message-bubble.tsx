@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { UIMessage } from "ai";
+import ReactMarkdown from "react-markdown";
 import TripDraftCard from "./trip-draft-card";
 import ChatMaintenanceDraftCard from "./chat-maintenance-draft-card";
 import InventoryAdjustCard from "./inventory-adjust-card";
@@ -48,9 +49,19 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
           return (
             <div
               key={i}
-              className="rounded-2xl rounded-tl-sm bg-white border border-slate-200 px-4 py-2.5 text-sm text-slate-800 shadow-sm"
+              className="rounded-2xl rounded-tl-sm bg-white border border-slate-200 px-4 py-2.5 text-sm text-slate-800 shadow-sm chat-md"
             >
-              {text}
+              <ReactMarkdown
+                components={{
+                  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                  strong: ({ children }) => <strong className="font-semibold text-slate-900">{children}</strong>,
+                  ul: ({ children }) => <ul className="mt-1 mb-2 space-y-0.5 pl-4 list-disc">{children}</ul>,
+                  ol: ({ children }) => <ol className="mt-1 mb-2 space-y-0.5 pl-4 list-decimal">{children}</ol>,
+                  li: ({ children }) => <li className="leading-snug">{children}</li>,
+                }}
+              >
+                {text}
+              </ReactMarkdown>
             </div>
           );
         }
