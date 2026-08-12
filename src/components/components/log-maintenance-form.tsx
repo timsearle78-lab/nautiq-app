@@ -103,10 +103,7 @@ export function LogMaintenanceForm({
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-          <label className="flex items-center gap-2.5 text-sm font-medium text-slate-700 cursor-pointer">
-            <input type="checkbox" name="consume_inventory" className="rounded border-slate-300 text-ocean-600 focus:ring-ocean-500" />
-            Consume spare used during service
-          </label>
+          <p className="text-sm font-medium text-slate-700">Item used during service</p>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>

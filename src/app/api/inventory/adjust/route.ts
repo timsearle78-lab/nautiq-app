@@ -25,18 +25,27 @@ export async function POST(req: Request) {
   if (!boat) return Response.json({ error: "Unauthorized" }, { status: 403 });
 
   const delta = Number(quantity) || 1;
-  const newQuantity =
-    transactionType === "add"
-      ? item.quantity + delta
-      : Math.max(0, item.quantity - delta);
+
+  let newQuantity: number;
+  let quantityDelta: number;
+  if (transactionType === "add") {
+    newQuantity = item.quantity + delta;
+    quantityDelta = delta;
+  } else if (transactionType === "correct") {
+    newQuantity = Math.max(0, delta);
+    quantityDelta = newQuantity - item.quantity;
+  } else {
+    newQuantity = Math.max(0, item.quantity - delta);
+    quantityDelta = -(item.quantity - newQuantity);
+  }
 
   const [updateRes, txRes] = await Promise.all([
     supabase.from("inventory_items").update({ quantity: newQuantity }).eq("id", itemId),
     supabase.from("inventory_transactions").insert({
       inventory_item_id: itemId,
-      transaction_type: transactionType === "add" ? "add" : "consume",
-      quantity_delta: transactionType === "add" ? delta : -delta,
-      notes: reason ?? (transactionType === "add" ? "Restocked" : "Used"),
+      transaction_type: transactionType,
+      quantity_delta: quantityDelta,
+      notes: reason ?? (transactionType === "add" ? "Restocked" : transactionType === "correct" ? "Stock correction" : "Used"),
       cost: transactionType === "add" && cost != null ? Number(cost) : null,
       user_id: user.id,
       boat_id: item.boat_id,

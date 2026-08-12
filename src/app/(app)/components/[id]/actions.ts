@@ -3,20 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { parseOptionalNumber } from "@/lib/parse-form-data";
 
 export type MaintenanceActionState = {
   error?: string;
   success?: string;
   eventId?: string;
 };
-
-function parseOptionalNumber(value: FormDataEntryValue | null): number | null {
-  const text = String(value ?? "").trim();
-  if (!text) return null;
-
-  const parsed = Number(text);
-  return Number.isFinite(parsed) ? parsed : null;
-}
 
 export async function logMaintenance(
   _prevState: MaintenanceActionState,

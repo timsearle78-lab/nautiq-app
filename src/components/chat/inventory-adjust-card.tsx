@@ -41,6 +41,8 @@ function CreateItemCard({
   const [category, setCategory] = useState("General");
   const [unit, setUnit] = useState("");
   const [qty, setQty] = useState(initialQty);
+  const [minimumQty, setMinimumQty] = useState(0);
+  const [isCritical, setIsCritical] = useState(false);
   const [componentId, setComponentId] = useState("");
   const [components, setComponents] = useState<{ id: string; name: string; system_name: string | null }[]>([]);
   const [saving, setSaving] = useState(false);
@@ -69,6 +71,8 @@ function CreateItemCard({
           category,
           unit,
           quantity: qty,
+          minimumQuantity: minimumQty,
+          isCritical,
           componentId: componentId || null,
         }),
       });
@@ -132,10 +136,20 @@ function CreateItemCard({
             </select>
           </div>
         </div>
-        <div>
-          <label className="block text-xs font-medium text-slate-500 mb-1">Initial quantity</label>
-          <input type="number" min="0" step="0.01" value={qty} onChange={(e) => setQty(parseFloat(e.target.value) || 0)} className={inputCls} />
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Initial quantity</label>
+            <input type="number" min="0" step="0.01" value={qty} onChange={(e) => setQty(parseFloat(e.target.value) || 0)} className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Low-stock alert below</label>
+            <input type="number" min="0" step="1" value={minimumQty} onChange={(e) => setMinimumQty(parseFloat(e.target.value) || 0)} className={inputCls} placeholder="0 = off" />
+          </div>
         </div>
+        <label className="flex items-center gap-2 text-xs font-medium text-slate-600 cursor-pointer">
+          <input type="checkbox" checked={isCritical} onChange={(e) => setIsCritical(e.target.checked)} className="rounded border-slate-300 text-ocean-600 focus:ring-ocean-500" />
+          Critical safety item
+        </label>
         <div>
           <label className="block text-xs font-medium text-slate-500 mb-1">Linked component <span className="font-normal text-slate-400">(optional)</span></label>
           <select value={componentId} onChange={(e) => setComponentId(e.target.value)} className={inputCls}>
