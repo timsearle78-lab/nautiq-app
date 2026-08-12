@@ -13,6 +13,7 @@ import ScanConfirmSheet, { type ScanResult } from "./scan-confirm-sheet";
 import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import WhatsNewCard from "@/components/chat/whats-new-card";
+import GreetingCard from "@/components/chat/greeting-card";
 import MissingComponentsCard from "@/components/chat/missing-components-card";
 import MaintenanceDraftCard from "@/components/chat/maintenance-draft-card";
 import EmailTripDraftCard from "@/components/chat/email-trip-draft-card";
@@ -361,9 +362,10 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
         <MissingComponentsCard boatType={boat.type ?? null} suggestions={missingSuggestions} />
         {messages.length === 0 ? (
           /* Empty state: gauge + stats + maintenance */
-          <div className="px-4 pt-5 pb-4 space-y-4">
+          <div className="pt-1 pb-4 space-y-4">
+            <GreetingCard boatId={boat.id} />
             {/* Health score card with gauge */}
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 mx-4">
               <div className="flex items-center justify-between gap-4">
                 <Link href="/health" className="hover:opacity-80 transition-opacity flex-shrink-0">
                   <HealthGauge score={healthScore} overdueCount={overdueCount} size={130} />
@@ -391,7 +393,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
 
             {/* Urgent items or all clear */}
             {urgentItems.length > 0 ? (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden mx-4">
                 <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
                   <h2 className="text-sm font-semibold text-slate-800">Needs attention</h2>
                   <Link href="/maintenance" className="text-xs text-ocean-600 hover:text-ocean-700 font-medium">View all →</Link>
@@ -420,7 +422,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 })}
               </div>
             ) : (
-              <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3.5 flex items-center gap-3">
+              <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3.5 flex items-center gap-3 mx-4">
                 <CheckCircle size={18} className="text-green-600 flex-shrink-0" />
                 <div>
                   <div className="text-sm font-semibold text-green-800">All clear</div>
@@ -430,7 +432,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             )}
 
             {/* Quick prompts */}
-            <div className="pt-1 text-center space-y-3">
+            <div className="pt-1 text-center space-y-3 px-4">
               <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Ask the assistant</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {quickPrompts.map(({ label, text }) => (

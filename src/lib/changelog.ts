@@ -11,6 +11,7 @@ export const CHANGELOG: Release[] = [
     label: "August 2026 update",
     features: [
       "Log maintenance by chat — just tell the AI what you did (\"I did an oil change\") and a pre-filled maintenance record appears for you to review and save",
+      "Personalised welcome greeting — your PBA greets you each time you open the app with a summary of recent activity, maintenance encouragement, and reminders",
     ],
   },
   {

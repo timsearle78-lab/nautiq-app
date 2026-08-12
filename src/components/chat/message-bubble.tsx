@@ -180,6 +180,19 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
           );
         }
 
+        if (toolName === "getPersonalizedGreeting") {
+          const greetingText = String(output?.greetingText ?? "");
+          if (!greetingText) return null;
+          return (
+            <div
+              key={i}
+              className="rounded-2xl rounded-tl-sm bg-white border border-slate-200 px-4 py-2.5 text-sm text-slate-800 shadow-sm"
+            >
+              {greetingText}
+            </div>
+          );
+        }
+
         if (toolName === "requestBoatReport") {
           return <ReportCard key={i} />;
         }
