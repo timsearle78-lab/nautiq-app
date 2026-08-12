@@ -1,5 +1,3 @@
-"use server";
-
 export function parseOptionalNumber(value: FormDataEntryValue | null): number | null {
   if (value == null) return null;
   const text = String(value).trim();
