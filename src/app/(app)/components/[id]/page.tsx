@@ -251,7 +251,20 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
         </div>
       </section>
 
-      {/* Maintenance history — at the bottom like inventory history */}
+      <EditComponentForm
+        id={component.id}
+        name={component.name}
+        systemId={component.system_id}
+        systems={systems}
+        installDate={component.install_date}
+        serviceIntervalYears={component.service_interval_years}
+        serviceIntervalMonths={component.service_interval_months}
+        serviceIntervalDays={component.service_interval_days}
+        serviceIntervalEngineHours={component.service_interval_engine_hours}
+        notes={component.notes}
+      />
+
+      {/* Maintenance history — below the danger zone */}
       <div>
         <h2 className="text-base font-semibold text-slate-800 mb-3">Maintenance history</h2>
         {history.length === 0 ? (
@@ -303,19 +316,6 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           </div>
         )}
       </div>
-
-      <EditComponentForm
-        id={component.id}
-        name={component.name}
-        systemId={component.system_id}
-        systems={systems}
-        installDate={component.install_date}
-        serviceIntervalYears={component.service_interval_years}
-        serviceIntervalMonths={component.service_interval_months}
-        serviceIntervalDays={component.service_interval_days}
-        serviceIntervalEngineHours={component.service_interval_engine_hours}
-        notes={component.notes}
-      />
     </main>
   );
 }
