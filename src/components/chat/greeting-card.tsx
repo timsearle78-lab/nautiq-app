@@ -32,16 +32,23 @@ export default function GreetingCard({ boatId }: GreetingCardProps) {
         <div className="rounded-xl bg-ocean-50 border border-ocean-100 px-4 py-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2 mb-2">
-              <div
-                className="flex items-center justify-center rounded-full text-white text-xs font-bold shrink-0"
-                style={{
-                  width: 24,
-                  height: 24,
-                  background: "linear-gradient(135deg,#15A0D6,#0B7EB8)",
-                }}
+              <svg
+                width={20}
+                height={20}
+                viewBox="0 0 100 100"
+                fill="none"
+                stroke="#0B7EB8"
+                strokeWidth="7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                className="shrink-0"
               >
-                ⚓
-              </div>
+                <circle cx="50" cy="18" r="9" />
+                <line x1="50" y1="27" x2="50" y2="84" />
+                <line x1="26" y1="43" x2="74" y2="43" />
+                <path d="M16 56 C 16 76, 32 86, 50 86 C 68 86, 84 76, 84 56" />
+              </svg>
               <span className="text-xs font-semibold text-ocean-700">NautIQ — Your Personal Boat Assistant</span>
             </div>
             <button
