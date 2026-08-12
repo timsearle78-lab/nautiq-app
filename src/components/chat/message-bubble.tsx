@@ -87,6 +87,7 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
                 notes={output.notes ? String(output.notes) : undefined}
                 engineHoursAtService={output.engineHoursAtService != null ? Number(output.engineHoursAtService) : null}
                 components={(output.components ?? []) as Parameters<typeof ChatMaintenanceDraftCard>[0]["components"]}
+                inventoryItems={(output.inventoryItems ?? []) as Parameters<typeof ChatMaintenanceDraftCard>[0]["inventoryItems"]}
                 boatId={boatId}
               />
             );
