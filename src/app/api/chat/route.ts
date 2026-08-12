@@ -87,9 +87,9 @@ When the user asks a "how do I" or "how does X work" question about the app, ans
 
 TOOL SELECTION RULES — follow these exactly (only for data/action requests, not how-to questions):
 
-1. LOGGING A TRIP: If the owner is telling you about a trip they just did (e.g. "went sailing", "motored for 2 hours", "left marina at 10am", "went racing") → call draftTripLog immediately. Do NOT call getTripHistory.
+1. LOGGING MAINTENANCE: If the owner says they did, performed, completed, or finished any maintenance or service work — including oil changes, filter replacements, antifouling, engine service, inspections, winterising, etc. (e.g. "I did an oil change", "changed the impeller", "serviced the engine", "replaced the bilge pump") → call draftMaintenanceLog immediately.
 
-2. VIEWING PAST TRIPS: Only call getTripHistory if the owner explicitly asks to SEE or SHOW their trips (e.g. "show my trips", "what trips have I done", "trip history").
+2. LOGGING A TRIP: If the owner is telling you about a trip they just did (e.g. "went sailing", "motored for 2 hours", "left marina at 10am", "went racing") → call draftTripLog immediately. Do NOT call getTripHistory.
 
 3. USING A PART: If the owner mentions using/consuming a spare part or says something like "used a part", "used a spare", "I used something" (even without naming it) → call draftInventoryAdjustment. If no specific item is named, pass itemName as an empty string so the user can pick from their full inventory.
 
@@ -104,6 +104,8 @@ TOOL SELECTION RULES — follow these exactly (only for data/action requests, no
 8. BOAT HEALTH: General health questions → call getBoatSummary.
 
 9. REPORT / PDF: If the user asks for a report, summary PDF, or to send/download a boat report → call requestBoatReport.
+
+10. VIEWING PAST TRIPS: Only call getTripHistory if the owner explicitly asks to SEE or SHOW their trips (e.g. "show my trips", "what trips have I done", "trip history").
 
 The UI renders tool results as formatted cards automatically — do NOT add any text after calling any tool. The card is the response.`,
       messages: modelMessages,
@@ -222,6 +224,60 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
               status: i.quantity === 0 ? "missing" : i.quantity <= i.minimum_quantity ? "low" : "ok",
               isCritical: i.is_critical,
             }));
+          },
+        },
+
+        draftMaintenanceLog: {
+          description: "Parse a maintenance description into a structured draft for the user to review and save",
+          inputSchema: zodSchema(
+            z.object({
+              componentName: z.string().describe("The component or system the work was done on, e.g. 'Engine', 'Oil filter', 'Bilge pump'"),
+              workDone: z.string().describe("A concise description of the work performed, e.g. 'Changed engine oil and filter'"),
+              performedAt: z.string().describe("Date of service in YYYY-MM-DD format, default to today if not stated"),
+              notes: z.string().optional().describe("Any additional notes, e.g. product used, findings, next steps"),
+              engineHoursAtService: z.number().optional().describe("Engine hours at time of service if mentioned"),
+            })
+          ),
+          execute: async ({
+            componentName,
+            workDone,
+            performedAt,
+            notes,
+            engineHoursAtService,
+          }: {
+            componentName: string;
+            workDone: string;
+            performedAt: string;
+            notes?: string;
+            engineHoursAtService?: number;
+          }) => {
+            try {
+              const { data: components } = await supabase
+                .from("components")
+                .select("id, name, system:systems(name)")
+                .eq("boat_id", boatId)
+                .order("name");
+
+              type CompRow = { id: string; name: string; system: { name: string } | { name: string }[] | null };
+              const mapped = ((components ?? []) as CompRow[]).map((c) => {
+                const sys = Array.isArray(c.system) ? c.system[0] : c.system;
+                return { id: c.id, name: c.name, system_name: sys?.name ?? null };
+              });
+
+              return {
+                componentName,
+                workDone,
+                performedAt,
+                notes: notes ?? null,
+                engineHoursAtService: engineHoursAtService ?? null,
+                components: mapped,
+                boatId,
+              };
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : String(err);
+              await logChatError(supabase, { userId, boatId, message: `draftMaintenanceLog: ${msg}` });
+              return { error: msg, boatId };
+            }
           },
         },
 

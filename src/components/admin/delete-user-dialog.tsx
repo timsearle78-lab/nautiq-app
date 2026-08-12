@@ -6,10 +6,9 @@ import { Trash2, X } from "lucide-react";
 interface Props {
   userId: string;
   userEmail: string;
-  onDeleted: () => void;
 }
 
-export function DeleteUserDialog({ userId, userEmail, onDeleted }: Props) {
+export function DeleteUserDialog({ userId, userEmail }: Props) {
   const [open, setOpen] = useState(false);
   const [confirmation, setConfirmation] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -40,7 +39,7 @@ export function DeleteUserDialog({ userId, userEmail, onDeleted }: Props) {
       });
       if (res.ok) {
         setOpen(false);
-        onDeleted();
+        window.location.reload();
       } else {
         const data = await res.json().catch(() => ({}));
         setError(data.error ?? "Failed to delete account. Try again.");

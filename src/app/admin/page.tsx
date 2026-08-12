@@ -55,13 +55,17 @@ export default async function AdminPage() {
     redirect("/");
   }
 
-  const adminClient = createAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variable.");
+  }
+  const adminClient = createAdminClient(supabaseUrl, serviceRoleKey);
 
   // Fetch all auth users (up to 1000)
-  const { data: { users } } = await adminClient.auth.admin.listUsers({ perPage: 1000 });
+  const { data: listData, error: listError } = await adminClient.auth.admin.listUsers({ perPage: 1000 });
+  if (listError) throw listError;
+  const users = listData?.users ?? [];
 
   // Fetch all boats to build user→boat and boat→user maps
   const { data: boatRows } = await adminClient
@@ -179,7 +183,6 @@ export default async function AdminPage() {
                         <DeleteUserDialog
                           userId={u.id}
                           userEmail={u.email ?? ""}
-                          onDeleted={() => window.location.reload()}
                         />
                       )}
                     </td>

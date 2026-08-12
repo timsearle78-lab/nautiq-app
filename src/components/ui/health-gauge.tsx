@@ -8,9 +8,9 @@ interface HealthGaugeProps {
 }
 
 function gaugeColor(score: number, overdueCount: number) {
-  if (overdueCount > 0 || score < 50) return { stroke: "#dc2626", text: "#dc2626", label: "Needs attention" };
-  if (score < 75) return { stroke: "#d97706", text: "#d97706", label: "Moderate wear" };
-  return { stroke: "#16a34a", text: "#16a34a", label: "Good condition" };
+  if (overdueCount > 0 || score < 50) return { stroke: "#dc2626", text: "#dc2626", label: "SOS vibes" };
+  if (score < 75) return { stroke: "#d97706", text: "#d97706", label: "Could be worse" };
+  return { stroke: "#16a34a", text: "#16a34a", label: "Ship shape" };
 }
 
 export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 10 }: HealthGaugeProps) {

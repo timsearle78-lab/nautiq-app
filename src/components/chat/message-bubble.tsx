@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { UIMessage } from "ai";
 import TripDraftCard from "./trip-draft-card";
+import ChatMaintenanceDraftCard from "./chat-maintenance-draft-card";
 import InventoryAdjustCard from "./inventory-adjust-card";
 import { MaintenanceListCard, MaintenanceHistoryCard, InventoryListCard, TripHistoryCard, BoatSummaryCard } from "./data-cards";
 import ReportCard from "./report-card";
@@ -74,6 +75,28 @@ export default function MessageBubble({ message, boatId, onTripSaved }: MessageB
 
         const toolName = toolPart.type.replace("tool-", "");
         const output = toolPart.output as Record<string, unknown>;
+
+        if (toolName === "draftMaintenanceLog") {
+          if (output?.components) {
+            return (
+              <ChatMaintenanceDraftCard
+                key={i}
+                componentName={String(output.componentName ?? "")}
+                workDone={String(output.workDone ?? "")}
+                performedAt={String(output.performedAt ?? new Date().toISOString().slice(0, 10))}
+                notes={output.notes ? String(output.notes) : undefined}
+                engineHoursAtService={output.engineHoursAtService != null ? Number(output.engineHoursAtService) : null}
+                components={(output.components ?? []) as Parameters<typeof ChatMaintenanceDraftCard>[0]["components"]}
+                boatId={boatId}
+              />
+            );
+          }
+          return (
+            <div key={i} className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {"Couldn't extract maintenance details. Please try again or log manually."}
+            </div>
+          );
+        }
 
         if (toolName === "draftTripLog") {
           if (output?.draft) {
