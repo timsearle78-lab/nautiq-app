@@ -7,6 +7,13 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-08-12",
+    label: "August 2026 update",
+    features: [
+      "Log maintenance by chat — just tell the AI what you did (\"I did an oil change\") and a pre-filled maintenance record appears for you to review and save",
+    ],
+  },
+  {
     date: "2026-08-10",
     label: "August 2026 update",
     features: [

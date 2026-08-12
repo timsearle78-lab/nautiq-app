@@ -179,6 +179,8 @@ Things you can ask or say:
 - "What maintenance is due?" → shows overdue and upcoming service items.
 - "How's the boat doing?" → shows the overall health score and urgent items.
 - "What spares am I low on?" → shows your inventory status.
+- "I did an oil change today" → creates a maintenance record (AI parses the work, you review and save).
+- "I serviced the engine" or "changed the impeller" → same as above — any maintenance statement triggers a draft card.
 - "I went sailing for 3 hours today" → logs a trip (AI parses your words).
 - "I used a fuel filter" → adjusts inventory (AI finds the item and asks you to confirm).
 - "I bought 2 new impellers" → adds to inventory stock.
@@ -258,6 +260,8 @@ SYSTEMS: Manage systems (groups of components) in Profile → Settings → Syste
 LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving (GPS location captured), "Stop Trip" when back (GPS location captured again); (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours."
 
 EMAIL TO LOG: Email maintenance notes to log@nautiq.cloud from your registered email address. NautIQ parses the email with AI and shows a pre-filled maintenance record card on the Home screen next time you open the app. Tap "Complete maintenance record" to review and save, or X to dismiss.
+
+LOGGING MAINTENANCE VIA CHAT: Just tell the AI what you did — "I did an oil change", "changed the impeller", "serviced the engine", "replaced the bilge pump". The AI creates a pre-filled maintenance draft card that you review and save. You can edit the component, date, work description, notes, and engine hours before saving.
 
 MAINTENANCE: Each component has a time/engine-hour service interval. NautIQ uses a predictive timeline to estimate due dates based on average usage. Risk score shows overdue/due soon/healthy. Log maintenance via "Log Maintenance" button on the component page or from the Home screen. Fill in date, work done, engine hours, optional spare consumed. Optionally attach up to 3 photos per record — tap "Camera" to take a photo or "Choose" to pick from your library; thumbnails appear in the history table. To delete a maintenance record, tap the trash icon on the history row and confirm with Yes. The Maintenance Overview shows components sorted by urgency; use "All Components" for the full list. On the Home screen, a yellow card suggests components typical for your boat type that you haven't added yet — tap "Add" on any suggestion to add it.
 

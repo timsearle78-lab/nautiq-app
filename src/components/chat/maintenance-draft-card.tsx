@@ -1,113 +1,192 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Mail, Wrench, X } from "lucide-react";
-import { dismissDraft, type MaintenanceDraft } from "@/lib/maintenance-drafts";
-import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
+import { useState } from "react";
+import { Wrench } from "lucide-react";
 
-interface Props {
-  draft: MaintenanceDraft;
-  boatId: string;
-  components: { id: string; name: string }[];
-  inventoryOptions: { id: string; name: string; quantity: number; unit: string | null }[];
-  onDone: () => void;
+interface Component {
+  id: string;
+  name: string;
+  system_name?: string | null;
 }
 
-export default function MaintenanceDraftCard({ draft, boatId, components, inventoryOptions, onDone }: Props) {
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [isDismissing, startDismiss] = useTransition();
+interface MaintenanceDraftCardProps {
+  componentName: string;
+  workDone: string;
+  performedAt: string;
+  notes?: string;
+  engineHoursAtService?: number | null;
+  components: Component[];
+  boatId: string;
+}
 
-  function handleDismiss() {
-    startDismiss(async () => {
-      await dismissDraft(draft.id);
-      onDone();
-    });
+export default function MaintenanceDraftCard({
+  componentName,
+  workDone,
+  performedAt,
+  notes: initialNotes,
+  engineHoursAtService,
+  components,
+  boatId,
+}: MaintenanceDraftCardProps) {
+  const today = new Date().toISOString().slice(0, 10);
+
+  const findBestMatch = (name: string) => {
+    if (!name) return "";
+    const lower = name.toLowerCase();
+    return components.find((c) => c.name.toLowerCase().includes(lower))?.id ?? "";
+  };
+
+  const [componentId, setComponentId] = useState(findBestMatch(componentName));
+  const [date, setDate] = useState(performedAt || today);
+  const [work, setWork] = useState(workDone);
+  const [notes, setNotes] = useState(initialNotes ?? "");
+  const [hours, setHours] = useState(engineHoursAtService?.toString() ?? "");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const [error, setError] = useState("");
+
+  if (dismissed) return null;
+
+  if (saved) {
+    return (
+      <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        ✓ Maintenance logged
+      </div>
+    );
   }
 
-  function handleSaved() {
-    startDismiss(async () => {
-      await dismissDraft(draft.id);
-      onDone();
-    });
+  const canSave = !!componentId && !!date && !!work.trim();
+
+  async function handleSave() {
+    if (!canSave) return;
+    setSaving(true);
+    setError("");
+    try {
+      const res = await fetch("/api/maintenance/save-from-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          boatId,
+          componentId,
+          performedAt: date,
+          workDone: work,
+          notes: notes || null,
+          engineHoursAtService: hours ? parseFloat(hours) : null,
+        }),
+      });
+      if (res.ok) {
+        setSaved(true);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Failed to save. Try again.");
+      }
+    } catch {
+      setError("Network error. Try again.");
+    } finally {
+      setSaving(false);
+    }
   }
 
-  // Find a matching component id by name
-  const matchedComponent = draft.parsed_component_name
-    ? components.find((c) =>
-        c.name.toLowerCase().includes((draft.parsed_component_name ?? "").toLowerCase()) ||
-        (draft.parsed_component_name ?? "").toLowerCase().includes(c.name.toLowerCase())
-      )
-    : null;
+  const inputCls = "w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-ocean-500 focus:outline-none";
 
   return (
-    <>
-      <div className="mx-3 mt-3 rounded-2xl border border-ocean-200 bg-ocean-50 shadow-sm overflow-hidden">
-        <div className="flex items-start gap-3 px-4 pt-3.5 pb-3">
-          <div className="flex-shrink-0 mt-0.5 rounded-full bg-ocean-100 p-1.5">
-            <Mail size={14} className="text-ocean-600" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold text-slate-800">Maintenance email received</div>
-            <div className="text-xs text-slate-500 mt-0.5 truncate">
-              {draft.email_subject ?? "No subject"}
-            </div>
-            {(draft.parsed_work_done || draft.parsed_component_name) && (
-              <div className="mt-2 space-y-0.5">
-                {draft.parsed_work_done && (
-                  <div className="text-sm text-slate-700 font-medium">{draft.parsed_work_done}</div>
-                )}
-                {draft.parsed_component_name && (
-                  <div className="text-xs text-ocean-600">{draft.parsed_component_name}</div>
-                )}
-                {draft.parsed_performed_at && (
-                  <div className="text-xs text-slate-400">
-                    {new Date(draft.parsed_performed_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={handleDismiss}
-            disabled={isDismissing}
-            className="flex-shrink-0 rounded-full p-1 text-slate-400 hover:bg-ocean-100 hover:text-slate-600 transition"
-            aria-label="Dismiss"
+    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 bg-slate-50">
+        <Wrench size={15} className="text-ocean-600" />
+        <span className="text-sm font-semibold text-slate-800">Log maintenance</span>
+        <span className="ml-auto text-xs text-slate-400">Review before saving</span>
+      </div>
+
+      <div className="p-4 space-y-3">
+        {/* Component picker */}
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">Component</label>
+          <select
+            value={componentId}
+            onChange={(e) => setComponentId(e.target.value)}
+            className={inputCls}
           >
-            <X size={14} />
-          </button>
+            <option value="">— select component —</option>
+            {components.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}{c.system_name ? ` (${c.system_name})` : ""}
+              </option>
+            ))}
+          </select>
+          {!componentId && (
+            <p className="text-xs text-amber-600 mt-1">No exact match found — please select the component</p>
+          )}
         </div>
 
-        <div className="px-4 pb-3.5">
+        {/* Date */}
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">Date performed</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className={inputCls}
+          />
+        </div>
+
+        {/* Work done */}
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">Work done</label>
+          <input
+            type="text"
+            value={work}
+            onChange={(e) => setWork(e.target.value)}
+            className={inputCls}
+            placeholder="e.g. Changed engine oil and filter"
+          />
+        </div>
+
+        {/* Notes */}
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">Notes (optional)</label>
+          <input
+            type="text"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className={inputCls}
+            placeholder="e.g. Used 5W-30 synthetic"
+          />
+        </div>
+
+        {/* Engine hours */}
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">Engine hours at service (optional)</label>
+          <input
+            type="number"
+            value={hours}
+            onChange={(e) => setHours(e.target.value)}
+            className={inputCls}
+            placeholder="e.g. 342"
+            min="0"
+            step="0.1"
+          />
+        </div>
+
+        {error && <p className="text-xs text-red-600">{error}</p>}
+
+        <div className="flex gap-3 pt-1">
           <button
-            type="button"
-            onClick={() => setSheetOpen(true)}
-            className="flex items-center gap-1.5 w-full justify-center rounded-xl py-2.5 text-sm font-semibold text-white transition"
+            onClick={() => setDismissed(true)}
+            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+          >
+            Dismiss
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!canSave || saving}
+            className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: "linear-gradient(135deg,#15A0D6,#0B7EB8)" }}
           >
-            <Wrench size={14} />
-            Complete maintenance record
+            {saving ? "Saving…" : "Save"}
           </button>
         </div>
       </div>
-
-      {sheetOpen && (
-        <LogMaintenanceSheet
-          boatId={boatId}
-          componentId={matchedComponent?.id ?? null}
-          components={components}
-          inventoryOptions={inventoryOptions}
-          onClose={() => setSheetOpen(false)}
-          onSaved={handleSaved}
-          prefill={{
-            workDone: draft.parsed_work_done ?? undefined,
-            performedAt: draft.parsed_performed_at ?? undefined,
-            engineHours: draft.parsed_engine_hours ?? undefined,
-            vendor: draft.parsed_vendor ?? undefined,
-            notes: draft.parsed_notes ?? undefined,
-          }}
-        />
-      )}
-    </>
+    </div>
   );
 }
