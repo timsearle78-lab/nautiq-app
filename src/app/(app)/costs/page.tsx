@@ -111,8 +111,8 @@ export default async function CostsPage() {
   return (
     <main className="px-4 py-6 space-y-6 max-w-2xl mx-auto">
       <div>
-        <Link href="/profile" className="text-sm text-slate-500 hover:text-ocean-600">
-          ← Back to profile
+        <Link href="/chat" className="text-sm text-slate-500 hover:text-ocean-600">
+          ← Back
         </Link>
         <h1 className="mt-3 text-xl font-bold text-slate-900">Cost tracker</h1>
         <p className="mt-1 text-sm text-slate-500">{boat.name} — total cost of ownership</p>
