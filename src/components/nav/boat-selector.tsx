@@ -21,7 +21,7 @@ export default function BoatSelector({
 
   if (boats.length === 1) {
     return (
-      <span className="text-sm font-medium text-slate-700">{boats[0].name}</span>
+      <span className="text-sm font-medium text-slate-700 truncate max-w-[120px]">{boats[0].name}</span>
     );
   }
 
@@ -32,7 +32,7 @@ export default function BoatSelector({
         name="boat_id"
         value={selectedBoatId}
         onChange={() => formRef.current?.requestSubmit()}
-        className="appearance-none rounded-xl border border-slate-200 bg-white pl-3 pr-8 py-1.5 text-sm font-medium text-slate-700 outline-none focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100 cursor-pointer"
+        className="appearance-none rounded-xl border border-slate-200 bg-white pl-3 pr-8 py-1.5 text-sm font-medium text-slate-700 outline-none focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100 cursor-pointer max-w-[120px] truncate"
       >
         {boats.map((b) => (
           <option key={b.id} value={b.id}>
