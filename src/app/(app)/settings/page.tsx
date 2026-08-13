@@ -11,6 +11,7 @@ import { ResetPasswordButton } from "@/components/settings/reset-password-button
 import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog";
 import { ThemeToggle } from "@/components/settings/theme-toggle";
 import { GreetingToggle } from "@/components/settings/greeting-toggle";
+import { WhatsNewToggle } from "@/components/settings/whats-new-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,7 @@ type NotificationPrefs = {
   health_summary_day: number;
   overdue_alerts: boolean;
   hide_greeting: boolean;
+  hide_whats_new: boolean;
 };
 
 type BoatRow = { id: string; name: string; type: string | null; image_url: string | null; propulsion: string | null; hull_design: string | null; hull_material: string | null; length_m: number | null; beam_m: number | null; draft_m: number | null; description: string | null };
@@ -49,7 +51,7 @@ export default async function SettingsPage() {
 
   const { data: notifPrefsData } = await supabase
     .from("user_settings")
-    .select("email, health_summary, health_summary_day, overdue_alerts, hide_greeting")
+    .select("email, health_summary, health_summary_day, overdue_alerts, hide_greeting, hide_whats_new")
     .eq("user_id", user.id)
     .single();
   const notifPrefs = notifPrefsData as NotificationPrefs | null;
@@ -149,6 +151,9 @@ export default async function SettingsPage() {
           <ThemeToggle />
           <div className="border-t border-slate-100 pt-4">
             <GreetingToggle initialHidden={notifPrefs?.hide_greeting ?? false} />
+          </div>
+          <div className="border-t border-slate-100 pt-4">
+            <WhatsNewToggle initialHidden={notifPrefs?.hide_whats_new ?? false} />
           </div>
         </div>
       </section>

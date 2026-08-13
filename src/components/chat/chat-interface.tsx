@@ -49,6 +49,7 @@ interface ChatInterfaceProps {
   pendingDrafts: MaintenanceDraft[];
   pendingTripDrafts: TripDraftFromEmail[];
   hideGreeting: boolean;
+  hideWhatsNew: boolean;
 }
 
 function tokenize(s: string) {
@@ -147,7 +148,7 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
   );
 }
 
-export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, hideGreeting }: ChatInterfaceProps) {
+export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, hideGreeting, hideWhatsNew }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -342,7 +343,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       {scanningInventory && <NautiqSpinner overlay />}
       {/* Messages / health area */}
       <div className="flex-1 overflow-y-auto">
-        <WhatsNewCard />
+        <WhatsNewCard hidden={hideWhatsNew} />
         {tripDrafts.map((draft) => (
           <EmailTripDraftCard
             key={draft.id}

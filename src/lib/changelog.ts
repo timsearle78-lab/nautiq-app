@@ -12,6 +12,7 @@ export const CHANGELOG: Release[] = [
     features: [
       "Edit trips, maintenance records, and inventory items — tap the pencil icon next to any row to update details in a quick-edit form",
       "Hide the Personal Boat Assistant greeting card — go to Settings → Appearance to turn it off if you prefer a cleaner Home screen",
+      "Hide the What's New card — go to Settings → Appearance to stop release notes appearing on the Home page",
     ],
   },
   {

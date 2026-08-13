@@ -27,7 +27,9 @@ The app has five main areas:
 
 Appearance: Switch between Light mode and Dark mode. Dark mode uses a deep navy colour scheme optimised for night-time or low-light use on the water. Your preference is saved and applied automatically on every visit.
 
-Personal Boat Assistant: The greeting card that appears at the top of the Home screen can be hidden. Go to Settings → Appearance and set "Personal Boat Assistant" to Hide. Tap Show to bring it back.`,
+Personal Boat Assistant: The greeting card that appears at the top of the Home screen can be hidden. Go to Settings → Appearance and set "Personal Boat Assistant" to Hide. Tap Show to bring it back.
+
+What's New card: The release notes card that appears when the app is updated can be hidden. Go to Settings → Appearance and set "What's New card" to Hide.`,
   },
   {
     id: "boat",

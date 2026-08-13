@@ -48,7 +48,7 @@ export default async function ChatPage() {
     supabase.from("inventory_items").select("id, name, quantity, unit, minimum_quantity").eq("boat_id", boat.id).order("name"),
     getPendingDrafts(),
     getPendingTripDrafts(),
-    supabase.from("user_settings").select("hide_greeting").eq("user_id", user.id).single(),
+    supabase.from("user_settings").select("hide_greeting, hide_whats_new").eq("user_id", user.id).single(),
   ]);
 
   const components = (componentsRes.data ?? []) as { id: string; name: string }[];
@@ -60,7 +60,9 @@ export default async function ChatPage() {
   const inventoryItems = (inventoryRes.data ?? []) as { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];
 
   const engineHours = (engineHoursRes.data as number) ?? 0;
-  const hideGreeting = (userSettingsRes.data as { hide_greeting: boolean } | null)?.hide_greeting ?? false;
+  const userSettings = userSettingsRes.data as { hide_greeting: boolean; hide_whats_new: boolean } | null;
+  const hideGreeting = userSettings?.hide_greeting ?? false;
+  const hideWhatsNew = userSettings?.hide_whats_new ?? false;
 
   const knownHealth = health.filter((r) => r.risk_score != null);
   const avgRisk = knownHealth.length > 0
@@ -93,6 +95,7 @@ export default async function ChatPage() {
       pendingDrafts={pendingDrafts}
       pendingTripDrafts={pendingTripDrafts}
       hideGreeting={hideGreeting}
+      hideWhatsNew={hideWhatsNew}
     />
   );
 }

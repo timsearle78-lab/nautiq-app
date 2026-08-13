@@ -4,22 +4,23 @@ import { useEffect, useState } from "react";
 import { Sparkles, X } from "lucide-react";
 import { LATEST_RELEASE, SEEN_KEY } from "@/lib/changelog";
 
-export default function WhatsNewCard() {
+export default function WhatsNewCard({ hidden }: { hidden: boolean }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    if (hidden) return;
     const seen = localStorage.getItem(SEEN_KEY);
     if (seen !== LATEST_RELEASE.date) {
       setVisible(true);
     }
-  }, []);
+  }, [hidden]);
 
   function dismiss() {
     localStorage.setItem(SEEN_KEY, LATEST_RELEASE.date);
     setVisible(false);
   }
 
-  if (!visible) return null;
+  if (hidden || !visible) return null;
 
   return (
     <div className="mx-4 mt-4 rounded-2xl border border-ocean-200 bg-gradient-to-br from-ocean-50 to-blue-50 shadow-sm overflow-hidden">

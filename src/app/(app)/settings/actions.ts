@@ -122,6 +122,23 @@ export async function updateNotificationPreferences(_prev: ActionState, formData
   return { success: "Notification preferences saved", savedAt: Date.now() };
 }
 
+export async function updateWhatsNewPreference(hide: boolean): Promise<ActionState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .upsert(
+      { user_id: user.id, email: user.email ?? "", hide_whats_new: hide },
+      { onConflict: "user_id" }
+    );
+
+  if (error) return { error: error.message };
+  revalidatePath("/settings");
+  return { success: "Saved" };
+}
+
 export async function updateGreetingPreference(hide: boolean): Promise<ActionState> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
