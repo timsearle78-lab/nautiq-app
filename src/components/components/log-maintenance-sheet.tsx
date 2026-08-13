@@ -21,7 +21,10 @@ type Prefill = {
 
 interface Props {
   boatId: string;
+  /** Lock to a specific component — hides the picker (use from component detail page). */
   componentId: string | null;
+  /** Pre-select a component but still show the picker so the user can change it. */
+  defaultComponentId?: string | null;
   components?: ComponentOption[];
   inventoryOptions: InventoryOption[];
   onClose: () => void;
@@ -34,13 +37,14 @@ const MAX_PHOTOS = 3;
 export default function LogMaintenanceSheet({
   boatId,
   componentId: initialComponentId,
+  defaultComponentId,
   components = [],
   inventoryOptions,
   onClose,
   onSaved,
   prefill,
 }: Props) {
-  const [selectedComponentId, setSelectedComponentId] = useState(initialComponentId ?? "");
+  const [selectedComponentId, setSelectedComponentId] = useState(initialComponentId ?? defaultComponentId ?? "");
   const [notes, setNotes] = useState(prefill?.notes ?? "");
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -95,7 +99,7 @@ export default function LogMaintenanceSheet({
     setPreviews((p) => p.filter((_, i) => i !== index));
   }
 
-  const effectiveComponentId = initialComponentId ?? selectedComponentId;
+  const effectiveComponentId = initialComponentId !== null ? initialComponentId : selectedComponentId;
   const isBusy = pending || uploadingPhotos;
 
   if (saved) return <SaveSuccessSheet message="Maintenance logged!" />;

@@ -131,7 +131,8 @@ export default function MaintenanceDraftCard({ draft, prefill, boatId, component
       {sheetOpen && (
         <LogMaintenanceSheet
           boatId={boatId}
-          componentId={matchedComponent?.id ?? null}
+          componentId={null}
+          defaultComponentId={matchedComponent?.id ?? null}
           components={components}
           inventoryOptions={inventoryOptions}
           onClose={() => setSheetOpen(false)}
