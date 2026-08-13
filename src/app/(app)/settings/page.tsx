@@ -10,6 +10,7 @@ import { NotificationPreferencesForm } from "@/components/settings/notification-
 import { ResetPasswordButton } from "@/components/settings/reset-password-button";
 import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog";
 import { ThemeToggle } from "@/components/settings/theme-toggle";
+import { GreetingToggle } from "@/components/settings/greeting-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -143,8 +144,11 @@ export default async function SettingsPage() {
         <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
           <span className="text-sm font-semibold text-slate-700">Appearance</span>
         </div>
-        <div className="px-4 py-4">
+        <div className="px-4 py-4 space-y-4">
           <ThemeToggle />
+          <div className="border-t border-slate-100 pt-4">
+            <GreetingToggle />
+          </div>
         </div>
       </section>
 

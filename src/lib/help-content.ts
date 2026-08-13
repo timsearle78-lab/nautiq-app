@@ -25,7 +25,9 @@ The app has five main areas:
     title: "Settings overview",
     content: `Settings are reached via the Profile tab (bottom right) → Settings. The Settings page is divided into five sections: Your boats, Systems, Appearance, Notifications, and Account.
 
-Appearance: Switch between Light mode and Dark mode. Dark mode uses a deep navy colour scheme optimised for night-time or low-light use on the water. Your preference is saved and applied automatically on every visit.`,
+Appearance: Switch between Light mode and Dark mode. Dark mode uses a deep navy colour scheme optimised for night-time or low-light use on the water. Your preference is saved and applied automatically on every visit.
+
+Personal Boat Assistant: The greeting card that appears at the top of the Home screen can be hidden. Go to Settings → Appearance and set "Personal Boat Assistant" to Hide. Tap Show to bring it back.`,
   },
   {
     id: "boat",

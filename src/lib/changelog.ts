@@ -11,6 +11,7 @@ export const CHANGELOG: Release[] = [
     label: "August 2026 update",
     features: [
       "Edit trips, maintenance records, and inventory items — tap the pencil icon next to any row to update details in a quick-edit form",
+      "Hide the Personal Boat Assistant greeting card — go to Settings → Appearance to turn it off if you prefer a cleaner Home screen",
     ],
   },
   {

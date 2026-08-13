@@ -16,11 +16,18 @@ interface GreetingData {
   daysSinceTrip: number | null;
 }
 
+const HIDE_KEY = "nautiq_hide_greeting";
+
 export default function GreetingCard({ boatId }: GreetingCardProps) {
   const [data, setData] = useState<GreetingData | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
+    if (localStorage.getItem(HIDE_KEY) === "true") {
+      setHidden(true);
+      return;
+    }
     const localHour = new Date().getHours();
     fetch("/api/chat/greeting", {
       method: "POST",
@@ -34,7 +41,7 @@ export default function GreetingCard({ boatId }: GreetingCardProps) {
       .catch(() => {});
   }, [boatId]);
 
-  if (dismissed) return null;
+  if (hidden || dismissed) return null;
 
   const paragraphs = data?.greeting.split(/\n\n+/).filter(Boolean) ?? [];
 
