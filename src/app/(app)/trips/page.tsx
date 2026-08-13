@@ -5,6 +5,7 @@ import { getSelectedBoatId } from "@/lib/selected-boat";
 import { AddTripButton } from "@/components/trips/add-trip-button";
 import { EngineHoursChart } from "@/components/trips/engine-hours-chart";
 import { DeleteTripButton } from "@/components/trips/delete-trip-button";
+import { EditTripButton } from "@/components/trips/edit-trip-button";
 
 
 export const dynamic = "force-dynamic";
@@ -261,12 +262,20 @@ export default async function TripsPage() {
                         <div className="text-xs text-slate-400 mt-1 line-clamp-2">{trip.notes}</div>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-1 shrink-0">
                       {src && (
                         <span className="text-xs font-medium text-ocean-600 bg-ocean-50 border border-ocean-200 rounded-full px-2 py-0.5">
                           {src}
                         </span>
                       )}
+                      <EditTripButton
+                        tripId={trip.id}
+                        startedAt={trip.started_at}
+                        endedAt={trip.ended_at}
+                        engineHoursDelta={trip.engine_hours_delta}
+                        fuelAddedLitres={trip.fuel_added_litres}
+                        notes={trip.notes}
+                      />
                       <DeleteTripButton tripId={trip.id} />
                     </div>
                   </div>

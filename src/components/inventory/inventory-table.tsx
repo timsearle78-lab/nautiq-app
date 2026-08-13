@@ -1,6 +1,7 @@
 import { StockAdjustForm } from "@/components/inventory/stock-adjust-form";
 import type { InventoryItemRow } from "@/lib/inventory/queries";
 import Link from "next/link";
+import { Pencil } from "lucide-react";
 
 function getStatus(item: InventoryItemRow) {
   if (item.is_critical && Number(item.quantity) <= 0) {
@@ -70,9 +71,14 @@ export function InventoryTable({
                       )}
                     </div>
                     <div className="flex-shrink-0 flex flex-col items-end gap-1">
-                      <span className="text-sm font-semibold text-slate-800">
-                        {item.quantity}{item.unit ? ` ${item.unit}` : ""}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm font-semibold text-slate-800">
+                          {item.quantity}{item.unit ? ` ${item.unit}` : ""}
+                        </span>
+                        <Link href={`/inventory/${item.id}`} className="rounded-lg p-1 text-slate-300 hover:bg-ocean-50 hover:text-ocean-600 transition" aria-label="Edit item">
+                          <Pencil size={13} />
+                        </Link>
+                      </div>
                       <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${status.badgeCls}`}>
                         {status.label}
                       </span>
@@ -108,12 +114,17 @@ export function InventoryTable({
                   return (
                     <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 align-middle">
                       <td className="px-4 py-3">
-                        <Link
-                          href={`/inventory/${item.id}`}
-                          className="font-medium text-ocean-600 hover:text-ocean-700 hover:underline"
-                        >
-                          {item.name}
-                        </Link>
+                        <div className="flex items-center gap-1.5">
+                          <Link
+                            href={`/inventory/${item.id}`}
+                            className="font-medium text-ocean-600 hover:text-ocean-700 hover:underline"
+                          >
+                            {item.name}
+                          </Link>
+                          <Link href={`/inventory/${item.id}`} className="rounded-lg p-1 text-slate-300 hover:bg-ocean-50 hover:text-ocean-600 transition" aria-label="Edit item">
+                            <Pencil size={13} />
+                          </Link>
+                        </div>
                         <div className="text-xs text-slate-400 mt-0.5">
                           {item.category ?? "Uncategorised"}
                           {item.is_critical ? " · Critical" : ""}

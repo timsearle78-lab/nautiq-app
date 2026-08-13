@@ -17,6 +17,7 @@ import { LogMaintenanceForm } from "@/components/components/log-maintenance-form
 import { EditComponentForm } from "@/components/components/edit-component-form";
 import LogMaintenanceButton from "@/components/components/log-maintenance-button";
 import { DeleteMaintenanceEventButton } from "@/components/components/delete-maintenance-event-button";
+import { EditMaintenanceButton } from "@/components/components/edit-maintenance-button";
 
 type ComponentPageProps = {
   params: Promise<{ id: string }>;
@@ -310,7 +311,19 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                         {row.cost != null ? `$${Number(row.cost).toFixed(2)}` : "—"}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <DeleteMaintenanceEventButton eventId={row.id} componentId={component.id} />
+                        <div className="flex items-center justify-end gap-0.5">
+                          <EditMaintenanceButton
+                            eventId={row.id}
+                            componentId={component.id}
+                            performedAt={row.performed_at}
+                            workDone={row.work_done}
+                            notes={row.notes}
+                            vendor={row.vendor}
+                            engineHoursAtService={row.engine_hours_at_service}
+                            cost={row.cost}
+                          />
+                          <DeleteMaintenanceEventButton eventId={row.id} componentId={component.id} />
+                        </div>
                       </td>
                     </tr>
                   ))}

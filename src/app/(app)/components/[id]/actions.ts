@@ -136,6 +136,66 @@ export async function logMaintenance(
   }
 }
 
+export async function updateMaintenanceEvent(
+  _prev: MaintenanceActionState,
+  formData: FormData
+): Promise<MaintenanceActionState> {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) return { error: "You must be signed in." };
+
+    const eventId = String(formData.get("event_id") ?? "").trim();
+    const componentId = String(formData.get("component_id") ?? "").trim();
+    const performedAt = String(formData.get("performed_at") ?? "").trim();
+    const workDone = String(formData.get("work_done") ?? "").trim();
+    const notes = String(formData.get("notes") ?? "").trim() || null;
+    const vendor = String(formData.get("vendor") ?? "").trim() || null;
+    const engineHoursAtService = parseOptionalNumber(formData.get("engine_hours_at_service"));
+    const cost = parseOptionalNumber(formData.get("cost"));
+
+    if (!eventId) return { error: "Event ID is required." };
+    if (!performedAt) return { error: "Performed date is required." };
+    if (!workDone) return { error: "Work done is required." };
+
+    const { error: updateError } = await supabase
+      .from("maintenance_events")
+      .update({ performed_at: performedAt, work_done: workDone, notes, vendor, engine_hours_at_service: engineHoursAtService, cost })
+      .eq("id", eventId)
+      .eq("user_id", user.id);
+
+    if (updateError) return { error: `Failed to update: ${updateError.message}` };
+
+    // Recompute component last_serviced_at from the most recent event
+    const { data: latest } = await supabase
+      .from("maintenance_events")
+      .select("performed_at, engine_hours_at_service")
+      .eq("component_id", componentId)
+      .eq("user_id", user.id)
+      .order("performed_at", { ascending: false, nullsFirst: false })
+      .limit(1)
+      .single();
+
+    if (latest?.performed_at) {
+      await supabase
+        .from("components")
+        .update({
+          last_serviced_at: latest.performed_at,
+          ...(latest.engine_hours_at_service != null ? { last_serviced_hours: latest.engine_hours_at_service } : {}),
+        })
+        .eq("id", componentId)
+        .eq("user_id", user.id);
+    }
+
+    revalidatePath(`/components/${componentId}`);
+    revalidatePath("/components");
+    revalidatePath("/maintenance");
+    return { success: "Maintenance record updated." };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Failed to update." };
+  }
+}
+
 export async function deleteMaintenanceEvent(eventId: string, componentId: string): Promise<void> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

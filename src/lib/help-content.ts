@@ -66,7 +66,9 @@ To delete a boat:
 
 3. Talk to the AI: On the Home screen, type or say something like "I went sailing for 3 hours today" or "motored 2.5 hours, added 40 litres of fuel." The AI will parse your description and show a trip card for you to confirm before saving.
 
-Engine hours are required for every trip — they're used to calculate when maintenance is due.`,
+Engine hours are required for every trip — they're used to calculate when maintenance is due.
+
+To edit or delete a trip: Go to the Trips page, find the trip in the list, and tap the pencil icon to edit it. You can change the dates, times, engine hours, fuel, and notes. Tap the bin icon to delete a trip.`,
   },
   {
     id: "maintenance",
@@ -86,6 +88,8 @@ To log maintenance:
 5. Tap "Save maintenance record." Photos are uploaded automatically after the record is saved.
 
 You can also tap "+ Log Maintenance" on the Home screen to log maintenance without navigating to the component page first — just pick the component from the dropdown.
+
+To edit a maintenance record: Go to a component's page, scroll to Maintenance history, and tap the pencil icon next to any record. You can update the date, work done, engine hours, vendor, cost, and notes.
 
 After logging, the component's health score resets and the next due date is recalculated.
 
@@ -168,7 +172,9 @@ To adjust stock (used or restocked a part):
 
 Linking spares to components: When a spare is linked to a component, low stock for that spare increases the component's risk score — so you'll be reminded to restock before you need to service it.
 
-Expiry dates: You can record an expiry date on any inventory item (e.g. flares, first aid supplies, epoxy, fuel treatment). Items expiring within 90 days show an amber "Exp. Xd" badge; expired items show a red "Expired" badge. The Inventory page shows an "Expiring soon" tile so you can see at a glance how many items need attention. Expired and near-expired critical items also increase your boat's health risk score.`,
+Expiry dates: You can record an expiry date on any inventory item (e.g. flares, first aid supplies, epoxy, fuel treatment). Items expiring within 90 days show an amber "Exp. Xd" badge; expired items show a red "Expired" badge. The Inventory page shows an "Expiring soon" tile so you can see at a glance how many items need attention. Expired and near-expired critical items also increase your boat's health risk score.
+
+To edit an inventory item: Tap the pencil icon next to an item in the list, or tap the item name to open its detail page and edit all fields there.`,
   },
   {
     id: "chat",
