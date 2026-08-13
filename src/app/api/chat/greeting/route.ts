@@ -92,14 +92,23 @@ ${context}
 
 Instructions:
 - Open with "Good ${timeOfDay}!"
-- Give a brief, friendly status summary (2-3 sentences)
-- If health score >= 80 and they've logged maintenance recently: praise their dedication
-- If health score < 60 or overdue count > 0: gently encourage them to tackle something
-- If they haven't been out in 14+ days or have no trips recorded: encourage them to get the boat out
-- Casually mention logging diesel top-ups or trips if relevant
-- Keep it to 3-5 sentences. Warm, practical, encouraging. Plain text — no markdown, no bullet points.
-- Never mention the owner's name (we don't have it). Refer to the boat by name.`,
+- Write exactly TWO short paragraphs separated by a blank line (\\n\\n).
+- Paragraph 1 (2 sentences): friendly overall status — mention the boat by name, health score feel, recent activity.
+- Paragraph 2 (1-2 sentences): one concrete nudge or encouragement — overdue item, getting out on the water, or praise if everything is great.
+- If health score >= 80 and maintenance recent: praise their dedication.
+- If health score < 60 or overdue count > 0: gently encourage them to tackle something.
+- If they haven't been out in 14+ days or no trips: encourage them to get the boat out.
+- Warm, practical, encouraging. Plain text only — no markdown, no bullet points, no bold.
+- Never mention the owner's name. Refer to the boat by name.`,
   });
 
-  return Response.json({ greeting: text });
+  return Response.json({
+    greeting: text,
+    healthScore,
+    overdueCount,
+    dueSoonCount,
+    engineHours: engineHoursRes.data ?? 0,
+    tripCount: recentTrips.length,
+    daysSinceTrip,
+  });
 }

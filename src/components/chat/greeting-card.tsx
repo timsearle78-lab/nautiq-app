@@ -6,8 +6,18 @@ interface GreetingCardProps {
   boatId: string;
 }
 
+interface GreetingData {
+  greeting: string;
+  healthScore: number;
+  overdueCount: number;
+  dueSoonCount: number;
+  engineHours: number;
+  tripCount: number;
+  daysSinceTrip: number | null;
+}
+
 export default function GreetingCard({ boatId }: GreetingCardProps) {
-  const [greeting, setGreeting] = useState<string | null>(null);
+  const [data, setData] = useState<GreetingData | null>(null);
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
@@ -18,20 +28,29 @@ export default function GreetingCard({ boatId }: GreetingCardProps) {
       body: JSON.stringify({ boatId, localHour }),
     })
       .then((r) => r.json())
-      .then((data) => {
-        if (data.greeting) setGreeting(data.greeting);
+      .then((d) => {
+        if (d.greeting) setData(d);
       })
       .catch(() => {});
   }, [boatId]);
 
   if (dismissed) return null;
 
+  const paragraphs = data?.greeting.split(/\n\n+/).filter(Boolean) ?? [];
+
+  const healthColor =
+    !data ? "text-slate-500" :
+    data.healthScore >= 80 ? "text-green-600" :
+    data.healthScore >= 60 ? "text-amber-600" :
+    "text-red-600";
+
   return (
     <div className="mx-4 mt-4 rounded-2xl rounded-tl-sm border border-slate-200 bg-white shadow-sm overflow-hidden">
       <div className="px-1 pt-1">
         <div className="rounded-xl bg-ocean-50 border border-ocean-100 px-4 py-3">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-2 mb-2">
+          {/* Header row */}
+          <div className="flex items-start justify-between gap-2 mb-2.5">
+            <div className="flex items-center gap-2">
               <svg
                 width={20}
                 height={20}
@@ -59,8 +78,59 @@ export default function GreetingCard({ boatId }: GreetingCardProps) {
               ✕
             </button>
           </div>
-          {greeting ? (
-            <p className="text-sm text-slate-700 leading-relaxed">{greeting}</p>
+
+          {/* Stat chips */}
+          {data ? (
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+                data.healthScore >= 80 ? "border-green-200 bg-green-50 text-green-700" :
+                data.healthScore >= 60 ? "border-amber-200 bg-amber-50 text-amber-700" :
+                "border-red-200 bg-red-50 text-red-700"
+              }`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${
+                  data.healthScore >= 80 ? "bg-green-500" :
+                  data.healthScore >= 60 ? "bg-amber-500" : "bg-red-500"
+                }`} />
+                Health {data.healthScore}/100
+              </span>
+
+              {data.overdueCount > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700">
+                  {data.overdueCount} overdue
+                </span>
+              )}
+              {data.overdueCount === 0 && data.dueSoonCount > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                  {data.dueSoonCount} due soon
+                </span>
+              )}
+
+              {data.engineHours > 0 && (
+                <span className="inline-flex items-center rounded-full border border-ocean-200 bg-ocean-50 px-2.5 py-0.5 text-xs font-medium text-ocean-700">
+                  {data.engineHours}h engine
+                </span>
+              )}
+
+              {data.tripCount > 0 && (
+                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-medium text-slate-600">
+                  {data.tripCount} trip{data.tripCount !== 1 ? "s" : ""} this month
+                </span>
+              )}
+            </div>
+          ) : (
+            <div className="flex gap-1.5 mb-3">
+              <div className="h-5 w-24 bg-ocean-100 rounded-full animate-pulse" />
+              <div className="h-5 w-20 bg-ocean-100 rounded-full animate-pulse" />
+            </div>
+          )}
+
+          {/* Greeting text */}
+          {paragraphs.length > 0 ? (
+            <div className="space-y-2">
+              {paragraphs.map((p, i) => (
+                <p key={i} className="text-sm text-slate-700 leading-relaxed">{p}</p>
+              ))}
+            </div>
           ) : (
             <div className="space-y-2">
               <div className="h-3.5 bg-ocean-100 rounded animate-pulse w-full" />
