@@ -30,7 +30,7 @@ export async function DELETE() {
   // Delete remaining user-owned records (cascades handle some, but be explicit)
   await supabase.from("maintenance_drafts").delete().eq("user_id", userId);
   await supabase.from("trip_drafts").delete().eq("user_id", userId);
-  await supabase.from("notification_preferences").delete().eq("user_id", userId);
+  await supabase.from("user_settings").delete().eq("user_id", userId);
   await supabase.from("component_overdue_notifications").delete().eq("user_id", userId);
 
   // Delete the auth user using the service role admin client

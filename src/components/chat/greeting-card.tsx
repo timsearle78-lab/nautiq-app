@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 interface GreetingCardProps {
   boatId: string;
+  hidden: boolean;
 }
 
 interface GreetingData {
@@ -16,18 +17,12 @@ interface GreetingData {
   daysSinceTrip: number | null;
 }
 
-const HIDE_KEY = "nautiq_hide_greeting";
-
-export default function GreetingCard({ boatId }: GreetingCardProps) {
+export default function GreetingCard({ boatId, hidden }: GreetingCardProps) {
   const [data, setData] = useState<GreetingData | null>(null);
   const [dismissed, setDismissed] = useState(false);
-  const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem(HIDE_KEY) === "true") {
-      setHidden(true);
-      return;
-    }
+    if (hidden) return;
     const localHour = new Date().getHours();
     fetch("/api/chat/greeting", {
       method: "POST",
@@ -39,17 +34,11 @@ export default function GreetingCard({ boatId }: GreetingCardProps) {
         if (d.greeting) setData(d);
       })
       .catch(() => {});
-  }, [boatId]);
+  }, [boatId, hidden]);
 
   if (hidden || dismissed) return null;
 
   const paragraphs = data?.greeting.split(/\n\n+/).filter(Boolean) ?? [];
-
-  const healthColor =
-    !data ? "text-slate-500" :
-    data.healthScore >= 80 ? "text-green-600" :
-    data.healthScore >= 60 ? "text-amber-600" :
-    "text-red-600";
 
   return (
     <div className="mx-4 mt-4 rounded-2xl rounded-tl-sm border border-slate-200 bg-white shadow-sm overflow-hidden">

@@ -110,7 +110,7 @@ export async function updateNotificationPreferences(_prev: ActionState, formData
   const overdue_alerts = formData.get("overdue_alerts") === "on";
 
   const { error } = await supabase
-    .from("notification_preferences")
+    .from("user_settings")
     .upsert(
       { user_id: user.id, email, health_summary, health_summary_day, overdue_alerts },
       { onConflict: "user_id" }
@@ -120,6 +120,23 @@ export async function updateNotificationPreferences(_prev: ActionState, formData
 
   revalidatePath("/settings");
   return { success: "Notification preferences saved", savedAt: Date.now() };
+}
+
+export async function updateGreetingPreference(hide: boolean): Promise<ActionState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .upsert(
+      { user_id: user.id, email: user.email ?? "", hide_greeting: hide },
+      { onConflict: "user_id" }
+    );
+
+  if (error) return { error: error.message };
+  revalidatePath("/settings");
+  return { success: "Saved" };
 }
 
 export async function triggerNotificationsNow(_prev: ActionState): Promise<ActionState> {

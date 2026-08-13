@@ -48,6 +48,7 @@ interface ChatInterfaceProps {
   missingSuggestions: SuggestedComponent[];
   pendingDrafts: MaintenanceDraft[];
   pendingTripDrafts: TripDraftFromEmail[];
+  hideGreeting: boolean;
 }
 
 function tokenize(s: string) {
@@ -146,7 +147,7 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
   );
 }
 
-export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts }: ChatInterfaceProps) {
+export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, hideGreeting }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -363,7 +364,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
         {messages.length === 0 ? (
           /* Empty state: gauge + stats + maintenance */
           <div className="pt-1 pb-4 space-y-4">
-            <GreetingCard boatId={boat.id} />
+            <GreetingCard boatId={boat.id} hidden={hideGreeting} />
             {/* Health score card with gauge */}
             <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 mx-4">
               <div className="flex items-center justify-between gap-4">

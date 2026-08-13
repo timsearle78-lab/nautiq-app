@@ -19,6 +19,7 @@ type NotificationPrefs = {
   health_summary: "none" | "daily" | "weekly";
   health_summary_day: number;
   overdue_alerts: boolean;
+  hide_greeting: boolean;
 };
 
 type BoatRow = { id: string; name: string; type: string | null; image_url: string | null; propulsion: string | null; hull_design: string | null; hull_material: string | null; length_m: number | null; beam_m: number | null; draft_m: number | null; description: string | null };
@@ -47,8 +48,8 @@ export default async function SettingsPage() {
   }
 
   const { data: notifPrefsData } = await supabase
-    .from("notification_preferences")
-    .select("email, health_summary, health_summary_day, overdue_alerts")
+    .from("user_settings")
+    .select("email, health_summary, health_summary_day, overdue_alerts, hide_greeting")
     .eq("user_id", user.id)
     .single();
   const notifPrefs = notifPrefsData as NotificationPrefs | null;
@@ -147,7 +148,7 @@ export default async function SettingsPage() {
         <div className="px-4 py-4 space-y-4">
           <ThemeToggle />
           <div className="border-t border-slate-100 pt-4">
-            <GreetingToggle />
+            <GreetingToggle initialHidden={notifPrefs?.hide_greeting ?? false} />
           </div>
         </div>
       </section>
