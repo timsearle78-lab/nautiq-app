@@ -1,20 +1,9 @@
--- Fix adjust_inventory_stock RPC: consume transactions were stored with a
--- positive quantity_delta, causing them to display as Added in history.
--- Correct behaviour:
---   add     -> positive delta, quantity increases
---   consume -> negative delta, quantity decreases
---   correct -> signed delta applied directly
-
 CREATE OR REPLACE FUNCTION public.adjust_inventory_stock(
   p_inventory_item_id uuid,
-  p_transaction_type   text,
-  p_quantity_delta     numeric,
-  p_notes              text DEFAULT NULL
-)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
+  p_transaction_type text,
+  p_quantity_delta numeric,
+  p_notes text
+) RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $func$
 DECLARE
   v_stored_delta numeric;
 BEGIN
@@ -42,4 +31,4 @@ BEGIN
   VALUES
     (p_inventory_item_id, p_transaction_type, v_stored_delta, p_notes);
 END;
-$$;
+$func$;
