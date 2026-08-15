@@ -128,7 +128,7 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Fuel added (L)</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Fuel used (L)</label>
                   <input
                     name="fuel_added_litres"
                     type="number"

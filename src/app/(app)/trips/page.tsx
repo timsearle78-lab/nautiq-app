@@ -252,7 +252,7 @@ export default async function TripsPage() {
                           <span>{trip.engine_hours_delta}h engine</span>
                         )}
                         {trip.fuel_added_litres != null && (
-                          <span>{trip.fuel_added_litres}L fuel</span>
+                          <span>{trip.fuel_added_litres}L fuel used</span>
                         )}
                       </div>
                       {trip.notes && (
