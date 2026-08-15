@@ -71,7 +71,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     notFound();
   }
 
-  const [history, linkedInventory, boatInventory, tripsData] = await Promise.all([
+  const [history, linkedInventory, boatInventory, tripsData, { data: systemsData }] = await Promise.all([
     getComponentMaintenanceHistory(component.id),
     getLinkedInventory(component.id),
     getBoatInventory(component.boat_id),
@@ -82,13 +82,8 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       .not("engine_hours_delta", "is", null)
       .order("started_at", { ascending: true })
       .then((r) => (r.data ?? []) as { started_at: string | null; engine_hours_delta: number }[]),
+    supabase.from("systems").select("id,name").eq("boat_id", component.boat_id).order("name", { ascending: true }),
   ]);
-
-  const { data: systemsData } = await supabase
-    .from("systems")
-    .select("id,name")
-    .eq("boat_id", component.boat_id)
-    .order("name", { ascending: true });
   const systems = (systemsData ?? []) as { id: string; name: string }[];
 
   const health = getComponentHealthSummary(

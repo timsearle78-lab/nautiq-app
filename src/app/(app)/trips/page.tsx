@@ -112,13 +112,10 @@ export default async function TripsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const boatId = await getSelectedBoatId();
-
-  const { data: boats } = await supabase
-    .from("boats")
-    .select("id, name")
-    .eq("user_id", user.id)
-    .order("created_at");
+  const [boatId, { data: boats }] = await Promise.all([
+    getSelectedBoatId(),
+    supabase.from("boats").select("id, name").eq("user_id", user.id).order("created_at"),
+  ]);
 
   const boat = boats?.find((b) => b.id === boatId) ?? boats?.[0] ?? null;
 

@@ -34,11 +34,18 @@ export default async function SettingsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: boatsData, error: boatsErr } = await supabase
-    .from("boats")
-    .select("id,name,type,image_url,propulsion,hull_design,hull_material,length_m,beam_m,draft_m,description,fuel_consumption_lph")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true });
+  const [{ data: boatsData, error: boatsErr }, { data: notifPrefsData }] = await Promise.all([
+    supabase
+      .from("boats")
+      .select("id,name,type,image_url,propulsion,hull_design,hull_material,length_m,beam_m,draft_m,description,fuel_consumption_lph")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("user_settings")
+      .select("email, health_summary, health_summary_day, overdue_alerts, hide_greeting, hide_whats_new")
+      .eq("user_id", user.id)
+      .single(),
+  ]);
 
   // image_url column may not exist yet — fall back to query without it
   let boats: BoatRow[];
@@ -48,12 +55,6 @@ export default async function SettingsPage() {
   } else {
     boats = (boatsData ?? []) as BoatRow[];
   }
-
-  const { data: notifPrefsData } = await supabase
-    .from("user_settings")
-    .select("email, health_summary, health_summary_day, overdue_alerts, hide_greeting, hide_whats_new")
-    .eq("user_id", user.id)
-    .single();
   const notifPrefs = notifPrefsData as NotificationPrefs | null;
 
   const boatIds = boats.map((b) => b.id);

@@ -25,18 +25,19 @@ export default async function ChatPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: boats, error: boatsErr } = await supabase
-    .from("boats")
-    .select("id, name, type, propulsion, hull_design, hull_material")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true });
+  const [{ data: boats, error: boatsErr }, selectedBoatId] = await Promise.all([
+    supabase
+      .from("boats")
+      .select("id, name, type, propulsion, hull_design, hull_material")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true }),
+    getSelectedBoatId(),
+  ]);
 
   // Fall back to base columns if new spec columns don't exist yet in DB
   const boatList = boatsErr
     ? ((await supabase.from("boats").select("id, name, type").eq("user_id", user.id).order("created_at", { ascending: true })).data ?? [])
     : (boats ?? []);
-
-  const selectedBoatId = await getSelectedBoatId();
   const boat = boatList.find((b) => b.id === selectedBoatId) ?? boatList[0];
 
   if (!boat) redirect("/onboarding");

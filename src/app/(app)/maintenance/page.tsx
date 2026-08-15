@@ -131,13 +131,10 @@ export default async function MaintenancePage({
   const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const allHealthRaw = await getBoatHealth(boat.id);
-
-  const { data: maintenanceSystemsData } = await supabase
-    .from("systems")
-    .select("id,name")
-    .eq("boat_id", boat.id)
-    .order("name");
+  const [allHealthRaw, { data: maintenanceSystemsData }] = await Promise.all([
+    getBoatHealth(boat.id),
+    supabase.from("systems").select("id,name").eq("boat_id", boat.id).order("name"),
+  ]);
 
   const maintenanceSystems = (maintenanceSystemsData ?? []) as { id: string; name: string }[];
 

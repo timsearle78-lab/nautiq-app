@@ -113,13 +113,10 @@ export default async function ComponentsPage({
   const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const healthData = await getBoatHealth(boat.id);
-
-  const { data: systemsData } = await supabase
-    .from("systems")
-    .select("id,name")
-    .eq("boat_id", boat.id)
-    .order("name");
+  const [healthData, { data: systemsData }] = await Promise.all([
+    getBoatHealth(boat.id),
+    supabase.from("systems").select("id,name").eq("boat_id", boat.id).order("name"),
+  ]);
 
   const boatSystems = (systemsData ?? []) as { id: string; name: string }[];
 

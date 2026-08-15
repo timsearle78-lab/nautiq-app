@@ -24,33 +24,30 @@ export default async function CostsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const selectedBoatId = await getSelectedBoatId();
-  const { data: boats } = await supabase
-    .from("boats")
-    .select("id, name")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true });
+  const [selectedBoatId, { data: boats }] = await Promise.all([
+    getSelectedBoatId(),
+    supabase.from("boats").select("id, name").eq("user_id", user.id).order("created_at", { ascending: true }),
+  ]);
 
   const boatList = boats ?? [];
   const boat = boatList.find((b) => b.id === selectedBoatId) ?? boatList[0];
   if (!boat) redirect("/onboarding");
 
-  // Fetch maintenance costs
-  const { data: maintenanceData } = await supabase
-    .from("maintenance_events")
-    .select("performed_at, cost, component:components(name, system:systems(name))")
-    .eq("boat_id", boat.id)
-    .not("cost", "is", null)
-    .order("performed_at", { ascending: false });
-
-  // Fetch inventory purchase costs
-  const { data: partsData } = await supabase
-    .from("inventory_transactions")
-    .select("created_at, cost, notes, inventory_item:inventory_items(name, category)")
-    .eq("boat_id", boat.id)
-    .eq("transaction_type", "add")
-    .not("cost", "is", null)
-    .order("created_at", { ascending: false });
+  const [{ data: maintenanceData }, { data: partsData }] = await Promise.all([
+    supabase
+      .from("maintenance_events")
+      .select("performed_at, cost, component:components(name, system:systems(name))")
+      .eq("boat_id", boat.id)
+      .not("cost", "is", null)
+      .order("performed_at", { ascending: false }),
+    supabase
+      .from("inventory_transactions")
+      .select("created_at, cost, notes, inventory_item:inventory_items(name, category)")
+      .eq("boat_id", boat.id)
+      .eq("transaction_type", "add")
+      .not("cost", "is", null)
+      .order("created_at", { ascending: false }),
+  ]);
 
   type MRow = {
     performed_at: string | null;
