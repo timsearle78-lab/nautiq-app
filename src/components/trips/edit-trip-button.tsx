@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, X } from "lucide-react";
+import { Pencil, X, Fuel } from "lucide-react";
 import { updateTrip } from "@/app/(app)/trips/actions";
 
 const inputCls =
@@ -26,6 +26,7 @@ function buildIso(date: string, time: string) {
 
 interface Props {
   tripId: string;
+  boatId: string;
   startedAt: string | null;
   endedAt: string | null;
   engineHoursDelta: number | null;
@@ -33,9 +34,24 @@ interface Props {
   notes: string | null;
 }
 
-export function EditTripButton({ tripId, startedAt, endedAt, engineHoursDelta, fuelAddedLitres, notes }: Props) {
+type FuelPreview = { rate: number; fuelItem: { name: string; quantity: number; unit: string | null } | null } | null;
+
+export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHoursDelta, fuelAddedLitres, notes }: Props) {
   const [open, setOpen] = useState(false);
+  const [engineHoursVal, setEngineHoursVal] = useState(engineHoursDelta?.toString() ?? "");
+  const [fuelVal, setFuelVal] = useState(fuelAddedLitres?.toString() ?? "");
+  const [fuelPreview, setFuelPreview] = useState<FuelPreview>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    fetch(`/api/boats/fuel-preview?boatId=${boatId}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (!cancelled && data?.rate) setFuelPreview(data); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [boatId, open]);
 
   const [state, formAction, pending] = useActionState(
     async (prev: { error?: string; success?: string }, fd: FormData) => {
@@ -100,13 +116,51 @@ export function EditTripButton({ tripId, startedAt, endedAt, engineHoursDelta, f
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Engine hours</label>
-                  <input name="engine_hours_delta" type="number" min="0" step="0.1" defaultValue={engineHoursDelta ?? ""} placeholder="Optional" className={inputCls} />
+                  <input
+                    name="engine_hours_delta"
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={engineHoursVal}
+                    onChange={(e) => setEngineHoursVal(e.target.value)}
+                    placeholder="Optional"
+                    className={inputCls}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Fuel added (L)</label>
-                  <input name="fuel_added_litres" type="number" min="0" step="0.1" defaultValue={fuelAddedLitres ?? ""} placeholder="Optional" className={inputCls} />
+                  <input
+                    name="fuel_added_litres"
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={fuelVal}
+                    onChange={(e) => setFuelVal(e.target.value)}
+                    placeholder="Optional"
+                    className={inputCls}
+                  />
                 </div>
               </div>
+              {(() => {
+                const hours = parseFloat(engineHoursVal);
+                const fp = fuelPreview;
+                if (!fp || !hours || hours <= 0 || fuelVal) return null;
+                const estimated = Math.round(hours * fp.rate * 10) / 10;
+                const itemName = fp.fuelItem?.name ?? "fuel";
+                const currentStock = fp.fuelItem ? fp.fuelItem.quantity : null;
+                const unit = fp.fuelItem?.unit ?? "L";
+                return (
+                  <div className="flex items-start gap-2 rounded-xl border border-ocean-200 bg-ocean-50 px-3 py-2.5">
+                    <Fuel size={15} className="text-ocean-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-ocean-800 leading-snug">
+                      <span className="font-semibold">~{estimated} L</span> of <span className="font-medium">{itemName}</span> will be estimated and deducted from inventory
+                      {currentStock != null && (
+                        <span className="text-ocean-600"> (currently {currentStock} {unit})</span>
+                      )}
+                    </p>
+                  </div>
+                );
+              })()}
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Notes</label>

@@ -267,6 +267,7 @@ export default async function TripsPage() {
                       )}
                       <EditTripButton
                         tripId={trip.id}
+                        boatId={boat!.id}
                         startedAt={trip.started_at}
                         endedAt={trip.ended_at}
                         engineHoursDelta={trip.engine_hours_delta}
