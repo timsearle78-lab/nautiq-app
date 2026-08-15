@@ -13,6 +13,7 @@ export const CHANGELOG: Release[] = [
       "Edit trips, maintenance records, and inventory items — tap the pencil icon next to any row to update details in a quick-edit form",
       "Hide the Personal Boat Assistant greeting card — go to Settings → Appearance to turn it off if you prefer a cleaner Home screen",
       "Hide the What's New card — go to Settings → Appearance to stop release notes appearing on the Home page",
+      "Automatic fuel estimation — set a fuel consumption rate (litres/hour) on your boat in Settings, and fuel used will be calculated and deducted from inventory automatically when you log a trip without entering fuel manually",
     ],
   },
   {

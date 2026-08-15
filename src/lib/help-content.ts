@@ -72,6 +72,8 @@ To delete a boat:
 
 Engine hours are required for every trip — they're used to calculate when maintenance is due.
 
+Automatic fuel estimation: If you leave the Fuel field blank but enter engine hours, NautIQ can calculate fuel used automatically. Go to Settings → Your boats → edit your boat, and set a "Fuel consumption" rate in litres per hour (e.g. 8.5 for a typical diesel). Once set, any trip saved without manual fuel entry will have fuel estimated from hours × rate, and that amount will be deducted from your fuel inventory automatically.
+
 To edit or delete a trip: Go to the Trips page, find the trip in the list, and tap the pencil icon to edit it. You can change the dates, times, engine hours, fuel, and notes. Tap the bin icon to delete a trip.`,
   },
   {
@@ -267,7 +269,9 @@ BOAT SETUP: First-time wizard asks for name, type, propulsion, hull design, hull
 
 SYSTEMS: Manage systems (groups of components) in Profile → Settings → Systems. Add a system by typing its name and tapping "Add." Delete a system using the trash icon next to it.
 
-LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving (GPS location captured), "Stop Trip" when back (GPS location captured again); (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours."
+LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving (GPS location captured), "Stop Trip" when back (GPS location captured again); (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours." If you enter engine hours but leave Fuel blank, NautIQ will estimate fuel used automatically if a fuel consumption rate (litres/hour) is set on your boat in Settings. The estimated fuel is saved with the trip and deducted from your fuel inventory.
+
+FUEL CONSUMPTION RATE: Set in Profile → Settings → Your boats → edit your boat → "Fuel consumption (litres/hour)". Once set, any trip saved without manual fuel entry will calculate fuel as hours × rate and deduct that amount from inventory automatically. The transaction note will show it was auto-estimated.
 
 EMAIL TO LOG: Email maintenance notes to log@nautiq.cloud from your registered email address. NautIQ parses the email with AI and shows a pre-filled maintenance record card on the Home screen next time you open the app. Tap "Complete maintenance record" to review and save, or X to dismiss.
 

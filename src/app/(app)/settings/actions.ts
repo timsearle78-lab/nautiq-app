@@ -20,12 +20,13 @@ export async function updateBoat(_prev: ActionState, formData: FormData): Promis
   const beam_m = formData.get("beam_m") ? parseFloat(formData.get("beam_m") as string) : null;
   const draft_m = formData.get("draft_m") ? parseFloat(formData.get("draft_m") as string) : null;
   const description = (formData.get("description") as string)?.trim() || null;
+  const fuel_consumption_lph = formData.get("fuel_consumption_lph") ? parseFloat(formData.get("fuel_consumption_lph") as string) : null;
 
   if (!name) return { error: "Boat name is required" };
 
   const { error } = await supabase
     .from("boats")
-    .update({ name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description })
+    .update({ name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description, fuel_consumption_lph })
     .eq("id", boatId)
     .eq("user_id", user.id);
 
