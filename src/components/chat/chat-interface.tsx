@@ -44,7 +44,7 @@ interface ChatInterfaceProps {
   okCount: number;
   urgentItems: UrgentItem[];
   components: { id: string; name: string }[];
-  inventoryItems: { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];
+  inventoryItems: { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null; is_critical: boolean }[];
   missingSuggestions: SuggestedComponent[];
   pendingDrafts: MaintenanceDraft[];
   pendingTripDrafts: TripDraftFromEmail[];
@@ -165,6 +165,15 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
 
   const router = useRouter();
   const onTripSaved = useCallback(() => router.refresh(), [router]);
+
+  const lowCriticalItems = inventoryItems.filter(
+    (i) => i.minimum_quantity != null && i.quantity <= i.minimum_quantity && i.is_critical
+  );
+  const lowStockItems = inventoryItems.filter(
+    (i) => i.minimum_quantity != null && i.quantity <= i.minimum_quantity
+  );
+  const lowCriticalCount = lowCriticalItems.length;
+  const lowStockCount = lowStockItems.length;
 
   const { messages, setMessages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
@@ -375,16 +384,28 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 <div className="flex-1 grid grid-cols-2 gap-2">
                   <div className="rounded-xl bg-red-50 border border-red-100 px-3 py-3 text-center">
                     <div className="text-xl font-bold text-red-600">{overdueCount}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Overdue</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Maint. overdue</div>
                   </div>
                   <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center">
                     <div className="text-xl font-bold text-amber-600">{dueSoonCount}</div>
                     <div className="text-xs text-slate-500 mt-0.5">Due soon</div>
                   </div>
-                  <div className="rounded-xl bg-green-50 border border-green-100 px-3 py-3 text-center">
-                    <div className="text-xl font-bold text-green-600">{okCount}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Healthy</div>
-                  </div>
+                  {lowCriticalCount > 0 ? (
+                    <Link href="/inventory" className="rounded-xl bg-red-50 border border-red-200 px-3 py-3 text-center block">
+                      <div className="text-xl font-bold text-red-600">{lowCriticalCount}</div>
+                      <div className="text-xs text-red-700 font-medium mt-0.5">Critical low</div>
+                    </Link>
+                  ) : lowStockCount > 0 ? (
+                    <Link href="/inventory" className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center block">
+                      <div className="text-xl font-bold text-amber-600">{lowStockCount}</div>
+                      <div className="text-xs text-slate-500 mt-0.5">Spares low</div>
+                    </Link>
+                  ) : (
+                    <div className="rounded-xl bg-green-50 border border-green-100 px-3 py-3 text-center">
+                      <div className="text-xl font-bold text-green-600">{okCount}</div>
+                      <div className="text-xs text-slate-500 mt-0.5">Healthy</div>
+                    </div>
+                  )}
                   <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-3 text-center">
                     <div className="text-xl font-bold text-slate-500">{engineHours.toFixed(1)}</div>
                     <div className="text-xs text-slate-500 mt-0.5">Engine hrs</div>
@@ -393,12 +414,12 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
               </div>
             </div>
 
-            {/* Urgent items or all clear */}
-            {urgentItems.length > 0 ? (
+            {/* Urgent items + inventory issues, or all clear */}
+            {(urgentItems.length > 0 || lowStockCount > 0) ? (
               <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden mx-4">
                 <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
                   <h2 className="text-sm font-semibold text-slate-800">Needs attention</h2>
-                  <Link href="/maintenance" className="text-xs text-ocean-600 hover:text-ocean-700 font-medium">View all →</Link>
+                  <Link href="/health" className="text-xs text-ocean-600 hover:text-ocean-700 font-medium">View all →</Link>
                 </div>
                 {urgentItems.map((item) => {
                   const isOverdue = item.status === "overdue";
@@ -422,13 +443,39 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                     </Link>
                   );
                 })}
+                {lowStockItems.slice(0, 4).map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/inventory/${item.id}`}
+                    className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 active:bg-slate-50"
+                  >
+                    <AlertTriangle size={15} className={`flex-shrink-0 ${item.is_critical ? "text-red-500" : "text-amber-500"}`} />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium text-slate-800 truncate">{item.name}</div>
+                      <div className="text-xs text-slate-400">
+                        {item.quantity} {item.unit ?? ""} remaining
+                        {item.minimum_quantity != null ? ` · min ${item.minimum_quantity}` : ""}
+                      </div>
+                    </div>
+                    <span className={`text-xs font-medium flex-shrink-0 rounded-full border px-2 py-0.5 ${
+                      item.is_critical ? "text-red-600 bg-red-50 border-red-200" : "text-amber-600 bg-amber-50 border-amber-200"
+                    }`}>
+                      {item.is_critical ? "Critical" : "Low stock"}
+                    </span>
+                  </Link>
+                ))}
+                {lowStockCount > 4 && (
+                  <Link href="/inventory" className="block px-4 py-2.5 text-xs text-ocean-600 font-medium border-t border-slate-100">
+                    +{lowStockCount - 4} more low-stock items →
+                  </Link>
+                )}
               </div>
             ) : (
               <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3.5 flex items-center gap-3 mx-4">
                 <CheckCircle size={18} className="text-green-600 flex-shrink-0" />
                 <div>
                   <div className="text-sm font-semibold text-green-800">All clear</div>
-                  <div className="text-xs text-green-700 mt-0.5">No overdue or upcoming maintenance in the next 90 days.</div>
+                  <div className="text-xs text-green-700 mt-0.5">No overdue maintenance or low-stock items.</div>
                 </div>
               </div>
             )}

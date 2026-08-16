@@ -7,6 +7,15 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-08-16",
+    label: "August 2026 update",
+    features: [
+      "Smarter health dashboard — the Home screen now shows critical inventory shortfalls (e.g. low diesel, missing spares) as warning tiles alongside overdue maintenance, so any issue affecting your boat's health score is visible at a glance",
+      "Fuel used display — trip forms and trip history now correctly label fuel as 'Fuel used' and inventory history shows deductions as '− Used' rather than '+ Added'",
+      "Faster page loads — pages now fetch data in parallel and show animated skeletons while loading instead of a blank screen",
+    ],
+  },
+  {
     date: "2026-08-13",
     label: "August 2026 update",
     features: [

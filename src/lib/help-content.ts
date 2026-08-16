@@ -242,7 +242,15 @@ How the score is calculated:
 - Each component gets a risk score based on how far through its service interval it is (time and/or engine hours), plus a penalty if linked spares are low (out of stock: +25, below minimum: +15, at minimum: +5).
 - The boat health score is 100 minus the average component risk score.
 
-The score and breakdown are shown on the Home screen and in the health banner at the top of the chat.`,
+The score and breakdown are shown on the Home screen and in the health banner at the top of the chat.
+
+Home screen dashboard tiles: The four tiles next to the gauge on the Home screen highlight the most important issues.
+- "Maint. overdue" (red): number of components past their service interval.
+- "Due soon" (amber): components approaching their service interval.
+- "Critical low" (red) or "Spares low" (amber): shown instead of the healthy count when inventory items drop below their minimum stock level. Critical items are highlighted in red.
+- "Engine hrs": total engine hours logged.
+
+The "Needs attention" list below the gauge shows individual overdue or due-soon maintenance items (tap to open the component) and any low-stock inventory items (tap to open the inventory item). If everything is fine, a green "All clear" banner is shown.`,
   },
   {
     id: "navigation",
@@ -287,7 +295,7 @@ BOAT REPORT / PDF: Say "download a boat report" or "send me a PDF summary" to ge
 
 NOTIFICATIONS: Configure in Profile → Settings → Notifications. Options: (1) Notification email — defaults to your login email; enter another address to redirect alerts. (2) Boat health summary — Off / Daily / Weekly; emails only sent while issues exist. Weekly mode shows a day-of-week picker. (3) Overdue maintenance alerts — checkbox; sends an email when a component goes overdue, at most once per component per 7 days. Tap "Save preferences" to save. Use "Check now" to trigger an immediate check (sends emails if issues found).
 
-HEALTH SCORE: 0–100. Drops as components go overdue, spares run low, or inventory expires. Shown on the Home screen and in the header. Tap the score to open the Boat Health page — it explains exactly why the score is what it is, lists overdue maintenance, due-soon items, and inventory issues, and gives a specific recommendation for each item to restore the score to 100.
+HEALTH SCORE: 0–100. Drops as components go overdue, spares run low, or inventory expires. Shown on the Home screen and in the header. Tap the score to open the Boat Health page — it explains exactly why the score is what it is, lists overdue maintenance, due-soon items, and inventory issues, and gives a specific recommendation for each item to restore the score to 100. The Home screen shows four tiles: "Maint. overdue" (red), "Due soon" (amber), an inventory tile ("Critical low" in red or "Spares low" in amber when stock is low, else "Healthy" in green), and "Engine hrs". A "Needs attention" list below the gauge shows individual overdue/due-soon maintenance items and low-stock inventory items; tap any row to go to that component or inventory item.
 
 VOICE: Every notes field has a mic button. The main mic button on Home sends voice messages to the AI.
 
