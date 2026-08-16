@@ -92,8 +92,10 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
         const exp = new Date(item.expiry_date!); exp.setHours(0, 0, 0, 0);
         return exp <= in90Days2;
       })();
+      const isCriticalLow = item.is_critical && item.minimum_quantity != null && Number(item.quantity) <= Number(item.minimum_quantity);
       if (statusFilter === "missing" && !isMissing) return false;
       if (statusFilter === "low" && !isLow) return false;
+      if (statusFilter === "critical" && !isCriticalLow) return false;
       if (statusFilter === "expiring" && !isExpiring) return false;
       if (statusFilter === "ok" && (isMissing || isLow)) return false;
     }

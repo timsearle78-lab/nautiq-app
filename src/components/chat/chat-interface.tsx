@@ -382,34 +382,34 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                   <HealthGauge score={healthScore} overdueCount={overdueCount} size={130} />
                 </Link>
                 <div className="flex-1 grid grid-cols-2 gap-2">
-                  <div className="rounded-xl bg-red-50 border border-red-100 px-3 py-3 text-center">
+                  <Link href="/components?status=overdue" className="rounded-xl bg-red-50 border border-red-100 px-3 py-3 text-center block active:opacity-80">
                     <div className="text-xl font-bold text-red-600">{overdueCount}</div>
                     <div className="text-xs text-slate-500 mt-0.5">Maint. overdue</div>
-                  </div>
-                  <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center">
+                  </Link>
+                  <Link href="/components?status=due_soon" className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center block active:opacity-80">
                     <div className="text-xl font-bold text-amber-600">{dueSoonCount}</div>
                     <div className="text-xs text-slate-500 mt-0.5">Due soon</div>
-                  </div>
+                  </Link>
                   {lowCriticalCount > 0 ? (
-                    <Link href="/inventory" className="rounded-xl bg-red-50 border border-red-200 px-3 py-3 text-center block">
+                    <Link href="/inventory?status=critical" className="rounded-xl bg-red-50 border border-red-200 px-3 py-3 text-center block active:opacity-80">
                       <div className="text-xl font-bold text-red-600">{lowCriticalCount}</div>
                       <div className="text-xs text-red-700 font-medium mt-0.5">Critical low</div>
                     </Link>
                   ) : lowStockCount > 0 ? (
-                    <Link href="/inventory" className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center block">
+                    <Link href="/inventory?status=low" className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center block active:opacity-80">
                       <div className="text-xl font-bold text-amber-600">{lowStockCount}</div>
                       <div className="text-xs text-slate-500 mt-0.5">Spares low</div>
                     </Link>
                   ) : (
-                    <div className="rounded-xl bg-green-50 border border-green-100 px-3 py-3 text-center">
+                    <Link href="/health" className="rounded-xl bg-green-50 border border-green-100 px-3 py-3 text-center block active:opacity-80">
                       <div className="text-xl font-bold text-green-600">{okCount}</div>
                       <div className="text-xs text-slate-500 mt-0.5">Healthy</div>
-                    </div>
+                    </Link>
                   )}
-                  <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-3 text-center">
+                  <Link href="/trips" className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-3 text-center block active:opacity-80">
                     <div className="text-xl font-bold text-slate-500">{engineHours.toFixed(1)}</div>
                     <div className="text-xs text-slate-500 mt-0.5">Engine hrs</div>
-                  </div>
+                  </Link>
                 </div>
               </div>
             </div>

@@ -209,7 +209,7 @@ export default async function HealthPage() {
 
       {/* Overdue maintenance */}
       {overdue.length > 0 && (
-        <div className="rounded-2xl border border-red-200 bg-white shadow-sm overflow-hidden">
+        <div id="overdue" className="rounded-2xl border border-red-200 bg-white shadow-sm overflow-hidden">
           <div className="px-4 py-3 border-b border-red-100 bg-red-50 flex items-center gap-2">
             <AlertTriangle size={16} className="text-red-500 flex-shrink-0" />
             <h2 className="text-sm font-semibold text-red-700">Overdue maintenance ({overdue.length})</h2>
@@ -238,7 +238,7 @@ export default async function HealthPage() {
 
       {/* Due soon maintenance */}
       {dueSoon.length > 0 && (
-        <div className="rounded-2xl border border-amber-200 bg-white shadow-sm overflow-hidden">
+        <div id="due-soon" className="rounded-2xl border border-amber-200 bg-white shadow-sm overflow-hidden">
           <div className="px-4 py-3 border-b border-amber-100 bg-amber-50 flex items-center gap-2">
             <Clock size={16} className="text-amber-500 flex-shrink-0" />
             <h2 className="text-sm font-semibold text-amber-700">Due soon ({dueSoon.length})</h2>
