@@ -3,6 +3,8 @@ import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
+import { SpendByMonthChart } from "@/components/costs/spend-by-month-chart";
+import { SpendByCategoryChart, type CategorySlice } from "@/components/costs/spend-by-category-chart";
 
 export const dynamic = "force-dynamic";
 
@@ -92,6 +94,52 @@ export default async function CostsPage() {
 
   const hasData = grandTotal > 0;
 
+  // Build last 6 months of bars for the column chart
+  const now = new Date();
+  const monthBars = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const label = d.toLocaleDateString("en-NZ", { month: "short" }).slice(0, 3);
+    const isCurrent = i === 5;
+    return { key, label, isCurrent, maintenance: 0, parts: 0 };
+  });
+  const monthMap = new Map(monthBars.map((b) => [b.key, b]));
+  for (const r of mRows) {
+    if (!r.cost || !r.performed_at) continue;
+    const d = new Date(r.performed_at);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const bar = monthMap.get(key);
+    if (bar) bar.maintenance += Number(r.cost);
+  }
+  for (const r of pRows) {
+    if (!r.cost) continue;
+    const d = new Date(r.created_at);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const bar = monthMap.get(key);
+    if (bar) bar.parts += Number(r.cost);
+  }
+
+  // Build category slices for the pie chart
+  // Maintenance: group by system name; Parts: group by inventory category
+  const categoryMap = new Map<string, number>();
+  for (const r of mRows) {
+    if (!r.cost) continue;
+    const comp = Array.isArray(r.component) ? r.component[0] : r.component;
+    const sys = comp?.system;
+    const sysName = sys ? (Array.isArray(sys) ? sys[0]?.name : sys?.name) : null;
+    const key = sysName ?? "Maintenance";
+    categoryMap.set(key, (categoryMap.get(key) ?? 0) + Number(r.cost));
+  }
+  for (const r of pRows) {
+    if (!r.cost) continue;
+    const inv = Array.isArray(r.inventory_item) ? r.inventory_item[0] : r.inventory_item;
+    const key = inv?.category ?? "Parts";
+    categoryMap.set(key, (categoryMap.get(key) ?? 0) + Number(r.cost));
+  }
+  const categorySlices: CategorySlice[] = Array.from(categoryMap.entries())
+    .map(([name, amount]) => ({ name, amount }))
+    .sort((a, b) => b.amount - a.amount);
+
   function getComponentName(row: MRow): string {
     if (!row.component) return "Unknown";
     const c = Array.isArray(row.component) ? row.component[0] : row.component;
@@ -139,6 +187,12 @@ export default async function CostsPage() {
               <div className="text-xs text-slate-500 mb-1">Parts</div>
               <div className="text-xl font-bold text-emerald-600">{fmt(totalParts)}</div>
             </div>
+          </div>
+
+          {/* Charts */}
+          <div className="grid grid-cols-2 gap-3">
+            <SpendByMonthChart bars={monthBars} />
+            <SpendByCategoryChart slices={categorySlices} />
           </div>
 
           {/* Year-by-year breakdown */}
