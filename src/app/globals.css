@@ -63,6 +63,21 @@
   box-shadow: 0 0 0 3px rgb(21 160 214 / 0.15);
 }
 
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-fade-up {
+  animation: fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-fade-in {
+  animation: fadeIn 0.35s ease both;
+}
+
 .btn-primary {
   background: linear-gradient(135deg, #15A0D6, #0B7EB8);
 }

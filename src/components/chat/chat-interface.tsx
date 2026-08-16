@@ -52,6 +52,23 @@ interface ChatInterfaceProps {
   hideWhatsNew: boolean;
 }
 
+function useCountUp(target: number, decimals = 0, duration = 650) {
+  const [value, setValue] = useState(0);
+  const rafRef = useRef<number>(0);
+  useEffect(() => {
+    const start = performance.now();
+    function tick(now: number) {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(decimals > 0 ? parseFloat((eased * target).toFixed(decimals)) : Math.round(eased * target));
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [target, decimals, duration]);
+  return decimals > 0 ? value.toFixed(decimals) : value;
+}
+
 function tokenize(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(Boolean);
 }
@@ -174,6 +191,13 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   );
   const lowCriticalCount = lowCriticalItems.length;
   const lowStockCount = lowStockItems.length;
+
+  // Animated display values for dashboard tiles
+  const animOverdue = useCountUp(overdueCount);
+  const animDueSoon = useCountUp(dueSoonCount);
+  const animInventory = useCountUp(lowCriticalCount > 0 ? lowCriticalCount : lowStockCount > 0 ? lowStockCount : okCount);
+  const animEngineHours = useCountUp(engineHours, 1);
+  const animHealthScore = useCountUp(healthScore);
 
   const { messages, setMessages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
@@ -376,38 +400,38 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           <div className="pt-1 pb-4 space-y-4">
             <GreetingCard boatId={boat.id} hidden={hideGreeting} />
             {/* Health score card with gauge */}
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 mx-4">
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 mx-4 animate-fade-up" style={{ animationDelay: "0ms" }}>
               <div className="flex items-center justify-between gap-4">
                 <Link href="/health" className="hover:opacity-80 transition-opacity flex-shrink-0">
-                  <HealthGauge score={healthScore} overdueCount={overdueCount} size={130} />
+                  <HealthGauge score={animHealthScore as number} overdueCount={overdueCount} size={130} />
                 </Link>
                 <div className="flex-1 grid grid-cols-2 gap-2">
-                  <Link href="/components?status=overdue" className="rounded-xl bg-red-50 border border-red-100 px-3 py-3 text-center block active:opacity-80">
-                    <div className="text-xl font-bold text-red-600">{overdueCount}</div>
+                  <Link href="/components?status=overdue" className="rounded-xl bg-red-50 border border-red-100 px-3 py-3 text-center block active:opacity-80 animate-fade-up" style={{ animationDelay: "60ms" }}>
+                    <div className="text-xl font-bold text-red-600 tabular-nums">{animOverdue}</div>
                     <div className="text-xs text-slate-500 mt-0.5">Maint. overdue</div>
                   </Link>
-                  <Link href="/components?status=due_soon" className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center block active:opacity-80">
-                    <div className="text-xl font-bold text-amber-600">{dueSoonCount}</div>
+                  <Link href="/components?status=due_soon" className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center block active:opacity-80 animate-fade-up" style={{ animationDelay: "110ms" }}>
+                    <div className="text-xl font-bold text-amber-600 tabular-nums">{animDueSoon}</div>
                     <div className="text-xs text-slate-500 mt-0.5">Due soon</div>
                   </Link>
                   {lowCriticalCount > 0 ? (
-                    <Link href="/inventory?status=critical" className="rounded-xl bg-red-50 border border-red-200 px-3 py-3 text-center block active:opacity-80">
-                      <div className="text-xl font-bold text-red-600">{lowCriticalCount}</div>
+                    <Link href="/inventory?status=critical" className="rounded-xl bg-red-50 border border-red-200 px-3 py-3 text-center block active:opacity-80 animate-fade-up" style={{ animationDelay: "160ms" }}>
+                      <div className="text-xl font-bold text-red-600 tabular-nums">{animInventory}</div>
                       <div className="text-xs text-red-700 font-medium mt-0.5">Critical low</div>
                     </Link>
                   ) : lowStockCount > 0 ? (
-                    <Link href="/inventory?status=low" className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center block active:opacity-80">
-                      <div className="text-xl font-bold text-amber-600">{lowStockCount}</div>
+                    <Link href="/inventory?status=low" className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center block active:opacity-80 animate-fade-up" style={{ animationDelay: "160ms" }}>
+                      <div className="text-xl font-bold text-amber-600 tabular-nums">{animInventory}</div>
                       <div className="text-xs text-slate-500 mt-0.5">Spares low</div>
                     </Link>
                   ) : (
-                    <Link href="/health" className="rounded-xl bg-green-50 border border-green-100 px-3 py-3 text-center block active:opacity-80">
-                      <div className="text-xl font-bold text-green-600">{okCount}</div>
+                    <Link href="/health" className="rounded-xl bg-green-50 border border-green-100 px-3 py-3 text-center block active:opacity-80 animate-fade-up" style={{ animationDelay: "160ms" }}>
+                      <div className="text-xl font-bold text-green-600 tabular-nums">{animInventory}</div>
                       <div className="text-xs text-slate-500 mt-0.5">Healthy</div>
                     </Link>
                   )}
-                  <Link href="/trips" className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-3 text-center block active:opacity-80">
-                    <div className="text-xl font-bold text-slate-500">{engineHours.toFixed(1)}</div>
+                  <Link href="/trips" className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-3 text-center block active:opacity-80 animate-fade-up" style={{ animationDelay: "210ms" }}>
+                    <div className="text-xl font-bold text-slate-500 tabular-nums">{animEngineHours}</div>
                     <div className="text-xs text-slate-500 mt-0.5">Engine hrs</div>
                   </Link>
                 </div>
@@ -416,7 +440,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
 
             {/* Urgent items + inventory issues, or all clear */}
             {(urgentItems.length > 0 || lowStockCount > 0) ? (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden mx-4">
+              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden mx-4 animate-fade-up" style={{ animationDelay: "280ms" }}>
                 <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
                   <h2 className="text-sm font-semibold text-slate-800">Needs attention</h2>
                   <Link href="/health" className="text-xs text-ocean-600 hover:text-ocean-700 font-medium">View all →</Link>
@@ -471,7 +495,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 )}
               </div>
             ) : (
-              <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3.5 flex items-center gap-3 mx-4">
+              <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3.5 flex items-center gap-3 mx-4 animate-fade-up" style={{ animationDelay: "280ms" }}>
                 <CheckCircle size={18} className="text-green-600 flex-shrink-0" />
                 <div>
                   <div className="text-sm font-semibold text-green-800">All clear</div>
@@ -481,7 +505,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             )}
 
             {/* Quick prompts */}
-            <div className="pt-1 text-center space-y-3 px-4">
+            <div className="pt-1 text-center space-y-3 px-4 animate-fade-up" style={{ animationDelay: "360ms" }}>
               <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Ask the assistant</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {quickPrompts.map(({ label, text }) => (
