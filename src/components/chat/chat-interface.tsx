@@ -15,6 +15,7 @@ import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import WhatsNewCard from "@/components/chat/whats-new-card";
 import GreetingCard from "@/components/chat/greeting-card";
 import MissingComponentsCard from "@/components/chat/missing-components-card";
+import { NoTripsCard, NoInventoryCard } from "@/components/chat/activation-cards";
 import MaintenanceDraftCard from "@/components/chat/maintenance-draft-card";
 import EmailTripDraftCard from "@/components/chat/email-trip-draft-card";
 import type { SuggestedComponent } from "@/lib/component-suggestions";
@@ -50,6 +51,8 @@ interface ChatInterfaceProps {
   pendingTripDrafts: TripDraftFromEmail[];
   hideGreeting: boolean;
   hideWhatsNew: boolean;
+  hasTrips: boolean;
+  hasInventory: boolean;
 }
 
 function useCountUp(target: number, decimals = 0, duration = 650) {
@@ -165,7 +168,7 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
   );
 }
 
-export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, hideGreeting, hideWhatsNew }: ChatInterfaceProps) {
+export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, hideGreeting, hideWhatsNew, hasTrips, hasInventory }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -395,6 +398,8 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           />
         ))}
         <MissingComponentsCard boatType={boat.type ?? null} suggestions={missingSuggestions} />
+        {!hasTrips && <NoTripsCard boatId={boat.id} />}
+        {!hasInventory && <NoInventoryCard />}
         {messages.length === 0 ? (
           /* Empty state: gauge + stats + maintenance */
           <div className="pt-1 pb-4 space-y-4">

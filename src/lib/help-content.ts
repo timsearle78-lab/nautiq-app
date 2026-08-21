@@ -273,6 +273,8 @@ APP USAGE GUIDE (answer "how do I" questions using this):
 
 OVERVIEW: NautIQ has 5 sections — Home/Chat (AI assistant), Trips (engine hours log), Maintain (component service tracking), Inventory (spare parts), Profile (settings/help/report).
 
+GETTING STARTED: After creating your boat, the Home screen shows prompt cards if you haven't logged a trip or added spare parts yet. Tap "Log a trip" or "Add spares" on those cards to get started, or dismiss them with the X. Once you've completed the action, the card won't appear again.
+
 BOAT SETUP: First-time wizard asks for name, type, propulsion, hull design, hull material, and an optional free-text description — then creates systems and components automatically. Edit boat specs (name, type, propulsion, hull design, hull material, dimensions: length/beam/draft, photo, description) in Profile → Settings → Your boats. Add more boats via the "Add a new boat" section at the bottom of Settings. Switch boats via the top-right selector. To delete a boat, tap "Permanently delete this boat" in its settings card and confirm by typing the boat name — this removes all data and cannot be undone. Boat specs and description refine component suggestions and AI advice.
 
 SYSTEMS: Manage systems (groups of components) in Profile → Settings → Systems. Add a system by typing its name and tapping "Add." Delete a system using the trash icon next to it.
