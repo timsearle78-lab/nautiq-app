@@ -1,4 +1,4 @@
-const CACHE = "nautiq-v2";
+const CACHE = "nautiq-v3";
 const STATIC = ["/", "/offline"];
 
 self.addEventListener("install", (e) => {
