@@ -13,7 +13,9 @@ import ScanConfirmSheet, { type ScanResult } from "./scan-confirm-sheet";
 import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import WhatsNewCard from "@/components/chat/whats-new-card";
+import GreetingCard from "@/components/chat/greeting-card";
 import MissingComponentsCard from "@/components/chat/missing-components-card";
+import { NoTripsCard, NoInventoryCard } from "@/components/chat/activation-cards";
 import MaintenanceDraftCard from "@/components/chat/maintenance-draft-card";
 import EmailTripDraftCard from "@/components/chat/email-trip-draft-card";
 import type { SuggestedComponent } from "@/lib/component-suggestions";
@@ -43,10 +45,31 @@ interface ChatInterfaceProps {
   okCount: number;
   urgentItems: UrgentItem[];
   components: { id: string; name: string }[];
-  inventoryItems: { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];
+  inventoryItems: { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null; is_critical: boolean }[];
   missingSuggestions: SuggestedComponent[];
   pendingDrafts: MaintenanceDraft[];
   pendingTripDrafts: TripDraftFromEmail[];
+  hideGreeting: boolean;
+  hideWhatsNew: boolean;
+  hasTrips: boolean;
+  hasInventory: boolean;
+}
+
+function useCountUp(target: number, decimals = 0, duration = 650) {
+  const [value, setValue] = useState(0);
+  const rafRef = useRef<number>(0);
+  useEffect(() => {
+    const start = performance.now();
+    function tick(now: number) {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(decimals > 0 ? parseFloat((eased * target).toFixed(decimals)) : Math.round(eased * target));
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [target, decimals, duration]);
+  return decimals > 0 ? value.toFixed(decimals) : value;
 }
 
 function tokenize(s: string) {
@@ -63,6 +86,72 @@ function overlapScore(a: string, b: string) {
 function formatDate(v: string | null) {
   if (!v) return null;
   return new Date(v).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
+function getTimeGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "GOOD MORNING";
+  if (h < 18) return "GOOD AFTERNOON";
+  return "GOOD EVENING";
+}
+
+function getHealthHeadline(score: number, overdueCount: number) {
+  if (overdueCount > 0 || score < 60) return "Needs attention.";
+  if (score < 80) return "Could be worse.";
+  return "Ship shape.";
+}
+
+function NavyHero({ boat, healthScore, overdueCount, engineHours }: {
+  boat: Boat;
+  healthScore: number;
+  overdueCount: number;
+  engineHours: number;
+}) {
+  return (
+    <div className="w-full px-4 pt-5 pb-5" style={{ background: "#0B2942" }}>
+      <div className="flex items-center gap-4">
+        {/* Gauge */}
+        <Link href="/health" className="hover:opacity-80 transition-opacity flex-shrink-0">
+          <HealthGauge score={healthScore} overdueCount={overdueCount} size={110} />
+        </Link>
+        {/* Right side */}
+        <div className="flex-1 min-w-0">
+          <p style={{ fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.45)", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+            {getTimeGreeting()}
+          </p>
+          <p style={{ fontSize: 24, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1, marginTop: 2 }}>
+            {getHealthHeadline(healthScore, overdueCount)}
+          </p>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#FFC730", letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 6 }}>
+            BOAT HEALTH
+          </p>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginTop: 1 }}>
+            {overdueCount > 0
+              ? `${overdueCount} overdue item${overdueCount !== 1 ? "s" : ""}`
+              : "All maintenance up to date"}
+          </p>
+          {/* Tags */}
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {engineHours > 0 && (
+              <span
+                className="rounded-full px-2.5 py-1"
+                style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)" }}
+              >
+                {engineHours.toFixed(1)}h engine
+              </span>
+            )}
+            <Link
+              href="/health"
+              className="rounded-full px-2.5 py-1 hover:opacity-80 transition-opacity"
+              style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,199,48,0.15)", color: "#FFC730" }}
+            >
+              View health →
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgentItems }: {
@@ -145,7 +234,7 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
   );
 }
 
-export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts }: ChatInterfaceProps) {
+export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, hideGreeting, hideWhatsNew, hasTrips, hasInventory }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -162,6 +251,22 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
 
   const router = useRouter();
   const onTripSaved = useCallback(() => router.refresh(), [router]);
+
+  const lowCriticalItems = inventoryItems.filter(
+    (i) => i.minimum_quantity != null && i.quantity <= i.minimum_quantity && i.is_critical
+  );
+  const lowStockItems = inventoryItems.filter(
+    (i) => i.minimum_quantity != null && i.quantity <= i.minimum_quantity
+  );
+  const lowCriticalCount = lowCriticalItems.length;
+  const lowStockCount = lowStockItems.length;
+
+  // Animated display values for dashboard tiles
+  const animOverdue = useCountUp(overdueCount);
+  const animDueSoon = useCountUp(dueSoonCount);
+  const animInventory = useCountUp(lowCriticalCount > 0 ? lowCriticalCount : lowStockCount > 0 ? lowStockCount : okCount);
+  const animEngineHours = useCountUp(engineHours, 1);
+  const animHealthScore = useCountUp(healthScore);
 
   const { messages, setMessages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
@@ -340,7 +445,6 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       {scanningInventory && <NautiqSpinner overlay />}
       {/* Messages / health area */}
       <div className="flex-1 overflow-y-auto">
-        <WhatsNewCard />
         {tripDrafts.map((draft) => (
           <EmailTripDraftCard
             key={draft.id}
@@ -359,85 +463,162 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           />
         ))}
         <MissingComponentsCard boatType={boat.type ?? null} suggestions={missingSuggestions} />
+        {!hasTrips && <NoTripsCard boatId={boat.id} />}
+        {!hasInventory && <NoInventoryCard />}
         {messages.length === 0 ? (
-          /* Empty state: gauge + stats + maintenance */
-          <div className="px-4 pt-5 pb-4 space-y-4">
-            {/* Health score card with gauge */}
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-              <div className="flex items-center justify-between gap-4">
-                <Link href="/health" className="hover:opacity-80 transition-opacity flex-shrink-0">
-                  <HealthGauge score={healthScore} overdueCount={overdueCount} size={130} />
+          /* Empty state: navy hero + stats + maintenance */
+          <div className="pb-4 space-y-4">
+            {/* Navy hero section */}
+            <NavyHero
+              boat={boat}
+              healthScore={animHealthScore as number}
+              overdueCount={overdueCount}
+              engineHours={engineHours}
+            />
+            <WhatsNewCard hidden={hideWhatsNew} />
+            <GreetingCard boatId={boat.id} hidden={hideGreeting} />
+
+            {/* Stat tiles — 2×2 grid */}
+            <div className="px-4 grid grid-cols-2 gap-3 animate-fade-up" style={{ animationDelay: "60ms" }}>
+              {/* Maint. Overdue */}
+              <Link
+                href="/components?status=overdue"
+                className="rounded-[18px] px-4 py-4 block active:opacity-80"
+                style={{ background: overdueCount > 0 ? "#FDECEA" : "#FFFFFF", border: `1.5px solid ${overdueCount > 0 ? "#F5C2BF" : "#DBE3EA"}` }}
+              >
+                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: overdueCount > 0 ? "#E0342A" : "#0B2942", fontVariantNumeric: "tabular-nums" }}>{animOverdue}</div>
+                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>MAINT. OVERDUE</div>
+              </Link>
+              {/* Due soon */}
+              <Link
+                href="/components?status=due_soon"
+                className="rounded-[18px] px-4 py-4 block active:opacity-80"
+                style={{ background: dueSoonCount > 0 ? "#FFF6DF" : "#FFFFFF", border: `1.5px solid ${dueSoonCount > 0 ? "#ECD98A" : "#DBE3EA"}` }}
+              >
+                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: dueSoonCount > 0 ? "#D9A300" : "#0B2942", fontVariantNumeric: "tabular-nums" }}>{animDueSoon}</div>
+                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>DUE SOON</div>
+              </Link>
+              {/* Inventory tile */}
+              {lowCriticalCount > 0 ? (
+                <Link
+                  href="/inventory?status=missing"
+                  className="rounded-[18px] px-4 py-4 block active:opacity-80"
+                  style={{ background: "#FFC730", border: "1.5px solid #E6B200" }}
+                >
+                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#3D2A00", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
+                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#3D2A00", letterSpacing: "0.08em", opacity: 0.7 }}>CRITICAL LOW</div>
                 </Link>
-                <div className="flex-1 grid grid-cols-2 gap-2">
-                  <div className="rounded-xl bg-red-50 border border-red-100 px-3 py-3 text-center">
-                    <div className="text-xl font-bold text-red-600">{overdueCount}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Overdue</div>
-                  </div>
-                  <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center">
-                    <div className="text-xl font-bold text-amber-600">{dueSoonCount}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Due soon</div>
-                  </div>
-                  <div className="rounded-xl bg-green-50 border border-green-100 px-3 py-3 text-center">
-                    <div className="text-xl font-bold text-green-600">{okCount}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Healthy</div>
-                  </div>
-                  <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-3 text-center">
-                    <div className="text-xl font-bold text-slate-500">{engineHours.toFixed(1)}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Engine hrs</div>
-                  </div>
-                </div>
-              </div>
+              ) : lowStockCount > 0 ? (
+                <Link
+                  href="/inventory?status=low"
+                  className="rounded-[18px] px-4 py-4 block active:opacity-80"
+                  style={{ background: "#FFF6DF", border: "1.5px solid #ECD98A" }}
+                >
+                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#D9A300", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
+                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>SPARES LOW</div>
+                </Link>
+              ) : (
+                <Link
+                  href="/health"
+                  className="rounded-[18px] px-4 py-4 block active:opacity-80"
+                  style={{ background: "#E6F6EC", border: "1.5px solid #A8DDB8" }}
+                >
+                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#0E7A3D", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
+                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>HEALTHY</div>
+                </Link>
+              )}
+              {/* Engine hours */}
+              <Link
+                href="/trips"
+                className="rounded-[18px] px-4 py-4 block active:opacity-80"
+                style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA" }}
+              >
+                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#0B2942", fontVariantNumeric: "tabular-nums" }}>{animEngineHours}</div>
+                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>ENGINE HRS</div>
+              </Link>
             </div>
 
-            {/* Urgent items or all clear */}
-            {urgentItems.length > 0 ? (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-                <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-slate-800">Needs attention</h2>
-                  <Link href="/maintenance" className="text-xs text-ocean-600 hover:text-ocean-700 font-medium">View all →</Link>
+            {/* Needs attention list — V2 rows with status edges */}
+            {(urgentItems.length > 0 || lowStockCount > 0) ? (
+              <div className="mx-4 animate-fade-up" style={{ animationDelay: "280ms" }}>
+                <div className="flex items-center justify-between mb-2 px-1">
+                  <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "#5F7488", letterSpacing: "0.1em" }}>NEEDS ATTENTION</p>
+                  <Link href="/health" className="text-xs font-bold" style={{ color: "#0B7EB8" }}>View all →</Link>
                 </div>
-                {urgentItems.map((item) => {
-                  const isOverdue = item.status === "overdue";
-                  const due = formatDate(item.predicted_due_date);
-                  return (
+                <div className="card overflow-hidden" style={{ padding: 0 }}>
+                  {urgentItems.map((item, i) => {
+                    const isOverdue = item.status === "overdue";
+                    const due = formatDate(item.predicted_due_date);
+                    return (
+                      <Link
+                        key={item.component_id}
+                        href={`/components/${item.component_id}`}
+                        className="flex items-center gap-3 px-4 active:opacity-70"
+                        style={{
+                          minHeight: 56,
+                          borderLeft: `5px solid ${isOverdue ? "#E0342A" : "#D9A300"}`,
+                          borderBottom: (i < urgentItems.length - 1 || lowStockCount > 0) ? "1px solid #DBE3EA" : "none",
+                        }}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold truncate" style={{ fontSize: 15, color: "#0B2942" }}>{item.component_name}</div>
+                          <div className="text-xs" style={{ color: "#5F7488" }}>{item.system_name ?? "—"}</div>
+                        </div>
+                        <span className="badge flex-shrink-0" style={isOverdue ? { background: "#E0342A", color: "#FFF" } : { background: "#D9A300", color: "#3D2A00" }}>
+                          {isOverdue ? "OVERDUE" : due ? `DUE ${due}` : "DUE SOON"}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                  {lowStockItems.slice(0, 4).map((item, i) => (
                     <Link
-                      key={item.component_id}
-                      href={`/components/${item.component_id}`}
-                      className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 active:bg-slate-50"
+                      key={item.id}
+                      href={`/inventory/${item.id}`}
+                      className="flex items-center gap-3 px-4 active:opacity-70"
+                      style={{
+                        minHeight: 56,
+                        borderLeft: `5px solid ${item.is_critical ? "#E0342A" : "#D9A300"}`,
+                        borderBottom: i < Math.min(lowStockItems.length, 4) - 1 ? "1px solid #DBE3EA" : "none",
+                      }}
                     >
-                      <AlertTriangle size={15} className={`flex-shrink-0 ${isOverdue ? "text-red-500" : "text-amber-500"}`} />
                       <div className="min-w-0 flex-1">
-                        <div className="text-sm font-medium text-slate-800 truncate">{item.component_name}</div>
-                        <div className="text-xs text-slate-400">{item.system_name ?? "—"}</div>
+                        <div className="font-bold truncate" style={{ fontSize: 15, color: "#0B2942" }}>{item.name}</div>
+                        <div className="text-xs" style={{ color: "#5F7488" }}>
+                          {item.quantity} {item.unit ?? ""} remaining{item.minimum_quantity != null ? ` · min ${item.minimum_quantity}` : ""}
+                        </div>
                       </div>
-                      <span className={`text-xs font-medium flex-shrink-0 rounded-full border px-2 py-0.5 ${
-                        isOverdue ? "text-red-600 bg-red-50 border-red-200" : "text-amber-600 bg-amber-50 border-amber-200"
-                      }`}>
-                        {isOverdue ? "Overdue" : due ? `Due ${due}` : "Due soon"}
+                      <span className="badge flex-shrink-0" style={item.is_critical ? { background: "#E0342A", color: "#FFF" } : { background: "#D9A300", color: "#3D2A00" }}>
+                        {item.is_critical ? "MISSING" : "LOW"}
                       </span>
                     </Link>
-                  );
-                })}
+                  ))}
+                  {lowStockCount > 4 && (
+                    <Link href="/inventory" className="block px-4 py-3 text-xs font-bold" style={{ color: "#0B7EB8", borderTop: "1px solid #DBE3EA" }}>
+                      +{lowStockCount - 4} more →
+                    </Link>
+                  )}
+                </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3.5 flex items-center gap-3">
-                <CheckCircle size={18} className="text-green-600 flex-shrink-0" />
+              <div className="card px-4 py-3.5 flex items-center gap-3 mx-4 animate-fade-up" style={{ animationDelay: "280ms", background: "#E6F6EC", borderColor: "#A8DDB8" }}>
+                <CheckCircle size={18} className="flex-shrink-0" style={{ color: "#0E7A3D" } as React.CSSProperties} />
                 <div>
-                  <div className="text-sm font-semibold text-green-800">All clear</div>
-                  <div className="text-xs text-green-700 mt-0.5">No overdue or upcoming maintenance in the next 90 days.</div>
+                  <div className="font-bold" style={{ fontSize: 15, color: "#0B2942" }}>All clear</div>
+                  <div className="text-xs" style={{ color: "#5F7488" }}>No overdue maintenance or low-stock items.</div>
                 </div>
               </div>
             )}
 
-            {/* Quick prompts */}
-            <div className="pt-1 text-center space-y-3">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Ask the assistant</p>
+            {/* Quick prompts — suggestion chips V2 */}
+            <div className="pt-1 px-4 animate-fade-up" style={{ animationDelay: "360ms" }}>
+              <p className="text-xs font-bold uppercase tracking-widest mb-3 text-center" style={{ color: "#5F7488", letterSpacing: "0.1em" }}>ASK THE ASSISTANT</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {quickPrompts.map(({ label, text }) => (
                   <button
                     key={label}
                     onClick={() => sendMessage({ text })}
-                    className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 active:bg-slate-50 shadow-sm"
+                    className="text-sm font-semibold active:opacity-70 transition-opacity"
+                    style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA", borderRadius: 8, padding: "8px 16px", color: "#0B2942" }}
                   >
                     {label}
                   </button>
@@ -483,22 +664,17 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       </div>
 
       {/* Input bar */}
-      <div className="shrink-0 border-t border-slate-200 bg-white px-3 pt-3 pb-2">
+      <div className="shrink-0 px-3 pt-3 pb-2" style={{ background: "#FFFFFF", borderTop: "1.5px solid #DBE3EA" }}>
         {/* Main input row */}
         <div className="flex items-end gap-2">
-          {/* Prominent voice button */}
+          {/* Voice button */}
           <button
             onClick={handleVoice}
             className="shrink-0 flex items-center justify-center rounded-full transition-all"
             style={{
-              width: 48,
-              height: 48,
-              background: isRecording
-                ? "#D83A3A"
-                : "linear-gradient(135deg, #15A0D6, #0B7EB8)",
-              boxShadow: isRecording
-                ? "0 4px 14px rgba(216,58,58,.35)"
-                : "0 6px 16px rgba(11,126,184,.32)",
+              width: 44,
+              height: 44,
+              background: isRecording ? "#E0342A" : "#0B2942",
               color: "#fff",
               border: "none",
               flexShrink: 0,
@@ -508,7 +684,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             {isRecording ? (
               <span className="h-3.5 w-3.5 rounded-sm bg-white animate-pulse" />
             ) : (
-              <Mic size={20} />
+              <Mic size={18} />
             )}
           </button>
 
@@ -519,30 +695,30 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything…"
-            className="flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-ocean-500 focus:bg-white focus:outline-none"
-            style={{ minHeight: "40px" }}
+            className="flex-1 resize-none rounded-2xl px-4 py-2.5 text-sm focus:outline-none"
+            style={{
+              minHeight: "40px",
+              background: "#F4F7FA",
+              border: "1.5px solid #DBE3EA",
+              color: "#0B2942",
+            }}
           />
 
-          <div className="relative group">
-            <button
-              type="button"
-              onClick={() => setMessages([])}
-              className="flex shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 transition hover:border-slate-300 hover:text-slate-600"
-              style={{ width: 40, height: 40 }}
-              aria-label="New chat"
-            >
-              <RotateCcw size={15} />
-            </button>
-            <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-2.5 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-              New chat
-            </span>
-          </div>
+          <button
+            type="button"
+            onClick={() => setMessages([])}
+            className="flex shrink-0 items-center justify-center rounded-full transition-opacity hover:opacity-70"
+            style={{ width: 40, height: 40, background: "#F4F7FA", border: "1.5px solid #DBE3EA", color: "#8FB3CC" }}
+            aria-label="New chat"
+          >
+            <RotateCcw size={15} />
+          </button>
 
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className="flex shrink-0 items-center justify-center rounded-full btn-primary text-white transition disabled:opacity-40"
-            style={{ width: 40, height: 40 }}
+            className="flex shrink-0 items-center justify-center rounded-full transition disabled:opacity-40"
+            style={{ width: 40, height: 40, background: "#0B2942", color: "#FFFFFF" }}
           >
             <Send size={16} />
           </button>

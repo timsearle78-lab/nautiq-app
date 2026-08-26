@@ -26,7 +26,7 @@ export function LowStockToggle({ active }: { active: boolean }) {
           style={{ transform: active ? "translateX(26px)" : "translateX(4px)" }}
         />
       </button>
-      <span className="text-sm font-medium" style={{ color: active ? "#0B7EB8" : "#8593A0" }}>
+      <span className="text-sm font-medium" style={{ color: active ? "#0B7EB8" : "#8FB3CC" }}>
         Low stock only
       </span>
     </label>

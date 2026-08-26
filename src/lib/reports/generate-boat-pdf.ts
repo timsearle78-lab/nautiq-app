@@ -1,4 +1,6 @@
 // Client-side only — uses jspdf + jspdf-autotable
+import { formatDate } from "@/lib/format-date";
+
 export async function generateBoatPdf(): Promise<void> {
   const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
     import("jspdf"),
@@ -53,7 +55,7 @@ export async function generateBoatPdf(): Promise<void> {
   const margin = 16;
   const col = "#0B7EB8";
   const dark = "#0F2335";
-  const muted = "#8593A0";
+  const muted = "#8FB3CC";
   const generated = new Date(data.generatedAt).toLocaleDateString(undefined, {
     day: "numeric", month: "long", year: "numeric",
   });
@@ -90,9 +92,9 @@ export async function generateBoatPdf(): Promise<void> {
   const dueSoonCount = data.health.filter(h => (h.status ?? "").toLowerCase() === "due soon").length;
   const okCount = data.health.filter(h => (h.status ?? "").toLowerCase() === "ok").length;
   const pills = [
-    { label: "Overdue", count: overdueCount, color: "#D83A3A" },
-    { label: "Due soon", count: dueSoonCount, color: "#C8841A" },
-    { label: "Healthy", count: okCount, color: "#1D9B55" },
+    { label: "Overdue", count: overdueCount, color: "#E0342A" },
+    { label: "Due soon", count: dueSoonCount, color: "#D9A300" },
+    { label: "Healthy", count: okCount, color: "#0E7A3D" },
     { label: "Inventory items", count: data.inventory.length, color: col },
   ];
   let px = margin;
@@ -143,9 +145,6 @@ export async function generateBoatPdf(): Promise<void> {
       if (v === "ok") return "OK";
       return "Unknown";
     };
-    const formatDate = (d: string | null) =>
-      d ? new Date(d).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—";
-
     autoTable(doc, {
       startY: y,
       margin: { left: margin, right: margin },

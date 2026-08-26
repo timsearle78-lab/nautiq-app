@@ -23,9 +23,10 @@ type Props = {
   beam_m?: number | null;
   draft_m?: number | null;
   description?: string | null;
+  fuel_consumption_lph?: number | null;
 };
 
-export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description }: Props) {
+export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description, fuel_consumption_lph }: Props) {
   const [state, action, pending] = useActionState(updateBoat, {});
 
   return (
@@ -122,6 +123,25 @@ export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull
             />
           </div>
         </div>
+      </div>
+
+      {/* Fuel consumption */}
+      <div>
+        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+          Fuel consumption <span className="font-normal text-slate-400">(litres/hour, optional)</span>
+        </label>
+        <input
+          name="fuel_consumption_lph"
+          type="number"
+          step="0.1"
+          min="0"
+          defaultValue={fuel_consumption_lph ?? ""}
+          placeholder="e.g. 8.5"
+          className={inputCls}
+        />
+        <p className="mt-1 text-xs text-slate-400">
+          If set, fuel used will be estimated automatically when you log a trip without entering fuel manually.
+        </p>
       </div>
 
       {/* Boat description */}

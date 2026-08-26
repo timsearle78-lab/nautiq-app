@@ -17,6 +17,7 @@ import { LogMaintenanceForm } from "@/components/components/log-maintenance-form
 import { EditComponentForm } from "@/components/components/edit-component-form";
 import LogMaintenanceButton from "@/components/components/log-maintenance-button";
 import { DeleteMaintenanceEventButton } from "@/components/components/delete-maintenance-event-button";
+import { EditMaintenanceButton } from "@/components/components/edit-maintenance-button";
 
 type ComponentPageProps = {
   params: Promise<{ id: string }>;
@@ -70,7 +71,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     notFound();
   }
 
-  const [history, linkedInventory, boatInventory, tripsData] = await Promise.all([
+  const [history, linkedInventory, boatInventory, tripsData, { data: systemsData }] = await Promise.all([
     getComponentMaintenanceHistory(component.id),
     getLinkedInventory(component.id),
     getBoatInventory(component.boat_id),
@@ -81,13 +82,8 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       .not("engine_hours_delta", "is", null)
       .order("started_at", { ascending: true })
       .then((r) => (r.data ?? []) as { started_at: string | null; engine_hours_delta: number }[]),
+    supabase.from("systems").select("id,name").eq("boat_id", component.boat_id).order("name", { ascending: true }),
   ]);
-
-  const { data: systemsData } = await supabase
-    .from("systems")
-    .select("id,name")
-    .eq("boat_id", component.boat_id)
-    .order("name", { ascending: true });
   const systems = (systemsData ?? []) as { id: string; name: string }[];
 
   const health = getComponentHealthSummary(
@@ -279,6 +275,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                     <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Work done</th>
                     <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Engine hrs</th>
                     <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Vendor</th>
+                    <th className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Cost</th>
                     <th className="px-4 py-2.5"></th>
                   </tr>
                 </thead>
@@ -305,8 +302,23 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                       </td>
                       <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{row.engine_hours_at_service ?? "—"}</td>
                       <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{row.vendor ?? "—"}</td>
+                      <td className="px-4 py-3 text-right font-medium text-slate-700 hidden sm:table-cell">
+                        {row.cost != null ? `$${Number(row.cost).toFixed(2)}` : "—"}
+                      </td>
                       <td className="px-4 py-3 text-right">
-                        <DeleteMaintenanceEventButton eventId={row.id} componentId={component.id} />
+                        <div className="flex items-center justify-end gap-0.5">
+                          <EditMaintenanceButton
+                            eventId={row.id}
+                            componentId={component.id}
+                            performedAt={row.performed_at}
+                            workDone={row.work_done}
+                            notes={row.notes}
+                            vendor={row.vendor}
+                            engineHoursAtService={row.engine_hours_at_service}
+                            cost={row.cost}
+                          />
+                          <DeleteMaintenanceEventButton eventId={row.id} componentId={component.id} />
+                        </div>
                       </td>
                     </tr>
                   ))}

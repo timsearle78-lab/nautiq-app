@@ -1,7 +1,6 @@
 "use client";
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
 import LogTripSheet from "@/components/chat/log-trip-sheet";
 
 export function AddTripButton({ boatId }: { boatId: string }) {
@@ -17,10 +16,9 @@ export function AddTripButton({ boatId }: { boatId: string }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-xl btn-primary px-4 py-2.5 text-sm font-semibold text-white transition"
+        className="flex items-center gap-1.5 rounded-xl btn-amber px-4 py-2.5 text-sm font-semibold transition"
       >
-        <Plus size={16} />
-        Log Trip
+        + Add
       </button>
       {open && (
         <LogTripSheet

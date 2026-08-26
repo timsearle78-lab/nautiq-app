@@ -1,4 +1,4 @@
-import { streamText, zodSchema, convertToModelMessages, stepCountIs } from "ai";
+import { streamText, generateText, zodSchema, convertToModelMessages, stepCountIs } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
       result = streamText({
       model: createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY })("claude-haiku-4-5-20251001"),
       stopWhen: stepCountIs(1),
-      system: `You are NautIQ, a practical boat assistant for "${boat.name}".
+      system: `You are the owner's personal boat assistant (PBA) for their boat "${boat.name}". Always maintain a warm, knowledgeable, and encouraging persona — you care about this boat as much as the owner does.
 Today's date: ${new Date().toISOString().slice(0, 10)}.
 ${boatSpec ? `Boat specs: ${boatSpec}.` : ""}${(boat as { description?: string | null }).description ? `\nOwner's description: ${(boat as { description?: string | null }).description}` : ""}
 Engine hours: ${engineHours ?? 0}h.
@@ -107,6 +107,8 @@ TOOL SELECTION RULES — follow these exactly (only for data/action requests, no
 9. REPORT / PDF: If the user asks for a report, summary PDF, or to send/download a boat report → call requestBoatReport.
 
 10. VIEWING PAST TRIPS: Only call getTripHistory if the owner explicitly asks to SEE or SHOW their trips (e.g. "show my trips", "what trips have I done", "trip history").
+
+11. PERSONALISED UPDATE / BRIEFING: If the owner asks for an update, status check, "how's my boat doing", "give me a summary", "what's happening", "help me with my boat", or any general check-in → call getPersonalizedGreeting.
 
 The UI renders tool results as formatted cards automatically — do NOT add any text after calling any tool. The card is the response.`,
       messages: modelMessages,
@@ -221,7 +223,7 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
               name: i.name,
               category: i.category,
               quantity: i.quantity,
-              minimum: i.minimum_quantity,
+              minimum_quantity: i.minimum_quantity,
               status: i.quantity === 0 ? "missing" : i.quantity <= i.minimum_quantity ? "low" : "ok",
               isCritical: i.is_critical,
             }));
@@ -463,6 +465,96 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
               fuelLitres: t.fuel_added_litres,
               notes: t.notes,
             }));
+          },
+        },
+
+        getPersonalizedGreeting: {
+          description: "Generate a personalised briefing for the owner — recent activity, health status, encouragement, and reminders",
+          inputSchema: zodSchema(z.object({})),
+          execute: async () => {
+            try {
+              const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+              const [health, tripsRes, maintenanceRes, lastTripRes] = await Promise.all([
+                getBoatHealth(boatId!, supabase),
+                supabase
+                  .from("trips")
+                  .select("started_at, engine_hours_delta, fuel_added_litres, notes")
+                  .eq("boat_id", boatId)
+                  .gte("started_at", thirtyDaysAgo)
+                  .order("started_at", { ascending: false })
+                  .limit(5),
+                supabase
+                  .from("maintenance_events")
+                  .select("performed_at, work_done")
+                  .eq("boat_id", boatId)
+                  .gte("performed_at", thirtyDaysAgo)
+                  .order("performed_at", { ascending: false })
+                  .limit(5),
+                supabase
+                  .from("trips")
+                  .select("started_at")
+                  .eq("boat_id", boatId)
+                  .order("started_at", { ascending: false })
+                  .limit(1),
+              ]);
+
+              const knownHealth = health.filter((c) => c.risk_score != null);
+              const avgRisk =
+                knownHealth.length > 0
+                  ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
+                  : 0;
+              const healthScore = Math.max(0, Math.round(100 - avgRisk));
+              const overdueCount = health.filter((c) => c.status === "overdue").length;
+              const dueSoonCount = health.filter((c) => c.status === "due soon").length;
+
+              const recentTrips = tripsRes.data ?? [];
+              const recentMaintenance = maintenanceRes.data ?? [];
+              const lastTrip = lastTripRes.data?.[0];
+              const daysSinceTrip = lastTrip?.started_at
+                ? Math.floor((Date.now() - new Date(lastTrip.started_at).getTime()) / (1000 * 60 * 60 * 24))
+                : null;
+
+              const hour = new Date().getUTCHours();
+              const timeOfDay = hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening";
+
+              const context = [
+                `Health score: ${healthScore}/100`,
+                `Overdue items: ${overdueCount}`,
+                `Due soon: ${dueSoonCount}`,
+                `Trips in last 30 days: ${recentTrips.length}`,
+                daysSinceTrip !== null
+                  ? `Last trip: ${daysSinceTrip} day${daysSinceTrip !== 1 ? "s" : ""} ago`
+                  : "No trips recorded yet",
+                recentMaintenance.length > 0
+                  ? `Maintenance in last 30 days: ${recentMaintenance.map((m) => m.work_done).filter(Boolean).join(", ")}`
+                  : "No maintenance logged in the last 30 days",
+              ].join("\n");
+
+              const { text: greetingText } = await generateText({
+                model: createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })("claude-haiku-4-5-20251001"),
+                maxOutputTokens: 220,
+                prompt: `You are the personal boat assistant (PBA) for the owner of "${boat.name}". Write a warm, personalised update for the owner who asked how their boat is doing. It is ${timeOfDay} and today's date is ${new Date().toISOString().slice(0, 10)}.
+
+Boat context:
+${context}
+
+Instructions:
+- Be warm, conversational, and encouraging
+- Summarise the current health and recent activity (2-3 sentences)
+- If health score >= 80 and maintenance done recently: praise their dedication
+- If health score < 60 or overdue count > 0: gently encourage them to tackle something specific
+- If they haven't been out in 14+ days or have no trips: encourage them to get the boat out
+- Mention logging diesel top-ups or trips if relevant
+- Keep it to 3-5 sentences. Plain text — no markdown, no bullet points.
+- Never mention the owner's name. Refer to the boat by name.`,
+              });
+
+              return { greetingText };
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : String(err);
+              await logChatError(supabase, { userId, boatId, message: `getPersonalizedGreeting: ${msg}` });
+              return { greetingText: "Here's a quick status check — check the health dashboard for details on any overdue items." };
+            }
           },
         },
 

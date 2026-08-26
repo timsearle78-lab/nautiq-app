@@ -3,22 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { parseOptionalNumber, parseRequiredNumber } from "@/lib/parse-form-data";
 
 type ActionState = { error?: string; success?: string };
-
-function parseOptionalNumber(value: FormDataEntryValue | null): number | null {
-  if (value == null) return null;
-  const text = String(value).trim();
-  if (!text) return null;
-  const parsed = Number(text);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function parseRequiredNumber(value: FormDataEntryValue | null): number {
-  const parsed = Number(String(value ?? "").trim());
-  if (!Number.isFinite(parsed)) throw new Error("Invalid number");
-  return parsed;
-}
 
 export async function updateInventoryItem(
   _prev: ActionState,

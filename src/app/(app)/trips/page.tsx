@@ -5,6 +5,7 @@ import { getSelectedBoatId } from "@/lib/selected-boat";
 import { AddTripButton } from "@/components/trips/add-trip-button";
 import { EngineHoursChart } from "@/components/trips/engine-hours-chart";
 import { DeleteTripButton } from "@/components/trips/delete-trip-button";
+import { EditTripButton } from "@/components/trips/edit-trip-button";
 
 
 export const dynamic = "force-dynamic";
@@ -82,20 +83,20 @@ function sourceLabel(source: string | null) {
 type StatCardProps = { label: string; week: string; month: string; year: string };
 function StatCard({ label, week, month, year }: StatCardProps) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-      <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">{label}</div>
+    <div className="card p-4">
+      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#8FB3CC", textTransform: "uppercase", marginBottom: 12 }}>{label}</div>
       <div className="grid grid-cols-3 gap-2 text-center">
         <div>
-          <div className="text-lg font-bold text-slate-800">{week}</div>
-          <div className="text-xs text-slate-400 mt-0.5">This week</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#0B2942" }}>{week}</div>
+          <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>This week</div>
         </div>
-        <div className="border-x border-slate-100">
-          <div className="text-lg font-bold text-slate-800">{month}</div>
-          <div className="text-xs text-slate-400 mt-0.5">This month</div>
+        <div style={{ borderLeft: "1.5px solid #DBE3EA", borderRight: "1.5px solid #DBE3EA" }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#0B2942" }}>{month}</div>
+          <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>This month</div>
         </div>
         <div>
-          <div className="text-lg font-bold text-slate-800">{year}</div>
-          <div className="text-xs text-slate-400 mt-0.5">This year</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#0B2942" }}>{year}</div>
+          <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>This year</div>
         </div>
       </div>
     </div>
@@ -111,13 +112,10 @@ export default async function TripsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const boatId = await getSelectedBoatId();
-
-  const { data: boats } = await supabase
-    .from("boats")
-    .select("id, name")
-    .eq("user_id", user.id)
-    .order("created_at");
+  const [boatId, { data: boats }] = await Promise.all([
+    getSelectedBoatId(),
+    supabase.from("boats").select("id, name").eq("user_id", user.id).order("created_at"),
+  ]);
 
   const boat = boats?.find((b) => b.id === boatId) ?? boats?.[0] ?? null;
 
@@ -174,107 +172,110 @@ export default async function TripsPage() {
   };
 
   return (
-    <main className="px-4 py-6 space-y-5">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Trips</h1>
-          {boat && <p className="text-sm text-slate-500 mt-0.5">{boat.name}</p>}
-        </div>
-        {boat && <AddTripButton boatId={boat.id} />}
-      </div>
-
-      {/* Engine hours chart */}
-      <EngineHoursChart bars={chartBars} />
-
-      {/* Stats */}
-      <div className="space-y-3">
-        <StatCard
-          label="Engine hours"
-          week={engineHours.week}
-          month={engineHours.month}
-          year={engineHours.year}
-        />
-        <StatCard
-          label="Time on water"
-          week={timeOnWater.week}
-          month={timeOnWater.month}
-          year={timeOnWater.year}
-        />
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Trips logged</div>
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div>
-              <div className="text-lg font-bold text-slate-800">{tripCount.week}</div>
-              <div className="text-xs text-slate-400 mt-0.5">This week</div>
-            </div>
-            <div className="border-x border-slate-100">
-              <div className="text-lg font-bold text-slate-800">{tripCount.month}</div>
-              <div className="text-xs text-slate-400 mt-0.5">This month</div>
-            </div>
-            <div>
-              <div className="text-lg font-bold text-slate-800">{tripCount.year}</div>
-              <div className="text-xs text-slate-400 mt-0.5">This year</div>
-            </div>
+    <main className="space-y-5">
+      {/* Navy page hero */}
+      <div className="w-full px-4 pt-5 pb-5" style={{ background: "#0B2942" }}>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>Trips</h1>
+            {boat && <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>{boat.name} · {trips.length} total</p>}
           </div>
+          {boat && <AddTripButton boatId={boat.id} />}
         </div>
       </div>
 
-      {/* Trip list */}
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-          <span className="text-sm font-semibold text-slate-800">All trips</span>
-          <span className="ml-2 text-xs text-slate-400">{trips.length} total</span>
+      <div className="px-4 space-y-4">
+        {/* Engine hours chart */}
+        <EngineHoursChart bars={chartBars} />
+
+        {/* Stats */}
+        <div className="space-y-3">
+          <StatCard
+            label="Engine hours"
+            week={engineHours.week}
+            month={engineHours.month}
+            year={engineHours.year}
+          />
+          <StatCard
+            label="Time on water"
+            week={timeOnWater.week}
+            month={timeOnWater.month}
+            year={timeOnWater.year}
+          />
+          <StatCard
+            label="Trips logged"
+            week={tripCount.week}
+            month={tripCount.month}
+            year={tripCount.year}
+          />
         </div>
 
-        {trips.length === 0 ? (
-          <div className="px-4 py-8 text-center text-sm text-slate-400">
-            No trips logged yet. Head to the chat to log your first trip.
+        {/* Trip list */}
+        <div className="card overflow-hidden">
+          <div className="px-4 py-3" style={{ borderBottom: "1.5px solid #DBE3EA" }}>
+            <span style={{ fontSize: 15, fontWeight: 800, color: "#0B2942" }}>All trips</span>
+            <span style={{ fontSize: 13, color: "#8FB3CC", marginLeft: 8 }}>{trips.length} total</span>
           </div>
-        ) : (
-          <ul className="divide-y divide-slate-100">
-            {trips.map((trip) => {
-              const startTime = fmtTime(trip.started_at);
-              const endTime = fmtTime(trip.ended_at);
-              const src = sourceLabel(trip.source);
-              return (
-                <li key={trip.id} className="px-4 py-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="text-sm font-semibold text-slate-800">
-                        {fmtDate(trip.started_at)}
+
+          {trips.length === 0 ? (
+            <div className="px-4 py-8 text-center" style={{ fontSize: 14, color: "#8FB3CC" }}>
+              No trips logged yet. Head to the chat to log your first trip.
+            </div>
+          ) : (
+            <ul className="divide-y" style={{ borderColor: "#DBE3EA" }}>
+              {trips.map((trip) => {
+                const startTime = fmtTime(trip.started_at);
+                const endTime = fmtTime(trip.ended_at);
+                const src = sourceLabel(trip.source);
+                return (
+                  <li key={trip.id} className="px-4 py-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div style={{ fontSize: 14, fontWeight: 800, color: "#0B2942" }}>
+                          {fmtDate(trip.started_at)}
+                        </div>
+                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5" style={{ fontSize: 12, color: "#8FB3CC" }}>
+                          {(startTime || endTime) && (
+                            <span>
+                              {startTime ?? "—"}
+                              {endTime ? ` – ${endTime}` : ""}
+                            </span>
+                          )}
+                          {trip.engine_hours_delta != null && (
+                            <span>{trip.engine_hours_delta}h engine</span>
+                          )}
+                          {trip.fuel_added_litres != null && (
+                            <span>{trip.fuel_added_litres}L fuel used</span>
+                          )}
+                        </div>
+                        {trip.notes && (
+                          <div className="mt-1 line-clamp-2" style={{ fontSize: 12, color: "#8FB3CC" }}>{trip.notes}</div>
+                        )}
                       </div>
-                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 mt-0.5">
-                        {(startTime || endTime) && (
-                          <span>
-                            {startTime ?? "—"}
-                            {endTime ? ` – ${endTime}` : ""}
+                      <div className="flex items-center gap-1 shrink-0">
+                        {src && (
+                          <span className="rounded-full px-2 py-0.5" style={{ fontSize: 11, fontWeight: 700, background: "#E6F3FA", color: "#0B7EB8" }}>
+                            {src}
                           </span>
                         )}
-                        {trip.engine_hours_delta != null && (
-                          <span>{trip.engine_hours_delta}h engine</span>
-                        )}
-                        {trip.fuel_added_litres != null && (
-                          <span>{trip.fuel_added_litres}L fuel</span>
-                        )}
+                        <EditTripButton
+                          tripId={trip.id}
+                          boatId={boat!.id}
+                          startedAt={trip.started_at}
+                          endedAt={trip.ended_at}
+                          engineHoursDelta={trip.engine_hours_delta}
+                          fuelAddedLitres={trip.fuel_added_litres}
+                          notes={trip.notes}
+                        />
+                        <DeleteTripButton tripId={trip.id} />
                       </div>
-                      {trip.notes && (
-                        <div className="text-xs text-slate-400 mt-1 line-clamp-2">{trip.notes}</div>
-                      )}
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      {src && (
-                        <span className="text-xs font-medium text-ocean-600 bg-ocean-50 border border-ocean-200 rounded-full px-2 py-0.5">
-                          {src}
-                        </span>
-                      )}
-                      <DeleteTripButton tripId={trip.id} />
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </div>
     </main>
   );

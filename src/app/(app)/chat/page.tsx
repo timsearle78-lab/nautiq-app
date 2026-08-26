@@ -25,29 +25,32 @@ export default async function ChatPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: boats, error: boatsErr } = await supabase
-    .from("boats")
-    .select("id, name, type, propulsion, hull_design, hull_material")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true });
+  const [{ data: boats, error: boatsErr }, selectedBoatId] = await Promise.all([
+    supabase
+      .from("boats")
+      .select("id, name, type, propulsion, hull_design, hull_material")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true }),
+    getSelectedBoatId(),
+  ]);
 
   // Fall back to base columns if new spec columns don't exist yet in DB
   const boatList = boatsErr
     ? ((await supabase.from("boats").select("id, name, type").eq("user_id", user.id).order("created_at", { ascending: true })).data ?? [])
     : (boats ?? []);
-
-  const selectedBoatId = await getSelectedBoatId();
   const boat = boatList.find((b) => b.id === selectedBoatId) ?? boatList[0];
 
   if (!boat) redirect("/onboarding");
 
-  const [engineHoursRes, health, componentsRes, inventoryRes, pendingDrafts, pendingTripDrafts] = await Promise.all([
+  const [engineHoursRes, health, componentsRes, inventoryRes, tripsCountRes, pendingDrafts, pendingTripDrafts, userSettingsRes] = await Promise.all([
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
     getBoatHealth(boat.id),
     supabase.from("components").select("id, name").eq("boat_id", boat.id).order("name"),
-    supabase.from("inventory_items").select("id, name, quantity, unit, minimum_quantity").eq("boat_id", boat.id).order("name"),
+    supabase.from("inventory_items").select("id, name, quantity, unit, minimum_quantity, is_critical").eq("boat_id", boat.id).order("name"),
+    supabase.from("trips").select("id", { count: "exact", head: true }).eq("boat_id", boat.id),
     getPendingDrafts(),
     getPendingTripDrafts(),
+    supabase.from("user_settings").select("hide_greeting, hide_whats_new").eq("user_id", user.id).single(),
   ]);
 
   const components = (componentsRes.data ?? []) as { id: string; name: string }[];
@@ -56,9 +59,14 @@ export default async function ChatPage() {
     { type: boatWithSpecs.type ?? null, propulsion: boatWithSpecs.propulsion ?? null, hull_material: boatWithSpecs.hull_material ?? null },
     components.map((c) => c.name)
   );
-  const inventoryItems = (inventoryRes.data ?? []) as { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];
+  const inventoryItems = (inventoryRes.data ?? []) as { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null; is_critical: boolean }[];
+  const hasTrips = (tripsCountRes.count ?? 0) > 0;
+  const hasInventory = inventoryItems.length > 0;
 
   const engineHours = (engineHoursRes.data as number) ?? 0;
+  const userSettings = userSettingsRes.data as { hide_greeting: boolean; hide_whats_new: boolean } | null;
+  const hideGreeting = userSettings?.hide_greeting ?? false;
+  const hideWhatsNew = userSettings?.hide_whats_new ?? false;
 
   const knownHealth = health.filter((r) => r.risk_score != null);
   const avgRisk = knownHealth.length > 0
@@ -90,6 +98,10 @@ export default async function ChatPage() {
       missingSuggestions={missingSuggestions}
       pendingDrafts={pendingDrafts}
       pendingTripDrafts={pendingTripDrafts}
+      hideGreeting={hideGreeting}
+      hideWhatsNew={hideWhatsNew}
+      hasTrips={hasTrips}
+      hasInventory={hasInventory}
     />
   );
 }

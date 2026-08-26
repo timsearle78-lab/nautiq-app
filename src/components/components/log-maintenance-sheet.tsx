@@ -6,6 +6,7 @@ import SaveSuccessSheet from "@/components/ui/save-success-sheet";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import { logMaintenance } from "@/app/(app)/components/[id]/actions";
 import VoiceTextarea from "@/components/ui/voice-textarea";
+import { todayLocal } from "@/lib/format-date";
 
 type InventoryOption = { id: string; name: string; quantity: number; unit: string | null };
 type ComponentOption = { id: string; name: string };
@@ -20,7 +21,10 @@ type Prefill = {
 
 interface Props {
   boatId: string;
+  /** Lock to a specific component — hides the picker (use from component detail page). */
   componentId: string | null;
+  /** Pre-select a component but still show the picker so the user can change it. */
+  defaultComponentId?: string | null;
   components?: ComponentOption[];
   inventoryOptions: InventoryOption[];
   onClose: () => void;
@@ -28,22 +32,19 @@ interface Props {
   prefill?: Prefill;
 }
 
-function todayLocal() {
-  return new Date().toLocaleDateString("en-CA");
-}
-
 const MAX_PHOTOS = 3;
 
 export default function LogMaintenanceSheet({
   boatId,
   componentId: initialComponentId,
+  defaultComponentId,
   components = [],
   inventoryOptions,
   onClose,
   onSaved,
   prefill,
 }: Props) {
-  const [selectedComponentId, setSelectedComponentId] = useState(initialComponentId ?? "");
+  const [selectedComponentId, setSelectedComponentId] = useState(initialComponentId ?? defaultComponentId ?? "");
   const [notes, setNotes] = useState(prefill?.notes ?? "");
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -98,7 +99,7 @@ export default function LogMaintenanceSheet({
     setPreviews((p) => p.filter((_, i) => i !== index));
   }
 
-  const effectiveComponentId = initialComponentId ?? selectedComponentId;
+  const effectiveComponentId = initialComponentId !== null ? initialComponentId : selectedComponentId;
   const isBusy = pending || uploadingPhotos;
 
   if (saved) return <SaveSuccessSheet message="Maintenance logged!" />;
@@ -188,6 +189,24 @@ export default function LogMaintenanceSheet({
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Vendor</label>
               <input name="vendor" placeholder="Optional" defaultValue={prefill?.vendor ?? ""} className={inputCls} />
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Cost</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">$</span>
+                <input
+                  name="cost"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  className={`${inputCls} pl-6`}
+                />
+              </div>
+            </div>
+            <div />
           </div>
 
           <div>
@@ -300,7 +319,7 @@ export default function LogMaintenanceSheet({
             type="submit"
             disabled={isBusy || (!initialComponentId && !selectedComponentId)}
             className="w-full rounded-xl py-3.5 text-base font-semibold text-white transition disabled:opacity-50"
-            style={{ background: "linear-gradient(135deg,#15A0D6,#0B7EB8)" }}
+            style={{ background: "#0B7EB8" }}
           >
             {uploadingPhotos ? "Uploading photos…" : pending ? "Saving…" : "Save maintenance record"}
           </button>

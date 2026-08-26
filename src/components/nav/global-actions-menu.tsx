@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { X, ScanLine, PackagePlus, PackageMinus, Plus } from "lucide-react";
+import Link from "next/link";
+import { X, ScanLine, PackagePlus, PackageMinus, Plus, DollarSign } from "lucide-react";
 import TripTimerButton from "@/components/nav/trip-timer-button";
 import LogTripSheet from "@/components/chat/log-trip-sheet";
 import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
@@ -131,6 +132,15 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
                 </button>
 
               </div>
+
+              <Link
+                href="/costs"
+                onClick={close}
+                className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+              >
+                <DollarSign size={16} className="text-slate-400" />
+                Cost tracker
+              </Link>
             </div>
 
             <div className="h-4" />

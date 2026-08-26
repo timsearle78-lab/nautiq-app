@@ -106,7 +106,7 @@ export default function LoginForm() {
         <div className="flex-1 px-6 py-8 md:p-10" style={{ background: "#FFFFFF" }}>
           <div className="mx-auto max-w-sm">
             <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0F2335" }}>Sign in</h2>
-            <p className="mt-2" style={{ fontSize: 14, color: "#8593A0" }}>
+            <p className="mt-2" style={{ fontSize: 14, color: "#8FB3CC" }}>
               Access your boat and maintenance planner.
             </p>
 
@@ -142,7 +142,7 @@ export default function LoginForm() {
                   </label>
                   <Link
                     href="/forgot-password"
-                    style={{ fontSize: 13, color: "#8593A0" }}
+                    style={{ fontSize: 13, color: "#8FB3CC" }}
                     className="hover:text-ocean-600 transition-colors"
                   >
                     Forgot password?
@@ -190,7 +190,7 @@ export default function LoginForm() {
                     borderRadius: 11,
                     border: `1px solid ${isError ? "#F3C4C4" : "#B8E2C8"}`,
                     background: isError ? "#FDEBEB" : "#E7F6EE",
-                    color: isError ? "#D83A3A" : "#1D9B55",
+                    color: isError ? "#E0342A" : "#0E7A3D",
                     fontSize: 13,
                   }}
                 >
@@ -199,7 +199,7 @@ export default function LoginForm() {
               ) : null}
             </form>
 
-            <p className="mt-6" style={{ fontSize: 14, color: "#8593A0" }}>
+            <p className="mt-6" style={{ fontSize: 14, color: "#8FB3CC" }}>
               New to NautIQ?{" "}
               <Link
                 href="/signup"
@@ -210,7 +210,7 @@ export default function LoginForm() {
               </Link>
             </p>
 
-            <p className="mt-4" style={{ fontSize: 12, color: "#8593A0" }}>
+            <p className="mt-4" style={{ fontSize: 12, color: "#8FB3CC" }}>
               By signing in you agree to our{" "}
               <Link href="/legal/terms" style={{ color: "#0B7EB8" }} className="hover:underline">Terms of Service</Link>
               {" "}and{" "}
@@ -221,7 +221,7 @@ export default function LoginForm() {
       </div>
 
       {process.env.NEXT_PUBLIC_BUILD_TIME && (
-        <p className="mt-4 text-xs hidden md:block" style={{ color: "#8593A0" }}>
+        <p className="mt-4 text-xs hidden md:block" style={{ color: "#8FB3CC" }}>
           v{new Date(process.env.NEXT_PUBLIC_BUILD_TIME).toLocaleString(undefined, {
             year: "numeric", month: "short", day: "numeric",
             hour: "2-digit", minute: "2-digit",

@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { Anchor, X } from "lucide-react";
 import type { TripDraft } from "@/lib/ai/generateTripDraft";
+import LogTripSheet from "@/components/chat/log-trip-sheet";
+import { formatDate } from "@/lib/format-date";
 
 interface TripDraftCardProps {
   draft: TripDraft;
@@ -10,184 +13,98 @@ interface TripDraftCardProps {
   onDismiss?: () => void;
 }
 
-function toDateValue(iso: string | null) {
-  if (!iso) return "";
-  return new Date(iso).toISOString().slice(0, 10);
-}
-
-function toTimeValue(iso: string | null) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  return d.toTimeString().slice(0, 5); // HH:MM
-}
-
-function buildIso(date: string, time: string) {
-  if (!date) return null;
-  return time ? `${date}T${time}:00` : `${date}T00:00:00`;
-}
 
 export default function TripDraftCard({ draft, boatId, onSaved, onDismiss }: TripDraftCardProps) {
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
-  const today = new Date().toISOString().slice(0, 10);
-  const [date, setDate] = useState(toDateValue(draft.started_at) || today);
-  const [startTime, setStartTime] = useState(toTimeValue(draft.started_at));
-  const [endTime, setEndTime] = useState(toTimeValue(draft.ended_at));
-  const [engineHours, setEngineHours] = useState(draft.engine_hours_delta?.toString() ?? "");
-  const [fuel, setFuel] = useState(draft.fuel_added_litres?.toString() ?? "");
-  const [notes, setNotes] = useState(draft.notes ?? "");
+  const issues = draft.issues_observed.filter(s => s && !/^no issues?$/i.test(s.trim()));
+  const combinedNotes = [
+    draft.notes || null,
+    issues.length > 0 ? `Issues: ${issues.join(", ")}` : null,
+  ].filter(Boolean).join("\n\n") || null;
 
-  async function handleSave() {
-    setSaving(true);
-    try {
-      const res = await fetch("/api/trips/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          boatId,
-          started_at: buildIso(date, startTime),
-          ended_at: buildIso(date, endTime),
-          engine_hours_delta: parseFloat(engineHours) || 0,
-          fuel_added_litres: fuel ? parseFloat(fuel) : null,
-          notes,
-          source: draft.source,
-          raw_input: draft.raw_input,
-        }),
-      });
-      if (res.ok) {
-        setSaved(true);
-        onSaved?.();
-      }
-    } finally {
-      setSaving(false);
-    }
+  function handleDismiss() {
+    setDismissed(true);
+    onDismiss?.();
+  }
+
+  function handleSaved() {
+    setDismissed(true);
+    onSaved?.();
   }
 
   if (dismissed) return null;
 
-  if (saved) {
-    return (
-      <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-        ✓ Trip saved
-      </div>
-    );
-  }
-
-  const inputCls = "w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-ocean-500 focus:outline-none";
-
   return (
-    <div className="mt-2 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5">
-        <div className="flex items-center gap-2">
-          <span className="text-base">⚓</span>
-          <span className="text-sm font-semibold text-slate-800">Trip Draft</span>
-        </div>
-        <span className="text-xs font-medium text-ocean-600 bg-ocean-50 border border-ocean-200 rounded-full px-2 py-0.5">AI extracted</span>
-      </div>
-      <div className="px-4 pt-3 pb-0">
-        <p className="text-xs text-slate-500">Review the details below and edit anything before saving.</p>
-      </div>
-
-      <div className="p-4 space-y-3">
-        {/* Date */}
-        <div>
-          <label className="block text-xs font-medium text-slate-500 mb-1">Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className={inputCls}
-          />
-        </div>
-
-        {/* Start / End times */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Departure</label>
-            <input
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              className={inputCls}
-            />
+    <>
+      <div className="mx-3 mt-3 rounded-2xl border border-ocean-200 bg-ocean-50 shadow-sm overflow-hidden">
+        <div className="flex items-start gap-3 px-4 pt-3.5 pb-3">
+          <div className="flex-shrink-0 mt-0.5 rounded-full bg-ocean-100 p-1.5">
+            <Anchor size={14} className="text-ocean-600" />
           </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Return</label>
-            <input
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              className={inputCls}
-            />
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-slate-800">Trip record ready to save</div>
+            {(draft.started_at || draft.engine_hours_delta != null) && (
+              <div className="mt-2 space-y-0.5">
+                {draft.notes && (
+                  <div className="text-sm text-slate-700 font-medium truncate">{draft.notes}</div>
+                )}
+                <div className="flex items-center gap-3">
+                  {draft.started_at && (
+                    <div className="text-xs text-ocean-600">{formatDate(draft.started_at)}</div>
+                  )}
+                  {draft.engine_hours_delta != null && (
+                    <div className="text-xs text-slate-400">{draft.engine_hours_delta}h engine</div>
+                  )}
+                  {draft.fuel_added_litres != null && (
+                    <div className="text-xs text-slate-400">{draft.fuel_added_litres}L fuel</div>
+                  )}
+                </div>
+                {issues.length > 0 && (
+                  <div className="mt-1 text-xs text-amber-600">
+                    ⚠ {issues.join(" · ")}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
+          <button
+            type="button"
+            onClick={handleDismiss}
+            className="flex-shrink-0 rounded-full p-1 text-slate-400 hover:bg-ocean-100 hover:text-slate-600 transition"
+            aria-label="Dismiss"
+          >
+            <X size={14} />
+          </button>
         </div>
 
-        {/* Engine hours + fuel */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Engine hours</label>
-            <input
-              type="number"
-              min="0"
-              step="0.1"
-              value={engineHours}
-              onChange={(e) => setEngineHours(e.target.value)}
-              className={inputCls}
-              placeholder="e.g. 0.75"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Fuel added (L)</label>
-            <input
-              type="number"
-              min="0"
-              step="0.5"
-              value={fuel}
-              onChange={(e) => setFuel(e.target.value)}
-              className={inputCls}
-              placeholder="optional"
-            />
-          </div>
+        <div className="px-4 pb-3.5">
+          <button
+            type="button"
+            onClick={() => setSheetOpen(true)}
+            className="flex items-center gap-1.5 w-full justify-center rounded-xl py-2.5 text-sm font-semibold text-white transition"
+            style={{ background: "#0B7EB8" }}
+          >
+            <Anchor size={14} />
+            Review and save
+          </button>
         </div>
-
-        {/* Notes */}
-        <div>
-          <label className="block text-xs font-medium text-slate-500 mb-1">Notes</label>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={2}
-            className={`${inputCls} resize-none`}
-          />
-        </div>
-
-        {draft.issues_observed.filter(s => s && !/^no issues?$/i.test(s.trim())).length > 0 && (
-          <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2">
-            <p className="text-xs font-medium text-amber-700 mb-1">Issues noted</p>
-            {draft.issues_observed.filter(s => s && !/^no issues?$/i.test(s.trim())).map((issue, i) => (
-              <p key={i} className="text-xs text-amber-600">• {issue}</p>
-            ))}
-          </div>
-        )}
       </div>
 
-      <div className="flex gap-2 border-t border-slate-100 px-4 py-3">
-        <button
-          onClick={handleSave}
-          disabled={saving || !date}
-          className="flex-1 rounded-lg btn-primary px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-50"
-        >
-          {saving ? "Saving…" : "Save Trip"}
-        </button>
-        <button
-          onClick={() => { setDismissed(true); onDismiss?.(); }}
-          className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
-        >
-          Dismiss
-        </button>
-      </div>
-    </div>
+      {sheetOpen && (
+        <LogTripSheet
+          boatId={boatId}
+          prefillStartedAt={draft.started_at}
+          prefillEndedAt={draft.ended_at}
+          prefillEngineHours={draft.engine_hours_delta}
+          prefillFuelLitres={draft.fuel_added_litres}
+          prefillNotes={combinedNotes}
+          prefillSource={draft.source}
+          onClose={() => setSheetOpen(false)}
+          onSaved={handleSaved}
+        />
+      )}
+    </>
   );
 }

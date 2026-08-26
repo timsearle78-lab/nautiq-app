@@ -1,15 +1,16 @@
 import { StockAdjustForm } from "@/components/inventory/stock-adjust-form";
 import type { InventoryItemRow } from "@/lib/inventory/queries";
 import Link from "next/link";
+import { Pencil } from "lucide-react";
 
 function getStatus(item: InventoryItemRow) {
   if (item.is_critical && Number(item.quantity) <= 0) {
-    return { label: "Missing", badgeCls: "bg-red-50 text-red-600 border-red-200" };
+    return { label: "MISSING", badgeCls: "badge badge-missing", edge: "row-edge-critical" };
   }
   if (item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity)) {
-    return { label: "Low", badgeCls: "bg-amber-50 text-amber-600 border-amber-200" };
+    return { label: "LOW", badgeCls: "badge badge-low", edge: "row-edge-warning" };
   }
-  return { label: "OK", badgeCls: "bg-green-50 text-green-600 border-green-200" };
+  return { label: "OK", badgeCls: "badge badge-ok", edge: "row-edge-healthy" };
 }
 
 function getExpiryBadge(expiryDate: string | null): { label: string; cls: string } | null {
@@ -17,10 +18,10 @@ function getExpiryBadge(expiryDate: string | null): { label: string; cls: string
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const expiry = new Date(expiryDate); expiry.setHours(0, 0, 0, 0);
   const daysLeft = Math.ceil((expiry.getTime() - today.getTime()) / 86400000);
-  if (daysLeft < 0) return { label: "Expired", cls: "bg-red-50 text-red-600 border-red-200" };
-  if (daysLeft === 0) return { label: "Expires today", cls: "bg-red-50 text-red-600 border-red-200" };
-  if (daysLeft <= 30) return { label: `Exp. ${daysLeft}d`, cls: "bg-red-50 text-red-600 border-red-200" };
-  if (daysLeft <= 90) return { label: `Exp. ${daysLeft}d`, cls: "bg-amber-50 text-amber-600 border-amber-200" };
+  if (daysLeft < 0) return { label: "EXPIRED", cls: "badge badge-missing" };
+  if (daysLeft === 0) return { label: "EXP TODAY", cls: "badge badge-missing" };
+  if (daysLeft <= 30) return { label: `EXP ${daysLeft}D`, cls: "badge badge-missing" };
+  if (daysLeft <= 90) return { label: `EXP ${daysLeft}D`, cls: "badge badge-low" };
   return null;
 }
 
@@ -32,132 +33,75 @@ export function InventoryTable({
   items: InventoryItemRow[];
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div className="px-4 py-3 border-b border-slate-100">
-        <h2 className="text-base font-semibold text-slate-800">
-          Inventory <span className="ml-1.5 text-sm font-normal text-slate-400">({items.length})</span>
+    <section className="card overflow-hidden">
+      <div className="px-4 py-3" style={{ borderBottom: "1.5px solid #DBE3EA" }}>
+        <h2 style={{ fontSize: 16, fontWeight: 800, color: "#0B2942" }}>
+          Inventory <span style={{ fontSize: 13, fontWeight: 500, color: "#8FB3CC", marginLeft: 6 }}>({items.length})</span>
         </h2>
       </div>
 
       {items.length === 0 ? (
-        <p className="px-4 py-6 text-sm text-slate-500">No inventory items found.</p>
+        <p className="px-4 py-6" style={{ fontSize: 14, color: "#8FB3CC" }}>No inventory items found.</p>
       ) : (
-        <>
-          {/* Mobile: card list */}
-          <div className="divide-y divide-slate-100 lg:hidden">
-            {items.map((item) => {
-              const status = getStatus(item);
-              const expiryBadge = getExpiryBadge(item.expiry_date);
-              return (
-                <div key={item.id} className="px-4 py-4">
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="min-w-0">
-                      <Link
-                        href={`/inventory/${item.id}`}
-                        className="font-medium text-sm text-ocean-600 hover:text-ocean-700 hover:underline truncate block"
-                      >
-                        {item.name}
-                      </Link>
-                      <div className="text-xs text-slate-400 mt-0.5">
-                        {item.category ?? "Uncategorised"}
-                        {item.is_critical ? " · Critical" : ""}
-                        {item.storage_location ? ` · ${item.storage_location}` : ""}
-                      </div>
-                      {item.component && (
-                        <Link href={`/components/${item.component.id}`} className="text-xs text-ocean-600 hover:text-ocean-700 font-medium mt-0.5 inline-block">
-                          {item.component.name}
-                        </Link>
-                      )}
+        <div className="divide-y" style={{ borderColor: "#DBE3EA" }}>
+          {items.map((item) => {
+            const status = getStatus(item);
+            const expiryBadge = getExpiryBadge(item.expiry_date);
+            return (
+              <div
+                key={item.id}
+                className={`px-4 py-4 ${status.edge}`}
+                style={{ minHeight: 56 }}
+              >
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="min-w-0">
+                    <Link
+                      href={`/inventory/${item.id}`}
+                      style={{ fontSize: 15, fontWeight: 800, color: "#0B2942" }}
+                      className="truncate block hover:opacity-70 transition-opacity"
+                    >
+                      {item.name}
+                    </Link>
+                    <div style={{ fontSize: 13, color: "#8FB3CC", marginTop: 2 }}>
+                      {item.category ?? "Uncategorised"}
+                      {item.is_critical ? " · Critical" : ""}
+                      {item.storage_location ? ` · ${item.storage_location}` : ""}
                     </div>
-                    <div className="flex-shrink-0 flex flex-col items-end gap-1">
-                      <span className="text-sm font-semibold text-slate-800">
+                    {item.component && (
+                      <Link
+                        href={`/components/${item.component.id}`}
+                        style={{ fontSize: 13, fontWeight: 600, color: "#0B7EB8" }}
+                        className="mt-0.5 inline-block hover:opacity-70 transition-opacity"
+                      >
+                        {item.component.name}
+                      </Link>
+                    )}
+                  </div>
+                  <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <span style={{ fontSize: 15, fontWeight: 800, color: "#0B2942" }}>
                         {item.quantity}{item.unit ? ` ${item.unit}` : ""}
                       </span>
-                      <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${status.badgeCls}`}>
-                        {status.label}
-                      </span>
-                      {expiryBadge && (
-                        <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${expiryBadge.cls}`}>
-                          {expiryBadge.label}
-                        </span>
-                      )}
+                      <Link
+                        href={`/inventory/${item.id}`}
+                        style={{ color: "#8FB3CC" }}
+                        className="rounded-lg p-1 hover:opacity-70 transition-opacity"
+                        aria-label="Edit item"
+                      >
+                        <Pencil size={13} />
+                      </Link>
                     </div>
+                    <span className={status.badgeCls}>{status.label}</span>
+                    {expiryBadge && (
+                      <span className={expiryBadge.cls}>{expiryBadge.label}</span>
+                    )}
                   </div>
-                  <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Desktop: table — 5 columns, no horizontal scroll */}
-          <div className="hidden lg:block">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-200 text-left">
-                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Item</th>
-                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Component</th>
-                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Qty · Min</th>
-                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Status</th>
-                  <th className="px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Adjust</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => {
-                  const status = getStatus(item);
-                  const expiryBadge = getExpiryBadge(item.expiry_date);
-                  return (
-                    <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 align-middle">
-                      <td className="px-4 py-3">
-                        <Link
-                          href={`/inventory/${item.id}`}
-                          className="font-medium text-ocean-600 hover:text-ocean-700 hover:underline"
-                        >
-                          {item.name}
-                        </Link>
-                        <div className="text-xs text-slate-400 mt-0.5">
-                          {item.category ?? "Uncategorised"}
-                          {item.is_critical ? " · Critical" : ""}
-                          {item.storage_location ? ` · ${item.storage_location}` : ""}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        {item.component ? (
-                          <Link href={`/components/${item.component.id}`} className="text-ocean-600 hover:text-ocean-700 font-medium">
-                            {item.component.name}
-                          </Link>
-                        ) : (
-                          <span className="text-slate-300">—</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-slate-700">
-                        <span className="font-medium">{item.quantity}</span>
-                        {item.unit ? ` ${item.unit}` : ""}
-                        {item.minimum_quantity != null && (
-                          <span className="text-slate-400"> · {item.minimum_quantity}</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1">
-                          <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${status.badgeCls}`}>
-                            {status.label}
-                          </span>
-                          {expiryBadge && (
-                            <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${expiryBadge.cls}`}>
-                              {expiryBadge.label}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </>
+                <StockAdjustForm boatId={boatId} inventoryItemId={item.id} />
+              </div>
+            );
+          })}
+        </div>
       )}
     </section>
   );

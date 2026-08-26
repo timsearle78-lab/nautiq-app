@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { X, MapPin } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { X, MapPin, Fuel } from "lucide-react";
 import type { GpsCoords } from "@/hooks/use-trip-timer";
 import NautiqAnchorIcon from "@/components/ui/nautiq-anchor-icon";
 import VoiceTextarea from "@/components/ui/voice-textarea";
 import SaveSuccessSheet from "@/components/ui/save-success-sheet";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
+import { todayLocal } from "@/lib/format-date";
 
 interface LogTripSheetProps {
   boatId: string;
@@ -31,10 +32,6 @@ function toLocalDate(iso: string) {
 
 function toLocalTime(iso: string) {
   return iso.slice(11, 16); // "HH:MM" — UTC portion = intended local time
-}
-
-function todayLocal() {
-  return new Date().toLocaleDateString("en-CA");
 }
 
 function nowLocalTime() {
@@ -91,6 +88,24 @@ export default function LogTripSheet({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+
+  type FuelPreview = { rate: number; fuelItem: { name: string; quantity: number; unit: string | null } | null } | null;
+  const [fuelPreview, setFuelPreview] = useState<FuelPreview>(null);
+  const fuelPreviewRef = useRef<FuelPreview>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/boats/fuel-preview?boatId=${boatId}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (!cancelled && data?.rate) {
+          fuelPreviewRef.current = data;
+          setFuelPreview(data);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [boatId]);
 
   async function handleSave() {
     if (!startDate) { setError("Enter a start date for this trip"); return; }
@@ -225,9 +240,29 @@ export default function LogTripSheet({
               step="1"
               value={fuelLitres}
               onChange={(e) => setFuelLitres(e.target.value)}
-              placeholder="Optional"
+              placeholder="Optional — leave blank to estimate automatically"
               className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
             />
+            {(() => {
+              const hours = parseFloat(engineHours);
+              const fp = fuelPreview;
+              if (!fp || !hours || hours <= 0 || fuelLitres) return null;
+              const estimated = Math.round(hours * fp.rate * 10) / 10;
+              const itemName = fp.fuelItem?.name ?? "fuel";
+              const currentStock = fp.fuelItem ? fp.fuelItem.quantity : null;
+              const unit = fp.fuelItem?.unit ?? "L";
+              return (
+                <div className="mt-2 flex items-start gap-2 rounded-xl border border-ocean-200 bg-ocean-50 px-3 py-2.5">
+                  <Fuel size={15} className="text-ocean-500 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm text-ocean-800 leading-snug">
+                    <span className="font-semibold">~{estimated} L</span> of <span className="font-medium">{itemName}</span> will be estimated and deducted from inventory
+                    {currentStock != null && (
+                      <span className="text-ocean-600"> (currently {currentStock} {unit})</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           <div>

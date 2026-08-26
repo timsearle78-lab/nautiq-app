@@ -7,6 +7,8 @@ import { getBoatHealth } from "@/lib/components/health";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { AlertTriangle, CheckCircle, Clock, HelpCircle, Package, ShieldAlert } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
+import { formatDate } from "@/lib/format-date";
+import { normalizeStatus } from "@/lib/component-status";
 
 type BoatRow = { id: string; name: string; type: string | null };
 
@@ -22,30 +24,19 @@ type InventoryIssue = {
   component_name: string | null;
 };
 
-function normalizeStatus(s: string | null) {
-  const v = (s ?? "").toLowerCase();
-  if (v === "overdue") return "overdue";
-  if (v === "due soon" || v === "due_soon") return "due_soon";
-  if (v === "ok") return "ok";
-  return "unknown";
-}
 
-function formatDate(v: string | null) {
-  if (!v) return "—";
-  return new Date(v).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
-}
-
-function issueLabel(issue: InventoryIssue): { text: string; cls: string } {
-  if (issue.issue === "expired") return { text: "Expired", cls: "bg-red-50 text-red-600 border-red-200" };
-  if (issue.issue === "out_of_stock") return { text: issue.is_critical ? "Out of stock (critical)" : "Out of stock", cls: "bg-red-50 text-red-600 border-red-200" };
+function issueLabel(issue: InventoryIssue): { text: string; style: React.CSSProperties } {
+  const red: React.CSSProperties = { background: "#FDECEA", color: "#E0342A", border: "1.5px solid #E0342A33" };
+  const amber: React.CSSProperties = { background: "#FFF6DF", color: "#D9A300", border: "1.5px solid #D9A30033" };
+  if (issue.issue === "expired") return { text: "Expired", style: red };
+  if (issue.issue === "out_of_stock") return { text: issue.is_critical ? "Out of stock (critical)" : "Out of stock", style: red };
   if (issue.issue === "expiring_soon") {
     const expiry = new Date(issue.expiry_date!); expiry.setHours(0,0,0,0);
     const today = new Date(); today.setHours(0,0,0,0);
     const days = Math.ceil((expiry.getTime() - today.getTime()) / 86400000);
-    return { text: days <= 0 ? "Expires today" : `Expires in ${days}d`, cls: "bg-amber-50 text-amber-600 border-amber-200" };
+    return { text: days <= 0 ? "Expires today" : `Expires in ${days}d`, style: amber };
   }
-  // low_stock
-  return { text: issue.is_critical ? "Low stock (critical)" : "Low stock", cls: "bg-amber-50 text-amber-600 border-amber-200" };
+  return { text: issue.is_critical ? "Low stock (critical)" : "Low stock", style: amber };
 }
 
 function recommendation(issue: InventoryIssue): string {
@@ -63,16 +54,13 @@ export default async function HealthPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: boatsData } = await supabase
-    .from("boats")
-    .select("id,name,type")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true });
+  const [{ data: boatsData }, selectedBoatId] = await Promise.all([
+    supabase.from("boats").select("id,name,type").eq("user_id", user.id).order("created_at", { ascending: true }),
+    getSelectedBoatId(),
+  ]);
 
   const boats = (boatsData ?? []) as BoatRow[];
   if (boats.length === 0) redirect("/onboarding");
-
-  const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
   const [health, engineHoursRes, inventoryRes, componentsRes] = await Promise.all([
@@ -160,50 +148,56 @@ export default async function HealthPage() {
   if (lowCount > 0) scoreReasons.push(`${lowCount} item${lowCount !== 1 ? "s" : ""} below minimum stock`);
 
   return (
-    <main className="px-4 py-6 space-y-5">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Boat Health</h1>
-        <p className="text-sm text-slate-500">{boat.name} · {engineHours}h engine hours</p>
+    <main className="space-y-5">
+      {/* Navy page hero */}
+      <div className="w-full px-4 pt-5 pb-5" style={{ background: "#0B2942" }}>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>Boat Health</h1>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>{boat.name} · {engineHours}h engine hours</p>
+          </div>
+        </div>
       </div>
 
+      <div className="px-4 space-y-5">
       {/* Score + tiles */}
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+      <div className="card p-5">
         <div className="flex items-center justify-between gap-4">
           <HealthGauge score={healthScore} overdueCount={overdue.length} size={140} />
           <div className="flex-1 grid grid-cols-2 gap-2">
-            <div className="rounded-xl bg-red-50 border border-red-100 px-3 py-3 text-center">
-              <div className="text-2xl font-bold text-red-600">{overdue.length}</div>
-              <div className="text-xs text-slate-500 mt-0.5">Overdue</div>
+            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: "#FDECEA", border: "1.5px solid #E0342A22" }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#E0342A" }}>{overdue.length}</div>
+              <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>Overdue</div>
             </div>
-            <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center">
-              <div className="text-2xl font-bold text-amber-600">{dueSoon.length}</div>
-              <div className="text-xs text-slate-500 mt-0.5">Due soon</div>
+            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: "#FFF6DF", border: "1.5px solid #D9A30022" }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#D9A300" }}>{dueSoon.length}</div>
+              <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>Due soon</div>
             </div>
-            <div className="rounded-xl bg-green-50 border border-green-100 px-3 py-3 text-center">
-              <div className="text-2xl font-bold text-green-600">{ok.length}</div>
-              <div className="text-xs text-slate-500 mt-0.5">Healthy</div>
+            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: "#E6F6EC", border: "1.5px solid #0E7A3D22" }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#0E7A3D" }}>{ok.length}</div>
+              <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>Healthy</div>
             </div>
-            <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-3 text-center">
-              <div className="text-2xl font-bold text-slate-600">{engineHours}</div>
-              <div className="text-xs text-slate-500 mt-0.5">Engine hrs</div>
+            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: "#E6F3FA", border: "1.5px solid #0B7EB822" }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#0B7EB8" }}>{engineHours}</div>
+              <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>Engine hrs</div>
             </div>
           </div>
         </div>
 
         {/* Why this score */}
         {scoreReasons.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-slate-100">
-            <p className="text-sm text-slate-600">
-              <span className="font-medium text-slate-800">Why {healthScore}/100? </span>
+          <div className="mt-4 pt-4" style={{ borderTop: "1.5px solid #DBE3EA" }}>
+            <p style={{ fontSize: 13, color: "#0B2942" }}>
+              <span style={{ fontWeight: 700 }}>Why {healthScore}/100? </span>
               {scoreReasons.join(", ")}.
               {healthScore < 100 ? " Fix the items below to restore your score to 100." : ""}
             </p>
           </div>
         )}
         {scoreReasons.length === 0 && healthScore === 100 && (
-          <div className="mt-4 pt-4 border-t border-slate-100">
-            <p className="text-sm text-slate-600">
-              <span className="font-medium text-slate-800">All clear.</span> Every component is within its service interval and all inventory levels are good.
+          <div className="mt-4 pt-4" style={{ borderTop: "1.5px solid #DBE3EA" }}>
+            <p style={{ fontSize: 13, color: "#0B2942" }}>
+              <span style={{ fontWeight: 700 }}>All clear.</span> Every component is within its service interval and all inventory levels are good.
             </p>
           </div>
         )}
@@ -211,38 +205,38 @@ export default async function HealthPage() {
 
       {/* All clear */}
       {!hasIssues && (
-        <div className="rounded-2xl border border-green-200 bg-green-50 p-5 flex items-center gap-3">
-          <CheckCircle size={22} className="text-green-600 flex-shrink-0" />
+        <div className="card p-5 flex items-center gap-3" style={{ borderColor: "#0E7A3D33", background: "#E6F6EC" }}>
+          <CheckCircle size={22} style={{ color: "#0E7A3D", flexShrink: 0 }} />
           <div>
-            <div className="font-medium text-green-800">Everything looks good</div>
-            <div className="text-sm text-green-700">No overdue maintenance, no low stock, no expiry issues.</div>
+            <div style={{ fontWeight: 700, color: "#0E7A3D" }}>Everything looks good</div>
+            <div style={{ fontSize: 13, color: "#0E7A3D", opacity: 0.8 }}>No overdue maintenance, no low stock, no expiry issues.</div>
           </div>
         </div>
       )}
 
       {/* Overdue maintenance */}
       {overdue.length > 0 && (
-        <div className="rounded-2xl border border-red-200 bg-white shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-red-100 bg-red-50 flex items-center gap-2">
-            <AlertTriangle size={16} className="text-red-500 flex-shrink-0" />
-            <h2 className="text-sm font-semibold text-red-700">Overdue maintenance ({overdue.length})</h2>
+        <div id="overdue" className="card overflow-hidden">
+          <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1.5px solid #E0342A22", background: "#FDECEA" }}>
+            <AlertTriangle size={16} style={{ color: "#E0342A", flexShrink: 0 }} />
+            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#E0342A" }}>Overdue maintenance ({overdue.length})</h2>
           </div>
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y" style={{ borderColor: "#DBE3EA" }}>
             {overdue.map((row) => (
               <Link
                 key={row.component_id}
                 href={`/components/${row.component_id}`}
-                className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                className="flex items-start gap-3 px-4 py-3"
               >
-                <AlertTriangle size={16} className="text-red-500 flex-shrink-0 mt-0.5" />
+                <AlertTriangle size={16} style={{ color: "#E0342A", flexShrink: 0, marginTop: 2 }} />
                 <div className="min-w-0 flex-1">
-                  <div className="font-medium text-sm text-slate-800">{row.component_name}</div>
-                  <div className="text-xs text-slate-400">{row.system_name ?? "—"}</div>
-                  <div className="text-xs text-red-600 font-medium mt-0.5">
+                  <div style={{ fontWeight: 700, fontSize: 14, color: "#0B2942" }}>{row.component_name}</div>
+                  <div style={{ fontSize: 12, color: "#8FB3CC" }}>{row.system_name ?? "—"}</div>
+                  <div style={{ fontSize: 12, color: "#E0342A", fontWeight: 600, marginTop: 2 }}>
                     Log a service to bring this back on track →
                   </div>
                 </div>
-                <span className="flex-shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium bg-red-50 text-red-600 border-red-200">Overdue</span>
+                <span className="badge badge-missing flex-shrink-0">Overdue</span>
               </Link>
             ))}
           </div>
@@ -251,29 +245,29 @@ export default async function HealthPage() {
 
       {/* Due soon maintenance */}
       {dueSoon.length > 0 && (
-        <div className="rounded-2xl border border-amber-200 bg-white shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-amber-100 bg-amber-50 flex items-center gap-2">
-            <Clock size={16} className="text-amber-500 flex-shrink-0" />
-            <h2 className="text-sm font-semibold text-amber-700">Due soon ({dueSoon.length})</h2>
+        <div id="due-soon" className="card overflow-hidden">
+          <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1.5px solid #D9A30022", background: "#FFF6DF" }}>
+            <Clock size={16} style={{ color: "#D9A300", flexShrink: 0 }} />
+            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#D9A300" }}>Due soon ({dueSoon.length})</h2>
           </div>
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y" style={{ borderColor: "#DBE3EA" }}>
             {dueSoon.map((row) => (
               <Link
                 key={row.component_id}
                 href={`/components/${row.component_id}`}
-                className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                className="flex items-start gap-3 px-4 py-3"
               >
-                <Clock size={16} className="text-amber-500 flex-shrink-0 mt-0.5" />
+                <Clock size={16} style={{ color: "#D9A300", flexShrink: 0, marginTop: 2 }} />
                 <div className="min-w-0 flex-1">
-                  <div className="font-medium text-sm text-slate-800">{row.component_name}</div>
-                  <div className="text-xs text-slate-400">{row.system_name ?? "—"}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: "#0B2942" }}>{row.component_name}</div>
+                  <div style={{ fontSize: 12, color: "#8FB3CC" }}>{row.system_name ?? "—"}</div>
                   {row.predicted_due_date && (
-                    <div className="text-xs text-amber-600 font-medium mt-0.5">
+                    <div style={{ fontSize: 12, color: "#D9A300", fontWeight: 600, marginTop: 2 }}>
                       Due {formatDate(row.predicted_due_date)} — schedule service now →
                     </div>
                   )}
                 </div>
-                <span className="flex-shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium bg-amber-50 text-amber-600 border-amber-200">Due soon</span>
+                <span className="badge badge-low flex-shrink-0">Due soon</span>
               </Link>
             ))}
           </div>
@@ -282,12 +276,12 @@ export default async function HealthPage() {
 
       {/* Inventory issues */}
       {inventoryIssues.length > 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex items-center gap-2">
-            <Package size={16} className="text-slate-500 flex-shrink-0" />
-            <h2 className="text-sm font-semibold text-slate-700">Inventory issues ({inventoryIssues.length})</h2>
+        <div className="card overflow-hidden">
+          <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1.5px solid #DBE3EA" }}>
+            <Package size={16} style={{ color: "#8FB3CC", flexShrink: 0 }} />
+            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#0B2942" }}>Inventory issues ({inventoryIssues.length})</h2>
           </div>
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y" style={{ borderColor: "#DBE3EA" }}>
             {inventoryIssues.map((issue) => {
               const badge = issueLabel(issue);
               const rec = recommendation(issue);
@@ -296,28 +290,28 @@ export default async function HealthPage() {
                 <Link
                   key={issue.id}
                   href={`/inventory/${issue.id}`}
-                  className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                  className="flex items-start gap-3 px-4 py-3"
                 >
                   {issue.is_critical
-                    ? <ShieldAlert size={16} className={`flex-shrink-0 mt-0.5 ${isUrgent ? "text-red-500" : "text-amber-500"}`} />
-                    : <Package size={16} className={`flex-shrink-0 mt-0.5 ${isUrgent ? "text-red-400" : "text-amber-400"}`} />
+                    ? <ShieldAlert size={16} style={{ color: isUrgent ? "#E0342A" : "#D9A300", flexShrink: 0, marginTop: 2 }} />
+                    : <Package size={16} style={{ color: isUrgent ? "#E0342A" : "#D9A300", flexShrink: 0, marginTop: 2 }} />
                   }
                   <div className="min-w-0 flex-1">
-                    <div className="font-medium text-sm text-slate-800">{issue.name}</div>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: "#0B2942" }}>{issue.name}</div>
                     {issue.component_name && (
-                      <div className="text-xs text-slate-400">{issue.component_name}</div>
+                      <div style={{ fontSize: 12, color: "#8FB3CC" }}>{issue.component_name}</div>
                     )}
-                    <div className={`text-xs font-medium mt-0.5 ${isUrgent ? "text-red-600" : "text-amber-600"}`}>
+                    <div style={{ fontSize: 12, fontWeight: 600, marginTop: 2, color: isUrgent ? "#E0342A" : "#D9A300" }}>
                       {rec} →
                     </div>
                   </div>
-                  <span className={`flex-shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium ${badge.cls}`}>{badge.text}</span>
+                  <span className="flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-bold" style={badge.style}>{badge.text}</span>
                 </Link>
               );
             })}
           </div>
-          <div className="px-4 py-2 border-t border-slate-100">
-            <Link href="/inventory" className="text-xs text-ocean-600 hover:text-ocean-700 font-medium">
+          <div className="px-4 py-2" style={{ borderTop: "1.5px solid #DBE3EA" }}>
+            <Link href="/inventory" style={{ fontSize: 13, color: "#0B7EB8", fontWeight: 600 }}>
               Go to inventory →
             </Link>
           </div>
@@ -325,19 +319,19 @@ export default async function HealthPage() {
       )}
 
       {/* All components */}
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm divide-y divide-slate-100">
-        <div className="px-4 py-3 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-slate-800">All components</h2>
-          <Link href="/maintenance" className="text-sm text-ocean-600 hover:text-ocean-700 font-medium">
+      <div className="card overflow-hidden">
+        <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: "1.5px solid #DBE3EA" }}>
+          <h2 style={{ fontSize: 15, fontWeight: 800, color: "#0B2942" }}>All components</h2>
+          <Link href="/maintenance" style={{ fontSize: 13, color: "#0B7EB8", fontWeight: 600 }}>
             Full timeline →
           </Link>
         </div>
         {realHealth.length === 0 ? (
-          <div className="px-4 py-6 text-sm text-slate-500">No components tracked yet.</div>
+          <div className="px-4 py-6" style={{ fontSize: 14, color: "#8FB3CC" }}>No components tracked yet.</div>
         ) : (
           realHealth
             .sort((a, b) => {
-              const rank = { overdue: 0, due_soon: 1, ok: 2, unknown: 3 };
+              const rank: Record<string, number> = { overdue: 0, due_soon: 1, ok: 2, unknown: 3 };
               return (rank[normalizeStatus(a.status)] ?? 3) - (rank[normalizeStatus(b.status)] ?? 3);
             })
             .map((row) => {
@@ -346,35 +340,37 @@ export default async function HealthPage() {
                 status === "overdue" ? AlertTriangle :
                 status === "due_soon" ? Clock :
                 status === "ok" ? CheckCircle : HelpCircle;
-              const iconColor =
-                status === "overdue" ? "text-red-500" :
-                status === "due_soon" ? "text-amber-500" :
-                status === "ok" ? "text-green-500" : "text-slate-400";
+              const iconStyle: React.CSSProperties = {
+                color: status === "overdue" ? "#E0342A" : status === "due_soon" ? "#D9A300" : status === "ok" ? "#0E7A3D" : "#8FB3CC",
+                flexShrink: 0,
+              };
               const label =
                 status === "overdue" ? "Overdue" :
                 status === "due_soon" ? "Due soon" :
                 status === "ok" ? "OK" : "Unknown";
-              const labelColor =
-                status === "overdue" ? "text-red-600" :
-                status === "due_soon" ? "text-amber-600" :
-                status === "ok" ? "text-green-600" : "text-slate-500";
+              const labelStyle: React.CSSProperties = {
+                fontSize: 12, fontWeight: 700,
+                color: status === "overdue" ? "#E0342A" : status === "due_soon" ? "#D9A300" : status === "ok" ? "#0E7A3D" : "#8FB3CC",
+              };
 
               return (
                 <Link
                   key={row.component_id}
                   href={`/components/${row.component_id}`}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 divide-y"
+                  style={{ borderBottom: "1.5px solid #DBE3EA" }}
                 >
-                  <Icon size={16} className={`flex-shrink-0 ${iconColor}`} />
+                  <Icon size={16} style={iconStyle} />
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium text-slate-800 truncate">{row.component_name}</div>
-                    <div className="text-xs text-slate-400">{row.system_name ?? "—"}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#0B2942" }} className="truncate">{row.component_name}</div>
+                    <div style={{ fontSize: 12, color: "#8FB3CC" }}>{row.system_name ?? "—"}</div>
                   </div>
-                  <span className={`text-xs font-medium ${labelColor}`}>{label}</span>
+                  <span style={labelStyle}>{label}</span>
                 </Link>
               );
             })
         )}
+      </div>
       </div>
     </main>
   );

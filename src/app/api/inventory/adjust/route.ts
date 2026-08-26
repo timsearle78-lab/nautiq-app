@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
-  const { itemId, quantity, transactionType = "consume", reason } = await req.json();
+  const { itemId, quantity, transactionType = "consume", reason, cost } = await req.json();
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -25,24 +25,35 @@ export async function POST(req: Request) {
   if (!boat) return Response.json({ error: "Unauthorized" }, { status: 403 });
 
   const delta = Number(quantity) || 1;
-  const newQuantity =
-    transactionType === "add"
-      ? item.quantity + delta
-      : Math.max(0, item.quantity - delta);
 
-  const [updateRes, txRes] = await Promise.all([
-    supabase.from("inventory_items").update({ quantity: newQuantity }).eq("id", itemId),
-    supabase.from("inventory_transactions").insert({
-      inventory_item_id: itemId,
-      transaction_type: transactionType === "add" ? "add" : "consume",
-      quantity_delta: transactionType === "add" ? delta : -delta,
-      notes: reason ?? (transactionType === "add" ? "Restocked" : "Used"),
-      user_id: user.id,
-      boat_id: item.boat_id,
-    }),
-  ]);
+  let newQuantity: number;
+  let quantityDelta: number;
+  if (transactionType === "add") {
+    newQuantity = item.quantity + delta;
+    quantityDelta = delta;
+  } else if (transactionType === "correct") {
+    newQuantity = Math.max(0, delta);
+    quantityDelta = newQuantity - item.quantity;
+  } else {
+    newQuantity = Math.max(0, item.quantity - delta);
+    quantityDelta = -(item.quantity - newQuantity);
+  }
 
+  const updateRes = await supabase
+    .from("inventory_items")
+    .update({ quantity: newQuantity })
+    .eq("id", itemId);
   if (updateRes.error) return Response.json({ error: updateRes.error.message }, { status: 500 });
+
+  const txRes = await supabase.from("inventory_transactions").insert({
+    inventory_item_id: itemId,
+    transaction_type: transactionType,
+    quantity_delta: quantityDelta,
+    notes: reason ?? (transactionType === "add" ? "Restocked" : transactionType === "correct" ? "Stock correction" : "Used"),
+    cost: transactionType === "add" && cost != null ? Number(cost) : null,
+    user_id: user.id,
+    boat_id: item.boat_id,
+  });
   if (txRes.error) return Response.json({ error: txRes.error.message }, { status: 500 });
 
   return Response.json({ ok: true, newQuantity, itemName: item.name });

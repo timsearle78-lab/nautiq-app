@@ -3,83 +3,105 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Wrench, Package } from "lucide-react";
+import { Home, Wrench } from "lucide-react";
 import ProfileSheet from "./profile-sheet";
 import NautiqAnchorIcon from "@/components/ui/nautiq-anchor-icon";
-
+import { Package } from "lucide-react";
 
 interface Tab {
   href: string;
   label: string;
-  lucide?: React.ElementType;
-  custom?: "anchor";
+  icon: React.ReactNode;
+  activeIcon?: React.ReactNode;
 }
 
-const tabs: Tab[] = [
-  { href: "/chat", label: "Home", lucide: Home },
-  { href: "/trips", label: "Trips", custom: "anchor" },
-  { href: "/maintenance", label: "Maintain", lucide: Wrench },
-  { href: "/inventory", label: "Inventory", lucide: Package },
-];
+function AnchorIcon({ active }: { active: boolean }) {
+  const color = active ? "#FFC730" : "#8FB3CC";
+  return <NautiqAnchorIcon size={22} color={color} />;
+}
 
 interface BottomNavProps {
   userEmail: string;
   userInitials: string;
   isAdmin?: boolean;
+  boats?: { id: string; name: string }[];
+  selectedBoatId?: string;
 }
 
-export default function BottomNav({ userEmail, userInitials, isAdmin }: BottomNavProps) {
+export default function BottomNav({ userEmail, userInitials, isAdmin, boats = [], selectedBoatId = "" }: BottomNavProps) {
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
+
+  const tabs = [
+    {
+      href: "/chat",
+      label: "HOME",
+      renderIcon: (active: boolean) => <Home size={22} strokeWidth={active ? 2.5 : 1.75} color={active ? "#FFC730" : "#8FB3CC"} />,
+    },
+    {
+      href: "/trips",
+      label: "TRIPS",
+      renderIcon: (active: boolean) => <AnchorIcon active={active} />,
+    },
+    {
+      href: "/maintenance",
+      label: "MAINTAIN",
+      renderIcon: (active: boolean) => <Wrench size={22} strokeWidth={active ? 2.5 : 1.75} color={active ? "#FFC730" : "#8FB3CC"} />,
+    },
+    {
+      href: "/inventory",
+      label: "INVENTORY",
+      renderIcon: (active: boolean) => <Package size={22} strokeWidth={active ? 2.5 : 1.75} color={active ? "#FFC730" : "#8FB3CC"} />,
+    },
+  ];
 
   return (
     <>
       <nav
         className="fixed bottom-0 left-0 right-0 z-40 pb-[env(safe-area-inset-bottom)]"
-        style={{
-          background: "#FFFFFF",
-          borderTop: "1px solid #E6EBF0",
-          boxShadow: "0 -2px 18px rgba(13,52,87,.05)",
-        }}
+        style={{ background: "#0B2942", borderTop: "1px solid rgba(255,255,255,0.08)" }}
       >
-        <div className="flex h-16">
-          {tabs.map(({ href, label, lucide: Icon, custom }) => {
+        <div className="flex" style={{ height: 60 }}>
+          {tabs.map(({ href, label, renderIcon }) => {
             const active = pathname === href || (href !== "/chat" && pathname.startsWith(href));
-            const color = active ? "#0B7EB8" : "#8593A0";
             return (
               <Link
                 key={href}
                 href={href}
-                className="relative flex flex-1 flex-col items-center justify-center gap-1 transition-colors"
-                style={{ color, fontSize: 11.5, fontWeight: active ? 700 : 600 }}
+                className="relative flex flex-1 flex-col items-center justify-center gap-1 transition-opacity active:opacity-70"
               >
-                {custom === "anchor" ? (
-                  <NautiqAnchorIcon size={22} color={color} />
-                ) : Icon ? (
-                  <Icon size={22} strokeWidth={active ? 2.5 : 1.75} />
-                ) : null}
-                <span>{label}</span>
+                {renderIcon(active)}
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 800,
+                    letterSpacing: "0.08em",
+                    color: active ? "#FFC730" : "#8FB3CC",
+                    lineHeight: 1,
+                  }}
+                >
+                  {label}
+                </span>
                 {active && (
                   <span
-                    className="absolute bottom-1 h-1 w-1 rounded-full"
-                    style={{ background: "#0B7EB8" }}
+                    className="absolute top-0 left-1/2 -translate-x-1/2 rounded-full"
+                    style={{ width: 28, height: 2.5, background: "#FFC730" }}
                   />
                 )}
               </Link>
             );
           })}
+          {/* Profile avatar tab */}
           <button
             onClick={() => setProfileOpen(true)}
-            className="flex flex-1 flex-col items-center justify-center gap-1 transition-colors"
-            style={{ color: "#8593A0", fontSize: 11.5, fontWeight: 600 }}
+            className="flex flex-1 flex-col items-center justify-center gap-1 transition-opacity active:opacity-70"
           >
             <div
-              className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-semibold leading-none"
-              style={{ background: "linear-gradient(135deg, #15A0D6, #0B7EB8)" }}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold leading-none"
+              style={{ background: "#FFC730", color: "#3D2A00" }}
             >
               {userInitials}
             </div>
-            <span>Profile</span>
           </button>
         </div>
       </nav>
@@ -88,6 +110,8 @@ export default function BottomNav({ userEmail, userInitials, isAdmin }: BottomNa
           email={userEmail}
           initials={userInitials}
           isAdmin={isAdmin}
+          boats={boats}
+          selectedBoatId={selectedBoatId}
           onClose={() => setProfileOpen(false)}
         />
       )}
