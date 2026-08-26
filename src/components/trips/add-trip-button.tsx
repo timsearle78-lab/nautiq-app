@@ -18,7 +18,6 @@ export function AddTripButton({ boatId }: { boatId: string }) {
         onClick={() => setOpen(true)}
         className="flex items-center gap-1.5 rounded-xl btn-amber px-4 py-2.5 text-sm font-semibold transition"
       >
-        <Plus size={16} />
         + Add
       </button>
       {open && (
