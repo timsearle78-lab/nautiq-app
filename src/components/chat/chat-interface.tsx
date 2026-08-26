@@ -630,17 +630,8 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             </div>
           </div>
         ) : (
-          /* Active chat: compact health banner + messages */
+          /* Active chat: messages only */
           <div className="flex flex-col">
-            <div className="px-3 pt-3">
-              <HealthBanner
-                healthScore={healthScore}
-                overdueCount={overdueCount}
-                dueSoonCount={dueSoonCount}
-                okCount={okCount}
-                urgentItems={urgentItems}
-              />
-            </div>
             {tripDrafts.map((draft) => (
               <div key={draft.id} className="px-4 pt-3">
                 <EmailTripDraftCard
