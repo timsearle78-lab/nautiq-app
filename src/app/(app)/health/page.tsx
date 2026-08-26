@@ -357,8 +357,7 @@ export default async function HealthPage() {
                 <Link
                   key={row.component_id}
                   href={`/components/${row.component_id}`}
-                  className="flex items-center gap-3 px-4 py-3 divide-y"
-                  style={{ borderBottom: "1.5px solid #DBE3EA" }}
+                  className="flex items-center gap-3 px-4 py-3"
                 >
                   <Icon size={16} style={iconStyle} />
                   <div className="min-w-0 flex-1">
