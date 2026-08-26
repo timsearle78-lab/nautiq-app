@@ -664,22 +664,17 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       </div>
 
       {/* Input bar */}
-      <div className="shrink-0 px-3 pt-3 pb-2" style={{ background: "#0B2942", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+      <div className="shrink-0 px-3 pt-3 pb-2" style={{ background: "#FFFFFF", borderTop: "1.5px solid #DBE3EA" }}>
         {/* Main input row */}
         <div className="flex items-end gap-2">
-          {/* Prominent voice button */}
+          {/* Voice button */}
           <button
             onClick={handleVoice}
             className="shrink-0 flex items-center justify-center rounded-full transition-all"
             style={{
-              width: 48,
-              height: 48,
-              background: isRecording
-                ? "#E0342A"
-                : "#0B7EB8",
-              boxShadow: isRecording
-                ? "0 4px 14px rgba(216,58,58,.35)"
-                : "0 6px 16px rgba(11,126,184,.32)",
+              width: 44,
+              height: 44,
+              background: isRecording ? "#E0342A" : "#0B2942",
               color: "#fff",
               border: "none",
               flexShrink: 0,
@@ -689,7 +684,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             {isRecording ? (
               <span className="h-3.5 w-3.5 rounded-sm bg-white animate-pulse" />
             ) : (
-              <Mic size={20} />
+              <Mic size={18} />
             )}
           </button>
 
@@ -703,9 +698,9 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             className="flex-1 resize-none rounded-2xl px-4 py-2.5 text-sm focus:outline-none"
             style={{
               minHeight: "40px",
-              background: "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.15)",
-              color: "#FFFFFF",
+              background: "#F4F7FA",
+              border: "1.5px solid #DBE3EA",
+              color: "#0B2942",
             }}
           />
 
@@ -713,7 +708,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             type="button"
             onClick={() => setMessages([])}
             className="flex shrink-0 items-center justify-center rounded-full transition-opacity hover:opacity-70"
-            style={{ width: 40, height: 40, background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)" }}
+            style={{ width: 40, height: 40, background: "#F4F7FA", border: "1.5px solid #DBE3EA", color: "#8FB3CC" }}
             aria-label="New chat"
           >
             <RotateCcw size={15} />
@@ -723,7 +718,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             className="flex shrink-0 items-center justify-center rounded-full transition disabled:opacity-40"
-            style={{ width: 40, height: 40, background: "#FFC730", color: "#3D2A00" }}
+            style={{ width: 40, height: 40, background: "#0B2942", color: "#FFFFFF" }}
           >
             <Send size={16} />
           </button>
