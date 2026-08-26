@@ -21,26 +21,43 @@ export default async function AppHeader() {
 
     return (
       <header
-        className="h-14 shrink-0 relative flex items-center justify-between px-4 z-30"
-        style={{ background: "#0B2942", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+        className="h-14 shrink-0 z-30"
+        style={{
+          background: "#0B2942",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
+          alignItems: "center",
+          paddingInline: "4px",
+        }}
       >
         <ChatMenuTrigger />
-        <span style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", fontSize: 17, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
+        <span style={{ fontSize: 17, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
           Naut<span style={{ color: "#FFC730" }}>IQ</span>
         </span>
-        <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.6)" }}>{activeBoat.name}</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.6)", textAlign: "right", paddingRight: 16, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {activeBoat.name}
+        </span>
       </header>
     );
   } catch {
     return (
       <header
-        className="h-14 shrink-0 relative flex items-center justify-between px-4 z-30"
-        style={{ background: "#0B2942", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+        className="h-14 shrink-0 z-30"
+        style={{
+          background: "#0B2942",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
+          alignItems: "center",
+          paddingInline: "4px",
+        }}
       >
         <ChatMenuTrigger />
-        <span style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", fontSize: 17, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
+        <span style={{ fontSize: 17, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
           Naut<span style={{ color: "#FFC730" }}>IQ</span>
         </span>
+        <span />
       </header>
     );
   }
