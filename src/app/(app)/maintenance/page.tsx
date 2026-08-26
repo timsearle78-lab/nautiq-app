@@ -196,22 +196,29 @@ export default async function MaintenancePage({
   ].slice(0, 6);
 
   return (
-    <main className="px-4 py-6 space-y-5">
-      <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 style={{ fontSize: 20, fontWeight: 800, color: "#0B2942" }}>Maintenance</h1>
-          <div className="mt-3 flex gap-2">
-            <AddComponentSheet boatId={boat.id} systems={maintenanceSystems} boatType={boat.type ?? undefined} />
+    <main className="space-y-5">
+      {/* Navy page hero */}
+      <section className="w-full px-4 pt-5 pb-5" style={{ background: "#0B2942" }}>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>Maintenance</h1>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>
+              What is overdue, due soon, and healthy across your boat.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Link
               href="/components"
-              className="inline-flex items-center gap-1.5 px-4 py-2.5"
-              style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA", borderRadius: 13, fontSize: 14, fontWeight: 800, color: "#0B2942" }}
+              className="inline-flex items-center px-3 py-2"
+              style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.8)" }}
             >
-              All components
+              All
             </Link>
+            <AddComponentSheet boatId={boat.id} systems={maintenanceSystems} boatType={boat.type ?? undefined} />
           </div>
         </div>
       </section>
+      <div className="px-4 space-y-5">
 
       <section className="grid gap-3 grid-cols-2 md:grid-cols-4">
         <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: "#F4F7FA", border: "1.5px solid #DBE3EA" }}>
@@ -376,6 +383,7 @@ export default async function MaintenancePage({
           </div>
         )}
       </section>
+      </div>
 
     </main>
   );

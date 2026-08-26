@@ -319,7 +319,7 @@ export default function LogMaintenanceSheet({
             type="submit"
             disabled={isBusy || (!initialComponentId && !selectedComponentId)}
             className="w-full rounded-xl py-3.5 text-base font-semibold text-white transition disabled:opacity-50"
-            style={{ background: "linear-gradient(135deg,#15A0D6,#0B7EB8)" }}
+            style={{ background: "#0B7EB8" }}
           >
             {uploadingPhotos ? "Uploading photos…" : pending ? "Saving…" : "Save maintenance record"}
           </button>

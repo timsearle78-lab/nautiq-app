@@ -78,7 +78,7 @@ export default function EmailTripDraftCard({ draft, onDone }: Props) {
             type="button"
             onClick={() => setSheetOpen(true)}
             className="flex items-center gap-1.5 w-full justify-center rounded-xl py-2.5 text-sm font-semibold text-white transition"
-            style={{ background: "linear-gradient(135deg,#15A0D6,#0B7EB8)" }}
+            style={{ background: "#0B7EB8" }}
           >
             <Anchor size={14} />
             Complete trip record

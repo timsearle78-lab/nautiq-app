@@ -120,7 +120,7 @@ export default function MaintenanceDraftCard({ draft, prefill, boatId, component
             type="button"
             onClick={() => setSheetOpen(true)}
             className="flex items-center gap-1.5 w-full justify-center rounded-xl py-2.5 text-sm font-semibold text-white transition"
-            style={{ background: "linear-gradient(135deg,#15A0D6,#0B7EB8)" }}
+            style={{ background: "#0B7EB8" }}
           >
             <Wrench size={14} />
             {isEmail ? "Complete maintenance record" : "Review and save"}

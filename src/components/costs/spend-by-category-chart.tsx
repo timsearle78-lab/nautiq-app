@@ -72,7 +72,7 @@ export function SpendByCategoryChart({ slices }: { slices: CategorySlice[] }) {
           <circle cx={cx} cy={cy} r={28} fill="white" />
           {/* Centre label */}
           <text x={cx} y={cy - 5} textAnchor="middle" fontSize="10" fontWeight="700" fill="#0F2335">{fmt(total)}</text>
-          <text x={cx} y={cy + 8} textAnchor="middle" fontSize="7" fill="#8593A0">total</text>
+          <text x={cx} y={cy + 8} textAnchor="middle" fontSize="7" fill="#8FB3CC">total</text>
         </svg>
 
         {/* Legend */}

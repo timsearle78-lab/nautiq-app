@@ -618,7 +618,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                     key={label}
                     onClick={() => sendMessage({ text })}
                     className="text-sm font-semibold active:opacity-70 transition-opacity"
-                    style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA", borderRadius: 8, padding: "8px 16px", color: "#46586A" }}
+                    style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA", borderRadius: 8, padding: "8px 16px", color: "#0B2942" }}
                   >
                     {label}
                   </button>
@@ -675,8 +675,8 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
               width: 48,
               height: 48,
               background: isRecording
-                ? "#D83A3A"
-                : "linear-gradient(135deg, #15A0D6, #0B7EB8)",
+                ? "#E0342A"
+                : "#0B7EB8",
               boxShadow: isRecording
                 ? "0 4px 14px rgba(216,58,58,.35)"
                 : "0 6px 16px rgba(11,126,184,.32)",

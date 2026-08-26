@@ -62,7 +62,7 @@ export default function VoiceTextarea({
         title={isRecording ? "Stop recording" : "Voice input"}
         className="absolute right-2.5 bottom-2.5 flex h-7 w-7 items-center justify-center rounded-full transition-colors"
         style={{
-          background: isRecording ? "#D83A3A" : "linear-gradient(135deg,#15A0D6,#0B7EB8)",
+          background: isRecording ? "#E0342A" : "#0B7EB8",
           color: "#fff",
           border: "none",
           boxShadow: isRecording ? "0 2px 8px rgba(216,58,58,.35)" : "0 2px 8px rgba(11,126,184,.28)",

@@ -117,30 +117,36 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
   const stockedCount = inventoryItems.length - lowStockCount - missingCriticalSpares.length;
 
   return (
-    <main className="px-4 py-6 space-y-4">
-      {/* Header */}
-      <div>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: "#0F2335" }}>Inventory</h1>
-        <p className="mt-1" style={{ fontSize: 14, color: "#8593A0" }}>
-          Track spares, consumables, and critical items on board.
-        </p>
-        <div className="mt-3">
-          <AddInventorySheet boatId={activeBoatId} components={components} categories={existingCategories} />
+    <main className="space-y-4">
+      {/* Navy page hero */}
+      <div className="w-full px-4 pt-5 pb-5" style={{ background: "#0B2942" }}>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>Inventory</h1>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>
+              Spares, consumables, and critical items on board.
+            </p>
+          </div>
+          <div className="flex-shrink-0">
+            <AddInventorySheet boatId={activeBoatId} components={components} categories={existingCategories} />
+          </div>
         </div>
       </div>
 
-      <InventoryStatTiles
-        totalCount={inventoryItems.length}
-        lowStockCount={lowStockCount}
-        missingCount={missingCriticalSpares.length}
-        stockedCount={stockedCount}
-        expiringSoonCount={expiringSoonCount}
-        activeStatus={statusFilter}
-        componentId={componentFilter}
-        components={components}
-      />
+      <div className="px-4 space-y-4">
+        <InventoryStatTiles
+          totalCount={inventoryItems.length}
+          lowStockCount={lowStockCount}
+          missingCount={missingCriticalSpares.length}
+          stockedCount={stockedCount}
+          expiringSoonCount={expiringSoonCount}
+          activeStatus={statusFilter}
+          componentId={componentFilter}
+          components={components}
+        />
 
-      <InventoryTable boatId={activeBoatId} items={filteredItems} />
+        <InventoryTable boatId={activeBoatId} items={filteredItems} />
+      </div>
     </main>
   );
 }

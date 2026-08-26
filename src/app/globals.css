@@ -51,8 +51,8 @@
 
   /* Neutrals */
   --color-ink:          #0B2942;
-  --color-text:         #46586A;
-  --color-muted:        #5F7488;
+  --color-text:         #0B2942;
+  --color-muted:        #8FB3CC;
   --color-border:       #DBE3EA;
   --color-border-input: #DBE3EA;
   --color-surface:      #FFFFFF;
@@ -60,8 +60,8 @@
 
   /* Legacy aliases */
   --color-text-strong:  #0B2942;
-  --color-text-body:    #46586A;
-  --color-text-muted:   #5F7488;
+  --color-text-body:    #0B2942;
+  --color-text-muted:   #8FB3CC;
 }
 
 :root {
