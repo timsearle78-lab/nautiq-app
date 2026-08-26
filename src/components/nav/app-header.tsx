@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import ChatMenuTrigger from "./chat-menu-trigger";
+import NautiqAnchorIcon from "@/components/ui/nautiq-anchor-icon";
 
 export default async function AppHeader() {
   try {
@@ -32,8 +33,11 @@ export default async function AppHeader() {
         }}
       >
         <ChatMenuTrigger />
-        <span style={{ fontSize: 17, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
-          Naut<span style={{ color: "#FFC730" }}>IQ</span>
+        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <NautiqAnchorIcon size={20} color="white" />
+          <span style={{ fontSize: 17, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
+            Naut<span style={{ color: "#FFC730" }}>IQ</span>
+          </span>
         </span>
         <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.6)", textAlign: "right", paddingRight: 16, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {activeBoat.name}
@@ -54,8 +58,11 @@ export default async function AppHeader() {
         }}
       >
         <ChatMenuTrigger />
-        <span style={{ fontSize: 17, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
-          Naut<span style={{ color: "#FFC730" }}>IQ</span>
+        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <NautiqAnchorIcon size={20} color="white" />
+          <span style={{ fontSize: 17, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
+            Naut<span style={{ color: "#FFC730" }}>IQ</span>
+          </span>
         </span>
         <span />
       </header>
