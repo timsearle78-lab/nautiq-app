@@ -61,7 +61,7 @@ export default function BottomNav({ userEmail, userInitials, isAdmin, boats = []
         className="fixed bottom-0 left-0 right-0 z-40 pb-[env(safe-area-inset-bottom)]"
         style={{ background: "#0B2942", borderTop: "1px solid rgba(255,255,255,0.08)" }}
       >
-        <div className="flex" style={{ height: 60 }}>
+        <div className="flex mx-auto w-full max-w-[1040px]" style={{ height: 60 }}>
           {tabs.map(({ href, label, renderIcon }) => {
             const active = pathname === href || (href !== "/chat" && pathname.startsWith(href));
             return (

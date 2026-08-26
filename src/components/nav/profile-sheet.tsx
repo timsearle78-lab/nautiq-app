@@ -37,7 +37,7 @@ export default function ProfileSheet({ email, initials, isAdmin, boats = [], sel
         className="fixed inset-0 z-50 bg-black/40"
         onClick={onClose}
       />
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-2xl z-50 bg-white rounded-t-2xl shadow-xl pb-[env(safe-area-inset-bottom)]">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[1040px] z-50 bg-white rounded-t-2xl shadow-xl pb-[env(safe-area-inset-bottom)]">
         {showChangelog ? (
           <>
             <div className="flex items-center gap-3 px-5 pt-5 pb-4 border-b border-slate-100">

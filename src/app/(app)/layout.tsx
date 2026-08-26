@@ -41,7 +41,7 @@ export default async function AppLayout({
     <div className="flex flex-col h-[100dvh]" style={{ background: "#F4F7FA" }}>
       <AppHeader />
       <main className="flex-1 overflow-y-auto pb-16">
-        <div className="mx-auto w-full max-w-2xl">
+        <div className="mx-auto w-full max-w-[1040px]">
           {children}
         </div>
       </main>
