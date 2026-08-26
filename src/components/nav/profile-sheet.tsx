@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { X, LogOut, Settings, HelpCircle, Sparkles, ChevronLeft, Shield, LayoutDashboard } from "lucide-react";
+import { X, LogOut, Settings, HelpCircle, Sparkles, ChevronLeft, Shield, LayoutDashboard, Anchor } from "lucide-react";
+import { selectBoat } from "@/app/(app)/actions";
 import BoatReportButton from "@/components/reports/boat-report-button";
 import { CHANGELOG } from "@/lib/changelog";
 
@@ -12,10 +13,12 @@ interface ProfileSheetProps {
   email: string;
   initials: string;
   isAdmin?: boolean;
+  boats?: { id: string; name: string }[];
+  selectedBoatId?: string;
   onClose: () => void;
 }
 
-export default function ProfileSheet({ email, initials, isAdmin, onClose }: ProfileSheetProps) {
+export default function ProfileSheet({ email, initials, isAdmin, boats = [], selectedBoatId = "", onClose }: ProfileSheetProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showChangelog, setShowChangelog] = useState(false);
@@ -82,6 +85,43 @@ export default function ProfileSheet({ email, initials, isAdmin, onClose }: Prof
                 )}
               </div>
             </div>
+            {/* Boat switcher */}
+            {boats.length > 0 && (
+              <div className="px-5 pb-4" style={{ borderBottom: "1.5px solid #DBE3EA" }}>
+                <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#8FB3CC", textTransform: "uppercase", marginBottom: 8 }}>My boats</p>
+                <div className="space-y-1">
+                  {boats.map((boat) => {
+                    const isActive = boat.id === selectedBoatId;
+                    return (
+                      <form key={boat.id} action={selectBoat}>
+                        <input type="hidden" name="boat_id" value={boat.id} />
+                        <input type="hidden" name="return_to" value="/chat" />
+                        <button
+                          type="submit"
+                          onClick={onClose}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left"
+                          style={{
+                            background: isActive ? "#0B2942" : "#F4F7FA",
+                            border: `1.5px solid ${isActive ? "#0B2942" : "#DBE3EA"}`,
+                          }}
+                        >
+                          <Anchor size={15} style={{ color: isActive ? "#FFC730" : "#8FB3CC", flexShrink: 0 }} />
+                          <span style={{ fontSize: 14, fontWeight: 700, color: isActive ? "#FFFFFF" : "#0B2942" }}>
+                            {boat.name}
+                          </span>
+                          {isActive && (
+                            <span className="ml-auto rounded-full px-2 py-0.5" style={{ fontSize: 11, fontWeight: 700, background: "#FFC730", color: "#3D2A00" }}>
+                              Active
+                            </span>
+                          )}
+                        </button>
+                      </form>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="px-5 pb-6 space-y-3">
               {isAdmin && (
                 <Link

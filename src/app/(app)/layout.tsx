@@ -20,13 +20,14 @@ export default async function AppLayout({
 
   if (!user) redirect("/login");
 
-  const { data: boats } = await supabase
+  const { data: boatsData } = await supabase
     .from("boats")
-    .select("id")
+    .select("id, name")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
-  if (!boats || boats.length === 0) redirect("/onboarding");
+  const boats = boatsData ?? [];
+  if (boats.length === 0) redirect("/onboarding");
 
   const selectedBoatId = await getSelectedBoatId();
   const boatId = boats.find((b) => b.id === selectedBoatId)?.id ?? boats[0].id;
@@ -46,7 +47,7 @@ export default async function AppLayout({
       </main>
       <ScrollToTop />
       <GlobalActionsMenu boatId={boatId} />
-      <BottomNav userEmail={email} userInitials={initials} isAdmin={isAdmin} />
+      <BottomNav userEmail={email} userInitials={initials} isAdmin={isAdmin} boats={boats} selectedBoatId={boatId} />
     </div>
   );
 }

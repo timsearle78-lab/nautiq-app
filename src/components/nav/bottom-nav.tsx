@@ -24,9 +24,11 @@ interface BottomNavProps {
   userEmail: string;
   userInitials: string;
   isAdmin?: boolean;
+  boats?: { id: string; name: string }[];
+  selectedBoatId?: string;
 }
 
-export default function BottomNav({ userEmail, userInitials, isAdmin }: BottomNavProps) {
+export default function BottomNav({ userEmail, userInitials, isAdmin, boats = [], selectedBoatId = "" }: BottomNavProps) {
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -108,6 +110,8 @@ export default function BottomNav({ userEmail, userInitials, isAdmin }: BottomNa
           email={userEmail}
           initials={userInitials}
           isAdmin={isAdmin}
+          boats={boats}
+          selectedBoatId={selectedBoatId}
           onClose={() => setProfileOpen(false)}
         />
       )}
