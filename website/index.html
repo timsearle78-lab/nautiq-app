@@ -211,6 +211,14 @@
     margin-top: 8px;
   }
 
+  .error-msg {
+    display: none;
+    color: #FF6B6B;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 8px;
+  }
+
   /* Scroll indicator */
   .scroll-hint {
     position: absolute;
@@ -350,6 +358,7 @@
   </form>
   <p class="form-note">No spam. We'll reach out when we're ready for you.</p>
   <p class="success-msg" id="success-msg">You're on the list — we'll be in touch.</p>
+  <p class="error-msg" id="error-msg">Something went wrong — please try again.</p>
 
   <div class="scroll-hint" aria-hidden="true">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
@@ -413,13 +422,34 @@
 </footer>
 
 <script>
-function handleSubmit(e) {
+async function handleSubmit(e) {
   e.preventDefault();
   const form = document.getElementById('waitlist-form');
+  const btn = form.querySelector('button[type="submit"]');
   const msg = document.getElementById('success-msg');
-  form.style.display = 'none';
-  document.querySelector('.form-note').style.display = 'none';
-  msg.style.display = 'block';
+  const errMsg = document.getElementById('error-msg');
+
+  btn.disabled = true;
+  btn.textContent = 'Joining…';
+  errMsg.style.display = 'none';
+
+  const email = form.querySelector('input[type="email"]').value.trim();
+
+  try {
+    const res = await fetch('https://app.nautiq.cloud/api/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) throw new Error('error');
+    form.style.display = 'none';
+    document.querySelector('.form-note').style.display = 'none';
+    msg.style.display = 'block';
+  } catch {
+    btn.disabled = false;
+    btn.textContent = 'Get early access';
+    errMsg.style.display = 'block';
+  }
 }
 </script>
 </body>
