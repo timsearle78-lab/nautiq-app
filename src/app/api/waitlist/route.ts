@@ -16,6 +16,10 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
   .map((e) => e.trim())
   .filter(Boolean);
 
+function json(body: unknown, status = 200) {
+  return NextResponse.json(body, { status, headers: CORS_HEADERS });
+}
+
 export async function POST(req: Request) {
   // 5 signups per IP per hour
   if (!rateLimit(`waitlist:${getClientIp(req)}`, 5, 60 * 60 * 1000)) {
@@ -27,15 +31,16 @@ export async function POST(req: Request) {
     const body = await req.json();
     email = (body.email ?? "").trim().toLowerCase();
   } catch {
-    return NextResponse.json({ error: "Bad request" }, { status: 400 });
+    return json({ error: "Bad request" }, 400);
   }
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: "Invalid email" }, { status: 422, headers: CORS_HEADERS });
+    return json({ error: "Invalid email" }, 422);
   }
 
   if (ADMIN_EMAILS.length === 0 || !process.env.RESEND_API_KEY) {
-    return NextResponse.json({ ok: true }, { headers: CORS_HEADERS });
+    console.warn("[waitlist] ADMIN_EMAILS or RESEND_API_KEY not configured — skipping email");
+    return json({ ok: true });
   }
 
   const signedAt = new Date().toLocaleString("en-NZ", {
@@ -47,7 +52,7 @@ export async function POST(req: Request) {
     minute: "2-digit",
   });
 
-  await fetch("https://api.resend.com/emails", {
+  const resendRes = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -70,5 +75,11 @@ export async function POST(req: Request) {
     }),
   });
 
-  return NextResponse.json({ ok: true }, { headers: CORS_HEADERS });
+  if (!resendRes.ok) {
+    const err = await resendRes.text();
+    console.error("[waitlist] Resend error:", resendRes.status, err);
+    return json({ error: "Failed to send notification" }, 502);
+  }
+
+  return json({ ok: true });
 }
