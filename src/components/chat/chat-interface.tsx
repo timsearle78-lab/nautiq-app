@@ -445,36 +445,39 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       {scanningInventory && <NautiqSpinner overlay />}
       {/* Messages / health area */}
       <div className="flex-1 overflow-y-auto">
-        {tripDrafts.map((draft) => (
-          <EmailTripDraftCard
-            key={draft.id}
-            draft={draft}
-            onDone={() => setTripDrafts((prev) => prev.filter((d) => d.id !== draft.id))}
-          />
-        ))}
-        {drafts.map((draft) => (
-          <MaintenanceDraftCard
-            key={draft.id}
-            draft={draft}
-            boatId={boat.id}
-            components={components}
-            inventoryOptions={inventoryItems.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity, unit: i.unit }))}
-            onDone={() => setDrafts((prev) => prev.filter((d) => d.id !== draft.id))}
-          />
-        ))}
-        <MissingComponentsCard boatType={boat.type ?? null} suggestions={missingSuggestions} />
-        {!hasTrips && <NoTripsCard boatId={boat.id} />}
-        {!hasInventory && <NoInventoryCard />}
         {messages.length === 0 ? (
           /* Empty state: navy hero + stats + maintenance */
           <div className="pb-4 space-y-4">
-            {/* Navy hero section */}
+            {/* Navy hero section — always first */}
             <NavyHero
               boat={boat}
               healthScore={animHealthScore as number}
               overdueCount={overdueCount}
               engineHours={engineHours}
             />
+            {/* Action cards below health */}
+            {tripDrafts.map((draft) => (
+              <div key={draft.id} className="px-4">
+                <EmailTripDraftCard
+                  draft={draft}
+                  onDone={() => setTripDrafts((prev) => prev.filter((d) => d.id !== draft.id))}
+                />
+              </div>
+            ))}
+            {drafts.map((draft) => (
+              <div key={draft.id} className="px-4">
+                <MaintenanceDraftCard
+                  draft={draft}
+                  boatId={boat.id}
+                  components={components}
+                  inventoryOptions={inventoryItems.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity, unit: i.unit }))}
+                  onDone={() => setDrafts((prev) => prev.filter((d) => d.id !== draft.id))}
+                />
+              </div>
+            ))}
+            <MissingComponentsCard boatType={boat.type ?? null} suggestions={missingSuggestions} />
+            {!hasTrips && <NoTripsCard boatId={boat.id} />}
+            {!hasInventory && <NoInventoryCard />}
             <WhatsNewCard hidden={hideWhatsNew} />
             <GreetingCard boatId={boat.id} hidden={hideGreeting} />
 
@@ -638,6 +641,25 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 urgentItems={urgentItems}
               />
             </div>
+            {tripDrafts.map((draft) => (
+              <div key={draft.id} className="px-4 pt-3">
+                <EmailTripDraftCard
+                  draft={draft}
+                  onDone={() => setTripDrafts((prev) => prev.filter((d) => d.id !== draft.id))}
+                />
+              </div>
+            ))}
+            {drafts.map((draft) => (
+              <div key={draft.id} className="px-4 pt-3">
+                <MaintenanceDraftCard
+                  draft={draft}
+                  boatId={boat.id}
+                  components={components}
+                  inventoryOptions={inventoryItems.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity, unit: i.unit }))}
+                  onDone={() => setDrafts((prev) => prev.filter((d) => d.id !== draft.id))}
+                />
+              </div>
+            ))}
             <div className="px-4 py-3 space-y-3">
               {messages.map((message) => (
                 <MessageBubble key={message.id} message={message} boatId={boat.id} onTripSaved={onTripSaved} />
