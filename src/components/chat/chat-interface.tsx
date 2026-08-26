@@ -88,6 +88,72 @@ function formatDate(v: string | null) {
   return new Date(v).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
+function getTimeGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "GOOD MORNING";
+  if (h < 18) return "GOOD AFTERNOON";
+  return "GOOD EVENING";
+}
+
+function getHealthHeadline(score: number, overdueCount: number) {
+  if (overdueCount > 0 || score < 60) return "Needs attention.";
+  if (score < 80) return "Could be worse.";
+  return "Ship shape.";
+}
+
+function NavyHero({ boat, healthScore, overdueCount, engineHours }: {
+  boat: Boat;
+  healthScore: number;
+  overdueCount: number;
+  engineHours: number;
+}) {
+  return (
+    <div className="w-full px-4 pt-5 pb-5" style={{ background: "#0B2942" }}>
+      <div className="flex items-center gap-4">
+        {/* Gauge */}
+        <Link href="/health" className="hover:opacity-80 transition-opacity flex-shrink-0">
+          <HealthGauge score={healthScore} overdueCount={overdueCount} size={110} />
+        </Link>
+        {/* Right side */}
+        <div className="flex-1 min-w-0">
+          <p style={{ fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.45)", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+            {getTimeGreeting()}
+          </p>
+          <p style={{ fontSize: 24, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1, marginTop: 2 }}>
+            {getHealthHeadline(healthScore, overdueCount)}
+          </p>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#FFC730", letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 6 }}>
+            BOAT HEALTH
+          </p>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginTop: 1 }}>
+            {overdueCount > 0
+              ? `${overdueCount} overdue item${overdueCount !== 1 ? "s" : ""}`
+              : "All maintenance up to date"}
+          </p>
+          {/* Tags */}
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {engineHours > 0 && (
+              <span
+                className="rounded-full px-2.5 py-1"
+                style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)" }}
+              >
+                {engineHours.toFixed(1)}h engine
+              </span>
+            )}
+            <Link
+              href="/health"
+              className="rounded-full px-2.5 py-1 hover:opacity-80 transition-opacity"
+              style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,199,48,0.15)", color: "#FFC730" }}
+            >
+              View health →
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgentItems }: {
   healthScore: number;
   overdueCount: number;
@@ -401,78 +467,75 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
         {!hasTrips && <NoTripsCard boatId={boat.id} />}
         {!hasInventory && <NoInventoryCard />}
         {messages.length === 0 ? (
-          /* Empty state: gauge + stats + maintenance */
-          <div className="pt-1 pb-4 space-y-4">
+          /* Empty state: navy hero + stats + maintenance */
+          <div className="pb-4 space-y-4">
+            {/* Navy hero section */}
+            <NavyHero
+              boat={boat}
+              healthScore={animHealthScore as number}
+              overdueCount={overdueCount}
+              engineHours={engineHours}
+            />
             <GreetingCard boatId={boat.id} hidden={hideGreeting} />
-            {/* Health score card with gauge — V2 Signal */}
-            <div className="mx-4 animate-fade-up" style={{ animationDelay: "0ms" }}>
-              {/* BOAT HEALTH label */}
-              <p className="text-xs font-bold uppercase tracking-widest mb-2 px-1" style={{ color: "#5F7488", letterSpacing: "0.1em" }}>BOAT HEALTH</p>
-              <div className="card p-4">
-                <div className="flex items-center gap-4">
-                  <Link href="/health" className="hover:opacity-80 transition-opacity flex-shrink-0">
-                    <HealthGauge score={animHealthScore as number} overdueCount={overdueCount} size={120} />
-                  </Link>
-                  <div className="flex-1 grid grid-cols-2 gap-2">
-                    {/* Overdue */}
-                    <Link
-                      href="/components?status=overdue"
-                      className="rounded-2xl px-3 py-3 text-center block active:opacity-80 animate-fade-up"
-                      style={{ animationDelay: "60ms", background: overdueCount > 0 ? "#FDECEA" : "#F4F7FA", border: `1.5px solid ${overdueCount > 0 ? "#F5C2BF" : "#DBE3EA"}` }}
-                    >
-                      <div className="font-bold tabular-nums" style={{ fontSize: 28, lineHeight: 1, color: overdueCount > 0 ? "#E0342A" : "#46586A" }}>{animOverdue}</div>
-                      <div className="text-xs font-bold uppercase tracking-wide mt-1" style={{ color: "#5F7488", letterSpacing: "0.06em" }}>OVERDUE</div>
-                    </Link>
-                    {/* Due soon */}
-                    <Link
-                      href="/components?status=due_soon"
-                      className="rounded-2xl px-3 py-3 text-center block active:opacity-80 animate-fade-up"
-                      style={{ animationDelay: "110ms", background: dueSoonCount > 0 ? "#FFF6DF" : "#F4F7FA", border: `1.5px solid ${dueSoonCount > 0 ? "#ECD98A" : "#DBE3EA"}` }}
-                    >
-                      <div className="font-bold tabular-nums" style={{ fontSize: 28, lineHeight: 1, color: dueSoonCount > 0 ? "#D9A300" : "#46586A" }}>{animDueSoon}</div>
-                      <div className="text-xs font-bold uppercase tracking-wide mt-1" style={{ color: "#5F7488", letterSpacing: "0.06em" }}>DUE SOON</div>
-                    </Link>
-                    {/* Inventory status */}
-                    {lowCriticalCount > 0 ? (
-                      <Link
-                        href="/inventory?status=critical"
-                        className="rounded-2xl px-3 py-3 text-center block active:opacity-80 animate-fade-up"
-                        style={{ animationDelay: "160ms", background: "#FDECEA", border: "1.5px solid #F5C2BF" }}
-                      >
-                        <div className="font-bold tabular-nums" style={{ fontSize: 28, lineHeight: 1, color: "#E0342A" }}>{animInventory}</div>
-                        <div className="text-xs font-bold uppercase tracking-wide mt-1" style={{ color: "#E0342A", letterSpacing: "0.06em" }}>CRITICAL LOW</div>
-                      </Link>
-                    ) : lowStockCount > 0 ? (
-                      <Link
-                        href="/inventory?status=low"
-                        className="rounded-2xl px-3 py-3 text-center block active:opacity-80 animate-fade-up"
-                        style={{ animationDelay: "160ms", background: "#FFF6DF", border: "1.5px solid #ECD98A" }}
-                      >
-                        <div className="font-bold tabular-nums" style={{ fontSize: 28, lineHeight: 1, color: "#D9A300" }}>{animInventory}</div>
-                        <div className="text-xs font-bold uppercase tracking-wide mt-1" style={{ color: "#5F7488", letterSpacing: "0.06em" }}>SPARES LOW</div>
-                      </Link>
-                    ) : (
-                      <Link
-                        href="/health"
-                        className="rounded-2xl px-3 py-3 text-center block active:opacity-80 animate-fade-up"
-                        style={{ animationDelay: "160ms", background: "#E6F6EC", border: "1.5px solid #A8DDB8" }}
-                      >
-                        <div className="font-bold tabular-nums" style={{ fontSize: 28, lineHeight: 1, color: "#0E7A3D" }}>{animInventory}</div>
-                        <div className="text-xs font-bold uppercase tracking-wide mt-1" style={{ color: "#5F7488", letterSpacing: "0.06em" }}>HEALTHY</div>
-                      </Link>
-                    )}
-                    {/* Engine hours */}
-                    <Link
-                      href="/trips"
-                      className="rounded-2xl px-3 py-3 text-center block active:opacity-80 animate-fade-up"
-                      style={{ animationDelay: "210ms", background: "#F4F7FA", border: "1.5px solid #DBE3EA" }}
-                    >
-                      <div className="font-bold tabular-nums" style={{ fontSize: 28, lineHeight: 1, color: "#0B2942" }}>{animEngineHours}</div>
-                      <div className="text-xs font-bold uppercase tracking-wide mt-1" style={{ color: "#5F7488", letterSpacing: "0.06em" }}>ENGINE HRS</div>
-                    </Link>
-                  </div>
-                </div>
-              </div>
+
+            {/* Stat tiles — 2×2 grid */}
+            <div className="px-4 grid grid-cols-2 gap-3 animate-fade-up" style={{ animationDelay: "60ms" }}>
+              {/* Maint. Overdue */}
+              <Link
+                href="/components?status=overdue"
+                className="rounded-[18px] px-4 py-4 block active:opacity-80"
+                style={{ background: overdueCount > 0 ? "#FDECEA" : "#FFFFFF", border: `1.5px solid ${overdueCount > 0 ? "#F5C2BF" : "#DBE3EA"}` }}
+              >
+                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: overdueCount > 0 ? "#E0342A" : "#0B2942", fontVariantNumeric: "tabular-nums" }}>{animOverdue}</div>
+                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>MAINT. OVERDUE</div>
+              </Link>
+              {/* Due soon */}
+              <Link
+                href="/components?status=due_soon"
+                className="rounded-[18px] px-4 py-4 block active:opacity-80"
+                style={{ background: dueSoonCount > 0 ? "#FFF6DF" : "#FFFFFF", border: `1.5px solid ${dueSoonCount > 0 ? "#ECD98A" : "#DBE3EA"}` }}
+              >
+                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: dueSoonCount > 0 ? "#D9A300" : "#0B2942", fontVariantNumeric: "tabular-nums" }}>{animDueSoon}</div>
+                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>DUE SOON</div>
+              </Link>
+              {/* Inventory tile */}
+              {lowCriticalCount > 0 ? (
+                <Link
+                  href="/inventory?status=missing"
+                  className="rounded-[18px] px-4 py-4 block active:opacity-80"
+                  style={{ background: "#FFC730", border: "1.5px solid #E6B200" }}
+                >
+                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#3D2A00", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
+                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#3D2A00", letterSpacing: "0.08em", opacity: 0.7 }}>CRITICAL LOW</div>
+                </Link>
+              ) : lowStockCount > 0 ? (
+                <Link
+                  href="/inventory?status=low"
+                  className="rounded-[18px] px-4 py-4 block active:opacity-80"
+                  style={{ background: "#FFF6DF", border: "1.5px solid #ECD98A" }}
+                >
+                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#D9A300", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
+                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>SPARES LOW</div>
+                </Link>
+              ) : (
+                <Link
+                  href="/health"
+                  className="rounded-[18px] px-4 py-4 block active:opacity-80"
+                  style={{ background: "#E6F6EC", border: "1.5px solid #A8DDB8" }}
+                >
+                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#0E7A3D", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
+                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>HEALTHY</div>
+                </Link>
+              )}
+              {/* Engine hours */}
+              <Link
+                href="/trips"
+                className="rounded-[18px] px-4 py-4 block active:opacity-80"
+                style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA" }}
+              >
+                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#0B2942", fontVariantNumeric: "tabular-nums" }}>{animEngineHours}</div>
+                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>ENGINE HRS</div>
+              </Link>
             </div>
 
             {/* Needs attention list — V2 rows with status edges */}
@@ -601,7 +664,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       </div>
 
       {/* Input bar */}
-      <div className="shrink-0 border-t border-slate-200 bg-white px-3 pt-3 pb-2">
+      <div className="shrink-0 px-3 pt-3 pb-2" style={{ background: "#0B2942", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
         {/* Main input row */}
         <div className="flex items-end gap-2">
           {/* Prominent voice button */}
@@ -637,30 +700,30 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything…"
-            className="flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-ocean-500 focus:bg-white focus:outline-none"
-            style={{ minHeight: "40px" }}
+            className="flex-1 resize-none rounded-2xl px-4 py-2.5 text-sm focus:outline-none"
+            style={{
+              minHeight: "40px",
+              background: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              color: "#FFFFFF",
+            }}
           />
 
-          <div className="relative group">
-            <button
-              type="button"
-              onClick={() => setMessages([])}
-              className="flex shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 transition hover:border-slate-300 hover:text-slate-600"
-              style={{ width: 40, height: 40 }}
-              aria-label="New chat"
-            >
-              <RotateCcw size={15} />
-            </button>
-            <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-2.5 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-              New chat
-            </span>
-          </div>
+          <button
+            type="button"
+            onClick={() => setMessages([])}
+            className="flex shrink-0 items-center justify-center rounded-full transition-opacity hover:opacity-70"
+            style={{ width: 40, height: 40, background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)" }}
+            aria-label="New chat"
+          >
+            <RotateCcw size={15} />
+          </button>
 
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className="flex shrink-0 items-center justify-center rounded-full btn-primary text-white transition disabled:opacity-40"
-            style={{ width: 40, height: 40 }}
+            className="flex shrink-0 items-center justify-center rounded-full transition disabled:opacity-40"
+            style={{ width: 40, height: 40, background: "#FFC730", color: "#3D2A00" }}
           >
             <Send size={16} />
           </button>

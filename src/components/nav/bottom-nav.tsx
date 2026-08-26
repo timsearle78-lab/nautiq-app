@@ -48,7 +48,7 @@ export default function BottomNav({ userEmail, userInitials, isAdmin }: BottomNa
     },
     {
       href: "/inventory",
-      label: "SPARES",
+      label: "INVENTORY",
       renderIcon: (active: boolean) => <Package size={22} strokeWidth={active ? 2.5 : 1.75} color={active ? "#FFC730" : "#8FB3CC"} />,
     },
   ];

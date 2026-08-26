@@ -40,103 +40,109 @@ export default function GreetingCard({ boatId, hidden }: GreetingCardProps) {
 
   const paragraphs = data?.greeting.split(/\n\n+/).filter(Boolean) ?? [];
 
+  const chipStyle = (color: "green" | "amber" | "red" | "neutral"): React.CSSProperties => {
+    if (color === "green") return { background: "rgba(14,122,61,0.25)", color: "#6EE09B", border: "1px solid rgba(14,122,61,0.4)" };
+    if (color === "amber") return { background: "rgba(255,199,48,0.18)", color: "#FFC730", border: "1px solid rgba(255,199,48,0.35)" };
+    if (color === "red") return { background: "rgba(224,52,42,0.2)", color: "#FF7A75", border: "1px solid rgba(224,52,42,0.4)" };
+    return { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.12)" };
+  };
+
+  const healthChipColor = data
+    ? data.healthScore >= 80 ? "green" : data.healthScore >= 60 ? "amber" : "red"
+    : "neutral";
+
   return (
-    <div className="mx-4 mt-4 rounded-2xl rounded-tl-sm border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div className="px-1 pt-1">
-        <div className="rounded-xl bg-ocean-50 border border-ocean-100 px-4 py-3">
-          {/* Header row */}
-          <div className="flex items-start justify-between gap-2 mb-2.5">
-            <div className="flex items-center gap-2">
-              <svg
-                width={20}
-                height={20}
-                viewBox="0 0 100 100"
-                fill="none"
-                stroke="#0B7EB8"
-                strokeWidth="7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-                className="shrink-0"
-              >
-                <circle cx="50" cy="18" r="9" />
-                <line x1="50" y1="27" x2="50" y2="84" />
-                <line x1="26" y1="43" x2="74" y2="43" />
-                <path d="M16 56 C 16 76, 32 86, 50 86 C 68 86, 84 76, 84 56" />
-              </svg>
-              <span className="text-xs font-semibold text-ocean-700">NautIQ — Your Personal Boat Assistant</span>
-            </div>
-            <button
-              onClick={() => setDismissed(true)}
-              className="text-slate-400 hover:text-slate-600 transition-colors text-xs leading-none mt-0.5 shrink-0"
-              aria-label="Dismiss"
+    <div
+      className="mx-4 rounded-[18px] overflow-hidden"
+      style={{ background: "#0B2942", border: "1.5px solid rgba(255,255,255,0.12)" }}
+    >
+      <div className="px-4 pt-4 pb-4">
+        {/* Header row */}
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2">
+            <svg
+              width={18}
+              height={18}
+              viewBox="0 0 100 100"
+              fill="none"
+              aria-hidden="true"
+              className="shrink-0"
             >
-              ✕
-            </button>
+              <circle cx="50" cy="18" r="9" fill="#FFC730" />
+              <line x1="50" y1="27" x2="50" y2="84" stroke="#FFFFFF" strokeWidth="7" strokeLinecap="round" />
+              <line x1="26" y1="43" x2="74" y2="43" stroke="#FFFFFF" strokeWidth="7" strokeLinecap="round" />
+              <path d="M16 56 C 16 76, 32 86, 50 86 C 68 86, 84 76, 84 56" stroke="#FFFFFF" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            </svg>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>
+              NautIQ — Your Personal Boat Assistant
+            </span>
           </div>
-
-          {/* Stat chips */}
-          {data ? (
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-                data.healthScore >= 80 ? "border-green-200 bg-green-50 text-green-700" :
-                data.healthScore >= 60 ? "border-amber-200 bg-amber-50 text-amber-700" :
-                "border-red-200 bg-red-50 text-red-700"
-              }`}>
-                <span className={`h-1.5 w-1.5 rounded-full ${
-                  data.healthScore >= 80 ? "bg-green-500" :
-                  data.healthScore >= 60 ? "bg-amber-500" : "bg-red-500"
-                }`} />
-                Health {data.healthScore}/100
-              </span>
-
-              {data.overdueCount > 0 && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700">
-                  {data.overdueCount} overdue
-                </span>
-              )}
-              {data.overdueCount === 0 && data.dueSoonCount > 0 && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
-                  {data.dueSoonCount} due soon
-                </span>
-              )}
-
-              {data.engineHours > 0 && (
-                <span className="inline-flex items-center rounded-full border border-ocean-200 bg-ocean-50 px-2.5 py-0.5 text-xs font-medium text-ocean-700">
-                  {data.engineHours}h engine
-                </span>
-              )}
-
-              {data.tripCount > 0 && (
-                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-medium text-slate-600">
-                  {data.tripCount} trip{data.tripCount !== 1 ? "s" : ""} this month
-                </span>
-              )}
-            </div>
-          ) : (
-            <div className="flex gap-1.5 mb-3">
-              <div className="h-5 w-24 bg-ocean-100 rounded-full animate-pulse" />
-              <div className="h-5 w-20 bg-ocean-100 rounded-full animate-pulse" />
-            </div>
-          )}
-
-          {/* Greeting text */}
-          {paragraphs.length > 0 ? (
-            <div className="space-y-2">
-              {paragraphs.map((p, i) => (
-                <p key={i} className="text-sm text-slate-700 leading-relaxed">{p}</p>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <div className="h-3.5 bg-ocean-100 rounded animate-pulse w-full" />
-              <div className="h-3.5 bg-ocean-100 rounded animate-pulse w-4/5" />
-              <div className="h-3.5 bg-ocean-100 rounded animate-pulse w-3/5" />
-            </div>
-          )}
+          <button
+            onClick={() => setDismissed(true)}
+            className="transition-opacity hover:opacity-70 shrink-0"
+            style={{ color: "rgba(255,255,255,0.35)", fontSize: 15, lineHeight: 1 }}
+            aria-label="Dismiss"
+          >
+            ✕
+          </button>
         </div>
+
+        {/* Stat chips */}
+        {data ? (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            <span
+              className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5"
+              style={{ fontSize: 12, fontWeight: 700, ...chipStyle(healthChipColor) }}
+            >
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: "currentColor" }} />
+              Health {data.healthScore}/100
+            </span>
+
+            {data.overdueCount > 0 && (
+              <span className="inline-flex items-center rounded-full px-2.5 py-0.5" style={{ fontSize: 12, fontWeight: 700, ...chipStyle("red") }}>
+                {data.overdueCount} overdue
+              </span>
+            )}
+            {data.overdueCount === 0 && data.dueSoonCount > 0 && (
+              <span className="inline-flex items-center rounded-full px-2.5 py-0.5" style={{ fontSize: 12, fontWeight: 700, ...chipStyle("amber") }}>
+                {data.dueSoonCount} due soon
+              </span>
+            )}
+
+            {data.engineHours > 0 && (
+              <span className="inline-flex items-center rounded-full px-2.5 py-0.5" style={{ fontSize: 12, fontWeight: 600, ...chipStyle("neutral") }}>
+                {data.engineHours}h engine
+              </span>
+            )}
+
+            {data.tripCount > 0 && (
+              <span className="inline-flex items-center rounded-full px-2.5 py-0.5" style={{ fontSize: 12, fontWeight: 600, ...chipStyle("neutral") }}>
+                {data.tripCount} trip{data.tripCount !== 1 ? "s" : ""} this month
+              </span>
+            )}
+          </div>
+        ) : (
+          <div className="flex gap-1.5 mb-3">
+            <div className="h-5 w-24 rounded-full animate-pulse" style={{ background: "rgba(255,255,255,0.1)" }} />
+            <div className="h-5 w-20 rounded-full animate-pulse" style={{ background: "rgba(255,255,255,0.1)" }} />
+          </div>
+        )}
+
+        {/* Greeting text */}
+        {paragraphs.length > 0 ? (
+          <div className="space-y-2">
+            {paragraphs.map((p, i) => (
+              <p key={i} style={{ fontSize: 14, color: "rgba(255,255,255,0.8)", lineHeight: 1.6 }}>{p}</p>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="h-3.5 rounded animate-pulse w-full" style={{ background: "rgba(255,255,255,0.1)" }} />
+            <div className="h-3.5 rounded animate-pulse w-4/5" style={{ background: "rgba(255,255,255,0.1)" }} />
+            <div className="h-3.5 rounded animate-pulse w-3/5" style={{ background: "rgba(255,255,255,0.1)" }} />
+          </div>
+        )}
       </div>
-      <div className="h-1" />
     </div>
   );
 }

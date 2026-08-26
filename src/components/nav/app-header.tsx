@@ -70,17 +70,6 @@ export default async function AppHeader() {
       </div>
 
       <div className="flex items-center gap-3">
-        {health.length > 0 && (
-          <Link
-            href="/health"
-            className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold transition-opacity hover:opacity-80"
-            style={scoreChipStyle(healthScore, overdueCount)}
-            title={`Boat health: ${healthScore}/100`}
-          >
-            <span>{healthScore}</span>
-          </Link>
-        )}
-
         {/* Boat avatar */}
         <div
           className="h-7 w-7 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center"

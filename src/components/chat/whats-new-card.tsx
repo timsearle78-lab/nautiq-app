@@ -23,43 +23,48 @@ export default function WhatsNewCard({ hidden }: { hidden: boolean }) {
   if (hidden || !visible) return null;
 
   return (
-    <div className="mx-4 mt-4 rounded-2xl border border-ocean-200 bg-gradient-to-br from-ocean-50 to-blue-50 shadow-sm overflow-hidden">
+    <div
+      className="mx-4 mt-4 rounded-[18px] overflow-hidden"
+      style={{ background: "#0B2942", border: "1.5px solid rgba(255,255,255,0.12)" }}
+    >
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
         <div className="flex items-center gap-2">
           <div
-            className="flex h-7 w-7 items-center justify-center rounded-full"
-            style={{ background: "linear-gradient(135deg,#15A0D6,#0B7EB8)" }}
+            className="flex h-7 w-7 items-center justify-center rounded-full flex-shrink-0"
+            style={{ background: "#FFC730" }}
           >
-            <Sparkles size={13} className="text-white" />
+            <Sparkles size={13} color="#3D2A00" />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-slate-800">{"What's new"} — {LATEST_RELEASE.label}</p>
-          </div>
+          <p style={{ fontSize: 14, fontWeight: 800, color: "#FFFFFF" }}>
+            {"What's new"} — {LATEST_RELEASE.label}
+          </p>
         </div>
         <button
           onClick={dismiss}
-          className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-white/60 transition"
+          className="flex h-7 w-7 items-center justify-center rounded-full transition-opacity hover:opacity-70"
+          style={{ color: "rgba(255,255,255,0.4)" }}
         >
           <X size={15} />
         </button>
       </div>
 
-      <ul className="px-4 pb-4 mt-1 space-y-1.5">
+      <ul className="px-4 pb-4 mt-1 space-y-2">
         {LATEST_RELEASE.features.map((f, i) => (
-          <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+          <li key={i} className="flex items-start gap-2" style={{ fontSize: 14, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>
             <span
               className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
-              style={{ background: "#0B7EB8" }}
+              style={{ background: "#FFC730" }}
             />
             {f}
           </li>
         ))}
       </ul>
 
-      <div className="border-t border-ocean-100 px-4 py-2.5">
+      <div className="px-4 py-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
         <button
           onClick={dismiss}
-          className="text-xs font-semibold text-ocean-600 hover:text-ocean-700"
+          style={{ fontSize: 13, fontWeight: 700, color: "#FFC730" }}
+          className="hover:opacity-80 transition-opacity"
         >
           Got it — dismiss
         </button>

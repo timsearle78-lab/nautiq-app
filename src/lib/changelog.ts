@@ -11,6 +11,7 @@ export const CHANGELOG: Release[] = [
     label: "August 2026 update",
     features: [
       "Fresh new look — the app has been redesigned with a cleaner, bolder visual style: clearer status colours, sharper typography, and a tidier layout throughout",
+      "Redesigned home screen — health gauge and daily greeting now sit in a navy hero panel at the top of the home screen, with bold status tiles below",
     ],
   },
   {
