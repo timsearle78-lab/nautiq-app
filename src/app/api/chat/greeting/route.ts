@@ -84,22 +84,16 @@ export async function POST(req: Request) {
 
   const { text } = await generateText({
     model: createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY })("claude-haiku-4-5-20251001"),
-    maxOutputTokens: 220,
-    prompt: `You are the owner's personal boat assistant (PBA) for their boat "${boat.name}". Write a warm, personalised greeting for the owner who just opened their NautIQ app. It is ${timeOfDay} and today's date is ${new Date().toISOString().slice(0, 10)}.
+    maxOutputTokens: 80,
+    prompt: `You are the personal boat assistant for "${boat.name}". Write a single short greeting sentence or two (max 30 words) for the owner opening NautIQ. It is ${timeOfDay}.
 
 Boat context:
 ${context}
 
 Instructions:
-- Open with "Good ${timeOfDay}!"
-- Write exactly TWO short paragraphs separated by a blank line (\\n\\n).
-- Paragraph 1 (2 sentences): friendly overall status — mention the boat by name, health score feel, recent activity.
-- Paragraph 2 (1-2 sentences): one concrete nudge or encouragement — overdue item, getting out on the water, or praise if everything is great.
-- If health score >= 80 and maintenance recent: praise their dedication.
-- If health score < 60 or overdue count > 0: gently encourage them to tackle something.
-- If they haven't been out in 14+ days or no trips: encourage them to get the boat out.
-- Warm, practical, encouraging. Plain text only — no markdown, no bullet points, no bold.
-- Never mention the owner's name. Refer to the boat by name.`,
+- One plain-text paragraph, no more than 2 sentences.
+- Mention the boat name and one key point: health, an overdue item, or encouragement to get out on the water.
+- Warm and concise. No markdown, no bullet points.`,
   });
 
   return Response.json({
