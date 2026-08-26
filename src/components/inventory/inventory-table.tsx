@@ -43,7 +43,7 @@ export function InventoryTable({
       {items.length === 0 ? (
         <p className="px-4 py-6" style={{ fontSize: 14, color: "#8FB3CC" }}>No inventory items found.</p>
       ) : (
-        <div className="divide-y" style={{ borderColor: "#DBE3EA" }}>
+        <div className="divide-y divide-[#DBE3EA]">
           {items.map((item) => {
             const status = getStatus(item);
             const expiryBadge = getExpiryBadge(item.expiry_date);
