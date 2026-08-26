@@ -95,22 +95,11 @@ export default function BottomNav({ userEmail, userInitials, isAdmin }: BottomNa
             className="flex flex-1 flex-col items-center justify-center gap-1 transition-opacity active:opacity-70"
           >
             <div
-              className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold leading-none"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold leading-none"
               style={{ background: "#FFC730", color: "#3D2A00" }}
             >
               {userInitials}
             </div>
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 800,
-                letterSpacing: "0.08em",
-                color: "#8FB3CC",
-                lineHeight: 1,
-              }}
-            >
-              ME
-            </span>
           </button>
         </div>
       </nav>
