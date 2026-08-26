@@ -14,8 +14,8 @@ export default function NautiqSpinner({
         style={{
           width: size,
           height: size,
-          background: "#0B7EB8",
-          boxShadow: "0 4px 16px rgba(11,126,184,.30)",
+          background: "#0B2942",
+          boxShadow: "none",
           animationDuration: "1s",
         }}
       >

@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
 import BoatSelector from "./boat-selector";
-import NautiqLogo from "@/components/ui/nautiq-logo";
 import ChatMenuTrigger from "./chat-menu-trigger";
 
 function normalizeStatus(s: string | null) {
@@ -66,7 +65,6 @@ export default async function AppHeader() {
     >
       <div className="flex items-center gap-2">
         <ChatMenuTrigger />
-        <NautiqLogo size={20} dark />
       </div>
 
       <div className="flex items-center gap-3">
@@ -101,7 +99,6 @@ export default async function AppHeader() {
       >
         <div className="flex items-center gap-2">
           <ChatMenuTrigger />
-          <NautiqLogo size={20} dark />
         </div>
       </header>
     );
