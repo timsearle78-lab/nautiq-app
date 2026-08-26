@@ -64,11 +64,11 @@ function timelineStatusLabel(status: TimelineRow["status"]) {
 function timelineStatusStyle(status: TimelineRow["status"]): React.CSSProperties {
   switch (status) {
     case "overdue":
-      return { background: "#FDECEA", color: "#E0342A", border: "1.5px solid #F5BCBA" };
+      return { background: "#E0342A", color: "#FFFFFF", border: "1.5px solid #E0342A" };
     case "due_soon":
-      return { background: "#FFF6DF", color: "#D9A300", border: "1.5px solid #F5E0A0" };
+      return { background: "#D9A300", color: "#3D2A00", border: "1.5px solid #D9A300" };
     case "planned":
-      return { background: "#E6F3FA", color: "#0B7EB8", border: "1.5px solid #B0D4EE" };
+      return { background: "#0B7EB8", color: "#FFFFFF", border: "1.5px solid #0B7EB8" };
     default:
       return { background: "#F4F7FA", color: "#8FB3CC", border: "1.5px solid #DBE3EA" };
   }
@@ -226,19 +226,19 @@ export default async function MaintenancePage({
           <div style={{ fontSize: 28, fontWeight: 800, color: "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{allHealth.length}</div>
         </div>
 
-        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: overdueCount > 0 ? "#FDECEA" : "#F4F7FA", border: `1.5px solid ${overdueCount > 0 ? "#F5BCBA" : "#DBE3EA"}` }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: overdueCount > 0 ? "#E0342A" : "#0B2942", opacity: overdueCount > 0 ? 1 : 0.5 }}>OVERDUE</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: overdueCount > 0 ? "#E0342A" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{overdueCount}</div>
+        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: overdueCount > 0 ? "#E0342A" : "#F4F7FA", border: `1.5px solid ${overdueCount > 0 ? "#E0342A" : "#DBE3EA"}` }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: overdueCount > 0 ? "rgba(255,255,255,0.75)" : "#8FB3CC" }}>OVERDUE</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: overdueCount > 0 ? "#FFFFFF" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{overdueCount}</div>
         </div>
 
-        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: dueSoonCount > 0 ? "#FFF6DF" : "#F4F7FA", border: `1.5px solid ${dueSoonCount > 0 ? "#F5E0A0" : "#DBE3EA"}` }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: dueSoonCount > 0 ? "#D9A300" : "#0B2942", opacity: dueSoonCount > 0 ? 1 : 0.5 }}>DUE SOON</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: dueSoonCount > 0 ? "#D9A300" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{dueSoonCount}</div>
+        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: dueSoonCount > 0 ? "#D9A300" : "#F4F7FA", border: `1.5px solid ${dueSoonCount > 0 ? "#D9A300" : "#DBE3EA"}` }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: dueSoonCount > 0 ? "rgba(61,42,0,0.65)" : "#8FB3CC" }}>DUE SOON</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: dueSoonCount > 0 ? "#3D2A00" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{dueSoonCount}</div>
         </div>
 
-        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: okCount > 0 ? "#E6F6EC" : "#F4F7FA", border: `1.5px solid ${okCount > 0 ? "#A8DDB8" : "#DBE3EA"}` }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: okCount > 0 ? "#0E7A3D" : "#0B2942", opacity: okCount > 0 ? 1 : 0.5 }}>HEALTHY</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: okCount > 0 ? "#0E7A3D" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{okCount}</div>
+        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: okCount > 0 ? "#0E7A3D" : "#F4F7FA", border: `1.5px solid ${okCount > 0 ? "#0E7A3D" : "#DBE3EA"}` }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: okCount > 0 ? "rgba(255,255,255,0.75)" : "#8FB3CC" }}>HEALTHY</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: okCount > 0 ? "#FFFFFF" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{okCount}</div>
         </div>
       </section>
 
@@ -277,19 +277,19 @@ export default async function MaintenancePage({
         </div>
 
         <div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-4">
-          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelineOverdue.length > 0 ? "#FDECEA" : "#F4F7FA", border: `1.5px solid ${timelineOverdue.length > 0 ? "#F5BCBA" : "#DBE3EA"}` }}>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelineOverdue.length > 0 ? "#E0342A" : "#0B2942", opacity: timelineOverdue.length > 0 ? 1 : 0.5 }}>OVERDUE</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: timelineOverdue.length > 0 ? "#E0342A" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelineOverdue.length}</div>
+          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelineOverdue.length > 0 ? "#E0342A" : "#F4F7FA", border: `1.5px solid ${timelineOverdue.length > 0 ? "#E0342A" : "#DBE3EA"}` }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelineOverdue.length > 0 ? "rgba(255,255,255,0.75)" : "#8FB3CC" }}>OVERDUE</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: timelineOverdue.length > 0 ? "#FFFFFF" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelineOverdue.length}</div>
           </div>
 
-          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelineDueSoon.length > 0 ? "#FFF6DF" : "#F4F7FA", border: `1.5px solid ${timelineDueSoon.length > 0 ? "#F5E0A0" : "#DBE3EA"}` }}>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelineDueSoon.length > 0 ? "#D9A300" : "#0B2942", opacity: timelineDueSoon.length > 0 ? 1 : 0.5 }}>DUE SOON</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: timelineDueSoon.length > 0 ? "#D9A300" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelineDueSoon.length}</div>
+          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelineDueSoon.length > 0 ? "#D9A300" : "#F4F7FA", border: `1.5px solid ${timelineDueSoon.length > 0 ? "#D9A300" : "#DBE3EA"}` }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelineDueSoon.length > 0 ? "rgba(61,42,0,0.65)" : "#8FB3CC" }}>DUE SOON</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: timelineDueSoon.length > 0 ? "#3D2A00" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelineDueSoon.length}</div>
           </div>
 
-          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelinePlanned.length > 0 ? "#E6F3FA" : "#F4F7FA", border: `1.5px solid ${timelinePlanned.length > 0 ? "#B0D4EE" : "#DBE3EA"}` }}>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelinePlanned.length > 0 ? "#0B7EB8" : "#0B2942", opacity: timelinePlanned.length > 0 ? 1 : 0.5 }}>PLANNED · {selectedHorizon}D</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: timelinePlanned.length > 0 ? "#0B7EB8" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelinePlanned.length}</div>
+          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelinePlanned.length > 0 ? "#0B7EB8" : "#F4F7FA", border: `1.5px solid ${timelinePlanned.length > 0 ? "#0B7EB8" : "#DBE3EA"}` }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelinePlanned.length > 0 ? "rgba(255,255,255,0.75)" : "#8FB3CC" }}>PLANNED · {selectedHorizon}D</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: timelinePlanned.length > 0 ? "#FFFFFF" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelinePlanned.length}</div>
           </div>
 
           <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: "#F4F7FA", border: "1.5px solid #DBE3EA" }}>

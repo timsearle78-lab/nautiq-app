@@ -26,8 +26,8 @@ type InventoryIssue = {
 
 
 function issueLabel(issue: InventoryIssue): { text: string; style: React.CSSProperties } {
-  const red: React.CSSProperties = { background: "#FDECEA", color: "#E0342A", border: "1.5px solid #E0342A33" };
-  const amber: React.CSSProperties = { background: "#FFF6DF", color: "#D9A300", border: "1.5px solid #D9A30033" };
+  const red: React.CSSProperties = { background: "#E0342A", color: "#FFFFFF", border: "1.5px solid #E0342A" };
+  const amber: React.CSSProperties = { background: "#D9A300", color: "#3D2A00", border: "1.5px solid #D9A300" };
   if (issue.issue === "expired") return { text: "Expired", style: red };
   if (issue.issue === "out_of_stock") return { text: issue.is_critical ? "Out of stock (critical)" : "Out of stock", style: red };
   if (issue.issue === "expiring_soon") {
@@ -165,21 +165,21 @@ export default async function HealthPage() {
         <div className="flex items-center justify-between gap-4">
           <HealthGauge score={healthScore} overdueCount={overdue.length} size={140} />
           <div className="flex-1 grid grid-cols-2 gap-2">
-            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: "#FDECEA", border: "1.5px solid #E0342A22" }}>
-              <div style={{ fontSize: 24, fontWeight: 800, color: "#E0342A" }}>{overdue.length}</div>
-              <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>Overdue</div>
+            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: overdue.length > 0 ? "#E0342A" : "#F4F7FA", border: `1.5px solid ${overdue.length > 0 ? "#E0342A" : "#DBE3EA"}` }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: overdue.length > 0 ? "#FFFFFF" : "#0B2942" }}>{overdue.length}</div>
+              <div style={{ fontSize: 11, color: overdue.length > 0 ? "rgba(255,255,255,0.7)" : "#8FB3CC", marginTop: 2 }}>Overdue</div>
             </div>
-            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: "#FFF6DF", border: "1.5px solid #D9A30022" }}>
-              <div style={{ fontSize: 24, fontWeight: 800, color: "#D9A300" }}>{dueSoon.length}</div>
-              <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>Due soon</div>
+            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: dueSoon.length > 0 ? "#D9A300" : "#F4F7FA", border: `1.5px solid ${dueSoon.length > 0 ? "#D9A300" : "#DBE3EA"}` }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: dueSoon.length > 0 ? "#3D2A00" : "#0B2942" }}>{dueSoon.length}</div>
+              <div style={{ fontSize: 11, color: dueSoon.length > 0 ? "rgba(61,42,0,0.6)" : "#8FB3CC", marginTop: 2 }}>Due soon</div>
             </div>
-            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: "#E6F6EC", border: "1.5px solid #0E7A3D22" }}>
-              <div style={{ fontSize: 24, fontWeight: 800, color: "#0E7A3D" }}>{ok.length}</div>
-              <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>Healthy</div>
+            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: ok.length > 0 ? "#0E7A3D" : "#F4F7FA", border: `1.5px solid ${ok.length > 0 ? "#0E7A3D" : "#DBE3EA"}` }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: ok.length > 0 ? "#FFFFFF" : "#0B2942" }}>{ok.length}</div>
+              <div style={{ fontSize: 11, color: ok.length > 0 ? "rgba(255,255,255,0.7)" : "#8FB3CC", marginTop: 2 }}>Healthy</div>
             </div>
-            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: "#E6F3FA", border: "1.5px solid #0B7EB822" }}>
-              <div style={{ fontSize: 24, fontWeight: 800, color: "#0B7EB8" }}>{engineHours}</div>
-              <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>Engine hrs</div>
+            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: "#0B7EB8", border: "1.5px solid #0B7EB8" }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#FFFFFF" }}>{engineHours}</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>Engine hrs</div>
             </div>
           </div>
         </div>
@@ -217,9 +217,9 @@ export default async function HealthPage() {
       {/* Overdue maintenance */}
       {overdue.length > 0 && (
         <div id="overdue" className="card overflow-hidden">
-          <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1.5px solid #E0342A22", background: "#FDECEA" }}>
-            <AlertTriangle size={16} style={{ color: "#E0342A", flexShrink: 0 }} />
-            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#E0342A" }}>Overdue maintenance ({overdue.length})</h2>
+          <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1.5px solid rgba(255,255,255,0.15)", background: "#E0342A" }}>
+            <AlertTriangle size={16} style={{ color: "#FFFFFF", flexShrink: 0 }} />
+            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#FFFFFF" }}>Overdue maintenance ({overdue.length})</h2>
           </div>
           <div className="divide-y" style={{ borderColor: "#DBE3EA" }}>
             {overdue.map((row) => (
@@ -246,9 +246,9 @@ export default async function HealthPage() {
       {/* Due soon maintenance */}
       {dueSoon.length > 0 && (
         <div id="due-soon" className="card overflow-hidden">
-          <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1.5px solid #D9A30022", background: "#FFF6DF" }}>
-            <Clock size={16} style={{ color: "#D9A300", flexShrink: 0 }} />
-            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#D9A300" }}>Due soon ({dueSoon.length})</h2>
+          <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1.5px solid rgba(0,0,0,0.1)", background: "#D9A300" }}>
+            <Clock size={16} style={{ color: "#3D2A00", flexShrink: 0 }} />
+            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#3D2A00" }}>Due soon ({dueSoon.length})</h2>
           </div>
           <div className="divide-y" style={{ borderColor: "#DBE3EA" }}>
             {dueSoon.map((row) => (

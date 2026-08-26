@@ -41,9 +41,9 @@ export default function GreetingCard({ boatId, hidden }: GreetingCardProps) {
   const paragraphs = data?.greeting.split(/\n\n+/).filter(Boolean) ?? [];
 
   const chipStyle = (color: "green" | "amber" | "red" | "neutral"): React.CSSProperties => {
-    if (color === "green") return { background: "#E6F6EC", color: "#0E7A3D", border: "1.5px solid #0E7A3D22" };
-    if (color === "amber") return { background: "#FFF6DF", color: "#D9A300", border: "1.5px solid #D9A30022" };
-    if (color === "red") return { background: "#FDECEA", color: "#E0342A", border: "1.5px solid #E0342A22" };
+    if (color === "green") return { background: "#0E7A3D", color: "#FFFFFF", border: "1.5px solid #0E7A3D" };
+    if (color === "amber") return { background: "#D9A300", color: "#3D2A00", border: "1.5px solid #D9A300" };
+    if (color === "red") return { background: "#E0342A", color: "#FFFFFF", border: "1.5px solid #E0342A" };
     return { background: "#F4F7FA", color: "#8FB3CC", border: "1.5px solid #DBE3EA" };
   };
 

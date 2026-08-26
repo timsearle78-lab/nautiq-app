@@ -102,9 +102,10 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     return true;
   });
 
-  const lowStockCount = inventoryItems.filter(
-    (item) => item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity)
-  ).length;
+  const lowStockCount = inventoryItems.filter((item) => {
+    const isMissing = item.is_critical && Number(item.quantity) <= 0;
+    return !isMissing && item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity);
+  }).length;
 
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const in90Days = new Date(today); in90Days.setDate(in90Days.getDate() + 90);

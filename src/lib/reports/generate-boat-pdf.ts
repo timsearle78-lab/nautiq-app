@@ -160,15 +160,15 @@ export async function generateBoatPdf(): Promise<void> {
   const dueSoonCount  = data.health.filter(h => (h.status ?? "").toLowerCase() === "due soon").length;
   const okCount       = data.health.filter(h => (h.status ?? "").toLowerCase() === "ok").length;
   const pills = [
-    { label: "Overdue",         count: overdueCount,        bg: "#FDECEA", fg: "#E0342A" },
-    { label: "Due soon",        count: dueSoonCount,        bg: "#FFF6DF", fg: "#D9A300" },
-    { label: "Healthy",         count: okCount,             bg: "#E6F6EC", fg: "#0E7A3D" },
-    { label: "Inventory items", count: data.inventory.length, bg: "#EBF4FA", fg: CYAN    },
+    { label: "Overdue",         count: overdueCount,        bg: "#E0342A", fg: "#FFFFFF", labelFg: "rgba(255,255,255,0.7)" },
+    { label: "Due soon",        count: dueSoonCount,        bg: "#D9A300", fg: "#3D2A00", labelFg: "rgba(61,42,0,0.6)"   },
+    { label: "Healthy",         count: okCount,             bg: "#0E7A3D", fg: "#FFFFFF", labelFg: "rgba(255,255,255,0.7)" },
+    { label: "Inventory items", count: data.inventory.length, bg: CYAN,   fg: "#FFFFFF", labelFg: "rgba(255,255,255,0.7)" },
   ];
   let px = margin;
   for (const p of pills) {
     doc.setFillColor(...rgb(p.bg));
-    doc.setDrawColor(...rgb(BORDER));
+    doc.setDrawColor(...rgb(p.bg));
     doc.setLineWidth(0.3);
     doc.roundedRect(px, y, 40, 13, 2, 2, "FD");
     doc.setTextColor(...rgb(p.fg));
@@ -177,7 +177,6 @@ export async function generateBoatPdf(): Promise<void> {
     doc.text(String(p.count), px + 20, y + 6.5, { align: "center" });
     doc.setFont("helvetica", "normal");
     doc.setFontSize(6.5);
-    doc.setTextColor(...rgb(MUTED));
     doc.text(p.label.toUpperCase(), px + 20, y + 11, { align: "center" });
     px += 43;
   }

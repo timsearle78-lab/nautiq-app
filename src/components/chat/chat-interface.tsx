@@ -487,19 +487,19 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
               <Link
                 href="/components?status=overdue"
                 className="rounded-[18px] px-4 py-4 block active:opacity-80"
-                style={{ background: overdueCount > 0 ? "#FDECEA" : "#FFFFFF", border: `1.5px solid ${overdueCount > 0 ? "#F5C2BF" : "#DBE3EA"}` }}
+                style={{ background: overdueCount > 0 ? "#E0342A" : "#FFFFFF", border: `1.5px solid ${overdueCount > 0 ? "#E0342A" : "#DBE3EA"}` }}
               >
-                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: overdueCount > 0 ? "#E0342A" : "#0B2942", fontVariantNumeric: "tabular-nums" }}>{animOverdue}</div>
-                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>MAINT. OVERDUE</div>
+                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: overdueCount > 0 ? "#FFFFFF" : "#0B2942", fontVariantNumeric: "tabular-nums" }}>{animOverdue}</div>
+                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: overdueCount > 0 ? "rgba(255,255,255,0.7)" : "#8FB3CC", letterSpacing: "0.08em" }}>MAINT. OVERDUE</div>
               </Link>
               {/* Due soon */}
               <Link
                 href="/components?status=due_soon"
                 className="rounded-[18px] px-4 py-4 block active:opacity-80"
-                style={{ background: dueSoonCount > 0 ? "#FFF6DF" : "#FFFFFF", border: `1.5px solid ${dueSoonCount > 0 ? "#ECD98A" : "#DBE3EA"}` }}
+                style={{ background: dueSoonCount > 0 ? "#D9A300" : "#FFFFFF", border: `1.5px solid ${dueSoonCount > 0 ? "#D9A300" : "#DBE3EA"}` }}
               >
-                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: dueSoonCount > 0 ? "#D9A300" : "#0B2942", fontVariantNumeric: "tabular-nums" }}>{animDueSoon}</div>
-                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>DUE SOON</div>
+                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: dueSoonCount > 0 ? "#3D2A00" : "#0B2942", fontVariantNumeric: "tabular-nums" }}>{animDueSoon}</div>
+                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: dueSoonCount > 0 ? "rgba(61,42,0,0.6)" : "#8FB3CC", letterSpacing: "0.08em" }}>DUE SOON</div>
               </Link>
               {/* Inventory tile */}
               {lowCriticalCount > 0 ? (
@@ -515,19 +515,19 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 <Link
                   href="/inventory?status=low"
                   className="rounded-[18px] px-4 py-4 block active:opacity-80"
-                  style={{ background: "#FFF6DF", border: "1.5px solid #ECD98A" }}
+                  style={{ background: "#D9A300", border: "1.5px solid #D9A300" }}
                 >
-                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#D9A300", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
-                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>SPARES LOW</div>
+                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#3D2A00", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
+                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "rgba(61,42,0,0.6)", letterSpacing: "0.08em" }}>SPARES LOW</div>
                 </Link>
               ) : (
                 <Link
                   href="/health"
                   className="rounded-[18px] px-4 py-4 block active:opacity-80"
-                  style={{ background: "#E6F6EC", border: "1.5px solid #A8DDB8" }}
+                  style={{ background: "#0E7A3D", border: "1.5px solid #0E7A3D" }}
                 >
-                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#0E7A3D", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
-                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>HEALTHY</div>
+                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#FFFFFF", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
+                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "rgba(255,255,255,0.7)", letterSpacing: "0.08em" }}>HEALTHY</div>
                 </Link>
               )}
               {/* Engine hours */}
