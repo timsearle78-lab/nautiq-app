@@ -61,18 +61,16 @@ function timelineStatusLabel(status: TimelineRow["status"]) {
   }
 }
 
-function timelineStatusColor(status: TimelineRow["status"]) {
+function timelineStatusStyle(status: TimelineRow["status"]): React.CSSProperties {
   switch (status) {
     case "overdue":
-      return "text-red-600 bg-red-50 border-red-200";
+      return { background: "#FDECEA", color: "#E0342A", border: "1.5px solid #F5BCBA" };
     case "due_soon":
-      return "text-amber-600 bg-amber-50 border-amber-200";
+      return { background: "#FFF6DF", color: "#D9A300", border: "1.5px solid #F5E0A0" };
     case "planned":
-      return "text-blue-700 bg-blue-50 border-blue-200";
-    case "later":
-      return "text-slate-500 bg-slate-50 border-slate-200";
+      return { background: "#E6F3FA", color: "#0B7EB8", border: "1.5px solid #B0D4EE" };
     default:
-      return "text-slate-500 bg-slate-50 border-slate-200";
+      return { background: "#F4F7FA", color: "#8FB3CC", border: "1.5px solid #DBE3EA" };
   }
 }
 
@@ -201,50 +199,47 @@ export default async function MaintenancePage({
     <main className="px-4 py-6 space-y-5">
       <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Maintenance Overview</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Track what is overdue, due soon, and healthy across your boat.
-          </p>
+          <h1 style={{ fontSize: 20, fontWeight: 800, color: "#0B2942" }}>Maintenance</h1>
           <div className="mt-3 flex gap-2">
             <AddComponentSheet boatId={boat.id} systems={maintenanceSystems} boatType={boat.type ?? undefined} />
             <Link
               href="/components"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5"
+              style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA", borderRadius: 13, fontSize: 14, fontWeight: 800, color: "#0B2942" }}
             >
               All components
             </Link>
           </div>
         </div>
-
       </section>
 
       <section className="grid gap-3 grid-cols-2 md:grid-cols-4">
-        <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: "#F3F6F9", border: "1px solid #E2E9EF" }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: "#8593A0" }}>Total components</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: "#46586A", lineHeight: 1.1 }}>{allHealth.length}</div>
+        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: "#F4F7FA", border: "1.5px solid #DBE3EA" }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#0B2942", opacity: 0.5 }}>TOTAL</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{allHealth.length}</div>
         </div>
 
-        <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: overdueCount > 0 ? "#FDF0F0" : "#F3F6F9", border: `1px solid ${overdueCount > 0 ? "#F8DCDC" : "#E2E9EF"}` }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: overdueCount > 0 ? "#D83A3A" : "#8593A0" }}>Overdue</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: overdueCount > 0 ? "#D83A3A" : "#46586A", lineHeight: 1.1 }}>{overdueCount}</div>
+        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: overdueCount > 0 ? "#FDECEA" : "#F4F7FA", border: `1.5px solid ${overdueCount > 0 ? "#F5BCBA" : "#DBE3EA"}` }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: overdueCount > 0 ? "#E0342A" : "#0B2942", opacity: overdueCount > 0 ? 1 : 0.5 }}>OVERDUE</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: overdueCount > 0 ? "#E0342A" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{overdueCount}</div>
         </div>
 
-        <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: dueSoonCount > 0 ? "#FDF8EA" : "#F3F6F9", border: `1px solid ${dueSoonCount > 0 ? "#F3E6C4" : "#E2E9EF"}` }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: dueSoonCount > 0 ? "#C8841A" : "#8593A0" }}>Due soon</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: dueSoonCount > 0 ? "#C8841A" : "#46586A", lineHeight: 1.1 }}>{dueSoonCount}</div>
+        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: dueSoonCount > 0 ? "#FFF6DF" : "#F4F7FA", border: `1.5px solid ${dueSoonCount > 0 ? "#F5E0A0" : "#DBE3EA"}` }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: dueSoonCount > 0 ? "#D9A300" : "#0B2942", opacity: dueSoonCount > 0 ? 1 : 0.5 }}>DUE SOON</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: dueSoonCount > 0 ? "#D9A300" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{dueSoonCount}</div>
         </div>
 
-        <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: okCount > 0 ? "#EEF8F1" : "#F3F6F9", border: `1px solid ${okCount > 0 ? "#D2EBDB" : "#E2E9EF"}` }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: okCount > 0 ? "#1D9B55" : "#8593A0" }}>Healthy</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: okCount > 0 ? "#1D9B55" : "#46586A", lineHeight: 1.1 }}>{okCount}</div>
+        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: okCount > 0 ? "#E6F6EC" : "#F4F7FA", border: `1.5px solid ${okCount > 0 ? "#A8DDB8" : "#DBE3EA"}` }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: okCount > 0 ? "#0E7A3D" : "#0B2942", opacity: okCount > 0 ? 1 : 0.5 }}>HEALTHY</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: okCount > 0 ? "#0E7A3D" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{okCount}</div>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
+      <section className="card p-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <h2 className="text-base font-semibold text-slate-800">Predictive Timeline</h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <h2 style={{ fontSize: 16, fontWeight: 800, color: "#0B2942" }}>Predictive Timeline</h2>
+            <p style={{ fontSize: 13, color: "#8FB3CC", marginTop: 4 }}>
               Forecast upcoming maintenance based on service intervals and recent usage.
             </p>
           </div>
@@ -253,16 +248,19 @@ export default async function MaintenancePage({
             {HORIZONS.map((days) => {
               const href = `/maintenance?horizon=${days}`;
               const active = selectedHorizon === days;
-
               return (
                 <Link
                   key={days}
                   href={href}
-                  className={
-                    active
-                      ? "rounded-full bg-ocean-600 px-3.5 py-1.5 text-sm font-medium text-white"
-                      : "rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
-                  }
+                  style={{
+                    borderRadius: 8,
+                    padding: "4px 12px",
+                    fontSize: 12,
+                    fontWeight: 800,
+                    background: active ? "#0B2942" : "#F4F7FA",
+                    color: active ? "#FFFFFF" : "#8FB3CC",
+                    border: `1.5px solid ${active ? "#0B2942" : "#DBE3EA"}`,
+                  }}
                 >
                   {days}d
                 </Link>
@@ -272,98 +270,96 @@ export default async function MaintenancePage({
         </div>
 
         <div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-4">
-          <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: timelineOverdue.length > 0 ? "#FDF0F0" : "#F3F6F9", border: `1px solid ${timelineOverdue.length > 0 ? "#F8DCDC" : "#E2E9EF"}` }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: timelineOverdue.length > 0 ? "#D83A3A" : "#8593A0" }}>Overdue</div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: timelineOverdue.length > 0 ? "#D83A3A" : "#46586A", lineHeight: 1.1 }}>{timelineOverdue.length}</div>
+          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelineOverdue.length > 0 ? "#FDECEA" : "#F4F7FA", border: `1.5px solid ${timelineOverdue.length > 0 ? "#F5BCBA" : "#DBE3EA"}` }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelineOverdue.length > 0 ? "#E0342A" : "#0B2942", opacity: timelineOverdue.length > 0 ? 1 : 0.5 }}>OVERDUE</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: timelineOverdue.length > 0 ? "#E0342A" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelineOverdue.length}</div>
           </div>
 
-          <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: timelineDueSoon.length > 0 ? "#FDF8EA" : "#F3F6F9", border: `1px solid ${timelineDueSoon.length > 0 ? "#F3E6C4" : "#E2E9EF"}` }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: timelineDueSoon.length > 0 ? "#C8841A" : "#8593A0" }}>Due soon</div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: timelineDueSoon.length > 0 ? "#C8841A" : "#46586A", lineHeight: 1.1 }}>{timelineDueSoon.length}</div>
+          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelineDueSoon.length > 0 ? "#FFF6DF" : "#F4F7FA", border: `1.5px solid ${timelineDueSoon.length > 0 ? "#F5E0A0" : "#DBE3EA"}` }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelineDueSoon.length > 0 ? "#D9A300" : "#0B2942", opacity: timelineDueSoon.length > 0 ? 1 : 0.5 }}>DUE SOON</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: timelineDueSoon.length > 0 ? "#D9A300" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelineDueSoon.length}</div>
           </div>
 
-          <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: timelinePlanned.length > 0 ? "#E6F3FA" : "#F3F6F9", border: `1px solid ${timelinePlanned.length > 0 ? "#BCDCEE" : "#E2E9EF"}` }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: timelinePlanned.length > 0 ? "#0B7EB8" : "#8593A0" }}>Planned · {selectedHorizon}d</div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: timelinePlanned.length > 0 ? "#0B7EB8" : "#46586A", lineHeight: 1.1 }}>{timelinePlanned.length}</div>
+          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelinePlanned.length > 0 ? "#E6F3FA" : "#F4F7FA", border: `1.5px solid ${timelinePlanned.length > 0 ? "#B0D4EE" : "#DBE3EA"}` }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelinePlanned.length > 0 ? "#0B7EB8" : "#0B2942", opacity: timelinePlanned.length > 0 ? 1 : 0.5 }}>PLANNED · {selectedHorizon}D</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: timelinePlanned.length > 0 ? "#0B7EB8" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelinePlanned.length}</div>
           </div>
 
-          <div className="rounded-2xl p-4 flex flex-col gap-1.5" style={{ background: "#F3F6F9", border: "1px solid #E2E9EF" }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: "#8593A0" }}>Unknown</div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: "#46586A", lineHeight: 1.1 }}>{timelineUnknown.length}</div>
+          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: "#F4F7FA", border: "1.5px solid #DBE3EA" }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#0B2942", opacity: 0.5 }}>UNKNOWN</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelineUnknown.length}</div>
           </div>
         </div>
 
         {timelinePreview.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">
+          <p className="mt-4" style={{ fontSize: 14, color: "#8FB3CC" }}>
             No predictive maintenance items are currently forecast.
           </p>
         ) : (
           <div className="mt-4 grid gap-3">
             {timelinePreview.map((row) => (
-              <div key={row.component_id} className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
+              <div key={row.component_id} className="card p-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div>
-                    <Link href={`/components/${row.component_id}`} className="font-semibold text-ocean-600 hover:text-ocean-700 hover:underline" style={{ fontSize: 14.5 }}>{row.component_name}</Link>
-                    <div className="text-sm text-slate-500">
+                    <Link href={`/components/${row.component_id}`} style={{ fontSize: 15, fontWeight: 800, color: "#0B2942" }} className="hover:opacity-70 transition-opacity">{row.component_name}</Link>
+                    <div style={{ fontSize: 13, color: "#8FB3CC", marginTop: 2 }}>
                       {row.system_name ?? "—"}
                     </div>
                   </div>
 
                   <div
-                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${timelineStatusColor(
-                      row.status
-                    )}`}
+                    className="inline-flex rounded-full px-3 py-1"
+                    style={{ ...timelineStatusStyle(row.status), fontSize: 11, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const }}
                   >
                     {timelineStatusLabel(row.status)}
                   </div>
                 </div>
 
                 <div className="mt-4 grid gap-3 md:grid-cols-3">
-                  <div className="rounded-lg bg-slate-50 p-3">
-                    <div className="text-xs uppercase tracking-wide text-slate-500">
+                  <div className="rounded-[13px] p-3" style={{ background: "#F4F7FA" }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#8FB3CC", textTransform: "uppercase" }}>
                       Predicted due
                     </div>
-                    <div className="mt-1 font-medium text-slate-800">
+                    <div className="mt-1" style={{ fontSize: 14, fontWeight: 800, color: "#0B2942" }}>
                       {formatDate(row.predicted_due_date)}
                     </div>
                   </div>
 
-                  <div className="rounded-lg bg-slate-50 p-3">
-                    <div className="text-xs uppercase tracking-wide text-slate-500">
-                      Hours since service
+                  <div className="rounded-[13px] p-3" style={{ background: "#F4F7FA" }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#8FB3CC", textTransform: "uppercase" }}>
+                      Hrs since service
                     </div>
-                    <div className="mt-1 font-medium text-slate-800">
+                    <div className="mt-1" style={{ fontSize: 14, fontWeight: 800, color: "#0B2942" }}>
                       {row.hours_since_service != null ? Math.round(row.hours_since_service) : "—"}
                     </div>
                   </div>
 
-                  <div className="rounded-lg bg-slate-50 p-3">
-                    <div className="text-xs uppercase tracking-wide text-slate-500">
-                      Hours until due
+                  <div className="rounded-[13px] p-3" style={{ background: "#F4F7FA" }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#8FB3CC", textTransform: "uppercase" }}>
+                      Hrs until due
                     </div>
-                    <div className="mt-1 font-medium text-slate-800">
+                    <div className="mt-1" style={{ fontSize: 14, fontWeight: 800, color: "#0B2942" }}>
                       {row.hours_until_due != null ? Math.round(row.hours_until_due) : "—"}
                     </div>
                   </div>
                 </div>
 
                 <div className="mt-3">
-                  {/* AI Predicted Risk bar */}
                   {(() => {
                     const score = Math.min(100, Math.round(Number(row.risk_score ?? 0)));
-                    const barColor = score >= 70 ? "#D83A3A" : score >= 40 ? "#C8841A" : "#1D9B55";
-                    const barBg = score >= 70 ? "#FDF0F0" : score >= 40 ? "#FDF8EA" : "#EEF8F1";
+                    const barColor = score >= 70 ? "#E0342A" : score >= 40 ? "#D9A300" : "#0E7A3D";
+                    const barBg = score >= 70 ? "#FDECEA" : score >= 40 ? "#FFF6DF" : "#E6F6EC";
                     const label = score >= 70 ? "High risk" : score >= 40 ? "Moderate risk" : "Low risk";
                     return (
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="flex items-center gap-1.5" style={{ fontSize: 11, fontWeight: 700, color: "#8593A0", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                          <span className="flex items-center gap-1.5" style={{ fontSize: 11, fontWeight: 800, color: "#8FB3CC", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                             <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                               <path d="M6 1L7.5 4.5H11L8.25 6.75L9.25 10.5L6 8.25L2.75 10.5L3.75 6.75L1 4.5H4.5L6 1Z" fill="#0B7EB8" />
                             </svg>
-                            AI Predicted Risk
+                            AI Risk
                           </span>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: barColor }}>{label} · {score}</span>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: barColor }}>{label} · {score}</span>
                         </div>
                         <div className="rounded-full overflow-hidden" style={{ height: 7, background: barBg }}>
                           <div

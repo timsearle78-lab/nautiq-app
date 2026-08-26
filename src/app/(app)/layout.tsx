@@ -37,7 +37,7 @@ export default async function AppLayout({
   const isAdmin = adminEmails.includes(email);
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-slate-50">
+    <div className="flex flex-col h-[100dvh]" style={{ background: "#F4F7FA" }}>
       <AppHeader />
       <main className="flex-1 overflow-y-auto pb-16">
         <div className="mx-auto w-full max-w-2xl">

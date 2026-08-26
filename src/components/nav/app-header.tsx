@@ -15,10 +15,11 @@ function normalizeStatus(s: string | null) {
   return "unknown";
 }
 
-function scorePillStyle(score: number, overdueCount: number): React.CSSProperties {
-  if (overdueCount > 0 || score < 60) return { color: "#D83A3A", background: "#FDEBEB", border: "1px solid #F3C4C4" };
-  if (score < 80) return { color: "#C8841A", background: "#FBF2DC", border: "1px solid #ECD6A6" };
-  return { color: "#1D9B55", background: "#E7F6EE", border: "1px solid #B8E2C8" };
+function scoreChipStyle(score: number, overdueCount: number): React.CSSProperties {
+  // On the navy header, we use solid-fill chips matching V2 status palette
+  if (overdueCount > 0 || score < 60) return { background: "#E0342A", color: "#FFFFFF" };
+  if (score < 80) return { background: "#FFC730", color: "#3D2A00" };
+  return { background: "#0E7A3D", color: "#FFFFFF" };
 }
 
 export default async function AppHeader() {
@@ -61,32 +62,29 @@ export default async function AppHeader() {
   return (
     <header
       className="h-14 shrink-0 relative flex items-center justify-between px-4 z-30"
-      style={{ background: "#FFFFFF", borderBottom: "1px solid #E6EBF0" }}
+      style={{ background: "#0B2942", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
     >
-      <div className="flex items-center pl-10">
+      <div className="flex items-center gap-2">
         <ChatMenuTrigger />
-        <NautiqLogo size={20} />
+        <NautiqLogo size={20} dark />
       </div>
 
       <div className="flex items-center gap-3">
         {health.length > 0 && (
           <Link
             href="/health"
-            className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition-opacity hover:opacity-80"
-            style={scorePillStyle(healthScore, overdueCount)}
-            title={`Boat health score: ${healthScore}/100${overdueCount > 0 ? ` · ${overdueCount} overdue` : ""} — tap to see breakdown`}
+            className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold transition-opacity hover:opacity-80"
+            style={scoreChipStyle(healthScore, overdueCount)}
+            title={`Boat health: ${healthScore}/100`}
           >
-            <span
-              className="inline-block h-1.5 w-1.5 rounded-full"
-              style={{ background: scorePillStyle(healthScore, overdueCount).color }}
-            />
             <span>{healthScore}</span>
           </Link>
         )}
 
+        {/* Boat avatar */}
         <div
           className="h-7 w-7 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center"
-          style={{ border: "1px solid #E6EBF0", background: "#EEF1F5" }}
+          style={{ border: "1.5px solid rgba(255,255,255,0.2)", background: "#0D4A73" }}
         >
           {activeBoat.image_url ? (
             <Image
@@ -110,11 +108,11 @@ export default async function AppHeader() {
     return (
       <header
         className="h-14 shrink-0 relative flex items-center px-4 z-30"
-        style={{ background: "#FFFFFF", borderBottom: "1px solid #E6EBF0" }}
+        style={{ background: "#0B2942", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
       >
-        <div className="flex items-center pl-10">
+        <div className="flex items-center gap-2">
           <ChatMenuTrigger />
-          <NautiqLogo size={20} />
+          <NautiqLogo size={20} dark />
         </div>
       </header>
     );

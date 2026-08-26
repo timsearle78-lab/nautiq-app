@@ -6,63 +6,92 @@
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-mono: ui-monospace, monospace;
 
-  /* NautIQ design system — cyan/accent palette (mapped to ocean-* for compatibility) */
-  --color-ocean-50:  #E6F3FA;
-  --color-ocean-100: #C8E4F4;
-  --color-ocean-200: #9ECDE8;
-  --color-ocean-500: #0E8FC9;
-  --color-ocean-600: #0B7EB8;
-  --color-ocean-700: #0A6A9E;
-  --color-ocean-900: #0B2942;
+  /* ── NautIQ V2 Signal — Navy / Amber / Cyan ── */
 
-  /* Navy palette */
+  /* Navy (structure) */
   --color-navy-900: #061D31;
   --color-navy-800: #08304D;
   --color-navy-700: #0B2942;
   --color-navy-600: #0D4A73;
-  --color-navy-400: #3C6A8C;
+  --color-navy-500: #5F7488;
+  --color-navy-mute: #8FB3CC;
 
-  /* Cyan extended */
+  /* Legacy ocean-* aliases so existing code doesn't break */
+  --color-ocean-50:  #E6F3FA;
+  --color-ocean-100: #C8E4F4;
+  --color-ocean-200: #9ECDE8;
+  --color-ocean-500: #0B7EB8;
+  --color-ocean-600: #0B7EB8;
+  --color-ocean-700: #0A6A9E;
+  --color-ocean-900: #0B2942;
+
+  /* Amber (signal / primary action) */
+  --color-amber-50:  #FFF6DF;
+  --color-amber-400: #FFC730;
+  --color-amber-500: #F0B012;
+  --color-amber-600: #D9A300;
+  --color-amber-700: #A87A00;
+  --color-amber-ink: #3D2A00;
+
+  /* Cyan (data: charts, links, secondary actions) */
+  --color-cyan-50:  #E6F3FA;
   --color-cyan-300: #5EC6EE;
   --color-cyan-400: #22A9DD;
-  --color-cyan-50:  #E6F3FA;
+  --color-cyan-600: #0B7EB8;
+
+  /* Status — semantic, not accents */
+  --color-status-critical-bg:  #FDECEA;
+  --color-status-critical-fg:  #E0342A;
+  --color-status-warning-bg:   #FFF6DF;
+  --color-status-warning-fg:   #D9A300;
+  --color-status-healthy-bg:   #E6F6EC;
+  --color-status-healthy-fg:   #0E7A3D;
+  --color-status-planned-bg:   #E6F3FA;
+  --color-status-planned-fg:   #0B7EB8;
 
   /* Neutrals */
-  --color-text-strong:  #0F2335;
-  --color-text-body:    #46586A;
-  --color-text-muted:   #8593A0;
-  --color-border:       #E6EBF0;
-  --color-border-input: #E0E6EC;
+  --color-ink:          #0B2942;
+  --color-text:         #46586A;
+  --color-muted:        #5F7488;
+  --color-border:       #DBE3EA;
+  --color-border-input: #DBE3EA;
   --color-surface:      #FFFFFF;
-  --color-app-bg:       #EEF1F5;
+  --color-app-bg:       #F4F7FA;
+
+  /* Legacy aliases */
+  --color-text-strong:  #0B2942;
+  --color-text-body:    #46586A;
+  --color-text-muted:   #5F7488;
 }
 
 :root {
-  --background: #EEF1F5;
-  --foreground: #0F2335;
+  --background: #F4F7FA;
+  --foreground: #0B2942;
 }
 
+/* ── Inputs & selects ──────────────────────────────────────────────────── */
 .select-field {
   width: 100%;
-  border-radius: 0.75rem; /* rounded-xl */
-  border: 1px solid #E2E9EF;
+  border-radius: 0.75rem;
+  border: 1.5px solid #DBE3EA;
   background-color: #ffffff;
-  padding: 0.625rem 2.25rem 0.625rem 0.75rem; /* py-2.5 pl-3 pr-9 */
+  padding: 0.625rem 2.25rem 0.625rem 0.75rem;
   font-size: 0.875rem;
-  color: #0F2335;
+  color: #0B2942;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s;
   appearance: none;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238593A0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235F7488' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
 }
 .select-field:focus {
-  border-color: #15A0D6;
-  box-shadow: 0 0 0 3px rgb(21 160 214 / 0.15);
+  border-color: #D9A300;
+  box-shadow: 0 0 0 3px rgb(217 163 0 / 0.15);
 }
 
+/* ── Animations ────────────────────────────────────────────────────────── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -78,17 +107,99 @@
   animation: fadeIn 0.35s ease both;
 }
 
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+/* Primary on LIGHT surfaces: navy fill */
 .btn-primary {
-  background: linear-gradient(135deg, #15A0D6, #0B7EB8);
+  background: #0B2942;
+  color: #FFFFFF;
+  font-weight: 800;
+  min-height: 52px;
+  border-radius: 13px;
 }
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #0E8FBF, #0A6E9E);
+  background: #0D4A73;
 }
 .btn-primary:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
+/* Primary on NAVY surfaces: amber fill */
+.btn-amber {
+  background: #FFC730;
+  color: #3D2A00;
+  font-weight: 800;
+  min-height: 52px;
+  border-radius: 13px;
+}
+.btn-amber:hover:not(:disabled) {
+  background: #F0B012;
+}
+.btn-amber:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Small action buttons (e.g. Log Trip) */
+.btn-action {
+  background: #FFC730;
+  color: #3D2A00;
+  font-weight: 800;
+  border-radius: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-action:hover:not(:disabled) {
+  background: #F0B012;
+}
+
+/* ── Status badges (solid fill, uppercase) ──────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  padding: 2px 7px;
+  line-height: 1.4;
+}
+.badge-missing   { background: #E0342A; color: #FFFFFF; }
+.badge-critical  { background: #E0342A; color: #FFFFFF; }
+.badge-overdue   { background: #E0342A; color: #FFFFFF; }
+.badge-low       { background: #D9A300; color: #3D2A00; }
+.badge-due-soon  { background: #D9A300; color: #3D2A00; }
+.badge-ok        { background: #0E7A3D; color: #FFFFFF; }
+.badge-healthy   { background: #0E7A3D; color: #FFFFFF; }
+.badge-planned   { background: #0B7EB8; color: #FFFFFF; }
+.badge-unknown   { background: #5F7488; color: #FFFFFF; }
+
+/* ── Row status edge (5px left border) ─────────────────────────────────── */
+.row-edge-critical { border-left: 5px solid #E0342A; }
+.row-edge-warning  { border-left: 5px solid #D9A300; }
+.row-edge-healthy  { border-left: 5px solid #0E7A3D; }
+.row-edge-planned  { border-left: 5px solid #0B7EB8; }
+.row-edge-unknown  { border-left: 5px solid #DBE3EA; }
+
+/* ── Cards: 1.5px border, no shadows ───────────────────────────────────── */
+.card {
+  background: #FFFFFF;
+  border: 1.5px solid #DBE3EA;
+  border-radius: 18px;
+}
+.card-row {
+  background: #FFFFFF;
+  border: 1.5px solid #DBE3EA;
+  border-radius: 16px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Global resets ──────────────────────────────────────────────────────── */
 * {
   -webkit-tap-highlight-color: transparent;
   box-sizing: border-box;
@@ -126,15 +237,13 @@ button:disabled,
   color-scheme: dark;
 }
 
-/* Backgrounds */
 [data-theme="dark"] .bg-white          { background-color: #132334 !important; }
 [data-theme="dark"] .bg-slate-50       { background-color: #0D1B2A !important; }
 [data-theme="dark"] .bg-slate-100      { background-color: #1A2E42 !important; }
 [data-theme="dark"] .bg-slate-200      { background-color: #1F3347 !important; }
 [data-theme="dark"] .bg-white\/80      { background-color: rgba(19,35,52,0.9) !important; }
-[data-theme="dark"] .bg-black\/30      { background-color: rgba(0,0,0,0.6) !important; }
+[data-theme="dark"] .card              { background-color: #132334 !important; border-color: #1E3650 !important; }
 
-/* Text */
 [data-theme="dark"] .text-slate-900    { color: #EEF4F9 !important; }
 [data-theme="dark"] .text-slate-800    { color: #D4E4F0 !important; }
 [data-theme="dark"] .text-slate-700    { color: #B4C8D8 !important; }
@@ -142,15 +251,10 @@ button:disabled,
 [data-theme="dark"] .text-slate-500    { color: #6B8599 !important; }
 [data-theme="dark"] .text-slate-400    { color: #506070 !important; }
 
-/* Borders */
 [data-theme="dark"] .border-slate-200  { border-color: #233D55 !important; }
 [data-theme="dark"] .border-slate-100  { border-color: #1A3048 !important; }
-[data-theme="dark"] .border-slate-300  { border-color: #2D4F6A !important; }
-[data-theme="dark"] .border-dashed.border-slate-300 { border-color: #2D4F6A !important; }
 [data-theme="dark"] .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: #1A3048 !important; }
-[data-theme="dark"] .divide-y.divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: #1A3048 !important; }
 
-/* Inputs, textareas, selects */
 [data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 [data-theme="dark"] textarea,
 [data-theme="dark"] .select-field {
@@ -163,27 +267,12 @@ button:disabled,
 [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
 [data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.6); }
 
-/* Danger zone */
+[data-theme="dark"] .bg-red-50         { background-color: rgba(224,52,42,0.15) !important; }
+[data-theme="dark"] .bg-amber-50       { background-color: rgba(217,163,0,0.15) !important; }
+[data-theme="dark"] .bg-green-50       { background-color: rgba(14,122,61,0.15) !important; }
 [data-theme="dark"] .bg-red-50\/40     { background-color: rgba(127,29,29,0.25) !important; }
 [data-theme="dark"] .border-red-100    { border-color: rgba(127,29,29,0.4) !important; }
-[data-theme="dark"] .bg-red-50         { background-color: rgba(127,29,29,0.2) !important; }
 
-/* Ocean tint backgrounds — lighten slightly for dark surfaces */
 [data-theme="dark"] .bg-ocean-50       { background-color: #0B2542 !important; }
 [data-theme="dark"] .bg-ocean-100      { background-color: #0D2E50 !important; }
 [data-theme="dark"] .border-ocean-200  { border-color: #1A4A6A !important; }
-
-/* Shadow softening */
-[data-theme="dark"] .shadow-sm         { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.4) !important; }
-[data-theme="dark"] .shadow-xl         { box-shadow: 0 20px 48px -8px rgba(0,0,0,0.6) !important; }
-
-/* Bottom sheet / overlay */
-[data-theme="dark"] .rounded-t-2xl.bg-white { background-color: #132334 !important; }
-
-/* Nav bar */
-[data-theme="dark"] .border-t.border-slate-200 { border-color: #1A3048 !important; }
-
-/* Inline theme toggle pill — keep its own styling in dark */
-[data-theme="dark"] .bg-slate-50.rounded-xl { background-color: #1A2E42 !important; }
-[data-theme="dark"] .bg-slate-700 { background-color: #233D55 !important; }
-

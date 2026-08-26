@@ -2,18 +2,6 @@
 
 import { useRouter, usePathname } from "next/navigation";
 
-type Tile = {
-  label: string;
-  count: number;
-  filterValue: string;
-  activeColor: string;
-  activeBorder: string;
-  activeLabelColor: string;
-  activeNumColor: string;
-  idleBackground: string;
-  idleBorder: string;
-};
-
 export function InventoryStatTiles({
   totalCount,
   lowStockCount,
@@ -45,7 +33,6 @@ export function InventoryStatTiles({
   }
 
   function handleTileClick(filterValue: string) {
-    // Clicking an already-active filter clears it (toggle off)
     const next = activeStatus === filterValue ? "" : filterValue;
     router.push(buildUrl(next, componentId));
   }
@@ -54,61 +41,61 @@ export function InventoryStatTiles({
     router.push(buildUrl(activeStatus, value));
   }
 
-  const tiles: Tile[] = [
+  const tiles = [
     {
-      label: "Total items",
+      label: "TOTAL",
       count: totalCount,
       filterValue: "",
-      activeColor: "#EEF3F8",
+      bg: "#F4F7FA",
+      activeBg: "#E6F3FA",
+      fg: "#0B2942",
+      activeFg: "#0B7EB8",
+      border: "#DBE3EA",
       activeBorder: "#0B7EB8",
-      activeLabelColor: "#0B7EB8",
-      activeNumColor: "#0B7EB8",
-      idleBackground: "#F3F6F9",
-      idleBorder: "#E2E9EF",
     },
     {
-      label: "Low stock",
-      count: lowStockCount,
-      filterValue: "low",
-      activeColor: "#FDF8EA",
-      activeBorder: "#C8841A",
-      activeLabelColor: "#C8841A",
-      activeNumColor: "#C8841A",
-      idleBackground: lowStockCount > 0 ? "#FDF8EA" : "#F3F6F9",
-      idleBorder: lowStockCount > 0 ? "#F3E6C4" : "#E2E9EF",
-    },
-    {
-      label: "Critical missing",
+      label: "MISSING",
       count: missingCount,
       filterValue: "missing",
-      activeColor: "#FDF0F0",
-      activeBorder: "#D83A3A",
-      activeLabelColor: "#D83A3A",
-      activeNumColor: "#D83A3A",
-      idleBackground: missingCount > 0 ? "#FDF0F0" : "#F3F6F9",
-      idleBorder: missingCount > 0 ? "#F8DCDC" : "#E2E9EF",
+      bg: missingCount > 0 ? "#FDECEA" : "#F4F7FA",
+      activeBg: "#FDECEA",
+      fg: missingCount > 0 ? "#E0342A" : "#0B2942",
+      activeFg: "#E0342A",
+      border: missingCount > 0 ? "#F5BCBA" : "#DBE3EA",
+      activeBorder: "#E0342A",
     },
     {
-      label: "Stocked",
+      label: "LOW",
+      count: lowStockCount,
+      filterValue: "low",
+      bg: lowStockCount > 0 ? "#FFF6DF" : "#F4F7FA",
+      activeBg: "#FFF6DF",
+      fg: lowStockCount > 0 ? "#D9A300" : "#0B2942",
+      activeFg: "#D9A300",
+      border: lowStockCount > 0 ? "#F5E0A0" : "#DBE3EA",
+      activeBorder: "#D9A300",
+    },
+    {
+      label: "STOCKED",
       count: stockedCount,
       filterValue: "ok",
-      activeColor: "#EEF8F1",
-      activeBorder: "#1D9B55",
-      activeLabelColor: "#1D9B55",
-      activeNumColor: "#1D9B55",
-      idleBackground: stockedCount > 0 ? "#EEF8F1" : "#F3F6F9",
-      idleBorder: stockedCount > 0 ? "#D2EBDB" : "#E2E9EF",
+      bg: stockedCount > 0 ? "#E6F6EC" : "#F4F7FA",
+      activeBg: "#E6F6EC",
+      fg: stockedCount > 0 ? "#0E7A3D" : "#0B2942",
+      activeFg: "#0E7A3D",
+      border: stockedCount > 0 ? "#A8DDB8" : "#DBE3EA",
+      activeBorder: "#0E7A3D",
     },
     {
-      label: "Expiring soon",
+      label: "EXPIRING",
       count: expiringSoonCount,
       filterValue: "expiring",
-      activeColor: "#FDF8EA",
-      activeBorder: "#C8841A",
-      activeLabelColor: "#C8841A",
-      activeNumColor: "#C8841A",
-      idleBackground: expiringSoonCount > 0 ? "#FDF8EA" : "#F3F6F9",
-      idleBorder: expiringSoonCount > 0 ? "#F3E6C4" : "#E2E9EF",
+      bg: expiringSoonCount > 0 ? "#FFF6DF" : "#F4F7FA",
+      activeBg: "#FFF6DF",
+      fg: expiringSoonCount > 0 ? "#D9A300" : "#0B2942",
+      activeFg: "#D9A300",
+      border: expiringSoonCount > 0 ? "#F5E0A0" : "#DBE3EA",
+      activeBorder: "#D9A300",
     },
   ];
 
@@ -122,49 +109,31 @@ export function InventoryStatTiles({
               key={tile.filterValue}
               type="button"
               onClick={() => handleTileClick(tile.filterValue)}
-              className="rounded-2xl p-4 flex flex-col gap-1.5 text-left transition-all"
+              className="rounded-[18px] p-4 flex flex-col gap-1 text-left transition-all"
               style={{
-                background: tile.idleBackground,
-                border: `2px solid ${isActive ? tile.activeBorder : tile.idleBorder}`,
-                boxShadow: isActive ? `0 0 0 3px ${tile.activeBorder}22` : "none",
+                background: isActive ? tile.activeBg : tile.bg,
+                border: `1.5px solid ${isActive ? tile.activeBorder : tile.border}`,
                 cursor: "pointer",
               }}
             >
               <div
                 style={{
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: isActive
-                    ? tile.activeLabelColor
-                    : tile.filterValue === "low" && lowStockCount > 0
-                    ? "#C8841A"
-                    : tile.filterValue === "missing" && missingCount > 0
-                    ? "#D83A3A"
-                    : tile.filterValue === "ok" && stockedCount > 0
-                    ? "#1D9B55"
-                    : tile.filterValue === "expiring" && expiringSoonCount > 0
-                    ? "#C8841A"
-                    : "#8593A0",
+                  fontSize: 11,
+                  fontWeight: 800,
+                  letterSpacing: "0.08em",
+                  color: isActive ? tile.activeFg : tile.fg,
+                  opacity: isActive ? 1 : 0.6,
                 }}
               >
                 {tile.label}
               </div>
               <div
                 style={{
-                  fontSize: 26,
+                  fontSize: 28,
                   fontWeight: 800,
-                  lineHeight: 1.1,
-                  color: isActive
-                    ? tile.activeNumColor
-                    : tile.filterValue === "low" && lowStockCount > 0
-                    ? "#C8841A"
-                    : tile.filterValue === "missing" && missingCount > 0
-                    ? "#D83A3A"
-                    : tile.filterValue === "ok" && stockedCount > 0
-                    ? "#1D9B55"
-                    : tile.filterValue === "expiring" && expiringSoonCount > 0
-                    ? "#C8841A"
-                    : "#46586A",
+                  lineHeight: 1,
+                  color: isActive ? tile.activeFg : tile.fg,
+                  fontVariantNumeric: "tabular-nums",
                 }}
               >
                 {tile.count}
@@ -179,13 +148,13 @@ export function InventoryStatTiles({
           <select
             value={componentId}
             onChange={(e) => handleComponentChange(e.target.value)}
-            className="rounded-full border bg-white pl-3 pr-7 py-1 text-xs font-medium text-slate-600 focus:outline-none cursor-pointer appearance-none"
+            className="rounded-full bg-white pl-3 pr-7 py-1 text-xs font-semibold focus:outline-none cursor-pointer appearance-none"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238593A0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238FB3CC' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
               backgroundRepeat: "no-repeat",
               backgroundPosition: "right 10px center",
-              borderColor: componentId ? "#0B7EB8" : "#E2E9EF",
-              color: componentId ? "#0B7EB8" : undefined,
+              border: `1.5px solid ${componentId ? "#0B7EB8" : "#DBE3EA"}`,
+              color: componentId ? "#0B7EB8" : "#0B2942",
             }}
           >
             <option value="">All components</option>
@@ -199,7 +168,7 @@ export function InventoryStatTiles({
             <button
               type="button"
               onClick={() => router.push(pathname)}
-              className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
+              style={{ fontSize: 12, color: "#8FB3CC", fontWeight: 600 }}
             >
               Clear filters
             </button>

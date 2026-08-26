@@ -8,12 +8,12 @@ interface HealthGaugeProps {
 }
 
 function gaugeColor(score: number, overdueCount: number) {
-  if (overdueCount > 0 || score < 50) return { stroke: "#dc2626", text: "#dc2626", label: "SOS vibes" };
-  if (score < 75) return { stroke: "#d97706", text: "#d97706", label: "Could be worse" };
-  return { stroke: "#16a34a", text: "#16a34a", label: "Ship shape" };
+  if (overdueCount > 0 || score < 60) return { stroke: "#E0342A", text: "#E0342A", label: "Needs attention" };
+  if (score < 80) return { stroke: "#FFC730", text: "#F0B012", label: "Could be better" };
+  return { stroke: "#0E7A3D", text: "#0E7A3D", label: "Ship shape" };
 }
 
-export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 10 }: HealthGaugeProps) {
+export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11 }: HealthGaugeProps) {
   const r = (size - strokeWidth * 2) / 2;
   const cx = size / 2;
   const cy = size / 2;
@@ -26,50 +26,73 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 10 
   const { stroke, text, label } = gaugeColor(score, overdueCount);
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ overflow: "visible" }}>
-        {/* Track */}
-        <circle
-          cx={cx} cy={cy} r={r}
-          fill="none"
-          stroke="#e2e8f0"
-          strokeWidth={strokeWidth}
-          strokeDasharray={`${arcLength} ${gap}`}
-          strokeLinecap="round"
-          transform={`rotate(135 ${cx} ${cy})`}
-        />
-        {/* Progress */}
-        <circle
-          cx={cx} cy={cy} r={r}
-          fill="none"
-          stroke={stroke}
-          strokeWidth={strokeWidth}
-          strokeDasharray={`${progress} ${circumference - progress}`}
-          strokeLinecap="round"
-          transform={`rotate(135 ${cx} ${cy})`}
-          style={{ transition: "stroke-dasharray 0.6s ease" }}
-        />
-        {/* Score */}
-        <text
-          x={cx} y={cy - 4}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fontSize={size * 0.22}
-          fontWeight="700"
-          fill={text}
+    <div className="flex flex-col items-center">
+      {/* Navy circle behind the gauge */}
+      <div
+        className="relative flex items-center justify-center rounded-full"
+        style={{ width: size, height: size, background: "#0B2942" }}
+      >
+        <svg
+          width={size}
+          height={size}
+          viewBox={`0 0 ${size} ${size}`}
+          className="absolute inset-0"
+          style={{ overflow: "visible" }}
         >
-          {score}
-        </text>
-        <text
-          x={cx} y={cy + size * 0.16}
-          textAnchor="middle"
-          fontSize={size * 0.085}
-          fill="#94a3b8"
-        >
-          out of 100
-        </text>
-      </svg>
-      <span className="text-xs font-medium" style={{ color: text }}>{label}</span>
+          {/* Track */}
+          <circle
+            cx={cx} cy={cy} r={r}
+            fill="none"
+            stroke="rgba(255,255,255,0.1)"
+            strokeWidth={strokeWidth}
+            strokeDasharray={`${arcLength} ${gap}`}
+            strokeLinecap="round"
+            transform={`rotate(135 ${cx} ${cy})`}
+          />
+          {/* Progress arc — amber/red/green */}
+          <circle
+            cx={cx} cy={cy} r={r}
+            fill="none"
+            stroke={stroke}
+            strokeWidth={strokeWidth}
+            strokeDasharray={`${progress} ${circumference - progress}`}
+            strokeLinecap="round"
+            transform={`rotate(135 ${cx} ${cy})`}
+            style={{ transition: "stroke-dasharray 0.6s ease" }}
+          />
+        </svg>
+        {/* Center text */}
+        <div className="relative flex flex-col items-center leading-none">
+          <span
+            style={{
+              fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+              fontWeight: 800,
+              fontSize: size * 0.26,
+              color: "#FFFFFF",
+              lineHeight: 1,
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {score}
+          </span>
+          <span
+            style={{
+              fontSize: size * 0.085,
+              color: "rgba(255,255,255,0.45)",
+              fontWeight: 600,
+              marginTop: 2,
+            }}
+          >
+            OF 100
+          </span>
+        </div>
+      </div>
+      <span
+        className="mt-2 text-xs font-bold uppercase tracking-wide"
+        style={{ color: text, letterSpacing: "0.06em" }}
+      >
+        {label}
+      </span>
     </div>
   );
 }

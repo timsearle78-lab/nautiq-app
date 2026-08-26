@@ -404,120 +404,158 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           /* Empty state: gauge + stats + maintenance */
           <div className="pt-1 pb-4 space-y-4">
             <GreetingCard boatId={boat.id} hidden={hideGreeting} />
-            {/* Health score card with gauge */}
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 mx-4 animate-fade-up" style={{ animationDelay: "0ms" }}>
-              <div className="flex items-center justify-between gap-4">
-                <Link href="/health" className="hover:opacity-80 transition-opacity flex-shrink-0">
-                  <HealthGauge score={animHealthScore as number} overdueCount={overdueCount} size={130} />
-                </Link>
-                <div className="flex-1 grid grid-cols-2 gap-2">
-                  <Link href="/components?status=overdue" className="rounded-xl bg-red-50 border border-red-100 px-3 py-3 text-center block active:opacity-80 animate-fade-up" style={{ animationDelay: "60ms" }}>
-                    <div className="text-xl font-bold text-red-600 tabular-nums">{animOverdue}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Maint. overdue</div>
+            {/* Health score card with gauge — V2 Signal */}
+            <div className="mx-4 animate-fade-up" style={{ animationDelay: "0ms" }}>
+              {/* BOAT HEALTH label */}
+              <p className="text-xs font-bold uppercase tracking-widest mb-2 px-1" style={{ color: "#5F7488", letterSpacing: "0.1em" }}>BOAT HEALTH</p>
+              <div className="card p-4">
+                <div className="flex items-center gap-4">
+                  <Link href="/health" className="hover:opacity-80 transition-opacity flex-shrink-0">
+                    <HealthGauge score={animHealthScore as number} overdueCount={overdueCount} size={120} />
                   </Link>
-                  <Link href="/components?status=due_soon" className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center block active:opacity-80 animate-fade-up" style={{ animationDelay: "110ms" }}>
-                    <div className="text-xl font-bold text-amber-600 tabular-nums">{animDueSoon}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Due soon</div>
-                  </Link>
-                  {lowCriticalCount > 0 ? (
-                    <Link href="/inventory?status=critical" className="rounded-xl bg-red-50 border border-red-200 px-3 py-3 text-center block active:opacity-80 animate-fade-up" style={{ animationDelay: "160ms" }}>
-                      <div className="text-xl font-bold text-red-600 tabular-nums">{animInventory}</div>
-                      <div className="text-xs text-red-700 font-medium mt-0.5">Critical low</div>
+                  <div className="flex-1 grid grid-cols-2 gap-2">
+                    {/* Overdue */}
+                    <Link
+                      href="/components?status=overdue"
+                      className="rounded-2xl px-3 py-3 text-center block active:opacity-80 animate-fade-up"
+                      style={{ animationDelay: "60ms", background: overdueCount > 0 ? "#FDECEA" : "#F4F7FA", border: `1.5px solid ${overdueCount > 0 ? "#F5C2BF" : "#DBE3EA"}` }}
+                    >
+                      <div className="font-bold tabular-nums" style={{ fontSize: 28, lineHeight: 1, color: overdueCount > 0 ? "#E0342A" : "#46586A" }}>{animOverdue}</div>
+                      <div className="text-xs font-bold uppercase tracking-wide mt-1" style={{ color: "#5F7488", letterSpacing: "0.06em" }}>OVERDUE</div>
                     </Link>
-                  ) : lowStockCount > 0 ? (
-                    <Link href="/inventory?status=low" className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-3 text-center block active:opacity-80 animate-fade-up" style={{ animationDelay: "160ms" }}>
-                      <div className="text-xl font-bold text-amber-600 tabular-nums">{animInventory}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Spares low</div>
+                    {/* Due soon */}
+                    <Link
+                      href="/components?status=due_soon"
+                      className="rounded-2xl px-3 py-3 text-center block active:opacity-80 animate-fade-up"
+                      style={{ animationDelay: "110ms", background: dueSoonCount > 0 ? "#FFF6DF" : "#F4F7FA", border: `1.5px solid ${dueSoonCount > 0 ? "#ECD98A" : "#DBE3EA"}` }}
+                    >
+                      <div className="font-bold tabular-nums" style={{ fontSize: 28, lineHeight: 1, color: dueSoonCount > 0 ? "#D9A300" : "#46586A" }}>{animDueSoon}</div>
+                      <div className="text-xs font-bold uppercase tracking-wide mt-1" style={{ color: "#5F7488", letterSpacing: "0.06em" }}>DUE SOON</div>
                     </Link>
-                  ) : (
-                    <Link href="/health" className="rounded-xl bg-green-50 border border-green-100 px-3 py-3 text-center block active:opacity-80 animate-fade-up" style={{ animationDelay: "160ms" }}>
-                      <div className="text-xl font-bold text-green-600 tabular-nums">{animInventory}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Healthy</div>
+                    {/* Inventory status */}
+                    {lowCriticalCount > 0 ? (
+                      <Link
+                        href="/inventory?status=critical"
+                        className="rounded-2xl px-3 py-3 text-center block active:opacity-80 animate-fade-up"
+                        style={{ animationDelay: "160ms", background: "#FDECEA", border: "1.5px solid #F5C2BF" }}
+                      >
+                        <div className="font-bold tabular-nums" style={{ fontSize: 28, lineHeight: 1, color: "#E0342A" }}>{animInventory}</div>
+                        <div className="text-xs font-bold uppercase tracking-wide mt-1" style={{ color: "#E0342A", letterSpacing: "0.06em" }}>CRITICAL LOW</div>
+                      </Link>
+                    ) : lowStockCount > 0 ? (
+                      <Link
+                        href="/inventory?status=low"
+                        className="rounded-2xl px-3 py-3 text-center block active:opacity-80 animate-fade-up"
+                        style={{ animationDelay: "160ms", background: "#FFF6DF", border: "1.5px solid #ECD98A" }}
+                      >
+                        <div className="font-bold tabular-nums" style={{ fontSize: 28, lineHeight: 1, color: "#D9A300" }}>{animInventory}</div>
+                        <div className="text-xs font-bold uppercase tracking-wide mt-1" style={{ color: "#5F7488", letterSpacing: "0.06em" }}>SPARES LOW</div>
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/health"
+                        className="rounded-2xl px-3 py-3 text-center block active:opacity-80 animate-fade-up"
+                        style={{ animationDelay: "160ms", background: "#E6F6EC", border: "1.5px solid #A8DDB8" }}
+                      >
+                        <div className="font-bold tabular-nums" style={{ fontSize: 28, lineHeight: 1, color: "#0E7A3D" }}>{animInventory}</div>
+                        <div className="text-xs font-bold uppercase tracking-wide mt-1" style={{ color: "#5F7488", letterSpacing: "0.06em" }}>HEALTHY</div>
+                      </Link>
+                    )}
+                    {/* Engine hours */}
+                    <Link
+                      href="/trips"
+                      className="rounded-2xl px-3 py-3 text-center block active:opacity-80 animate-fade-up"
+                      style={{ animationDelay: "210ms", background: "#F4F7FA", border: "1.5px solid #DBE3EA" }}
+                    >
+                      <div className="font-bold tabular-nums" style={{ fontSize: 28, lineHeight: 1, color: "#0B2942" }}>{animEngineHours}</div>
+                      <div className="text-xs font-bold uppercase tracking-wide mt-1" style={{ color: "#5F7488", letterSpacing: "0.06em" }}>ENGINE HRS</div>
                     </Link>
-                  )}
-                  <Link href="/trips" className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-3 text-center block active:opacity-80 animate-fade-up" style={{ animationDelay: "210ms" }}>
-                    <div className="text-xl font-bold text-slate-500 tabular-nums">{animEngineHours}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Engine hrs</div>
-                  </Link>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Urgent items + inventory issues, or all clear */}
+            {/* Needs attention list — V2 rows with status edges */}
             {(urgentItems.length > 0 || lowStockCount > 0) ? (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden mx-4 animate-fade-up" style={{ animationDelay: "280ms" }}>
-                <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-slate-800">Needs attention</h2>
-                  <Link href="/health" className="text-xs text-ocean-600 hover:text-ocean-700 font-medium">View all →</Link>
+              <div className="mx-4 animate-fade-up" style={{ animationDelay: "280ms" }}>
+                <div className="flex items-center justify-between mb-2 px-1">
+                  <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "#5F7488", letterSpacing: "0.1em" }}>NEEDS ATTENTION</p>
+                  <Link href="/health" className="text-xs font-bold" style={{ color: "#0B7EB8" }}>View all →</Link>
                 </div>
-                {urgentItems.map((item) => {
-                  const isOverdue = item.status === "overdue";
-                  const due = formatDate(item.predicted_due_date);
-                  return (
+                <div className="card overflow-hidden" style={{ padding: 0 }}>
+                  {urgentItems.map((item, i) => {
+                    const isOverdue = item.status === "overdue";
+                    const due = formatDate(item.predicted_due_date);
+                    return (
+                      <Link
+                        key={item.component_id}
+                        href={`/components/${item.component_id}`}
+                        className="flex items-center gap-3 px-4 active:opacity-70"
+                        style={{
+                          minHeight: 56,
+                          borderLeft: `5px solid ${isOverdue ? "#E0342A" : "#D9A300"}`,
+                          borderBottom: (i < urgentItems.length - 1 || lowStockCount > 0) ? "1px solid #DBE3EA" : "none",
+                        }}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold truncate" style={{ fontSize: 15, color: "#0B2942" }}>{item.component_name}</div>
+                          <div className="text-xs" style={{ color: "#5F7488" }}>{item.system_name ?? "—"}</div>
+                        </div>
+                        <span className="badge flex-shrink-0" style={isOverdue ? { background: "#E0342A", color: "#FFF" } : { background: "#D9A300", color: "#3D2A00" }}>
+                          {isOverdue ? "OVERDUE" : due ? `DUE ${due}` : "DUE SOON"}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                  {lowStockItems.slice(0, 4).map((item, i) => (
                     <Link
-                      key={item.component_id}
-                      href={`/components/${item.component_id}`}
-                      className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 active:bg-slate-50"
+                      key={item.id}
+                      href={`/inventory/${item.id}`}
+                      className="flex items-center gap-3 px-4 active:opacity-70"
+                      style={{
+                        minHeight: 56,
+                        borderLeft: `5px solid ${item.is_critical ? "#E0342A" : "#D9A300"}`,
+                        borderBottom: i < Math.min(lowStockItems.length, 4) - 1 ? "1px solid #DBE3EA" : "none",
+                      }}
                     >
-                      <AlertTriangle size={15} className={`flex-shrink-0 ${isOverdue ? "text-red-500" : "text-amber-500"}`} />
                       <div className="min-w-0 flex-1">
-                        <div className="text-sm font-medium text-slate-800 truncate">{item.component_name}</div>
-                        <div className="text-xs text-slate-400">{item.system_name ?? "—"}</div>
+                        <div className="font-bold truncate" style={{ fontSize: 15, color: "#0B2942" }}>{item.name}</div>
+                        <div className="text-xs" style={{ color: "#5F7488" }}>
+                          {item.quantity} {item.unit ?? ""} remaining{item.minimum_quantity != null ? ` · min ${item.minimum_quantity}` : ""}
+                        </div>
                       </div>
-                      <span className={`text-xs font-medium flex-shrink-0 rounded-full border px-2 py-0.5 ${
-                        isOverdue ? "text-red-600 bg-red-50 border-red-200" : "text-amber-600 bg-amber-50 border-amber-200"
-                      }`}>
-                        {isOverdue ? "Overdue" : due ? `Due ${due}` : "Due soon"}
+                      <span className="badge flex-shrink-0" style={item.is_critical ? { background: "#E0342A", color: "#FFF" } : { background: "#D9A300", color: "#3D2A00" }}>
+                        {item.is_critical ? "MISSING" : "LOW"}
                       </span>
                     </Link>
-                  );
-                })}
-                {lowStockItems.slice(0, 4).map((item) => (
-                  <Link
-                    key={item.id}
-                    href={`/inventory/${item.id}`}
-                    className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 active:bg-slate-50"
-                  >
-                    <AlertTriangle size={15} className={`flex-shrink-0 ${item.is_critical ? "text-red-500" : "text-amber-500"}`} />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium text-slate-800 truncate">{item.name}</div>
-                      <div className="text-xs text-slate-400">
-                        {item.quantity} {item.unit ?? ""} remaining
-                        {item.minimum_quantity != null ? ` · min ${item.minimum_quantity}` : ""}
-                      </div>
-                    </div>
-                    <span className={`text-xs font-medium flex-shrink-0 rounded-full border px-2 py-0.5 ${
-                      item.is_critical ? "text-red-600 bg-red-50 border-red-200" : "text-amber-600 bg-amber-50 border-amber-200"
-                    }`}>
-                      {item.is_critical ? "Critical" : "Low stock"}
-                    </span>
-                  </Link>
-                ))}
-                {lowStockCount > 4 && (
-                  <Link href="/inventory" className="block px-4 py-2.5 text-xs text-ocean-600 font-medium border-t border-slate-100">
-                    +{lowStockCount - 4} more low-stock items →
-                  </Link>
-                )}
+                  ))}
+                  {lowStockCount > 4 && (
+                    <Link href="/inventory" className="block px-4 py-3 text-xs font-bold" style={{ color: "#0B7EB8", borderTop: "1px solid #DBE3EA" }}>
+                      +{lowStockCount - 4} more →
+                    </Link>
+                  )}
+                </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3.5 flex items-center gap-3 mx-4 animate-fade-up" style={{ animationDelay: "280ms" }}>
-                <CheckCircle size={18} className="text-green-600 flex-shrink-0" />
+              <div className="card px-4 py-3.5 flex items-center gap-3 mx-4 animate-fade-up" style={{ animationDelay: "280ms", background: "#E6F6EC", borderColor: "#A8DDB8" }}>
+                <CheckCircle size={18} className="flex-shrink-0" style={{ color: "#0E7A3D" } as React.CSSProperties} />
                 <div>
-                  <div className="text-sm font-semibold text-green-800">All clear</div>
-                  <div className="text-xs text-green-700 mt-0.5">No overdue maintenance or low-stock items.</div>
+                  <div className="font-bold" style={{ fontSize: 15, color: "#0B2942" }}>All clear</div>
+                  <div className="text-xs" style={{ color: "#5F7488" }}>No overdue maintenance or low-stock items.</div>
                 </div>
               </div>
             )}
 
-            {/* Quick prompts */}
-            <div className="pt-1 text-center space-y-3 px-4 animate-fade-up" style={{ animationDelay: "360ms" }}>
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Ask the assistant</p>
+            {/* Quick prompts — suggestion chips V2 */}
+            <div className="pt-1 px-4 animate-fade-up" style={{ animationDelay: "360ms" }}>
+              <p className="text-xs font-bold uppercase tracking-widest mb-3 text-center" style={{ color: "#5F7488", letterSpacing: "0.1em" }}>ASK THE ASSISTANT</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {quickPrompts.map(({ label, text }) => (
                   <button
                     key={label}
                     onClick={() => sendMessage({ text })}
-                    className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 active:bg-slate-50 shadow-sm"
+                    className="text-sm font-semibold active:opacity-70 transition-opacity"
+                    style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA", borderRadius: 8, padding: "8px 16px", color: "#46586A" }}
                   >
                     {label}
                   </button>
