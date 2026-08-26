@@ -1,9 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
 // Called right after login to set or clear the nautiq_remember cookie.
 // This cookie is read by middleware to decide whether auth cookies should
 // be persistent (with maxAge) or session-only (no maxAge).
 export async function POST(req: NextRequest) {
+  // 10 requests per IP per minute — covers normal login flows
+  if (!rateLimit(`auth-remember:${getClientIp(req)}`, 10, 60 * 1000)) {
+    return tooManyRequests();
+  }
   const { persist } = await req.json();
   const res = NextResponse.json({ ok: true });
 

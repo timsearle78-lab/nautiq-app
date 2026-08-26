@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { generateTripDraftFromAI } from "@/lib/ai/generateTripDraft";
 import { getBoatHealth } from "@/lib/components/health";
 import { HELP_SYSTEM_PROMPT } from "@/lib/help-content";
+import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
 async function logChatError(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -21,6 +22,11 @@ async function logChatError(
 }
 
 export async function POST(req: Request) {
+  // 30 messages per IP per 10 minutes
+  if (!rateLimit(`chat:${getClientIp(req)}`, 30, 10 * 60 * 1000)) {
+    return tooManyRequests();
+  }
+
   if (!process.env.ANTHROPIC_API_KEY) {
     return Response.json({ error: "ANTHROPIC_API_KEY is not configured on the server." }, { status: 500 });
   }

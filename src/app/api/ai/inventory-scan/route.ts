@@ -2,10 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateText } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
+import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
 const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
+  // 15 image scans per IP per 10 minutes (vision calls are expensive)
+  if (!rateLimit(`ai-inventory-scan:${getClientIp(req)}`, 15, 10 * 60 * 1000)) {
+    return tooManyRequests();
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
