@@ -445,7 +445,6 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       {scanningInventory && <NautiqSpinner overlay />}
       {/* Messages / health area */}
       <div className="flex-1 overflow-y-auto">
-        <WhatsNewCard hidden={hideWhatsNew} />
         {tripDrafts.map((draft) => (
           <EmailTripDraftCard
             key={draft.id}
@@ -476,6 +475,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
               overdueCount={overdueCount}
               engineHours={engineHours}
             />
+            <WhatsNewCard hidden={hideWhatsNew} />
             <GreetingCard boatId={boat.id} hidden={hideGreeting} />
 
             {/* Stat tiles — 2×2 grid */}
