@@ -178,7 +178,7 @@ export default async function TripsPage() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <h1 style={{ fontSize: 28, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>Trips</h1>
-            {boat && <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>{boat.name}</p>}
+            {boat && <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>{boat.name} · {trips.length} total</p>}
           </div>
           {boat && <AddTripButton boatId={boat.id} />}
         </div>

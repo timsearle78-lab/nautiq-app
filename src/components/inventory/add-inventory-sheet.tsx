@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X, Package } from "lucide-react";
+import { X, Package } from "lucide-react";
 import { AddInventoryItemForm } from "./add-inventory-item-form";
 
 type ComponentOption = { id: string; name: string };
@@ -30,8 +30,7 @@ export function AddInventorySheet({
         onClick={() => setOpen(true)}
         className="flex items-center gap-1.5 rounded-xl btn-amber px-4 py-2.5 text-sm font-semibold transition"
       >
-        <Plus size={16} />
-        Add item
+        + Add
       </button>
 
       {open && (

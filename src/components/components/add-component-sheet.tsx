@@ -1,7 +1,7 @@
 "use client";
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X, Wrench } from "lucide-react";
+import { X, Wrench } from "lucide-react";
 import { AddComponentForm } from "./add-component-form";
 
 type SystemOption = { id: string; name: string };
@@ -29,8 +29,7 @@ export function AddComponentSheet({
         onClick={() => setOpen(true)}
         className="flex items-center gap-1.5 rounded-xl btn-amber px-4 py-2.5 text-sm font-semibold transition"
       >
-        <Plus size={16} />
-        Add component
+        + Add
       </button>
 
       {open && (
