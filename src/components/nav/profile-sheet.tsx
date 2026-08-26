@@ -98,7 +98,6 @@ export default function ProfileSheet({ email, initials, isAdmin, boats = [], sel
                         <input type="hidden" name="return_to" value="/chat" />
                         <button
                           type="submit"
-                          onClick={onClose}
                           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left"
                           style={{
                             background: isActive ? "#0B2942" : "#F4F7FA",
