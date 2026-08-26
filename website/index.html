@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NautIQ</title>
+<meta name="description" content="Intelligent boat ownership — maintenance, trips, and inventory in one place. Coming soon to nautiq.cloud." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:   #0B2942;
+    --amber:  #FFC730;
+    --amber-dark: #D9A300;
+    --cyan:   #0B7EB8;
+    --bg:     #F4F7FA;
+    --surface:#FFFFFF;
+    --border: #DBE3EA;
+    --text:   #0B2942;
+    --muted:  #8FB3CC;
+    --on-navy-muted: rgba(255,255,255,0.55);
+    --body-bg: var(--bg);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:      #07182A;
+      --surface: #0D2438;
+      --border:  #1A3550;
+      --text:    #E8F0F7;
+      --muted:   #5A88A8;
+      --body-bg: var(--bg);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:      #07182A;
+    --surface: #0D2438;
+    --border:  #1A3550;
+    --text:    #E8F0F7;
+    --muted:   #5A88A8;
+    --body-bg: var(--bg);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--body-bg);
+    color: var(--text);
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--navy);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px 64px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle ambient circle */
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(11,126,184,0.12) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    pointer-events: none;
+  }
+
+  .logo-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--navy);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-wordmark {
+    font-size: 22px;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.02em;
+  }
+
+  .logo-wordmark span {
+    color: var(--amber);
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-size: clamp(42px, 8vw, 80px);
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    max-width: 700px;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--amber);
+  }
+
+  .hero-sub {
+    font-size: clamp(16px, 2.5vw, 20px);
+    font-weight: 500;
+    color: var(--on-navy-muted);
+    max-width: 480px;
+    line-height: 1.6;
+    margin-bottom: 48px;
+    text-wrap: balance;
+  }
+
+  /* Email form */
+  .form-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 420px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .form-row input[type="email"] {
+    flex: 1;
+    min-width: 220px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.08);
+    color: #FFFFFF;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-row input[type="email"]::placeholder {
+    color: rgba(255,255,255,0.35);
+  }
+
+  .form-row input[type="email"]:focus {
+    border-color: var(--amber);
+  }
+
+  .btn-amber {
+    padding: 14px 24px;
+    border-radius: 12px;
+    background: var(--amber);
+    color: #3D2A00;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+
+  .btn-amber:hover { opacity: 0.88; }
+  .btn-amber:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  .form-note {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--on-navy-muted);
+  }
+
+  .success-msg {
+    display: none;
+    color: var(--amber);
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--on-navy-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%       { transform: translateX(-50%) translateY(5px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-hint { animation: none; }
+  }
+
+  /* ── Features ── */
+  .features {
+    padding: 80px 24px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 40px;
+    text-align: center;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .feature-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    padding: 28px 24px;
+  }
+
+  .feature-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--navy);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .feature-card h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+
+  .feature-card p {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1.5px solid var(--border);
+    padding: 28px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .footer-brand {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .footer-brand span { color: var(--cyan); }
+
+  footer p {
+    font-size: 13px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="logo-mark">
+    <div class="logo-icon">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+        <circle cx="50" cy="18" r="11" fill="#FFC730"/>
+        <line x1="50" y1="29" x2="50" y2="84" stroke="white" stroke-width="8" stroke-linecap="round"/>
+        <line x1="24" y1="46" x2="76" y2="46" stroke="white" stroke-width="8" stroke-linecap="round"/>
+        <path d="M14 60 C14 80 30 88 50 88 C70 88 86 80 86 60" stroke="white" stroke-width="8" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <span class="logo-wordmark">Naut<span>IQ</span></span>
+  </div>
+
+  <p class="eyebrow">Coming soon</p>
+
+  <h1>Smarter boat<br />ownership starts here</h1>
+
+  <p class="hero-sub">
+    Maintenance tracking, trip logging, and parts inventory — all in one place. Built for people who take their boat seriously.
+  </p>
+
+  <form class="form-row" id="waitlist-form" onsubmit="handleSubmit(event)">
+    <input type="email" placeholder="your@email.com" required autocomplete="email" aria-label="Email address" />
+    <button type="submit" class="btn-amber">Get early access</button>
+  </form>
+  <p class="form-note">No spam. We'll reach out when we're ready for you.</p>
+  <p class="success-msg" id="success-msg">You're on the list — we'll be in touch.</p>
+
+  <div class="scroll-hint" aria-hidden="true">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <path d="M12 5v14M5 12l7 7 7-7"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ── Features ── -->
+<section class="features">
+  <p class="section-label">What's inside</p>
+  <div class="feature-grid">
+
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC730" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
+          <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+          <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
+          <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
+          <path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/>
+          <path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
+          <path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/>
+          <path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/>
+        </svg>
+      </div>
+      <h3>Maintenance tracking</h3>
+      <p>Log services, set intervals, and get reminded before things become problems. Your boat's full history, always at hand.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC730" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 17l1.5-7.5L12 3l7.5 6.5L21 17"/>
+          <path d="M3 17h18"/>
+          <path d="M9 17v-4h6v4"/>
+        </svg>
+      </div>
+      <h3>Trip logging</h3>
+      <p>Record where you went, how long you ran the engine, and how much fuel you burned. Build a picture of how you use your boat.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC730" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 8h14M5 12h14M5 16h6"/>
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+        </svg>
+      </div>
+      <h3>Spares inventory</h3>
+      <p>Know exactly what's aboard before you leave the dock. Track critical spares, consumables, and get alerts when stock runs low.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <span class="footer-brand">Naut<span>IQ</span></span>
+  <p>© 2026 NautIQ. All rights reserved.</p>
+</footer>
+
+<script>
+function handleSubmit(e) {
+  e.preventDefault();
+  const form = document.getElementById('waitlist-form');
+  const msg = document.getElementById('success-msg');
+  form.style.display = 'none';
+  document.querySelector('.form-note').style.display = 'none';
+  msg.style.display = 'block';
+}
+</script>
+</body>
+</html>
