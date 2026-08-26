@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "https://nautiq.cloud",
@@ -16,6 +17,11 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
   .filter(Boolean);
 
 export async function POST(req: Request) {
+  // 5 signups per IP per hour
+  if (!rateLimit(`waitlist:${getClientIp(req)}`, 5, 60 * 60 * 1000)) {
+    return tooManyRequests(CORS_HEADERS);
+  }
+
   let email: string;
   try {
     const body = await req.json();

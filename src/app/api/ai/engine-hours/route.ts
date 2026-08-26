@@ -3,6 +3,7 @@ import { generateObject } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
 const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -14,6 +15,11 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // 20 AI engine-hour reads per IP per 10 minutes
+  if (!rateLimit(`ai-engine-hours:${getClientIp(req)}`, 20, 10 * 60 * 1000)) {
+    return tooManyRequests();
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
