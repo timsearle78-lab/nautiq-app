@@ -101,6 +101,7 @@ export default function ProfileSheet({ email, initials, isAdmin, boats = [], sel
                         onClick={async () => {
                           if (isActive) return;
                           setSwitchingBoatId(boat.id);
+                          onClose();
                           const fd = new FormData();
                           fd.append("boat_id", boat.id);
                           fd.append("return_to", "/chat");
