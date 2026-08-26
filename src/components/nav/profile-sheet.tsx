@@ -21,6 +21,7 @@ interface ProfileSheetProps {
 export default function ProfileSheet({ email, initials, isAdmin, boats = [], selectedBoatId = "", onClose }: ProfileSheetProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [switchingBoatId, setSwitchingBoatId] = useState<string | null>(null);
   const [showChangelog, setShowChangelog] = useState(false);
 
   async function handleSignOut() {
@@ -92,29 +93,45 @@ export default function ProfileSheet({ email, initials, isAdmin, boats = [], sel
                 <div className="space-y-1">
                   {boats.map((boat) => {
                     const isActive = boat.id === selectedBoatId;
+                    const isSwitching = switchingBoatId === boat.id;
                     return (
-                      <form key={boat.id} action={selectBoat}>
-                        <input type="hidden" name="boat_id" value={boat.id} />
-                        <input type="hidden" name="return_to" value="/chat" />
-                        <button
-                          type="submit"
-                          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left"
-                          style={{
-                            background: isActive ? "#0B2942" : "#F4F7FA",
-                            border: `1.5px solid ${isActive ? "#0B2942" : "#DBE3EA"}`,
-                          }}
-                        >
+                      <button
+                        key={boat.id}
+                        disabled={!!switchingBoatId}
+                        onClick={async () => {
+                          if (isActive) return;
+                          setSwitchingBoatId(boat.id);
+                          const fd = new FormData();
+                          fd.append("boat_id", boat.id);
+                          fd.append("return_to", "/chat");
+                          await selectBoat(fd);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left"
+                        style={{
+                          background: isActive ? "#0B2942" : isSwitching ? "#EBF2F8" : "#F4F7FA",
+                          border: `1.5px solid ${isActive ? "#0B2942" : isSwitching ? "#0B7EB8" : "#DBE3EA"}`,
+                          opacity: switchingBoatId && !isSwitching ? 0.5 : 1,
+                        }}
+                      >
+                        {isSwitching ? (
+                          <span style={{
+                            width: 15, height: 15, flexShrink: 0,
+                            border: "2px solid #DBE3EA", borderTopColor: "#0B7EB8",
+                            borderRadius: "50%", display: "inline-block",
+                            animation: "spin 0.7s linear infinite",
+                          }} />
+                        ) : (
                           <Anchor size={15} style={{ color: isActive ? "#FFC730" : "#8FB3CC", flexShrink: 0 }} />
-                          <span style={{ fontSize: 14, fontWeight: 700, color: isActive ? "#FFFFFF" : "#0B2942" }}>
-                            {boat.name}
+                        )}
+                        <span style={{ fontSize: 14, fontWeight: 700, color: isActive ? "#FFFFFF" : isSwitching ? "#0B7EB8" : "#0B2942" }}>
+                          {isSwitching ? "Switching…" : boat.name}
+                        </span>
+                        {isActive && !isSwitching && (
+                          <span className="ml-auto rounded-full px-2 py-0.5" style={{ fontSize: 11, fontWeight: 700, background: "#FFC730", color: "#3D2A00" }}>
+                            Active
                           </span>
-                          {isActive && (
-                            <span className="ml-auto rounded-full px-2 py-0.5" style={{ fontSize: 11, fontWeight: 700, background: "#FFC730", color: "#3D2A00" }}>
-                              Active
-                            </span>
-                          )}
-                        </button>
-                      </form>
+                        )}
+                      </button>
                     );
                   })}
                 </div>
