@@ -26,25 +26,13 @@ type ComponentPageProps = {
 function statusLabel(status: "ok" | "due_soon" | "overdue" | "unknown") {
   switch (status) {
     case "ok":
-      return {
-        text: "OK",
-        className: "text-green-600 bg-green-50 border border-green-200",
-      };
+      return { text: "OK", bg: "#0E7A3D", fg: "#FFFFFF", labelFg: "rgba(255,255,255,0.7)" };
     case "due_soon":
-      return {
-        text: "Due soon",
-        className: "text-amber-600 bg-amber-50 border border-amber-200",
-      };
+      return { text: "Due soon", bg: "#D9A300", fg: "#3D2A00", labelFg: "rgba(61,42,0,0.6)" };
     case "overdue":
-      return {
-        text: "Overdue",
-        className: "text-red-600 bg-red-50 border border-red-200",
-      };
+      return { text: "Overdue", bg: "#E0342A", fg: "#FFFFFF", labelFg: "rgba(255,255,255,0.7)" };
     default:
-      return {
-        text: "Unknown",
-        className: "text-slate-500 bg-slate-50 border border-slate-200",
-      };
+      return { text: "Unknown", bg: "#F4F7FA", fg: "#8FB3CC", labelFg: "#8FB3CC" };
   }
 }
 
@@ -128,12 +116,12 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           </div>
         </div>
 
-        <div className={`rounded-xl p-4 min-w-[220px] ${status.className}`}>
-          <div className="text-sm font-medium opacity-70">Health status</div>
-          <div className="mt-2 text-2xl font-semibold">
+        <div className="rounded-xl p-4 min-w-[220px]" style={{ background: status.bg, border: `1.5px solid ${status.bg}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: status.labelFg }}>Health status</div>
+          <div style={{ marginTop: 6, fontSize: 24, fontWeight: 800, color: status.fg }}>
             {status.text}
           </div>
-          <div className="mt-2 text-sm opacity-70">
+          <div style={{ marginTop: 6, fontSize: 13, color: status.labelFg }}>
             Score: {health.score ?? "—"}
           </div>
         </div>
