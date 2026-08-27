@@ -7,6 +7,14 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-08-27",
+    label: "August 2026 update",
+    features: [
+      "Tap the Home icon to instantly clear the chat and return to the home screen",
+      "App layout is now capped at 1040 px on desktop for a more focused, readable experience",
+    ],
+  },
+  {
     date: "2026-08-26",
     label: "August 2026 update",
     features: [

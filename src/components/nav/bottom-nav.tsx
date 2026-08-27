@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Home, Wrench } from "lucide-react";
 import ProfileSheet from "./profile-sheet";
 import NautiqAnchorIcon from "@/components/ui/nautiq-anchor-icon";
@@ -30,6 +30,7 @@ interface BottomNavProps {
 
 export default function BottomNav({ userEmail, userInitials, isAdmin, boats = [], selectedBoatId = "" }: BottomNavProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [profileOpen, setProfileOpen] = useState(false);
 
   const tabs = [
@@ -64,12 +65,9 @@ export default function BottomNav({ userEmail, userInitials, isAdmin, boats = []
         <div className="flex mx-auto w-full max-w-[1040px]" style={{ height: 60 }}>
           {tabs.map(({ href, label, renderIcon }) => {
             const active = pathname === href || (href !== "/chat" && pathname.startsWith(href));
-            return (
-              <Link
-                key={href}
-                href={href}
-                className="relative flex flex-1 flex-col items-center justify-center gap-1 transition-opacity active:opacity-70"
-              >
+            const isHome = href === "/chat";
+            const sharedContent = (
+              <>
                 {renderIcon(active)}
                 <span
                   style={{
@@ -88,6 +86,32 @@ export default function BottomNav({ userEmail, userInitials, isAdmin, boats = []
                     style={{ width: 28, height: 2.5, background: "#FFC730" }}
                   />
                 )}
+              </>
+            );
+            if (isHome) {
+              return (
+                <button
+                  key={href}
+                  onClick={() => {
+                    if (pathname === "/chat") {
+                      window.dispatchEvent(new CustomEvent("nautiq:reset-chat"));
+                    } else {
+                      router.push("/chat");
+                    }
+                  }}
+                  className="relative flex flex-1 flex-col items-center justify-center gap-1 transition-opacity active:opacity-70"
+                >
+                  {sharedContent}
+                </button>
+              );
+            }
+            return (
+              <Link
+                key={href}
+                href={href}
+                className="relative flex flex-1 flex-col items-center justify-center gap-1 transition-opacity active:opacity-70"
+              >
+                {sharedContent}
               </Link>
             );
           })}
