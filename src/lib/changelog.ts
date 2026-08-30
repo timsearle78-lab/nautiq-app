@@ -7,6 +7,15 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-08-30",
+    label: "August 2026 update",
+    features: [
+      "Log a boat visit — use Quick Actions → Log Visit to record when you check on your boat, even without a trip. Keeps your health score accurate and your boat ready to go",
+      "Health score now accounts for inactivity — if your boat hasn't been visited, used, or serviced in 30+ days, the health score drops as a reminder to check in",
+      "Home screen shows how long since your last visit in the health panel",
+    ],
+  },
+  {
     date: "2026-08-27",
     label: "August 2026 update",
     features: [

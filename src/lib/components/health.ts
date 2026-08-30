@@ -172,7 +172,7 @@ export type BoatHealthRow = {
 export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseClient): Promise<BoatHealthRow[]> {
   const supabase = supabaseClient ?? await createClient();
 
-  const [{ data: componentsData }, { data: tripsData }, { data: inventoryData }] = await Promise.all([
+  const [{ data: componentsData }, { data: tripsData }, { data: inventoryData }, { data: latestTripData }, { data: latestMaintenanceData }, { data: latestCheckinData }] = await Promise.all([
     supabase
       .from("components")
       .select("id, name, install_date, service_interval_years, service_interval_months, service_interval_days, service_interval_engine_hours, system:systems(id, name)")
@@ -188,6 +188,26 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
       .from("inventory_items")
       .select("component_id, quantity, minimum_quantity, is_critical, expiry_date")
       .eq("boat_id", boatId),
+    supabase
+      .from("trips")
+      .select("started_at")
+      .eq("boat_id", boatId)
+      .not("started_at", "is", null)
+      .order("started_at", { ascending: false })
+      .limit(1),
+    supabase
+      .from("maintenance_events")
+      .select("performed_at, components!inner(boat_id)")
+      .eq("components.boat_id", boatId)
+      .not("performed_at", "is", null)
+      .order("performed_at", { ascending: false })
+      .limit(1),
+    supabase
+      .from("boat_checkins")
+      .select("checked_at")
+      .eq("boat_id", boatId)
+      .order("checked_at", { ascending: false })
+      .limit(1),
   ]);
 
   if (!componentsData || componentsData.length === 0) return [];
@@ -378,6 +398,49 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
       months_until_due: null,
       predicted_due_date: null,
     });
+  }
+
+  // Inactivity penalty — penalise when the boat hasn't been visited, used, or
+  // serviced recently. "Last activity" = latest of: trip, maintenance event, check-in.
+  const lastTripDate = (latestTripData?.[0] as { started_at: string } | undefined)?.started_at ?? null;
+  const lastMaintenanceDate = (latestMaintenanceData?.[0] as { performed_at: string } | undefined)?.performed_at ?? null;
+  const lastCheckinDate = (latestCheckinData?.[0] as { checked_at: string } | undefined)?.checked_at ?? null;
+
+  const activityDates = [lastTripDate, lastMaintenanceDate, lastCheckinDate]
+    .filter((d): d is string => d != null)
+    .map((d) => d.slice(0, 10))
+    .sort()
+    .reverse();
+
+  if (activityDates.length > 0) {
+    const daysSinceActivity = daysBetween(activityDates[0]);
+    let inactivityPenalty = 0;
+    let inactivityStatus = "ok";
+
+    if (daysSinceActivity >= 90) {
+      inactivityPenalty = 60;
+      inactivityStatus = "overdue";
+    } else if (daysSinceActivity >= 60) {
+      inactivityPenalty = 35;
+      inactivityStatus = "overdue";
+    } else if (daysSinceActivity >= 30) {
+      inactivityPenalty = 15;
+      inactivityStatus = "due soon";
+    }
+
+    if (inactivityPenalty > 0) {
+      componentRows.push({
+        component_id: "__inactivity__",
+        component_name: "Boat activity",
+        system_name: "General",
+        risk_score: inactivityPenalty,
+        status: inactivityStatus,
+        hours_since_service: null,
+        hours_until_due: null,
+        months_until_due: null,
+        predicted_due_date: null,
+      });
+    }
   }
 
   return componentRows;

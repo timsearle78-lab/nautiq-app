@@ -53,6 +53,7 @@ interface ChatInterfaceProps {
   hideWhatsNew: boolean;
   hasTrips: boolean;
   hasInventory: boolean;
+  lastActivityDate: string | null;
 }
 
 function useCountUp(target: number, decimals = 0, duration = 650) {
@@ -101,12 +102,22 @@ function getHealthHeadline(score: number, overdueCount: number) {
   return "Ship shape.";
 }
 
-function NavyHero({ boat, healthScore, overdueCount, engineHours }: {
+function daysSince(isoDate: string) {
+  const from = new Date(isoDate);
+  const now = new Date();
+  return Math.max(0, Math.floor((now.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)));
+}
+
+function NavyHero({ boat, healthScore, overdueCount, engineHours, lastActivityDate }: {
   boat: Boat;
   healthScore: number;
   overdueCount: number;
   engineHours: number;
+  lastActivityDate: string | null;
 }) {
+  const daysSinceActivity = lastActivityDate ? daysSince(lastActivityDate) : null;
+  const activityWarning = daysSinceActivity != null && daysSinceActivity >= 30;
+
   return (
     <div className="w-full px-4 pt-5 pb-5" style={{ background: "#0B2942" }}>
       <div className="flex items-center gap-4">
@@ -138,6 +149,19 @@ function NavyHero({ boat, healthScore, overdueCount, engineHours }: {
                 style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)" }}
               >
                 {engineHours.toFixed(1)}h engine
+              </span>
+            )}
+            {daysSinceActivity != null && (
+              <span
+                className="rounded-full px-2.5 py-1"
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  background: activityWarning ? "rgba(224,52,42,0.25)" : "rgba(255,255,255,0.1)",
+                  color: activityWarning ? "#FF9B96" : "rgba(255,255,255,0.7)",
+                }}
+              >
+                Last visit: {daysSinceActivity === 0 ? "today" : `${daysSinceActivity}d ago`}
               </span>
             )}
             <Link
@@ -234,7 +258,7 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
   );
 }
 
-export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, hideGreeting, hideWhatsNew, hasTrips, hasInventory }: ChatInterfaceProps) {
+export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, hideGreeting, hideWhatsNew, hasTrips, hasInventory, lastActivityDate }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -454,6 +478,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
               healthScore={animHealthScore as number}
               overdueCount={overdueCount}
               engineHours={engineHours}
+              lastActivityDate={lastActivityDate}
             />
             {/* Action cards below health */}
             {tripDrafts.map((draft) => (

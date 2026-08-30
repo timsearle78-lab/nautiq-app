@@ -265,6 +265,27 @@ Page loading: When the app is loading a new page or saving a record, a spinning 
 
 Bottom navigation: The five tabs at the bottom of the screen take you to Home, Trips, Maintain, Inventory, and Profile. The Profile tab gives access to settings, the boat report, and this help guide.`,
   },
+  {
+    id: "checkins",
+    title: "Logging a boat visit",
+    content: `Even when you don't take your boat out, regular check-ins keep your health score accurate and remind you to inspect the boat before problems develop.
+
+How to log a visit:
+1. Tap the ☰ menu icon in the top-left corner to open Quick Actions.
+2. Tap "Log Visit".
+3. Enter the date of your visit (defaults to today) and an optional note about what you checked or noticed.
+4. Tap "Save visit".
+
+The Home screen will update to show "Last visit: today" (or the number of days since your last visit) in the navy health panel.
+
+How visits affect your health score:
+- 0–29 days since last activity: no penalty
+- 30–59 days: mild penalty (score decreases slightly, shown as "due soon")
+- 60–89 days: moderate penalty (score decreases more, shown as "overdue")
+- 90+ days: significant penalty (large drop in health score)
+
+"Activity" includes any logged trip, saved maintenance record, or check-in — whichever happened most recently.`,
+  },
 ];
 
 // Compact version injected into the AI chat system prompt.
@@ -312,4 +333,8 @@ SIGN IN: On the login page there is a "Stay signed in on this device" toggle (on
 COST TRACKING: Add a cost when logging maintenance (the "Cost" field in the log form or chat draft card) or when restocking inventory (the "Cost paid" field in the restock card). All costs are visible in Profile → Cost tracker, which shows total spend by year, broken down into maintenance vs parts. Useful for understanding total cost of ownership and for resale documentation.
 
 WELCOME GREETING / PBA: Each time you open the Home screen, your personal boat assistant (PBA) greets you with a personalised summary — recent activity, health status, trip encouragement, and maintenance reminders. The card can be dismissed. You can also ask "give me an update", "how's my boat doing", or "what's new" at any time in chat to get the same personalised briefing.
+
+BOAT VISITS / CHECK-INS: Even if you don't take a trip, you should log a visit when you go to check on your boat. Open the Quick Actions menu (☰ icon, top left) and tap "Log Visit." Enter the date and an optional note. Regular visits prevent the health score from dropping due to inactivity — the score decreases if your boat hasn't been visited, used, or serviced in 30+ days. The Home screen shows "Last visit: Xd ago" in the health panel so you can see at a glance when you were last aboard.
+
+HOME ICON: Tapping the Home tab in the bottom navigation when you're already on the Home screen resets the chat and returns you to the health overview — useful for starting a fresh conversation without navigating away.
 `.trim();

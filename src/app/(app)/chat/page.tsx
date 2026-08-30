@@ -42,7 +42,7 @@ export default async function ChatPage() {
 
   if (!boat) redirect("/onboarding");
 
-  const [engineHoursRes, health, componentsRes, inventoryRes, tripsCountRes, pendingDrafts, pendingTripDrafts, userSettingsRes] = await Promise.all([
+  const [engineHoursRes, health, componentsRes, inventoryRes, tripsCountRes, pendingDrafts, pendingTripDrafts, userSettingsRes, lastTripRes, lastCheckinRes] = await Promise.all([
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
     getBoatHealth(boat.id),
     supabase.from("components").select("id, name").eq("boat_id", boat.id).order("name"),
@@ -51,6 +51,8 @@ export default async function ChatPage() {
     getPendingDrafts(),
     getPendingTripDrafts(),
     supabase.from("user_settings").select("hide_greeting, hide_whats_new").eq("user_id", user.id).single(),
+    supabase.from("trips").select("started_at").eq("boat_id", boat.id).not("started_at", "is", null).order("started_at", { ascending: false }).limit(1),
+    supabase.from("boat_checkins").select("checked_at").eq("boat_id", boat.id).order("checked_at", { ascending: false }).limit(1),
   ]);
 
   const components = (componentsRes.data ?? []) as { id: string; name: string }[];
@@ -65,6 +67,11 @@ export default async function ChatPage() {
 
   const engineHours = (engineHoursRes.data as number) ?? 0;
   const userSettings = userSettingsRes.data as { hide_greeting: boolean; hide_whats_new: boolean } | null;
+
+  // Last activity date: latest of last trip or last check-in
+  const lastTripDate = (lastTripRes.data?.[0] as { started_at: string } | undefined)?.started_at?.slice(0, 10) ?? null;
+  const lastCheckinDate = (lastCheckinRes.data?.[0] as { checked_at: string } | undefined)?.checked_at?.slice(0, 10) ?? null;
+  const lastActivityDate = [lastTripDate, lastCheckinDate].filter(Boolean).sort().reverse()[0] ?? null;
   const hideGreeting = userSettings?.hide_greeting ?? false;
   const hideWhatsNew = userSettings?.hide_whats_new ?? false;
 
@@ -102,6 +109,7 @@ export default async function ChatPage() {
       hideWhatsNew={hideWhatsNew}
       hasTrips={hasTrips}
       hasInventory={hasInventory}
+      lastActivityDate={lastActivityDate}
     />
   );
 }

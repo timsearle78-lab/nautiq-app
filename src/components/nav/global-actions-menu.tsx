@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { X, ScanLine, PackagePlus, PackageMinus, Plus, DollarSign } from "lucide-react";
+import { X, ScanLine, PackagePlus, PackageMinus, Plus, DollarSign, Anchor } from "lucide-react";
 import TripTimerButton from "@/components/nav/trip-timer-button";
 import LogTripSheet from "@/components/chat/log-trip-sheet";
 import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
+import LogCheckinSheet from "@/components/checkins/log-checkin-sheet";
 
 interface GlobalActionsMenuProps {
   boatId: string;
@@ -23,6 +24,7 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
   const [open, setOpen] = useState(false);
   const [showTrip, setShowTrip] = useState(false);
   const [showMaintenance, setShowMaintenance] = useState(false);
+  const [showCheckin, setShowCheckin] = useState(false);
   const [components, setComponents] = useState<ComponentOption[]>([]);
   const [inventory, setInventory] = useState<InventoryOption[]>([]);
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -62,7 +64,7 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
     }
   }
 
-  if (!open && !showTrip && !showMaintenance) return null;
+  if (!open && !showTrip && !showMaintenance && !showCheckin) return null;
 
   return (
     <>
@@ -105,6 +107,14 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
                 >
                   <Plus size={16} />
                   Log Maintenance
+                </button>
+
+                <button
+                  onClick={act(() => setShowCheckin(true))}
+                  className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+                >
+                  <Anchor size={16} />
+                  Log Visit
                 </button>
 
                 <button
@@ -164,6 +174,14 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
           inventoryOptions={inventory}
           onClose={() => setShowMaintenance(false)}
           onSaved={() => { setShowMaintenance(false); router.refresh(); }}
+        />
+      )}
+
+      {showCheckin && (
+        <LogCheckinSheet
+          boatId={boatId}
+          onClose={() => setShowCheckin(false)}
+          onSaved={() => { setShowCheckin(false); router.refresh(); }}
         />
       )}
     </>
