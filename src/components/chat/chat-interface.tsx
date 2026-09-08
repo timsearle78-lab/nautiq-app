@@ -277,10 +277,10 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const onTripSaved = useCallback(() => router.refresh(), [router]);
 
   const lowCriticalItems = inventoryItems.filter(
-    (i) => i.minimum_quantity != null && i.quantity <= i.minimum_quantity && i.is_critical
+    (i) => i.minimum_quantity != null && i.quantity < i.minimum_quantity && i.is_critical
   );
   const lowStockItems = inventoryItems.filter(
-    (i) => i.minimum_quantity != null && i.quantity <= i.minimum_quantity
+    (i) => i.minimum_quantity != null && i.quantity < i.minimum_quantity
   );
   const lowCriticalCount = lowCriticalItems.length;
   const lowStockCount = lowStockItems.length;
@@ -615,8 +615,8 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                           {item.quantity} {item.unit ?? ""} remaining{item.minimum_quantity != null ? ` · min ${item.minimum_quantity}` : ""}
                         </div>
                       </div>
-                      <span className="badge flex-shrink-0" style={item.is_critical ? { background: "#E0342A", color: "#FFF" } : { background: "#D9A300", color: "#3D2A00" }}>
-                        {item.is_critical ? "MISSING" : "LOW"}
+                      <span className="badge flex-shrink-0" style={item.is_critical && item.quantity <= 0 ? { background: "#E0342A", color: "#FFF" } : { background: "#D9A300", color: "#3D2A00" }}>
+                        {item.is_critical && item.quantity <= 0 ? "MISSING" : "LOW"}
                       </span>
                     </Link>
                   ))}
