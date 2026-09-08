@@ -119,18 +119,20 @@ export default async function HealthPage() {
     return aSev - bSev;
   });
 
-  // Filter out synthetic __inventory__ row from component list display
-  const realHealth = health.filter((r) => r.component_id !== "__inventory__");
+  // Filter out synthetic rows from component list display
+  const realHealth = health.filter((r) => r.component_id !== "__inventory__" && r.component_id !== "__inactivity__");
 
   const overdue = realHealth.filter((r) => normalizeStatus(r.status) === "overdue");
   const dueSoon = realHealth.filter((r) => normalizeStatus(r.status) === "due_soon");
   const ok = realHealth.filter((r) => normalizeStatus(r.status) === "ok");
 
-  const knownHealth = health.filter((r) => r.risk_score != null);
-  const avgRisk = knownHealth.length > 0
-    ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
+  const inactivityRow = health.find((r) => r.component_id === "__inactivity__");
+  const inactivityPenalty = inactivityRow?.risk_score ?? 0;
+  const componentHealth = health.filter((r) => r.risk_score != null && r.component_id !== "__inactivity__");
+  const avgRisk = componentHealth.length > 0
+    ? componentHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / componentHealth.length
     : 0;
-  const healthScore = Math.max(0, Math.round(100 - avgRisk));
+  const healthScore = Math.max(0, Math.round(100 - avgRisk - inactivityPenalty));
 
   const hasIssues = overdue.length > 0 || dueSoon.length > 0 || inventoryIssues.length > 0;
 
@@ -146,6 +148,10 @@ export default async function HealthPage() {
   if (outCount > 0) scoreReasons.push(`${outCount} item${outCount !== 1 ? "s" : ""} out of stock`);
   if (expiringCount > 0) scoreReasons.push(`${expiringCount} item${expiringCount !== 1 ? "s" : ""} expiring within 90 days`);
   if (lowCount > 0) scoreReasons.push(`${lowCount} item${lowCount !== 1 ? "s" : ""} below minimum stock`);
+  if (inactivityRow) {
+    const daysSinceLabel = inactivityRow.status === "overdue" ? "overdue" : "due soon";
+    scoreReasons.push(`boat activity ${daysSinceLabel} — no trips, maintenance, or visits logged recently`);
+  }
 
   return (
     <main className="space-y-5">

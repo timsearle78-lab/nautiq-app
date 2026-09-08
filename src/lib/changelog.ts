@@ -7,6 +7,15 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-09-08",
+    label: "September 2026 update",
+    features: [
+      "Inactivity penalty now always has a meaningful impact — the health score drops noticeably if you haven't visited, used, or serviced the boat in 30+ days, regardless of how many healthy components you have",
+      "Health page now explains why your score is what it is — including inactivity, overdue maintenance, and inventory issues",
+      "Ask the AI 'explain my health score' for a full breakdown of every factor",
+    ],
+  },
+  {
     date: "2026-08-30",
     label: "August 2026 update",
     features: [

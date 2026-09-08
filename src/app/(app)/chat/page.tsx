@@ -75,11 +75,15 @@ export default async function ChatPage() {
   const hideGreeting = userSettings?.hide_greeting ?? false;
   const hideWhatsNew = userSettings?.hide_whats_new ?? false;
 
-  const knownHealth = health.filter((r) => r.risk_score != null);
-  const avgRisk = knownHealth.length > 0
-    ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
+  // Inactivity is applied as a direct deduction (not averaged) so it always
+  // meaningfully lowers the score regardless of how many healthy components exist.
+  const inactivityRow = health.find((r) => r.component_id === "__inactivity__");
+  const inactivityPenalty = inactivityRow?.risk_score ?? 0;
+  const componentHealth = health.filter((r) => r.risk_score != null && r.component_id !== "__inactivity__");
+  const avgRisk = componentHealth.length > 0
+    ? componentHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / componentHealth.length
     : 0;
-  const healthScore = Math.max(0, Math.round(100 - avgRisk));
+  const healthScore = Math.max(0, Math.round(100 - avgRisk - inactivityPenalty));
 
   const overdueCount = health.filter((r) => normalizeStatus(r.status) === "overdue").length;
   const dueSoonCount = health.filter((r) => normalizeStatus(r.status) === "due_soon").length;

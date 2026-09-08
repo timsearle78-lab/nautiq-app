@@ -239,8 +239,11 @@ The PDF is generated on your device and saved automatically to your downloads fo
     content: `The health score (0–100) represents the overall condition of your boat's maintenance. A score of 100 means everything is within service intervals and well-stocked. The score drops as components approach or exceed their service intervals, or when linked spare parts run low.
 
 How the score is calculated:
-- Each component gets a risk score based on how far through its service interval it is (time and/or engine hours), plus a penalty if linked spares are low (out of stock: +25, below minimum: +15, at minimum: +5).
-- The boat health score is 100 minus the average component risk score.
+- Each component gets a risk score based on how far through its service interval it is (time and/or engine hours). Components that are more than 85% through their interval are marked "due soon" and start contributing risk; overdue components contribute more (quadratic scale).
+- Inventory penalties are added to a component's risk if linked spares are low (out of stock: +25–40, below minimum: +15–25, at minimum: +5–10 — critical items are penalised more).
+- The component risk scores are averaged and subtracted from 100.
+- An inactivity penalty is then subtracted directly (not averaged): −15 pts if no trips, maintenance, or visits in 30–59 days; −35 pts for 60–89 days; −60 pts for 90+ days. This always has a visible impact.
+- The Health page shows a "Why X/100?" explanation listing the reasons. You can also ask the AI "explain my health score" for a full breakdown.
 
 The score and breakdown are shown on the Home screen and in the health banner at the top of the chat.
 
@@ -337,4 +340,9 @@ WELCOME GREETING / PBA: Each time you open the Home screen, your personal boat a
 BOAT VISITS / CHECK-INS: Even if you don't take a trip, you should log a visit when you go to check on your boat. Open the Quick Actions menu (☰ icon, top left) and tap "Log Visit." Enter the date and an optional note. Regular visits prevent the health score from dropping due to inactivity — the score decreases if your boat hasn't been visited, used, or serviced in 30+ days. The Home screen shows "Last visit: Xd ago" in the health panel so you can see at a glance when you were last aboard.
 
 HOME ICON: Tapping the Home tab in the bottom navigation when you're already on the Home screen resets the chat and returns you to the health overview — useful for starting a fresh conversation without navigating away.
+
+HEALTH SCORE BREAKDOWN: The boat health score is 100 minus two penalties applied in sequence:
+1. Component risk average: Each component with a known service interval is assessed. "OK" components (less than 85% through their interval) contribute 0 risk. Components 85–100% through their interval contribute linearly up to 100 risk points. Overdue components contribute 100+ (quadratic — the longer overdue, the worse). Inventory penalties (low/out-of-stock/expired spares) are added to the linked component's risk score. The average of all component risk scores is subtracted from 100.
+2. Inactivity penalty (direct deduction — not diluted): If the boat hasn't had a trip, maintenance event, or check-in in 30+ days, a penalty is subtracted directly: 30–59 days = −15 pts, 60–89 days = −35 pts, 90+ days = −60 pts. This always has a meaningful impact regardless of how many healthy components exist.
+To explain "why is my score X?": list overdue components, due-soon components, inventory issues, and whether there's an inactivity penalty. The Health page also shows a "Why X/100?" explanation automatically.
 `.trim();
