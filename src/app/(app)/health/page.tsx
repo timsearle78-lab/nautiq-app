@@ -119,20 +119,17 @@ export default async function HealthPage() {
     return aSev - bSev;
   });
 
-  // Filter out synthetic rows from component list display
-  const realHealth = health.filter((r) => r.component_id !== "__inventory__" && r.component_id !== "__inactivity__");
+  const { components: healthComponents, penalties } = health;
 
-  const overdue = realHealth.filter((r) => normalizeStatus(r.status) === "overdue");
-  const dueSoon = realHealth.filter((r) => normalizeStatus(r.status) === "due_soon");
-  const ok = realHealth.filter((r) => normalizeStatus(r.status) === "ok");
+  const overdue = healthComponents.filter((r) => normalizeStatus(r.status) === "overdue");
+  const dueSoon = healthComponents.filter((r) => normalizeStatus(r.status) === "due_soon");
+  const ok = healthComponents.filter((r) => normalizeStatus(r.status) === "ok");
 
-  const inactivityRow = health.find((r) => r.component_id === "__inactivity__");
-  const inactivityPenalty = inactivityRow?.risk_score ?? 0;
-  const componentHealth = health.filter((r) => r.risk_score != null && r.component_id !== "__inactivity__");
-  const avgRisk = componentHealth.length > 0
-    ? componentHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / componentHealth.length
+  const knownComponents = healthComponents.filter((r) => r.risk_score != null);
+  const avgRisk = knownComponents.length > 0
+    ? knownComponents.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownComponents.length
     : 0;
-  const healthScore = Math.max(0, Math.round(100 - avgRisk - inactivityPenalty));
+  const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory));
 
   const hasIssues = overdue.length > 0 || dueSoon.length > 0 || inventoryIssues.length > 0;
 
@@ -148,9 +145,11 @@ export default async function HealthPage() {
   if (outCount > 0) scoreReasons.push(`${outCount} item${outCount !== 1 ? "s" : ""} out of stock`);
   if (expiringCount > 0) scoreReasons.push(`${expiringCount} item${expiringCount !== 1 ? "s" : ""} expiring within 90 days`);
   if (lowCount > 0) scoreReasons.push(`${lowCount} item${lowCount !== 1 ? "s" : ""} below minimum stock`);
-  if (inactivityRow) {
-    const daysSinceLabel = inactivityRow.status === "overdue" ? "overdue" : "due soon";
-    scoreReasons.push(`boat activity ${daysSinceLabel} — no trips, maintenance, or visits logged recently`);
+  if (penalties.inactivityStatus) {
+    scoreReasons.push(`boat activity ${penalties.inactivityStatus} — no trips, maintenance, or visits logged recently`);
+  }
+  if (penalties.inventory > 0 && outCount === 0 && expiredCount === 0) {
+    scoreReasons.push("unlinked inventory items out of stock or expired");
   }
 
   return (

@@ -169,7 +169,23 @@ export type BoatHealthRow = {
   predicted_due_date: string | null;
 };
 
-export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseClient): Promise<BoatHealthRow[]> {
+export type BoatHealthPenalties = {
+  /** Unlinked inventory stock/expiry issues (0 if none). */
+  inventory: number;
+  /** Inactivity penalty based on days since last trip/maintenance/visit (0 if none). */
+  inactivity: number;
+  /** "due soon" | "overdue" | null — severity of the inactivity penalty. */
+  inactivityStatus: "due soon" | "overdue" | null;
+};
+
+export type BoatHealth = {
+  /** Real component rows only — no synthetic entries. */
+  components: BoatHealthRow[];
+  /** Direct score deductions applied after averaging component risk. */
+  penalties: BoatHealthPenalties;
+};
+
+export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseClient): Promise<BoatHealth> {
   const supabase = supabaseClient ?? await createClient();
 
   const [{ data: componentsData }, { data: tripsData }, { data: inventoryData }, { data: latestTripData }, { data: latestMaintenanceData }, { data: latestCheckinData }] = await Promise.all([
@@ -390,22 +406,6 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
     };
   });
 
-  // Inject a synthetic row for unlinked inventory expiry/stock issues so they
-  // affect the boat health score even when not tied to a specific component.
-  if (boatUnlinkedPenalty > 0) {
-    componentRows.push({
-      component_id: "__inventory__",
-      component_name: "Inventory",
-      system_name: "Inventory",
-      risk_score: Math.min(boatUnlinkedPenalty, 100),
-      status: boatUnlinkedPenalty >= 25 ? "overdue" : "due soon",
-      hours_since_service: null,
-      hours_until_due: null,
-      months_until_due: null,
-      predicted_due_date: null,
-    });
-  }
-
   // Inactivity penalty — penalise when the boat hasn't been visited, used, or
   // serviced recently. "Last activity" = latest of: trip, maintenance event, check-in.
   const lastTripDate = (latestTripData?.[0] as { started_at: string } | undefined)?.started_at ?? null;
@@ -418,11 +418,11 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
     .sort()
     .reverse();
 
+  let inactivityPenalty = 0;
+  let inactivityStatus: BoatHealthPenalties["inactivityStatus"] = null;
+
   if (activityDates.length > 0) {
     const daysSinceActivity = daysBetween(activityDates[0]);
-    let inactivityPenalty = 0;
-    let inactivityStatus = "ok";
-
     if (daysSinceActivity >= 90) {
       inactivityPenalty = 60;
       inactivityStatus = "overdue";
@@ -433,21 +433,14 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
       inactivityPenalty = 15;
       inactivityStatus = "due soon";
     }
-
-    if (inactivityPenalty > 0) {
-      componentRows.push({
-        component_id: "__inactivity__",
-        component_name: "Boat activity",
-        system_name: "General",
-        risk_score: inactivityPenalty,
-        status: inactivityStatus,
-        hours_since_service: null,
-        hours_until_due: null,
-        months_until_due: null,
-        predicted_due_date: null,
-      });
-    }
   }
 
-  return componentRows;
+  return {
+    components: componentRows,
+    penalties: {
+      inventory: Math.min(boatUnlinkedPenalty, 100),
+      inactivity: inactivityPenalty,
+      inactivityStatus,
+    },
+  };
 }

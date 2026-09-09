@@ -75,23 +75,18 @@ export default async function ChatPage() {
   const hideGreeting = userSettings?.hide_greeting ?? false;
   const hideWhatsNew = userSettings?.hide_whats_new ?? false;
 
-  // Inactivity is applied as a direct deduction (not averaged) so it always
-  // meaningfully lowers the score regardless of how many healthy components exist.
-  const inactivityRow = health.find((r) => r.component_id === "__inactivity__");
-  const inactivityPenalty = inactivityRow?.risk_score ?? 0;
-  const componentHealth = health.filter((r) => r.risk_score != null && r.component_id !== "__inactivity__");
-  const avgRisk = componentHealth.length > 0
-    ? componentHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / componentHealth.length
+  const { components: healthComponents, penalties } = health;
+  const knownComponents = healthComponents.filter((r) => r.risk_score != null);
+  const avgRisk = knownComponents.length > 0
+    ? knownComponents.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownComponents.length
     : 0;
-  const healthScore = Math.max(0, Math.round(100 - avgRisk - inactivityPenalty));
+  const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory));
 
-  const overdueCount = health.filter((r) => normalizeStatus(r.status) === "overdue").length;
-  const dueSoonCount = health.filter((r) => normalizeStatus(r.status) === "due_soon").length;
-  const okCount = health.filter((r) => normalizeStatus(r.status) === "ok").length;
+  const overdueCount = healthComponents.filter((r) => normalizeStatus(r.status) === "overdue").length;
+  const dueSoonCount = healthComponents.filter((r) => normalizeStatus(r.status) === "due_soon").length;
+  const okCount = healthComponents.filter((r) => normalizeStatus(r.status) === "ok").length;
 
-  // Build urgent list from getBoatHealth() so it uses the same accurate data
-  // as the rest of the page, not the stale timeline RPC.
-  const urgent = health
+  const urgent = healthComponents
     .filter((r) => normalizeStatus(r.status) === "overdue" || normalizeStatus(r.status) === "due_soon")
     .map((r) => ({ component_id: r.component_id, component_name: r.component_name, system_name: r.system_name, predicted_due_date: null, status: normalizeStatus(r.status) as "overdue" | "due_soon" }));
 
