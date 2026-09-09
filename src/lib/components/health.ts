@@ -227,7 +227,7 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
   in30Days.setDate(in30Days.getDate() + 30);
 
   const stockPenaltyMap = new Map<string, number>();
-  let boatExpiryPenalty = 0; // for items not linked to a component
+  let boatUnlinkedPenalty = 0; // stock + expiry penalties for items not linked to a component
 
   for (const item of ((inventoryData ?? []) as InventoryRow[])) {
     const qty = Number(item.quantity ?? 0);
@@ -257,8 +257,8 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
       const current = stockPenaltyMap.get(item.component_id) ?? 0;
       stockPenaltyMap.set(item.component_id, current + totalPenalty);
     } else {
-      // Unlinked items still affect overall boat health
-      boatExpiryPenalty += expiryPenalty;
+      // Unlinked items still affect overall boat health (both stock and expiry)
+      boatUnlinkedPenalty += totalPenalty;
     }
   }
 
@@ -392,13 +392,13 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
 
   // Inject a synthetic row for unlinked inventory expiry/stock issues so they
   // affect the boat health score even when not tied to a specific component.
-  if (boatExpiryPenalty > 0) {
+  if (boatUnlinkedPenalty > 0) {
     componentRows.push({
       component_id: "__inventory__",
       component_name: "Inventory",
       system_name: "Inventory",
-      risk_score: Math.min(boatExpiryPenalty, 100),
-      status: boatExpiryPenalty >= 25 ? "overdue" : "due soon",
+      risk_score: Math.min(boatUnlinkedPenalty, 100),
+      status: boatUnlinkedPenalty >= 25 ? "overdue" : "due soon",
       hours_since_service: null,
       hours_until_due: null,
       months_until_due: null,

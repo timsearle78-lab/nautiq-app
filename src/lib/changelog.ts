@@ -7,6 +7,13 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-09-09",
+    label: "September 2026 update",
+    features: [
+      "Health score now correctly drops when a critical spare is missing or out of stock, even if that item isn't linked to a specific component",
+    ],
+  },
+  {
     date: "2026-09-08",
     label: "September 2026 update",
     features: [
