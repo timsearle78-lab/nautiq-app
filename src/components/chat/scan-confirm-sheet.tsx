@@ -156,7 +156,7 @@ export default function ScanConfirmSheet({ boatId, scanResult, components, onClo
                 type="submit"
                 disabled={adjustPending}
                 className="w-full rounded-xl py-3.5 text-base font-semibold text-white transition disabled:opacity-50"
-                style={{ background: "linear-gradient(135deg,#15A0D6,#0B7EB8)" }}
+                style={{ background: "#0B7EB8" }}
               >
                 {adjustPending ? "Saving…" : "Update stock"}
               </button>
@@ -291,7 +291,7 @@ export default function ScanConfirmSheet({ boatId, scanResult, components, onClo
                 type="submit"
                 disabled={createPending}
                 className="w-full rounded-xl py-3.5 text-base font-semibold text-white transition disabled:opacity-50"
-                style={{ background: "linear-gradient(135deg,#15A0D6,#0B7EB8)" }}
+                style={{ background: "#0B7EB8" }}
               >
                 {createPending ? "Saving…" : `Add ${qty || "1"} ${unit} to inventory`}
               </button>

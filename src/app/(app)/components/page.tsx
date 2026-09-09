@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
 import { AddComponentSheet } from "@/components/components/add-component-sheet";
+import { type StatusFilter, normalizeStatus } from "@/lib/component-status";
 
 export const dynamic = "force-dynamic";
 
@@ -29,17 +30,6 @@ type HealthRow = {
   hours_until_due: number | null;
   months_until_due: number | null;
 };
-
-type StatusFilter = "all" | "overdue" | "due_soon" | "ok" | "unknown";
-
-function normalizeStatus(status: string | null): StatusFilter {
-  const value = (status ?? "").toLowerCase();
-
-  if (value === "overdue") return "overdue";
-  if (value === "due soon") return "due_soon";
-  if (value === "ok") return "ok";
-  return "unknown";
-}
 
 function parseStatusFilter(value: string | undefined): StatusFilter {
   if (value === "overdue") return "overdue";
@@ -123,13 +113,10 @@ export default async function ComponentsPage({
   const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const healthData = await getBoatHealth(boat.id);
-
-  const { data: systemsData } = await supabase
-    .from("systems")
-    .select("id,name")
-    .eq("boat_id", boat.id)
-    .order("name");
+  const [healthData, { data: systemsData }] = await Promise.all([
+    getBoatHealth(boat.id),
+    supabase.from("systems").select("id,name").eq("boat_id", boat.id).order("name"),
+  ]);
 
   const boatSystems = (systemsData ?? []) as { id: string; name: string }[];
 

@@ -1,8 +1,14 @@
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { BOAT_COOKIE } from "@/lib/selected-boat";
+import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
+  // 10 boat creations per IP per hour
+  if (!rateLimit(`onboarding-create-boat:${getClientIp(req)}`, 10, 60 * 60 * 1000)) {
+    return tooManyRequests();
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return new Response("Unauthorized", { status: 401 });

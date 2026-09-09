@@ -2,10 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { X, ScanLine, PackagePlus, PackageMinus, Plus } from "lucide-react";
+import Link from "next/link";
+import { X, ScanLine, PackagePlus, PackageMinus, Plus, DollarSign, Anchor } from "lucide-react";
 import TripTimerButton from "@/components/nav/trip-timer-button";
 import LogTripSheet from "@/components/chat/log-trip-sheet";
 import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
+import LogCheckinSheet from "@/components/checkins/log-checkin-sheet";
 
 interface GlobalActionsMenuProps {
   boatId: string;
@@ -22,6 +24,7 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
   const [open, setOpen] = useState(false);
   const [showTrip, setShowTrip] = useState(false);
   const [showMaintenance, setShowMaintenance] = useState(false);
+  const [showCheckin, setShowCheckin] = useState(false);
   const [components, setComponents] = useState<ComponentOption[]>([]);
   const [inventory, setInventory] = useState<InventoryOption[]>([]);
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -61,7 +64,7 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
     }
   }
 
-  if (!open && !showTrip && !showMaintenance) return null;
+  if (!open && !showTrip && !showMaintenance && !showCheckin) return null;
 
   return (
     <>
@@ -71,7 +74,7 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
           onClick={(e) => { if (e.target === backdropRef.current) close(); }}
           className="fixed inset-0 z-50 flex flex-col justify-end bg-black/40"
         >
-          <div className="bg-white rounded-t-2xl shadow-xl pb-safe">
+          <div className="w-full max-w-[1040px] mx-auto bg-white rounded-t-2xl shadow-xl pb-safe">
             <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-slate-100">
               <p className="text-sm font-semibold text-slate-700">Quick actions</p>
               <button
@@ -107,6 +110,14 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
                 </button>
 
                 <button
+                  onClick={act(() => setShowCheckin(true))}
+                  className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+                >
+                  <Anchor size={16} />
+                  Log Visit
+                </button>
+
+                <button
                   onClick={() => goChat("scan")}
                   className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
                 >
@@ -131,6 +142,15 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
                 </button>
 
               </div>
+
+              <Link
+                href="/costs"
+                onClick={close}
+                className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+              >
+                <DollarSign size={16} className="text-slate-400" />
+                Cost tracker
+              </Link>
             </div>
 
             <div className="h-4" />
@@ -154,6 +174,14 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
           inventoryOptions={inventory}
           onClose={() => setShowMaintenance(false)}
           onSaved={() => { setShowMaintenance(false); router.refresh(); }}
+        />
+      )}
+
+      {showCheckin && (
+        <LogCheckinSheet
+          boatId={boatId}
+          onClose={() => setShowCheckin(false)}
+          onSaved={() => { setShowCheckin(false); router.refresh(); }}
         />
       )}
     </>

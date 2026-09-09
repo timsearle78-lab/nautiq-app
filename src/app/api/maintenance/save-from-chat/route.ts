@@ -6,13 +6,12 @@ export async function POST(req: Request) {
   if (!user) return new Response("Unauthorized", { status: 401 });
 
   const body = await req.json();
-  const { boatId, componentId, performedAt, workDone, notes, engineHoursAtService, inventoryItemId, inventoryQuantityUsed } = body;
+  const { boatId, componentId, performedAt, workDone, notes, engineHoursAtService, cost, vendor, inventoryItemId, inventoryQuantityUsed } = body;
 
   if (!boatId || !componentId || !performedAt || !workDone) {
     return Response.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  // Verify boat ownership
   const { data: boat } = await supabase
     .from("boats")
     .select("id")
@@ -30,14 +29,15 @@ export async function POST(req: Request) {
       performed_at: performedAt,
       work_done: workDone,
       notes: notes ?? null,
+      vendor: vendor ?? null,
       engine_hours_at_service: engineHoursAtService ?? null,
+      cost: cost != null ? Number(cost) : null,
     });
 
   if (insertError) {
     return Response.json({ error: insertError.message }, { status: 500 });
   }
 
-  // Update component's last_serviced_at
   await supabase
     .from("components")
     .update({
@@ -47,27 +47,13 @@ export async function POST(req: Request) {
     .eq("id", componentId)
     .eq("boat_id", boatId);
 
-  // Optionally consume an inventory item
   if (inventoryItemId && inventoryQuantityUsed > 0) {
-    const { data: invItem } = await supabase
-      .from("inventory_items")
-      .select("id, quantity")
-      .eq("id", inventoryItemId)
-      .single();
-    if (invItem) {
-      const newQty = Math.max(0, invItem.quantity - inventoryQuantityUsed);
-      await Promise.all([
-        supabase.from("inventory_items").update({ quantity: newQty }).eq("id", inventoryItemId),
-        supabase.from("inventory_transactions").insert({
-          inventory_item_id: inventoryItemId,
-          transaction_type: "consume",
-          quantity_delta: -inventoryQuantityUsed,
-          notes: `Used during maintenance: ${workDone}`,
-          user_id: user.id,
-          boat_id: boatId,
-        }),
-      ]);
-    }
+    await supabase.rpc("adjust_inventory_stock", {
+      p_inventory_item_id: inventoryItemId,
+      p_transaction_type: "consume",
+      p_quantity_delta: inventoryQuantityUsed,
+      p_notes: `Used during maintenance: ${workDone}`,
+    });
   }
 
   return Response.json({ ok: true });

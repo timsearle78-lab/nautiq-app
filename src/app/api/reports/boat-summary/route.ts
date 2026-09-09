@@ -1,8 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { getBoatHealth } from "@/lib/components/health";
 import { getSelectedBoatId } from "@/lib/selected-boat";
+import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
-export async function GET() {
+export async function GET(req: Request) {
+  // 10 report downloads per IP per 10 minutes
+  if (!rateLimit(`report:${getClientIp(req)}`, 10, 10 * 60 * 1000)) {
+    return tooManyRequests();
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return new Response("Unauthorized", { status: 401 });

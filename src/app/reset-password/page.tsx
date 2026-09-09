@@ -120,7 +120,7 @@ export default function ResetPasswordPage() {
                 borderRadius: 11,
                 border: `1px solid ${isError ? "#F3C4C4" : "#B8E2C8"}`,
                 background: isError ? "#FDEBEB" : "#E7F6EE",
-                color: isError ? "#D83A3A" : "#1D9B55",
+                color: isError ? "#E0342A" : "#0E7A3D",
                 fontSize: 13,
               }}
             >

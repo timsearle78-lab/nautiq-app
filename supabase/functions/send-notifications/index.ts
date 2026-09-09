@@ -381,7 +381,7 @@ Deno.serve(async (req) => {
 
   // Fetch all users with active notification preferences
   const { data: prefs, error: prefsErr } = await supabase
-    .from("notification_preferences")
+    .from("user_settings")
     .select("*")
     .or("health_summary.neq.none,overdue_alerts.eq.true");
 
@@ -524,7 +524,7 @@ Deno.serve(async (req) => {
           await sendEmail(pref.email, subject, html);
 
           await supabase
-            .from("notification_preferences")
+            .from("user_settings")
             .update({ last_health_summary_at: now.toISOString() })
             .eq("user_id", pref.user_id);
 

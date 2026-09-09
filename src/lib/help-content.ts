@@ -25,7 +25,11 @@ The app has five main areas:
     title: "Settings overview",
     content: `Settings are reached via the Profile tab (bottom right) → Settings. The Settings page is divided into five sections: Your boats, Systems, Appearance, Notifications, and Account.
 
-Appearance: Switch between Light mode and Dark mode. Dark mode uses a deep navy colour scheme optimised for night-time or low-light use on the water. Your preference is saved and applied automatically on every visit.`,
+Appearance: Switch between Light mode and Dark mode. Dark mode uses a deep navy colour scheme optimised for night-time or low-light use on the water. Your preference is saved and applied automatically on every visit.
+
+Personal Boat Assistant: The greeting card that appears at the top of the Home screen can be hidden. Go to Settings → Appearance and set "Personal Boat Assistant" to Hide. Tap Show to bring it back.
+
+What's New card: The release notes card that appears when the app is updated can be hidden. Go to Settings → Appearance and set "What's New card" to Hide.`,
   },
   {
     id: "boat",
@@ -66,7 +70,11 @@ To delete a boat:
 
 3. Talk to the AI: On the Home screen, type or say something like "I went sailing for 3 hours today" or "motored 2.5 hours, added 40 litres of fuel." The AI will parse your description and show a trip card for you to confirm before saving.
 
-Engine hours are required for every trip — they're used to calculate when maintenance is due.`,
+Engine hours are required for every trip — they're used to calculate when maintenance is due.
+
+Automatic fuel estimation: If you leave the Fuel field blank but enter engine hours, NautIQ can calculate fuel used automatically. Go to Settings → Your boats → edit your boat, and set a "Fuel consumption" rate in litres per hour (e.g. 8.5 for a typical diesel). Once set, any trip saved without manual fuel entry will have fuel estimated from hours × rate, and that amount will be deducted from your fuel inventory automatically.
+
+To edit or delete a trip: Go to the Trips page, find the trip in the list, and tap the pencil icon to edit it. You can change the dates, times, engine hours, fuel, and notes. Tap the bin icon to delete a trip.`,
   },
   {
     id: "maintenance",
@@ -86,6 +94,8 @@ To log maintenance:
 5. Tap "Save maintenance record." Photos are uploaded automatically after the record is saved.
 
 You can also tap "+ Log Maintenance" on the Home screen to log maintenance without navigating to the component page first — just pick the component from the dropdown.
+
+To edit a maintenance record: Go to a component's page, scroll to Maintenance history, and tap the pencil icon next to any record. You can update the date, work done, engine hours, vendor, cost, and notes.
 
 After logging, the component's health score resets and the next due date is recalculated.
 
@@ -168,7 +178,9 @@ To adjust stock (used or restocked a part):
 
 Linking spares to components: When a spare is linked to a component, low stock for that spare increases the component's risk score — so you'll be reminded to restock before you need to service it.
 
-Expiry dates: You can record an expiry date on any inventory item (e.g. flares, first aid supplies, epoxy, fuel treatment). Items expiring within 90 days show an amber "Exp. Xd" badge; expired items show a red "Expired" badge. The Inventory page shows an "Expiring soon" tile so you can see at a glance how many items need attention. Expired and near-expired critical items also increase your boat's health risk score.`,
+Expiry dates: You can record an expiry date on any inventory item (e.g. flares, first aid supplies, epoxy, fuel treatment). Items expiring within 90 days show an amber "Exp. Xd" badge; expired items show a red "Expired" badge. The Inventory page shows an "Expiring soon" tile so you can see at a glance how many items need attention. Expired and near-expired critical items also increase your boat's health risk score.
+
+To edit an inventory item: Tap the pencil icon next to an item in the list, or tap the item name to open its detail page and edit all fields there.`,
   },
   {
     id: "chat",
@@ -227,10 +239,21 @@ The PDF is generated on your device and saved automatically to your downloads fo
     content: `The health score (0–100) represents the overall condition of your boat's maintenance. A score of 100 means everything is within service intervals and well-stocked. The score drops as components approach or exceed their service intervals, or when linked spare parts run low.
 
 How the score is calculated:
-- Each component gets a risk score based on how far through its service interval it is (time and/or engine hours), plus a penalty if linked spares are low (out of stock: +25, below minimum: +15, at minimum: +5).
-- The boat health score is 100 minus the average component risk score.
+- Each component gets a risk score based on how far through its service interval it is (time and/or engine hours). Components that are more than 85% through their interval are marked "due soon" and start contributing risk; overdue components contribute more (quadratic scale).
+- Inventory penalties are added to a component's risk if linked spares are low (out of stock: +25–40, below minimum: +15–25, at minimum: +5–10 — critical items are penalised more).
+- The component risk scores are averaged and subtracted from 100.
+- An inactivity penalty is then subtracted directly (not averaged): −15 pts if no trips, maintenance, or visits in 30–59 days; −35 pts for 60–89 days; −60 pts for 90+ days. This always has a visible impact.
+- The Health page shows a "Why X/100?" explanation listing the reasons. You can also ask the AI "explain my health score" for a full breakdown.
 
-The score and breakdown are shown on the Home screen and in the health banner at the top of the chat.`,
+The score and breakdown are shown on the Home screen and in the health banner at the top of the chat.
+
+Home screen dashboard tiles: The four tiles next to the gauge on the Home screen highlight the most important issues.
+- "Maint. overdue" (red): number of components past their service interval.
+- "Due soon" (amber): components approaching their service interval.
+- "Critical low" (red) or "Spares low" (amber): shown instead of the healthy count when inventory items drop below their minimum stock level. Critical items are highlighted in red.
+- "Engine hrs": total engine hours logged.
+
+The "Needs attention" list below the gauge shows individual overdue or due-soon maintenance items (tap to open the component) and any low-stock inventory items (tap to open the inventory item). If everything is fine, a green "All clear" banner is shown.`,
   },
   {
     id: "navigation",
@@ -245,6 +268,27 @@ Page loading: When the app is loading a new page or saving a record, a spinning 
 
 Bottom navigation: The five tabs at the bottom of the screen take you to Home, Trips, Maintain, Inventory, and Profile. The Profile tab gives access to settings, the boat report, and this help guide.`,
   },
+  {
+    id: "checkins",
+    title: "Logging a boat visit",
+    content: `Even when you don't take your boat out, regular check-ins keep your health score accurate and remind you to inspect the boat before problems develop.
+
+How to log a visit:
+1. Tap the ☰ menu icon in the top-left corner to open Quick Actions.
+2. Tap "Log Visit".
+3. Enter the date of your visit (defaults to today) and an optional note about what you checked or noticed.
+4. Tap "Save visit".
+
+The Home screen will update to show "Last visit: today" (or the number of days since your last visit) in the navy health panel.
+
+How visits affect your health score:
+- 0–29 days since last activity: no penalty
+- 30–59 days: mild penalty (score decreases slightly, shown as "due soon")
+- 60–89 days: moderate penalty (score decreases more, shown as "overdue")
+- 90+ days: significant penalty (large drop in health score)
+
+"Activity" includes any logged trip, saved maintenance record, or check-in — whichever happened most recently.`,
+  },
 ];
 
 // Compact version injected into the AI chat system prompt.
@@ -253,11 +297,15 @@ APP USAGE GUIDE (answer "how do I" questions using this):
 
 OVERVIEW: NautIQ has 5 sections — Home/Chat (AI assistant), Trips (engine hours log), Maintain (component service tracking), Inventory (spare parts), Profile (settings/help/report).
 
+GETTING STARTED: After creating your boat, the Home screen shows prompt cards if you haven't logged a trip or added spare parts yet. Tap "Log a trip" or "Add spares" on those cards to get started, or dismiss them with the X. Once you've completed the action, the card won't appear again.
+
 BOAT SETUP: First-time wizard asks for name, type, propulsion, hull design, hull material, and an optional free-text description — then creates systems and components automatically. Edit boat specs (name, type, propulsion, hull design, hull material, dimensions: length/beam/draft, photo, description) in Profile → Settings → Your boats. Add more boats via the "Add a new boat" section at the bottom of Settings. Switch boats via the top-right selector. To delete a boat, tap "Permanently delete this boat" in its settings card and confirm by typing the boat name — this removes all data and cannot be undone. Boat specs and description refine component suggestions and AI advice.
 
 SYSTEMS: Manage systems (groups of components) in Profile → Settings → Systems. Add a system by typing its name and tapping "Add." Delete a system using the trash icon next to it.
 
-LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving (GPS location captured), "Stop Trip" when back (GPS location captured again); (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours."
+LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving (GPS location captured), "Stop Trip" when back (GPS location captured again); (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours." If you enter engine hours but leave Fuel blank, NautIQ will estimate fuel used automatically if a fuel consumption rate (litres/hour) is set on your boat in Settings. The estimated fuel is saved with the trip and deducted from your fuel inventory.
+
+FUEL CONSUMPTION RATE: Set in Profile → Settings → Your boats → edit your boat → "Fuel consumption (litres/hour)". Once set, any trip saved without manual fuel entry will calculate fuel as hours × rate and deduct that amount from inventory automatically. The transaction note will show it was auto-estimated.
 
 EMAIL TO LOG: Email maintenance notes to log@nautiq.cloud from your registered email address. NautIQ parses the email with AI and shows a pre-filled maintenance record card on the Home screen next time you open the app. Tap "Complete maintenance record" to review and save, or X to dismiss.
 
@@ -273,7 +321,7 @@ BOAT REPORT / PDF: Say "download a boat report" or "send me a PDF summary" to ge
 
 NOTIFICATIONS: Configure in Profile → Settings → Notifications. Options: (1) Notification email — defaults to your login email; enter another address to redirect alerts. (2) Boat health summary — Off / Daily / Weekly; emails only sent while issues exist. Weekly mode shows a day-of-week picker. (3) Overdue maintenance alerts — checkbox; sends an email when a component goes overdue, at most once per component per 7 days. Tap "Save preferences" to save. Use "Check now" to trigger an immediate check (sends emails if issues found).
 
-HEALTH SCORE: 0–100. Drops as components go overdue, spares run low, or inventory expires. Shown on the Home screen and in the header. Tap the score to open the Boat Health page — it explains exactly why the score is what it is, lists overdue maintenance, due-soon items, and inventory issues, and gives a specific recommendation for each item to restore the score to 100.
+HEALTH SCORE: 0–100. Drops as components go overdue, spares run low, or inventory expires. Shown on the Home screen and in the header. Tap the score to open the Boat Health page — it explains exactly why the score is what it is, lists overdue maintenance, due-soon items, and inventory issues, and gives a specific recommendation for each item to restore the score to 100. The Home screen shows four tiles: "Maint. overdue" (red), "Due soon" (amber), an inventory tile ("Critical low" in red or "Spares low" in amber when stock is low, else "Healthy" in green), and "Engine hrs". A "Needs attention" list below the gauge shows individual overdue/due-soon maintenance items and low-stock inventory items; tap any row to go to that component or inventory item.
 
 VOICE: Every notes field has a mic button. The main mic button on Home sends voice messages to the AI.
 
@@ -284,4 +332,17 @@ SCOPE: Only answer questions about this boat, maintenance, trips, inventory, and
 NAVIGATION: Scroll-to-top button appears at the bottom centre of the screen on any long page after scrolling down. What's New card appears in chat when new features are released.
 
 SIGN IN: On the login page there is a "Stay signed in on this device" toggle (on by default). When enabled, your session persists across browser closes so you don't need to log in each time. Turn it off on shared or public devices.
+
+COST TRACKING: Add a cost when logging maintenance (the "Cost" field in the log form or chat draft card) or when restocking inventory (the "Cost paid" field in the restock card). All costs are visible in Profile → Cost tracker, which shows total spend by year, broken down into maintenance vs parts. Useful for understanding total cost of ownership and for resale documentation.
+
+WELCOME GREETING / PBA: Each time you open the Home screen, your personal boat assistant (PBA) greets you with a personalised summary — recent activity, health status, trip encouragement, and maintenance reminders. The card can be dismissed. You can also ask "give me an update", "how's my boat doing", or "what's new" at any time in chat to get the same personalised briefing.
+
+BOAT VISITS / CHECK-INS: Even if you don't take a trip, you should log a visit when you go to check on your boat. Open the Quick Actions menu (☰ icon, top left) and tap "Log Visit." Enter the date and an optional note. Regular visits prevent the health score from dropping due to inactivity — the score decreases if your boat hasn't been visited, used, or serviced in 30+ days. The Home screen shows "Last visit: Xd ago" in the health panel so you can see at a glance when you were last aboard.
+
+HOME ICON: Tapping the Home tab in the bottom navigation when you're already on the Home screen resets the chat and returns you to the health overview — useful for starting a fresh conversation without navigating away.
+
+HEALTH SCORE BREAKDOWN: The boat health score is 100 minus two penalties applied in sequence:
+1. Component risk average: Each component with a known service interval is assessed. "OK" components (less than 85% through their interval) contribute 0 risk. Components 85–100% through their interval contribute linearly up to 100 risk points. Overdue components contribute 100+ (quadratic — the longer overdue, the worse). Inventory penalties (low/out-of-stock/expired spares) are added to the linked component's risk score. The average of all component risk scores is subtracted from 100.
+2. Inactivity penalty (direct deduction — not diluted): If the boat hasn't had a trip, maintenance event, or check-in in 30+ days, a penalty is subtracted directly: 30–59 days = −15 pts, 60–89 days = −35 pts, 90+ days = −60 pts. This always has a meaningful impact regardless of how many healthy components exist.
+To explain "why is my score X?": list overdue components, due-soon components, inventory issues, and whether there's an inactivity penalty. The Health page also shows a "Why X/100?" explanation automatically.
 `.trim();

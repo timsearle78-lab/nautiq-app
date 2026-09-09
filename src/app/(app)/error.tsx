@@ -27,7 +27,7 @@ export default function AppError({
       <button
         onClick={reset}
         className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
-        style={{ background: "linear-gradient(135deg,#15A0D6,#0B7EB8)" }}
+        style={{ background: "#0B7EB8" }}
       >
         Try again
       </button>

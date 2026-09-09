@@ -17,6 +17,7 @@ import { LogMaintenanceForm } from "@/components/components/log-maintenance-form
 import { EditComponentForm } from "@/components/components/edit-component-form";
 import LogMaintenanceButton from "@/components/components/log-maintenance-button";
 import { DeleteMaintenanceEventButton } from "@/components/components/delete-maintenance-event-button";
+import { EditMaintenanceButton } from "@/components/components/edit-maintenance-button";
 
 type ComponentPageProps = {
   params: Promise<{ id: string }>;
@@ -25,25 +26,13 @@ type ComponentPageProps = {
 function statusLabel(status: "ok" | "due_soon" | "overdue" | "unknown") {
   switch (status) {
     case "ok":
-      return {
-        text: "OK",
-        className: "text-green-600 bg-green-50 border border-green-200",
-      };
+      return { text: "OK", bg: "#0E7A3D", fg: "#FFFFFF", labelFg: "rgba(255,255,255,0.7)" };
     case "due_soon":
-      return {
-        text: "Due soon",
-        className: "text-amber-600 bg-amber-50 border border-amber-200",
-      };
+      return { text: "Due soon", bg: "#D9A300", fg: "#3D2A00", labelFg: "rgba(61,42,0,0.6)" };
     case "overdue":
-      return {
-        text: "Overdue",
-        className: "text-red-600 bg-red-50 border border-red-200",
-      };
+      return { text: "Overdue", bg: "#E0342A", fg: "#FFFFFF", labelFg: "rgba(255,255,255,0.7)" };
     default:
-      return {
-        text: "Unknown",
-        className: "text-slate-500 bg-slate-50 border border-slate-200",
-      };
+      return { text: "Unknown", bg: "#F4F7FA", fg: "#8FB3CC", labelFg: "#8FB3CC" };
   }
 }
 
@@ -70,7 +59,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     notFound();
   }
 
-  const [history, linkedInventory, boatInventory, tripsData] = await Promise.all([
+  const [history, linkedInventory, boatInventory, tripsData, { data: systemsData }] = await Promise.all([
     getComponentMaintenanceHistory(component.id),
     getLinkedInventory(component.id),
     getBoatInventory(component.boat_id),
@@ -81,13 +70,8 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       .not("engine_hours_delta", "is", null)
       .order("started_at", { ascending: true })
       .then((r) => (r.data ?? []) as { started_at: string | null; engine_hours_delta: number }[]),
+    supabase.from("systems").select("id,name").eq("boat_id", component.boat_id).order("name", { ascending: true }),
   ]);
-
-  const { data: systemsData } = await supabase
-    .from("systems")
-    .select("id,name")
-    .eq("boat_id", component.boat_id)
-    .order("name", { ascending: true });
   const systems = (systemsData ?? []) as { id: string; name: string }[];
 
   const health = getComponentHealthSummary(
@@ -132,12 +116,12 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           </div>
         </div>
 
-        <div className={`rounded-xl p-4 min-w-[220px] ${status.className}`}>
-          <div className="text-sm font-medium opacity-70">Health status</div>
-          <div className="mt-2 text-2xl font-semibold">
+        <div className="rounded-xl p-4 min-w-[220px]" style={{ background: status.bg, border: `1.5px solid ${status.bg}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: status.labelFg }}>Health status</div>
+          <div style={{ marginTop: 6, fontSize: 24, fontWeight: 800, color: status.fg }}>
             {status.text}
           </div>
-          <div className="mt-2 text-sm opacity-70">
+          <div style={{ marginTop: 6, fontSize: 13, color: status.labelFg }}>
             Score: {health.score ?? "—"}
           </div>
         </div>
@@ -279,6 +263,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                     <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Work done</th>
                     <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Engine hrs</th>
                     <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Vendor</th>
+                    <th className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Cost</th>
                     <th className="px-4 py-2.5"></th>
                   </tr>
                 </thead>
@@ -305,8 +290,23 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
                       </td>
                       <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{row.engine_hours_at_service ?? "—"}</td>
                       <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{row.vendor ?? "—"}</td>
+                      <td className="px-4 py-3 text-right font-medium text-slate-700 hidden sm:table-cell">
+                        {row.cost != null ? `$${Number(row.cost).toFixed(2)}` : "—"}
+                      </td>
                       <td className="px-4 py-3 text-right">
-                        <DeleteMaintenanceEventButton eventId={row.id} componentId={component.id} />
+                        <div className="flex items-center justify-end gap-0.5">
+                          <EditMaintenanceButton
+                            eventId={row.id}
+                            componentId={component.id}
+                            performedAt={row.performed_at}
+                            workDone={row.work_done}
+                            notes={row.notes}
+                            vendor={row.vendor}
+                            engineHoursAtService={row.engine_hours_at_service}
+                            cost={row.cost}
+                          />
+                          <DeleteMaintenanceEventButton eventId={row.id} componentId={component.id} />
+                        </div>
                       </td>
                     </tr>
                   ))}

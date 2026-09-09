@@ -130,7 +130,7 @@ export default function SignupPage() {
         <div className="flex-1 px-6 py-8 md:p-10" style={{ background: "#FFFFFF" }}>
           <div className="mx-auto max-w-sm">
             <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0F2335" }}>Create account</h2>
-            <p className="mt-2" style={{ fontSize: 14, color: "#8593A0" }}>
+            <p className="mt-2" style={{ fontSize: 14, color: "#8FB3CC" }}>
               Set up your NautIQ account to start logging trips and managing maintenance.
             </p>
 
@@ -228,7 +228,7 @@ export default function SignupPage() {
                   padding: "13px 24px",
                   fontSize: 14.5,
                   fontWeight: 600,
-                  background: "linear-gradient(135deg,#15A0D6,#0B7EB8)",
+                  background: "#0B7EB8",
                   boxShadow: "0 6px 16px rgba(11,126,184,.28)",
                   border: "none",
                   marginTop: 8,
@@ -244,7 +244,7 @@ export default function SignupPage() {
                     borderRadius: 11,
                     border: `1px solid ${isError ? "#F3C4C4" : "#B8E2C8"}`,
                     background: isError ? "#FDEBEB" : "#E7F6EE",
-                    color: isError ? "#D83A3A" : "#1D9B55",
+                    color: isError ? "#E0342A" : "#0E7A3D",
                     fontSize: 13,
                   }}
                 >
@@ -253,7 +253,7 @@ export default function SignupPage() {
               ) : null}
             </form>
 
-            <p className="mt-6" style={{ fontSize: 14, color: "#8593A0" }}>
+            <p className="mt-6" style={{ fontSize: 14, color: "#8FB3CC" }}>
               Already have an account?{" "}
               <Link
                 href="/login"
@@ -264,7 +264,7 @@ export default function SignupPage() {
               </Link>
             </p>
 
-            <p className="mt-4" style={{ fontSize: 12, color: "#8593A0" }}>
+            <p className="mt-4" style={{ fontSize: 12, color: "#8FB3CC" }}>
               By creating an account you agree to our{" "}
               <Link href="/legal/terms" style={{ color: "#0B7EB8" }} className="hover:underline">Terms of Service</Link>
               {" "}and{" "}

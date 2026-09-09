@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
 type InventoryItem = {
   name: string;
@@ -9,6 +10,11 @@ type InventoryItem = {
 };
 
 export async function POST(req: Request) {
+  // 10 seed operations per IP per hour
+  if (!rateLimit(`onboarding-seed:${getClientIp(req)}`, 10, 60 * 60 * 1000)) {
+    return tooManyRequests();
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return new Response("Unauthorized", { status: 401 });

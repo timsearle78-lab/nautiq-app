@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { X, LogOut, Settings, HelpCircle, Sparkles, ChevronLeft, Shield, LayoutDashboard } from "lucide-react";
+import { X, LogOut, Settings, HelpCircle, Sparkles, ChevronLeft, Shield, LayoutDashboard, Anchor } from "lucide-react";
+import { selectBoat } from "@/app/(app)/actions";
 import BoatReportButton from "@/components/reports/boat-report-button";
 import { CHANGELOG } from "@/lib/changelog";
 
@@ -12,12 +13,15 @@ interface ProfileSheetProps {
   email: string;
   initials: string;
   isAdmin?: boolean;
+  boats?: { id: string; name: string }[];
+  selectedBoatId?: string;
   onClose: () => void;
 }
 
-export default function ProfileSheet({ email, initials, isAdmin, onClose }: ProfileSheetProps) {
+export default function ProfileSheet({ email, initials, isAdmin, boats = [], selectedBoatId = "", onClose }: ProfileSheetProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [switchingBoatId, setSwitchingBoatId] = useState<string | null>(null);
   const [showChangelog, setShowChangelog] = useState(false);
 
   async function handleSignOut() {
@@ -33,7 +37,7 @@ export default function ProfileSheet({ email, initials, isAdmin, onClose }: Prof
         className="fixed inset-0 z-50 bg-black/40"
         onClick={onClose}
       />
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-xl pb-[env(safe-area-inset-bottom)]">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[1040px] z-50 bg-white rounded-t-2xl shadow-xl pb-[env(safe-area-inset-bottom)]">
         {showChangelog ? (
           <>
             <div className="flex items-center gap-3 px-5 pt-5 pb-4 border-b border-slate-100">
@@ -82,6 +86,59 @@ export default function ProfileSheet({ email, initials, isAdmin, onClose }: Prof
                 )}
               </div>
             </div>
+            {/* Boat switcher */}
+            {boats.length > 0 && (
+              <div className="px-5 pb-4" style={{ borderBottom: "1.5px solid #DBE3EA" }}>
+                <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#8FB3CC", textTransform: "uppercase", marginBottom: 8 }}>My boats</p>
+                <div className="space-y-1">
+                  {boats.map((boat) => {
+                    const isActive = boat.id === selectedBoatId;
+                    const isSwitching = switchingBoatId === boat.id;
+                    return (
+                      <button
+                        key={boat.id}
+                        disabled={!!switchingBoatId}
+                        onClick={async () => {
+                          if (isActive) return;
+                          setSwitchingBoatId(boat.id);
+                          onClose();
+                          const fd = new FormData();
+                          fd.append("boat_id", boat.id);
+                          fd.append("return_to", "/chat");
+                          await selectBoat(fd);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left"
+                        style={{
+                          background: isActive ? "#0B2942" : isSwitching ? "#EBF2F8" : "#F4F7FA",
+                          border: `1.5px solid ${isActive ? "#0B2942" : isSwitching ? "#0B7EB8" : "#DBE3EA"}`,
+                          opacity: switchingBoatId && !isSwitching ? 0.5 : 1,
+                        }}
+                      >
+                        {isSwitching ? (
+                          <span style={{
+                            width: 15, height: 15, flexShrink: 0,
+                            border: "2px solid #DBE3EA", borderTopColor: "#0B7EB8",
+                            borderRadius: "50%", display: "inline-block",
+                            animation: "spin 0.7s linear infinite",
+                          }} />
+                        ) : (
+                          <Anchor size={15} style={{ color: isActive ? "#FFC730" : "#8FB3CC", flexShrink: 0 }} />
+                        )}
+                        <span style={{ fontSize: 14, fontWeight: 700, color: isActive ? "#FFFFFF" : isSwitching ? "#0B7EB8" : "#0B2942" }}>
+                          {isSwitching ? "Switching…" : boat.name}
+                        </span>
+                        {isActive && !isSwitching && (
+                          <span className="ml-auto rounded-full px-2 py-0.5" style={{ fontSize: 11, fontWeight: 700, background: "#FFC730", color: "#3D2A00" }}>
+                            Active
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="px-5 pb-6 space-y-3">
               {isAdmin && (
                 <Link

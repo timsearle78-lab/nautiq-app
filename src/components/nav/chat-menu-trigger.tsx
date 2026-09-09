@@ -6,7 +6,7 @@ export default function ChatMenuTrigger() {
   return (
     <button
       onClick={() => window.dispatchEvent(new CustomEvent("nautiq:open-chat-actions"))}
-      className="absolute top-0 left-0 flex items-center justify-center h-14 w-14 text-slate-500 hover:bg-slate-50 transition"
+      className="flex items-center justify-center h-14 w-14 text-white/60 hover:text-white transition"
       title="Quick actions"
     >
       <Menu size={20} />

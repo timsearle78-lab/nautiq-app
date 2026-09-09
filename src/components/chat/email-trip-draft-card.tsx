@@ -5,16 +5,13 @@ import { Mail, Anchor, X } from "lucide-react";
 import type { TripDraftFromEmail } from "@/lib/trip-drafts";
 import { dismissTripDraft } from "@/lib/trip-drafts";
 import LogTripSheet from "@/components/chat/log-trip-sheet";
+import { formatDate } from "@/lib/format-date";
 
 interface Props {
   draft: TripDraftFromEmail;
   onDone: () => void;
 }
 
-function formatDate(iso: string | null) {
-  if (!iso) return null;
-  return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
-}
 
 export default function EmailTripDraftCard({ draft, onDone }: Props) {
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -81,7 +78,7 @@ export default function EmailTripDraftCard({ draft, onDone }: Props) {
             type="button"
             onClick={() => setSheetOpen(true)}
             className="flex items-center gap-1.5 w-full justify-center rounded-xl py-2.5 text-sm font-semibold text-white transition"
-            style={{ background: "linear-gradient(135deg,#15A0D6,#0B7EB8)" }}
+            style={{ background: "#0B7EB8" }}
           >
             <Anchor size={14} />
             Complete trip record

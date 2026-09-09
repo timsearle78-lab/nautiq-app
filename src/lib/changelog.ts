@@ -7,10 +7,80 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-09-09",
+    label: "September 2026 update",
+    features: [
+      "Health score now correctly drops when a critical spare is missing or out of stock, even if that item isn't linked to a specific component",
+    ],
+  },
+  {
+    date: "2026-09-08",
+    label: "September 2026 update",
+    features: [
+      "Inactivity penalty now always has a meaningful impact — the health score drops noticeably if you haven't visited, used, or serviced the boat in 30+ days, regardless of how many healthy components you have",
+      "Health page now explains why your score is what it is — including inactivity, overdue maintenance, and inventory issues",
+      "Ask the AI 'explain my health score' for a full breakdown of every factor",
+    ],
+  },
+  {
+    date: "2026-08-30",
+    label: "August 2026 update",
+    features: [
+      "Log a boat visit — use Quick Actions → Log Visit to record when you check on your boat, even without a trip. Keeps your health score accurate and your boat ready to go",
+      "Health score now accounts for inactivity — if your boat hasn't been visited, used, or serviced in 30+ days, the health score drops as a reminder to check in",
+      "Home screen shows how long since your last visit in the health panel",
+    ],
+  },
+  {
+    date: "2026-08-27",
+    label: "August 2026 update",
+    features: [
+      "Tap the Home icon to instantly clear the chat and return to the home screen",
+      "App layout is now capped at 1040 px on desktop for a more focused, readable experience",
+    ],
+  },
+  {
+    date: "2026-08-26",
+    label: "August 2026 update",
+    features: [
+      "Fresh new look — the app has been redesigned with a cleaner, bolder visual style: clearer status colours, sharper typography, and a tidier layout throughout",
+      "Redesigned home screen — health gauge and daily greeting now sit in a navy hero panel at the top of the home screen, with bold status tiles below",
+    ],
+  },
+  {
+    date: "2026-08-21",
+    label: "August 2026 update",
+    features: [
+      "Getting started tips — if you haven't logged a trip or added spare parts yet, the home screen now shows friendly prompt cards to help you get the most out of NautIQ",
+    ],
+  },
+  {
+    date: "2026-08-16",
+    label: "August 2026 update",
+    features: [
+      "Smarter health dashboard — the Home screen now shows critical inventory shortfalls (e.g. low diesel, missing spares) as warning tiles alongside overdue maintenance, so any issue affecting your boat's health score is visible at a glance",
+      "Fuel used display — trip forms and trip history now correctly label fuel as 'Fuel used' and inventory history shows deductions as '− Used' rather than '+ Added'",
+      "Faster page loads — pages now fetch data in parallel and show animated skeletons while loading instead of a blank screen",
+    ],
+  },
+  {
+    date: "2026-08-13",
+    label: "August 2026 update",
+    features: [
+      "Edit trips, maintenance records, and inventory items — tap the pencil icon next to any row to update details in a quick-edit form",
+      "Hide the Personal Boat Assistant greeting card — go to Settings → Appearance to turn it off if you prefer a cleaner Home screen",
+      "Hide the What's New card — go to Settings → Appearance to stop release notes appearing on the Home page",
+      "Automatic fuel estimation — set a fuel consumption rate (litres/hour) on your boat in Settings, and fuel used will be calculated and deducted from inventory automatically when you log a trip without entering fuel manually",
+    ],
+  },
+  {
     date: "2026-08-12",
     label: "August 2026 update",
     features: [
       "Log maintenance by chat — just tell the AI what you did (\"I did an oil change\") and a pre-filled maintenance record appears for you to review and save",
+      "Personalised welcome greeting — your PBA greets you each time you open the app with a summary of recent activity, maintenance encouragement, and reminders",
+      "Cost tracking — log what you spend on maintenance and parts, then see your total cost of ownership by year in the new Cost tracker (Profile → Cost tracker)",
+      "Inventory improvements — creating a new item now captures minimum stock level and critical-safety flag; vendor is now saved when logging maintenance via chat",
     ],
   },
   {

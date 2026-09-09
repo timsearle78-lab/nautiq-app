@@ -45,7 +45,7 @@ export default function ChatActionsSheet({
       onClick={handleBackdrop}
       className="fixed inset-0 z-50 flex flex-col justify-end bg-black/40"
     >
-      <div className="bg-white rounded-t-2xl shadow-xl pb-safe">
+      <div className="w-full max-w-2xl mx-auto bg-white rounded-t-2xl shadow-xl pb-safe">
         {/* Handle + header */}
         <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-slate-100">
           <p className="text-sm font-semibold text-slate-700">Quick actions</p>

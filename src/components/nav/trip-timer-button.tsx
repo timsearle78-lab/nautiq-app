@@ -32,7 +32,7 @@ export default function TripTimerButton({ boatId }: { boatId: string }) {
           onClick={handleStop}
           disabled={stopping}
           className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white transition disabled:opacity-60"
-          style={{ background: "#D83A3A", boxShadow: "0 2px 8px rgba(216,58,58,.35)" }}
+          style={{ background: "#E0342A", boxShadow: "0 2px 8px rgba(216,58,58,.35)" }}
         >
           <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
           {stopping ? "Locating…" : `Stop · ${formatElapsed(elapsed)}`}

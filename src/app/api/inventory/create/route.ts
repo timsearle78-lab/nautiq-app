@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
-  const { boatId, name, category, unit, quantity, componentId } = await req.json();
+  const { boatId, name, category, unit, quantity, componentId, minimumQuantity, isCritical } = await req.json();
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -24,16 +24,15 @@ export async function POST(req: Request) {
       category: String(category ?? "General").trim() || "General",
       unit: String(unit ?? "").trim() || null,
       quantity: Number(quantity) || 0,
-      minimum_quantity: 0,
+      minimum_quantity: Number(minimumQuantity) >= 0 ? Number(minimumQuantity) : 0,
       component_id: componentId || null,
-      is_critical: false,
+      is_critical: isCritical === true,
     })
     .select("id, name, quantity")
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
 
-  // Log the initial stock transaction if quantity > 0
   if (Number(quantity) > 0) {
     await supabase.from("inventory_transactions").insert({
       inventory_item_id: item.id,

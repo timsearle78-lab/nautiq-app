@@ -102,7 +102,7 @@ export default function HelpPage() {
       >
         <div
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white"
-          style={{ background: "linear-gradient(135deg,#15A0D6,#0B7EB8)" }}
+          style={{ background: "#0B7EB8" }}
         >
           <MessageCircle size={18} />
         </div>

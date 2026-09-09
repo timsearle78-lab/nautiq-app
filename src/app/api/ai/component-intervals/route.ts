@@ -2,6 +2,7 @@ import { generateText } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
 const intervalSchema = z.object({
   service_interval_months: z.coerce.number().nullable().default(null),
@@ -13,6 +14,11 @@ const intervalSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  // 20 AI interval lookups per IP per 10 minutes
+  if (!rateLimit(`ai-intervals:${getClientIp(req)}`, 20, 10 * 60 * 1000)) {
+    return tooManyRequests();
+  }
+
   if (!process.env.ANTHROPIC_API_KEY) {
     return Response.json({ error: "AI not configured" }, { status: 503 });
   }

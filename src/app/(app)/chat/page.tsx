@@ -25,29 +25,34 @@ export default async function ChatPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: boats, error: boatsErr } = await supabase
-    .from("boats")
-    .select("id, name, type, propulsion, hull_design, hull_material")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true });
+  const [{ data: boats, error: boatsErr }, selectedBoatId] = await Promise.all([
+    supabase
+      .from("boats")
+      .select("id, name, type, propulsion, hull_design, hull_material")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true }),
+    getSelectedBoatId(),
+  ]);
 
   // Fall back to base columns if new spec columns don't exist yet in DB
   const boatList = boatsErr
     ? ((await supabase.from("boats").select("id, name, type").eq("user_id", user.id).order("created_at", { ascending: true })).data ?? [])
     : (boats ?? []);
-
-  const selectedBoatId = await getSelectedBoatId();
   const boat = boatList.find((b) => b.id === selectedBoatId) ?? boatList[0];
 
   if (!boat) redirect("/onboarding");
 
-  const [engineHoursRes, health, componentsRes, inventoryRes, pendingDrafts, pendingTripDrafts] = await Promise.all([
+  const [engineHoursRes, health, componentsRes, inventoryRes, tripsCountRes, pendingDrafts, pendingTripDrafts, userSettingsRes, lastTripRes, lastCheckinRes] = await Promise.all([
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
     getBoatHealth(boat.id),
     supabase.from("components").select("id, name").eq("boat_id", boat.id).order("name"),
-    supabase.from("inventory_items").select("id, name, quantity, unit, minimum_quantity").eq("boat_id", boat.id).order("name"),
+    supabase.from("inventory_items").select("id, name, quantity, unit, minimum_quantity, is_critical").eq("boat_id", boat.id).order("name"),
+    supabase.from("trips").select("id", { count: "exact", head: true }).eq("boat_id", boat.id),
     getPendingDrafts(),
     getPendingTripDrafts(),
+    supabase.from("user_settings").select("hide_greeting, hide_whats_new").eq("user_id", user.id).single(),
+    supabase.from("trips").select("started_at").eq("boat_id", boat.id).not("started_at", "is", null).order("started_at", { ascending: false }).limit(1),
+    supabase.from("boat_checkins").select("checked_at").eq("boat_id", boat.id).order("checked_at", { ascending: false }).limit(1),
   ]);
 
   const components = (componentsRes.data ?? []) as { id: string; name: string }[];
@@ -56,15 +61,29 @@ export default async function ChatPage() {
     { type: boatWithSpecs.type ?? null, propulsion: boatWithSpecs.propulsion ?? null, hull_material: boatWithSpecs.hull_material ?? null },
     components.map((c) => c.name)
   );
-  const inventoryItems = (inventoryRes.data ?? []) as { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null }[];
+  const inventoryItems = (inventoryRes.data ?? []) as { id: string; name: string; quantity: number; unit: string | null; minimum_quantity: number | null; is_critical: boolean }[];
+  const hasTrips = (tripsCountRes.count ?? 0) > 0;
+  const hasInventory = inventoryItems.length > 0;
 
   const engineHours = (engineHoursRes.data as number) ?? 0;
+  const userSettings = userSettingsRes.data as { hide_greeting: boolean; hide_whats_new: boolean } | null;
 
-  const knownHealth = health.filter((r) => r.risk_score != null);
-  const avgRisk = knownHealth.length > 0
-    ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
+  // Last activity date: latest of last trip or last check-in
+  const lastTripDate = (lastTripRes.data?.[0] as { started_at: string } | undefined)?.started_at?.slice(0, 10) ?? null;
+  const lastCheckinDate = (lastCheckinRes.data?.[0] as { checked_at: string } | undefined)?.checked_at?.slice(0, 10) ?? null;
+  const lastActivityDate = [lastTripDate, lastCheckinDate].filter(Boolean).sort().reverse()[0] ?? null;
+  const hideGreeting = userSettings?.hide_greeting ?? false;
+  const hideWhatsNew = userSettings?.hide_whats_new ?? false;
+
+  // Inactivity is applied as a direct deduction (not averaged) so it always
+  // meaningfully lowers the score regardless of how many healthy components exist.
+  const inactivityRow = health.find((r) => r.component_id === "__inactivity__");
+  const inactivityPenalty = inactivityRow?.risk_score ?? 0;
+  const componentHealth = health.filter((r) => r.risk_score != null && r.component_id !== "__inactivity__");
+  const avgRisk = componentHealth.length > 0
+    ? componentHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / componentHealth.length
     : 0;
-  const healthScore = Math.max(0, Math.round(100 - avgRisk));
+  const healthScore = Math.max(0, Math.round(100 - avgRisk - inactivityPenalty));
 
   const overdueCount = health.filter((r) => normalizeStatus(r.status) === "overdue").length;
   const dueSoonCount = health.filter((r) => normalizeStatus(r.status) === "due_soon").length;
@@ -90,6 +109,11 @@ export default async function ChatPage() {
       missingSuggestions={missingSuggestions}
       pendingDrafts={pendingDrafts}
       pendingTripDrafts={pendingTripDrafts}
+      hideGreeting={hideGreeting}
+      hideWhatsNew={hideWhatsNew}
+      hasTrips={hasTrips}
+      hasInventory={hasInventory}
+      lastActivityDate={lastActivityDate}
     />
   );
 }

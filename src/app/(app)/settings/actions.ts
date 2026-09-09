@@ -20,12 +20,13 @@ export async function updateBoat(_prev: ActionState, formData: FormData): Promis
   const beam_m = formData.get("beam_m") ? parseFloat(formData.get("beam_m") as string) : null;
   const draft_m = formData.get("draft_m") ? parseFloat(formData.get("draft_m") as string) : null;
   const description = (formData.get("description") as string)?.trim() || null;
+  const fuel_consumption_lph = formData.get("fuel_consumption_lph") ? parseFloat(formData.get("fuel_consumption_lph") as string) : null;
 
   if (!name) return { error: "Boat name is required" };
 
   const { error } = await supabase
     .from("boats")
-    .update({ name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description })
+    .update({ name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description, fuel_consumption_lph })
     .eq("id", boatId)
     .eq("user_id", user.id);
 
@@ -110,7 +111,7 @@ export async function updateNotificationPreferences(_prev: ActionState, formData
   const overdue_alerts = formData.get("overdue_alerts") === "on";
 
   const { error } = await supabase
-    .from("notification_preferences")
+    .from("user_settings")
     .upsert(
       { user_id: user.id, email, health_summary, health_summary_day, overdue_alerts },
       { onConflict: "user_id" }
@@ -120,6 +121,40 @@ export async function updateNotificationPreferences(_prev: ActionState, formData
 
   revalidatePath("/settings");
   return { success: "Notification preferences saved", savedAt: Date.now() };
+}
+
+export async function updateWhatsNewPreference(hide: boolean): Promise<ActionState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .upsert(
+      { user_id: user.id, email: user.email ?? "", hide_whats_new: hide },
+      { onConflict: "user_id" }
+    );
+
+  if (error) return { error: error.message };
+  revalidatePath("/settings");
+  return { success: "Saved" };
+}
+
+export async function updateGreetingPreference(hide: boolean): Promise<ActionState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { error } = await supabase
+    .from("user_settings")
+    .upsert(
+      { user_id: user.id, email: user.email ?? "", hide_greeting: hide },
+      { onConflict: "user_id" }
+    );
+
+  if (error) return { error: error.message };
+  revalidatePath("/settings");
+  return { success: "Saved" };
 }
 
 export async function triggerNotificationsNow(_prev: ActionState): Promise<ActionState> {

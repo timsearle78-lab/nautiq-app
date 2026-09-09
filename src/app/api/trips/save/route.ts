@@ -16,13 +16,29 @@ export async function POST(req: Request) {
     return Response.json({ error: "boatId and engine_hours_delta are required" }, { status: 400 });
   }
 
+  // If no fuel was provided, estimate from engine hours × boat consumption rate
+  let resolvedFuel: number | null = fuel_added_litres ?? null;
+  let fuelEstimated = false;
+  if ((resolvedFuel == null || resolvedFuel === 0) && Number(engine_hours_delta) > 0) {
+    const { data: boatData } = await supabase
+      .from("boats")
+      .select("fuel_consumption_lph")
+      .eq("id", boatId)
+      .single();
+    const rate = boatData?.fuel_consumption_lph ? Number(boatData.fuel_consumption_lph) : null;
+    if (rate && rate > 0) {
+      resolvedFuel = Math.round(Number(engine_hours_delta) * rate * 10) / 10;
+      fuelEstimated = true;
+    }
+  }
+
   const { error } = await supabase.from("trips").insert({
     boat_id: boatId,
     user_id: user.id,
     started_at: started_at ?? new Date().toISOString(),
     ended_at: ended_at ?? null,
     engine_hours_delta: Number(engine_hours_delta),
-    fuel_added_litres: fuel_added_litres ?? null,
+    fuel_added_litres: resolvedFuel,
     notes: notes ?? null,
     source: source ?? "ai_quick_log",
     raw_input: raw_input ?? null,
@@ -34,9 +50,8 @@ export async function POST(req: Request) {
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
 
-  // If fuel was recorded, consume it from the first matching inventory item
-  // (any item whose name contains "fuel", "diesel", or "petrol").
-  if (fuel_added_litres && Number(fuel_added_litres) > 0) {
+  // Consume fuel from inventory (whether entered manually or estimated)
+  if (resolvedFuel && resolvedFuel > 0) {
     const { data: fuelItems } = await supabase
       .from("inventory_items")
       .select("id")
@@ -47,11 +62,14 @@ export async function POST(req: Request) {
 
     const fuelItemId = fuelItems?.[0]?.id;
     if (fuelItemId) {
+      const noteText = fuelEstimated
+        ? `Auto-estimated from ${engine_hours_delta}h engine time on ${new Date().toLocaleDateString()}`
+        : `Auto-deducted from trip on ${new Date().toLocaleDateString()}`;
       await supabase.rpc("adjust_inventory_stock", {
         p_inventory_item_id: fuelItemId,
         p_transaction_type: "consume",
-        p_quantity_delta: Number(fuel_added_litres),
-        p_notes: `Auto-deducted from trip on ${new Date().toLocaleDateString()}`,
+        p_quantity_delta: resolvedFuel,
+        p_notes: noteText,
       });
       revalidatePath("/inventory");
     }
