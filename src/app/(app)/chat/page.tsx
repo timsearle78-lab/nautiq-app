@@ -85,14 +85,15 @@ export default async function ChatPage() {
     : 0;
   const healthScore = Math.max(0, Math.round(100 - avgRisk - inactivityPenalty));
 
-  const overdueCount = health.filter((r) => normalizeStatus(r.status) === "overdue").length;
-  const dueSoonCount = health.filter((r) => normalizeStatus(r.status) === "due_soon").length;
-  const okCount = health.filter((r) => normalizeStatus(r.status) === "ok").length;
+  const realHealth = health.filter((r) => !r.component_id.startsWith("__"));
+  const overdueCount = realHealth.filter((r) => normalizeStatus(r.status) === "overdue").length;
+  const dueSoonCount = realHealth.filter((r) => normalizeStatus(r.status) === "due_soon").length;
+  const okCount = realHealth.filter((r) => normalizeStatus(r.status) === "ok").length;
 
   // Build urgent list from getBoatHealth() so it uses the same accurate data
   // as the rest of the page, not the stale timeline RPC.
   const urgent = health
-    .filter((r) => normalizeStatus(r.status) === "overdue" || normalizeStatus(r.status) === "due_soon")
+    .filter((r) => !r.component_id.startsWith("__") && (normalizeStatus(r.status) === "overdue" || normalizeStatus(r.status) === "due_soon"))
     .map((r) => ({ component_id: r.component_id, component_name: r.component_name, system_name: r.system_name, predicted_due_date: null, status: normalizeStatus(r.status) as "overdue" | "due_soon" }));
 
   return (
