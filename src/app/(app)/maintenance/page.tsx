@@ -136,7 +136,7 @@ export default async function MaintenancePage({
 
   const maintenanceSystems = (maintenanceSystemsData ?? []) as { id: string; name: string }[];
 
-  const allHealth = (allHealthRaw.components as HealthRow[]).sort((a, b) => {
+  const allHealth = (allHealthRaw.components as HealthRow[]).filter((r) => !r.component_id.startsWith("__")).sort((a, b) => {
     const statusCompare = statusRank(a.status) - statusRank(b.status);
     if (statusCompare !== 0) return statusCompare;
     return Number(b.risk_score ?? 0) - Number(a.risk_score ?? 0);

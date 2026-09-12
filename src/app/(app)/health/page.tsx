@@ -119,7 +119,8 @@ export default async function HealthPage() {
     return aSev - bSev;
   });
 
-  const { components: healthComponents, penalties } = health;
+  const { components: rawHealthComponents, penalties } = health;
+  const healthComponents = rawHealthComponents.filter((r) => !r.component_id.startsWith("__"));
 
   const overdue = healthComponents.filter((r) => normalizeStatus(r.status) === "overdue");
   const dueSoon = healthComponents.filter((r) => normalizeStatus(r.status) === "due_soon");

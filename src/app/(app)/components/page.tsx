@@ -120,7 +120,7 @@ export default async function ComponentsPage({
 
   const boatSystems = (systemsData ?? []) as { id: string; name: string }[];
 
-  const allRows = (healthData.components as HealthRow[]).sort((a, b) => {
+  const allRows = (healthData.components as HealthRow[]).filter((r) => !r.component_id.startsWith("__")).sort((a, b) => {
     const systemCompare = (a.system_name ?? "").localeCompare(b.system_name ?? "");
     if (systemCompare !== 0) return systemCompare;
 

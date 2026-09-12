@@ -75,7 +75,8 @@ export default async function ChatPage() {
   const hideGreeting = userSettings?.hide_greeting ?? false;
   const hideWhatsNew = userSettings?.hide_whats_new ?? false;
 
-  const { components: healthComponents, penalties } = health;
+  const { components: rawHealthComponents, penalties } = health;
+  const healthComponents = rawHealthComponents.filter((r) => !r.component_id.startsWith("__"));
   const knownComponents = healthComponents.filter((r) => r.risk_score != null);
   const avgRisk = knownComponents.length > 0
     ? knownComponents.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownComponents.length
