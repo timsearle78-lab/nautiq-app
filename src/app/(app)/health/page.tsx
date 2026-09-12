@@ -332,10 +332,10 @@ export default async function HealthPage() {
             Full timeline →
           </Link>
         </div>
-        {realHealth.length === 0 ? (
+        {healthComponents.length === 0 ? (
           <div className="px-4 py-6" style={{ fontSize: 14, color: "#8FB3CC" }}>No components tracked yet.</div>
         ) : (
-          realHealth
+          healthComponents
             .sort((a, b) => {
               const rank: Record<string, number> = { overdue: 0, due_soon: 1, ok: 2, unknown: 3 };
               return (rank[normalizeStatus(a.status)] ?? 3) - (rank[normalizeStatus(b.status)] ?? 3);
