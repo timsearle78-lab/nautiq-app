@@ -226,7 +226,7 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
       .limit(1),
   ]);
 
-  if (!componentsData || componentsData.length === 0) return [];
+  if (!componentsData || componentsData.length === 0) return { components: [], penalties: { inventory: 0, inactivity: 0, inactivityStatus: null } };
 
   const componentIds = componentsData.map((c: Record<string, unknown>) => c.id as string);
 
