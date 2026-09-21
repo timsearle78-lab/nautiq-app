@@ -29,14 +29,13 @@ export default async function ChatPage() {
     supabase
       .from("boats")
       .select("id, name, type, propulsion, hull_design, hull_material")
-      .eq("user_id", user.id)
       .order("created_at", { ascending: true }),
     getSelectedBoatId(),
   ]);
 
   // Fall back to base columns if new spec columns don't exist yet in DB
   const boatList = boatsErr
-    ? ((await supabase.from("boats").select("id, name, type").eq("user_id", user.id).order("created_at", { ascending: true })).data ?? [])
+    ? ((await supabase.from("boats").select("id, name, type").order("created_at", { ascending: true })).data ?? [])
     : (boats ?? []);
   const boat = boatList.find((b) => b.id === selectedBoatId) ?? boatList[0];
 

@@ -55,7 +55,7 @@ export default async function HealthPage() {
   if (!user) redirect("/login");
 
   const [{ data: boatsData }, selectedBoatId] = await Promise.all([
-    supabase.from("boats").select("id,name,type").eq("user_id", user.id).order("created_at", { ascending: true }),
+    supabase.from("boats").select("id,name,type").order("created_at", { ascending: true }),
     getSelectedBoatId(),
   ]);
 
