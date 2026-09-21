@@ -62,15 +62,11 @@ export default async function AdminPage() {
   }
   const adminClient = createAdminClient(supabaseUrl, serviceRoleKey);
 
-  // Fetch all auth users (up to 1000)
   const { data: listData, error: listError } = await adminClient.auth.admin.listUsers({ perPage: 1000 });
   if (listError) throw listError;
   const users = listData?.users ?? [];
 
-  // Fetch all boats to build user→boat and boat→user maps
-  const { data: boatRows } = await adminClient
-    .from("boats")
-    .select("id, user_id");
+  const { data: boatRows } = await adminClient.from("boats").select("id, user_id");
 
   const boatCountByUser = new Map<string, number>();
   const userByBoat = new Map<string, string>();
@@ -79,10 +75,7 @@ export default async function AdminPage() {
     userByBoat.set(b.id, b.user_id);
   }
 
-  // Fetch trip counts — map via boat→user without a join
-  const { data: tripRows } = await adminClient
-    .from("trips")
-    .select("boat_id");
+  const { data: tripRows } = await adminClient.from("trips").select("boat_id");
 
   const tripCountByUser = new Map<string, number>();
   for (const t of (tripRows ?? []) as { boat_id: string }[]) {
@@ -109,12 +102,7 @@ export default async function AdminPage() {
           <h1 className="text-xl font-bold text-slate-900">Admin</h1>
           <p className="text-sm text-slate-500 mt-0.5">NautIQ user overview</p>
         </div>
-        <a
-          href="/"
-          className="text-sm text-ocean-600 hover:underline"
-        >
-          ← Back to app
-        </a>
+        <a href="/" className="text-sm text-ocean-600 hover:underline shrink-0">← Back to app</a>
       </div>
 
       {/* Summary stats */}
@@ -131,20 +119,52 @@ export default async function AdminPage() {
         ))}
       </div>
 
-      {/* User table */}
+      {/* User list */}
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
           <span className="text-sm font-semibold text-slate-800">All users</span>
           <span className="text-xs text-slate-400">{totalUsers} total</span>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobile: card list */}
+        <div className="sm:hidden divide-y divide-slate-100">
+          {sorted.map((u) => {
+            const boats = boatCountByUser.get(u.id) ?? 0;
+            const trips = tripCountByUser.get(u.id) ?? 0;
+            const isAdmin = ADMIN_EMAILS.includes(u.email ?? "");
+            return (
+              <div key={u.id} className="px-4 py-3">
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <a href={`/admin/users/${u.id}`} className="font-medium text-sm text-slate-800 hover:text-ocean-600 underline-offset-2 hover:underline break-all leading-snug">
+                    {u.email ?? "—"}
+                  </a>
+                  {isAdmin && (
+                    <span className="shrink-0 text-xs font-medium text-ocean-600 bg-ocean-50 border border-ocean-200 rounded-full px-1.5 py-0.5">Admin</span>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400 mt-1">
+                  <span>{fmtDate(u.created_at)} · {daysSince(u.created_at)}</span>
+                  <span>{boats} boat{boats !== 1 ? "s" : ""}</span>
+                  <span>{trips} trip{trips !== 1 ? "s" : ""}</span>
+                </div>
+                {!isAdmin && (
+                  <div className="mt-2">
+                    <DeleteUserDialog userId={u.id} userEmail={u.email ?? ""} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop: table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/50">
                 <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Email</th>
                 <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Signed up</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Last sign-in</th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Last sign-in</th>
                 <th className="text-center px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Boats</th>
                 <th className="text-center px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Trips</th>
                 <th className="px-4 py-2.5"></th>
@@ -160,18 +180,14 @@ export default async function AdminPage() {
                     <td className="px-4 py-3 font-medium text-slate-800">
                       <a href={`/admin/users/${u.id}`} className="hover:text-ocean-600 hover:underline transition">{u.email ?? "—"}</a>
                       {isAdmin && (
-                        <span className="ml-2 text-xs font-medium text-ocean-600 bg-ocean-50 border border-ocean-200 rounded-full px-1.5 py-0.5">
-                          Admin
-                        </span>
+                        <span className="ml-2 text-xs font-medium text-ocean-600 bg-ocean-50 border border-ocean-200 rounded-full px-1.5 py-0.5">Admin</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-slate-600">
                       <div>{fmtDate(u.created_at)}</div>
                       <div className="text-xs text-slate-400">{daysSince(u.created_at)}</div>
                     </td>
-                    <td className="px-4 py-3 text-slate-600">
-                      {fmtDateTime(u.last_sign_in_at ?? null)}
-                    </td>
+                    <td className="px-4 py-3 text-slate-600 hidden lg:table-cell">{fmtDateTime(u.last_sign_in_at ?? null)}</td>
                     <td className="px-4 py-3 text-center">
                       <span className={boats > 0 ? "font-semibold text-slate-800" : "text-slate-400"}>{boats}</span>
                     </td>
@@ -179,12 +195,7 @@ export default async function AdminPage() {
                       <span className={trips > 0 ? "font-semibold text-slate-800" : "text-slate-400"}>{trips}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      {!isAdmin && (
-                        <DeleteUserDialog
-                          userId={u.id}
-                          userEmail={u.email ?? ""}
-                        />
-                      )}
+                      {!isAdmin && <DeleteUserDialog userId={u.id} userEmail={u.email ?? ""} />}
                     </td>
                   </tr>
                 );
