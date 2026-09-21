@@ -25,7 +25,17 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
     .eq("id", id)
     .single();
 
-  if (!itemData || itemData.user_id !== user.id) notFound();
+  if (!itemData) notFound();
+  if (itemData.user_id !== user.id) {
+    // Check if co-owner
+    const { data: membership } = await supabase
+      .from("boat_members")
+      .select("id")
+      .eq("boat_id", itemData.boat_id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!membership) notFound();
+  }
 
   const [componentsRes, categoriesRes, txRes] = await Promise.all([
     supabase.from("components").select("id, name").eq("boat_id", itemData.boat_id).order("name"),

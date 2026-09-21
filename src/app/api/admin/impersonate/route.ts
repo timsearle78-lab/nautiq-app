@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 8,
+    secure: process.env.NODE_ENV === "production",
   });
 
   // Build a local confirm URL that exchanges the token server-side and sets cookies

@@ -130,13 +130,16 @@ export function getComponentHealthSummary(
     daysSinceService != null && daysSinceService > 0
   ) {
     const hoursRemaining = hourInterval - hoursSinceService;
-    const hoursPerDay = hoursSinceService / daysSinceService;
-    const daysUntil = Math.round(hoursRemaining / hoursPerDay);
-    const hoursBased = new Date();
-    hoursBased.setDate(hoursBased.getDate() + daysUntil);
-    const hoursBasedStr = hoursBased.toISOString().slice(0, 10);
-    if (predictedDueDate === null || hoursBasedStr < predictedDueDate) {
-      predictedDueDate = hoursBasedStr;
+    if (hoursRemaining > 0) {
+      // only set hours-based prediction when not yet overdue on hours
+      const hoursPerDay = hoursSinceService / daysSinceService;
+      const daysUntil = Math.round(hoursRemaining / hoursPerDay);
+      const hoursBased = new Date();
+      hoursBased.setDate(hoursBased.getDate() + daysUntil);
+      const hoursBasedStr = hoursBased.toISOString().slice(0, 10);
+      if (predictedDueDate === null || hoursBasedStr < predictedDueDate) {
+        predictedDueDate = hoursBasedStr;
+      }
     }
   }
 
@@ -379,7 +382,7 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
     // Hours-based: extrapolate from current usage rate (hours/day since last service)
     if (
       hourInterval != null &&
-      hours_until_due != null &&
+      hours_until_due != null && hours_until_due > 0 &&
       hoursSinceService != null && hoursSinceService > 0 &&
       daysSinceService != null && daysSinceService > 0
     ) {
@@ -428,7 +431,7 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
       inactivityStatus = "overdue";
     } else if (daysSinceActivity >= 60) {
       inactivityPenalty = 35;
-      inactivityStatus = "overdue";
+      inactivityStatus = "due soon";
     } else if (daysSinceActivity >= 30) {
       inactivityPenalty = 15;
       inactivityStatus = "due soon";

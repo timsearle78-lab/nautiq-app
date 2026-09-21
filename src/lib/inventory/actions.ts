@@ -84,6 +84,7 @@ export async function adjustInventoryStock(
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "You must be signed in." };
 
     const boat_id = String(formData.get("boat_id") ?? "").trim();
     const inventory_item_id = String(formData.get("inventory_item_id") ?? "").trim();

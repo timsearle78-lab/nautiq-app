@@ -109,7 +109,11 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     return expiry <= in90Days;
   }).length;
 
-  const stockedCount = inventoryItems.length - lowStockCount - missingCriticalSpares.length;
+  const stockedCount = inventoryItems.filter((item) => {
+    const isMissing = item.is_critical && Number(item.quantity) <= 0;
+    const isLow = !isMissing && item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity);
+    return !isMissing && !isLow;
+  }).length;
 
   return (
     <main className="space-y-4">

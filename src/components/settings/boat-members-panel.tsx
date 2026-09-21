@@ -18,6 +18,7 @@ export function BoatMembersPanel({ boatId, boatName, isOwner }: Props) {
   const [inviteExpiry, setInviteExpiry] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [memberError, setMemberError] = useState<string | null>(null);
 
   async function loadMembers() {
     setLoading(true);
@@ -43,12 +44,22 @@ export function BoatMembersPanel({ boatId, boatName, isOwner }: Props) {
   }
 
   async function removeMember(memberId: string) {
-    await fetch(`/api/boats/${boatId}/members?memberId=${memberId}`, { method: "DELETE" });
+    setMemberError(null);
+    const res = await fetch(`/api/boats/${boatId}/members?memberId=${memberId}`, { method: "DELETE" });
+    if (!res.ok) {
+      setMemberError("Failed to remove member. Please try again.");
+      return;
+    }
     setMembers((prev) => prev.filter((m) => m.id !== memberId));
   }
 
   async function revokeInvite() {
-    await fetch(`/api/boats/${boatId}/invite`, { method: "DELETE" });
+    setMemberError(null);
+    const res = await fetch(`/api/boats/${boatId}/invite`, { method: "DELETE" });
+    if (!res.ok) {
+      setMemberError("Failed to revoke invite. Please try again.");
+      return;
+    }
     setInviteCode(null);
     setInviteExpiry(null);
   }
@@ -85,6 +96,9 @@ export function BoatMembersPanel({ boatId, boatName, isOwner }: Props) {
 
       {open && (
         <div className="mt-3 space-y-3">
+          {memberError && (
+            <p className="text-xs text-red-500">{memberError}</p>
+          )}
           {/* Member list */}
           {loading ? (
             <p className="text-xs text-slate-400">Loading…</p>

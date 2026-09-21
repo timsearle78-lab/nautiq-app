@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import AppHeader from "@/components/nav/app-header";
 import BottomNav from "@/components/nav/bottom-nav";
 import ScrollToTop from "@/components/ui/scroll-to-top";
@@ -38,9 +39,21 @@ export default async function AppLayout({
   const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim()).filter(Boolean); // empty if env var not set — no fallback
   const isAdmin = adminEmails.includes(email);
 
+  // Read impersonation cookie server-side
+  const cookieStore = await cookies();
+  let impersonationInfo: { adminEmail: string; adminId: string; targetEmail: string; targetId: string } | null = null;
+  try {
+    const raw = cookieStore.get("__nautiq_impersonating")?.value;
+    if (raw) impersonationInfo = JSON.parse(raw);
+  } catch { /* ignore */ }
+
   return (
     <div className="flex flex-col h-[100dvh]" style={{ background: "#F4F7FA" }}>
-      <ImpersonationBanner />
+      <ImpersonationBanner
+        adminEmail={impersonationInfo?.adminEmail}
+        targetEmail={impersonationInfo?.targetEmail}
+        targetId={impersonationInfo?.targetId}
+      />
       <AppHeader />
       <main className="flex-1 overflow-y-auto pb-16 mx-auto w-full max-w-[1040px]">
         {children}

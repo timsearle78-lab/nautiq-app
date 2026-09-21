@@ -1,30 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-type ImpersonationInfo = {
-  adminEmail: string;
-  targetEmail: string;
-};
-
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
-  return match ? decodeURIComponent(match[1]) : null;
+interface ImpersonationBannerProps {
+  adminEmail?: string;
+  targetEmail?: string;
+  targetId?: string;
 }
 
-export function ImpersonationBanner() {
-  const [info, setInfo] = useState<ImpersonationInfo | null>(null);
+export function ImpersonationBanner({ adminEmail, targetEmail, targetId }: ImpersonationBannerProps) {
   const [exiting, setExiting] = useState(false);
 
-  useEffect(() => {
-    try {
-      const raw = getCookie("__nautiq_impersonating");
-      if (raw) setInfo(JSON.parse(raw));
-    } catch { /* ignore */ }
-  }, []);
-
-  if (!info) return null;
+  if (!targetEmail || !adminEmail) return null;
 
   async function handleExit() {
     setExiting(true);
@@ -39,8 +26,8 @@ export function ImpersonationBanner() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
         </svg>
         <span className="truncate">
-          Admin view: logged in as <strong>{info.targetEmail}</strong>
-          <span className="hidden sm:inline text-amber-800 font-normal"> (your account: {info.adminEmail})</span>
+          Admin view: logged in as <strong>{targetEmail}</strong>
+          <span className="hidden sm:inline text-amber-800 font-normal"> (your account: {adminEmail})</span>
         </span>
       </div>
       <button
