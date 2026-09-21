@@ -28,7 +28,7 @@ export default async function CostsPage() {
 
   const [selectedBoatId, { data: boats }] = await Promise.all([
     getSelectedBoatId(),
-    supabase.from("boats").select("id, name").eq("user_id", user.id).order("created_at", { ascending: true }),
+    supabase.from("boats").select("id, name").order("created_at", { ascending: true }),
   ]);
 
   const boatList = boats ?? [];

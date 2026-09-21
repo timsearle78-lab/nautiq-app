@@ -113,7 +113,6 @@ export default async function MaintenancePage({
   const { data: boatsData, error: boatsError } = await supabase
     .from("boats")
     .select("id,name,type,created_at")
-    .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
   if (boatsError) {
