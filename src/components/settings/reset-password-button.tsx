@@ -20,7 +20,7 @@ export function ResetPasswordButton({ email }: { email: string }) {
 
   if (status === "sent") {
     return (
-      <p className="text-sm text-emerald-600 font-medium">
+      <p className="text-sm text-green-600 font-medium">
         Password reset email sent — check your inbox.
       </p>
     );

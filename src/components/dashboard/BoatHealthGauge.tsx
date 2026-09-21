@@ -65,7 +65,7 @@ export default function BoatHealthGauge({ score }: BoatHealthGaugeProps) {
         </text>
       </svg>
 
-      <div style={{ marginTop: 8, fontSize: 14, color: "#666" }}>
+      <div style={{ marginTop: 8, fontSize: 14, color: "var(--color-navy-mute)" }}>
         Boat Health
       </div>
     </div>

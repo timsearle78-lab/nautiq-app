@@ -22,7 +22,7 @@ export function SpendByMonthChart({ bars }: { bars: MonthBar[] }) {
           Maint.
         </span>
         <span className="flex items-center gap-1 text-[9px] text-slate-500">
-          <span className="inline-block w-2 h-2 rounded-sm bg-emerald-400" />
+          <span className="inline-block w-2 h-2 rounded-sm bg-green-400" />
           Parts
         </span>
       </div>
@@ -46,7 +46,7 @@ export function SpendByMonthChart({ bars }: { bars: MonthBar[] }) {
               )}
               <div className="w-full flex flex-col rounded-t overflow-hidden" style={{ height: `${totalPx}px` }}>
                 {partsPx > 0 && (
-                  <div className={`w-full transition-colors ${bar.isCurrent ? "bg-emerald-400" : "bg-emerald-200 group-hover:bg-emerald-400"}`} style={{ height: `${partsPx}px` }} />
+                  <div className={`w-full transition-colors ${bar.isCurrent ? "bg-green-400" : "bg-green-200 group-hover:bg-green-400"}`} style={{ height: `${partsPx}px` }} />
                 )}
                 {maintPx > 0 && (
                   <div className={`w-full transition-colors ${bar.isCurrent ? "bg-ocean-500" : "bg-ocean-200 group-hover:bg-ocean-500"}`} style={{ height: `${maintPx}px` }} />

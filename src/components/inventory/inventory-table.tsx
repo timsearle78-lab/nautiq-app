@@ -35,13 +35,13 @@ export function InventoryTable({
   return (
     <section className="card overflow-hidden">
       <div className="px-4 py-3" style={{ borderBottom: "1.5px solid #DBE3EA" }}>
-        <h2 style={{ fontSize: 16, fontWeight: 800, color: "#0B2942" }}>
-          Inventory <span style={{ fontSize: 13, fontWeight: 500, color: "#8FB3CC", marginLeft: 6 }}>({items.length})</span>
+        <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--color-navy-700)" }}>
+          Inventory <span style={{ fontSize: 13, fontWeight: 500, color: "var(--color-navy-mute)", marginLeft: 6 }}>({items.length})</span>
         </h2>
       </div>
 
       {items.length === 0 ? (
-        <p className="px-4 py-6" style={{ fontSize: 14, color: "#8FB3CC" }}>No inventory items found.</p>
+        <p className="px-4 py-6" style={{ fontSize: 14, color: "var(--color-navy-mute)" }}>No inventory items found.</p>
       ) : (
         <div className="divide-y divide-[#DBE3EA]">
           {items.map((item) => {
@@ -57,12 +57,12 @@ export function InventoryTable({
                   <div className="min-w-0">
                     <Link
                       href={`/inventory/${item.id}`}
-                      style={{ fontSize: 15, fontWeight: 800, color: "#0B2942" }}
+                      style={{ fontSize: 15, fontWeight: 800, color: "var(--color-navy-700)" }}
                       className="truncate block hover:opacity-70 transition-opacity"
                     >
                       {item.name}
                     </Link>
-                    <div style={{ fontSize: 13, color: "#8FB3CC", marginTop: 2 }}>
+                    <div style={{ fontSize: 13, color: "var(--color-navy-mute)", marginTop: 2 }}>
                       {item.category ?? "Uncategorised"}
                       {item.is_critical ? " · Critical" : ""}
                       {item.storage_location ? ` · ${item.storage_location}` : ""}
@@ -70,7 +70,7 @@ export function InventoryTable({
                     {item.component && (
                       <Link
                         href={`/components/${item.component.id}`}
-                        style={{ fontSize: 13, fontWeight: 600, color: "#0B7EB8" }}
+                        style={{ fontSize: 13, fontWeight: 600, color: "var(--color-ocean-600)" }}
                         className="mt-0.5 inline-block hover:opacity-70 transition-opacity"
                       >
                         {item.component.name}
@@ -79,12 +79,12 @@ export function InventoryTable({
                   </div>
                   <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
                     <div className="flex items-center gap-1.5">
-                      <span style={{ fontSize: 15, fontWeight: 800, color: "#0B2942" }}>
+                      <span style={{ fontSize: 15, fontWeight: 800, color: "var(--color-navy-700)" }}>
                         {item.quantity}{item.unit ? ` ${item.unit}` : ""}
                       </span>
                       <Link
                         href={`/inventory/${item.id}`}
-                        style={{ color: "#8FB3CC" }}
+                        style={{ color: "var(--color-navy-mute)" }}
                         className="rounded-lg p-1 hover:opacity-70 transition-opacity"
                         aria-label="Edit item"
                       >

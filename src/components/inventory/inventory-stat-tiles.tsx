@@ -46,56 +46,56 @@ export function InventoryStatTiles({
       label: "TOTAL",
       count: totalCount,
       filterValue: "",
-      bg: "#F4F7FA",
-      activeBg: "#0B7EB8",
-      fg: "#0B2942",
+      bg: "var(--color-app-bg)",
+      activeBg: "var(--color-ocean-600)",
+      fg: "var(--color-navy-700)",
       activeFg: "#FFFFFF",
-      border: "#DBE3EA",
-      activeBorder: "#0B7EB8",
+      border: "var(--color-border)",
+      activeBorder: "var(--color-ocean-600)",
     },
     {
       label: "MISSING",
       count: missingCount,
       filterValue: "missing",
-      bg: missingCount > 0 ? "#E0342A" : "#F4F7FA",
-      activeBg: "#E0342A",
-      fg: missingCount > 0 ? "#FFFFFF" : "#0B2942",
+      bg: missingCount > 0 ? "var(--color-status-critical-fg)" : "var(--color-app-bg)",
+      activeBg: "var(--color-status-critical-fg)",
+      fg: missingCount > 0 ? "#FFFFFF" : "var(--color-navy-700)",
       activeFg: "#FFFFFF",
-      border: missingCount > 0 ? "#E0342A" : "#DBE3EA",
-      activeBorder: "#E0342A",
+      border: missingCount > 0 ? "var(--color-status-critical-fg)" : "var(--color-border)",
+      activeBorder: "var(--color-status-critical-fg)",
     },
     {
       label: "LOW",
       count: lowStockCount,
       filterValue: "low",
-      bg: lowStockCount > 0 ? "#D9A300" : "#F4F7FA",
-      activeBg: "#D9A300",
-      fg: lowStockCount > 0 ? "#FFFFFF" : "#0B2942",
+      bg: lowStockCount > 0 ? "var(--color-status-warning-fg)" : "var(--color-app-bg)",
+      activeBg: "var(--color-status-warning-fg)",
+      fg: lowStockCount > 0 ? "#FFFFFF" : "var(--color-navy-700)",
       activeFg: "#FFFFFF",
-      border: lowStockCount > 0 ? "#D9A300" : "#DBE3EA",
-      activeBorder: "#D9A300",
+      border: lowStockCount > 0 ? "var(--color-status-warning-fg)" : "var(--color-border)",
+      activeBorder: "var(--color-status-warning-fg)",
     },
     {
       label: "STOCKED",
       count: stockedCount,
       filterValue: "ok",
-      bg: stockedCount > 0 ? "#0E7A3D" : "#F4F7FA",
-      activeBg: "#0E7A3D",
-      fg: stockedCount > 0 ? "#FFFFFF" : "#0B2942",
+      bg: stockedCount > 0 ? "var(--color-status-healthy-fg)" : "var(--color-app-bg)",
+      activeBg: "var(--color-status-healthy-fg)",
+      fg: stockedCount > 0 ? "#FFFFFF" : "var(--color-navy-700)",
       activeFg: "#FFFFFF",
-      border: stockedCount > 0 ? "#0E7A3D" : "#DBE3EA",
-      activeBorder: "#0E7A3D",
+      border: stockedCount > 0 ? "var(--color-status-healthy-fg)" : "var(--color-border)",
+      activeBorder: "var(--color-status-healthy-fg)",
     },
     {
       label: "EXPIRING",
       count: expiringSoonCount,
       filterValue: "expiring",
-      bg: expiringSoonCount > 0 ? "#D9A300" : "#F4F7FA",
-      activeBg: "#D9A300",
-      fg: expiringSoonCount > 0 ? "#FFFFFF" : "#0B2942",
+      bg: expiringSoonCount > 0 ? "var(--color-status-warning-fg)" : "var(--color-app-bg)",
+      activeBg: "var(--color-status-warning-fg)",
+      fg: expiringSoonCount > 0 ? "#FFFFFF" : "var(--color-navy-700)",
       activeFg: "#FFFFFF",
-      border: expiringSoonCount > 0 ? "#D9A300" : "#DBE3EA",
-      activeBorder: "#D9A300",
+      border: expiringSoonCount > 0 ? "var(--color-status-warning-fg)" : "var(--color-border)",
+      activeBorder: "var(--color-status-warning-fg)",
     },
   ];
 
@@ -153,8 +153,8 @@ export function InventoryStatTiles({
               backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238FB3CC' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
               backgroundRepeat: "no-repeat",
               backgroundPosition: "right 10px center",
-              border: `1.5px solid ${componentId ? "#0B7EB8" : "#DBE3EA"}`,
-              color: componentId ? "#0B7EB8" : "#0B2942",
+              border: `1.5px solid ${componentId ? "var(--color-ocean-600)" : "var(--color-border)"}`,
+              color: componentId ? "var(--color-ocean-600)" : "var(--color-navy-700)",
             }}
           >
             <option value="">All components</option>
@@ -168,7 +168,7 @@ export function InventoryStatTiles({
             <button
               type="button"
               onClick={() => router.push(pathname)}
-              style={{ fontSize: 12, color: "#8FB3CC", fontWeight: 600 }}
+              style={{ fontSize: 12, color: "var(--color-navy-mute)", fontWeight: 600 }}
             >
               Clear filters
             </button>

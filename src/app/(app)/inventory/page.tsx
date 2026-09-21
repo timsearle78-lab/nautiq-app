@@ -120,7 +120,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
   return (
     <main className="space-y-4">
       {/* Navy page hero */}
-      <div className="w-full px-4 pt-5 pb-5" style={{ background: "#0B2942" }}>
+      <div className="w-full px-4 pt-5 pb-5" style={{ background: "var(--color-navy-700)" }}>
         <div className="flex items-center justify-between gap-3">
           <div>
             <h1 style={{ fontSize: 28, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>Inventory</h1>

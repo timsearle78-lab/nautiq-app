@@ -84,19 +84,19 @@ type StatCardProps = { label: string; week: string; month: string; year: string 
 function StatCard({ label, week, month, year }: StatCardProps) {
   return (
     <div className="card p-4">
-      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#8FB3CC", textTransform: "uppercase", marginBottom: 12 }}>{label}</div>
+      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "var(--color-navy-mute)", textTransform: "uppercase", marginBottom: 12 }}>{label}</div>
       <div className="grid grid-cols-3 gap-2 text-center">
         <div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#0B2942" }}>{week}</div>
-          <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>This week</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-navy-700)" }}>{week}</div>
+          <div style={{ fontSize: 11, color: "var(--color-navy-mute)", marginTop: 2 }}>This week</div>
         </div>
         <div style={{ borderLeft: "1.5px solid #DBE3EA", borderRight: "1.5px solid #DBE3EA" }}>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#0B2942" }}>{month}</div>
-          <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>This month</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-navy-700)" }}>{month}</div>
+          <div style={{ fontSize: 11, color: "var(--color-navy-mute)", marginTop: 2 }}>This month</div>
         </div>
         <div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#0B2942" }}>{year}</div>
-          <div style={{ fontSize: 11, color: "#8FB3CC", marginTop: 2 }}>This year</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-navy-700)" }}>{year}</div>
+          <div style={{ fontSize: 11, color: "var(--color-navy-mute)", marginTop: 2 }}>This year</div>
         </div>
       </div>
     </div>
@@ -174,7 +174,7 @@ export default async function TripsPage() {
   return (
     <main className="space-y-5">
       {/* Navy page hero */}
-      <div className="w-full px-4 pt-5 pb-5" style={{ background: "#0B2942" }}>
+      <div className="w-full px-4 pt-5 pb-5" style={{ background: "var(--color-navy-700)" }}>
         <div className="flex items-center justify-between gap-3">
           <div>
             <h1 style={{ fontSize: 28, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>Trips</h1>
@@ -213,16 +213,16 @@ export default async function TripsPage() {
         {/* Trip list */}
         <div className="card overflow-hidden">
           <div className="px-4 py-3" style={{ borderBottom: "1.5px solid #DBE3EA" }}>
-            <span style={{ fontSize: 15, fontWeight: 800, color: "#0B2942" }}>All trips</span>
-            <span style={{ fontSize: 13, color: "#8FB3CC", marginLeft: 8 }}>{trips.length} total</span>
+            <span style={{ fontSize: 15, fontWeight: 800, color: "var(--color-navy-700)" }}>All trips</span>
+            <span style={{ fontSize: 13, color: "var(--color-navy-mute)", marginLeft: 8 }}>{trips.length} total</span>
           </div>
 
           {trips.length === 0 ? (
-            <div className="px-4 py-8 text-center" style={{ fontSize: 14, color: "#8FB3CC" }}>
+            <div className="px-4 py-8 text-center" style={{ fontSize: 14, color: "var(--color-navy-mute)" }}>
               No trips logged yet. Head to the chat to log your first trip.
             </div>
           ) : (
-            <ul className="divide-y" style={{ borderColor: "#DBE3EA" }}>
+            <ul className="divide-y" style={{ borderColor: "var(--color-border)" }}>
               {trips.map((trip) => {
                 const startTime = fmtTime(trip.started_at);
                 const endTime = fmtTime(trip.ended_at);
@@ -231,10 +231,10 @@ export default async function TripsPage() {
                   <li key={trip.id} className="px-4 py-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <div style={{ fontSize: 14, fontWeight: 800, color: "#0B2942" }}>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: "var(--color-navy-700)" }}>
                           {fmtDate(trip.started_at)}
                         </div>
-                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5" style={{ fontSize: 12, color: "#8FB3CC" }}>
+                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5" style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>
                           {(startTime || endTime) && (
                             <span>
                               {startTime ?? "—"}
@@ -249,12 +249,12 @@ export default async function TripsPage() {
                           )}
                         </div>
                         {trip.notes && (
-                          <div className="mt-1 line-clamp-2" style={{ fontSize: 12, color: "#8FB3CC" }}>{trip.notes}</div>
+                          <div className="mt-1 line-clamp-2" style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>{trip.notes}</div>
                         )}
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
                         {src && (
-                          <span className="rounded-full px-2 py-0.5" style={{ fontSize: 11, fontWeight: 700, background: "#E6F3FA", color: "#0B7EB8" }}>
+                          <span className="rounded-full px-2 py-0.5" style={{ fontSize: 11, fontWeight: 700, background: "var(--color-cyan-50)", color: "var(--color-ocean-600)" }}>
                             {src}
                           </span>
                         )}

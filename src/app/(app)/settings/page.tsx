@@ -93,7 +93,7 @@ export default async function SettingsPage() {
               <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex items-center gap-2">
                 <span className="text-sm font-semibold text-slate-700">{boat.name}</span>
                 {!isOwner && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 font-medium">Co-owner</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-ocean-100 text-ocean-600 font-medium">Co-owner</span>
                 )}
               </div>
               <div className="px-4 py-4 space-y-4">

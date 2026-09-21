@@ -12,11 +12,11 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
   .filter(Boolean);
 
 const ACTION_LABELS: Record<string, { label: string; color: string }> = {
-  "trip.created":          { label: "Trip logged",            color: "bg-sky-100 text-sky-700" },
-  "trip.updated":          { label: "Trip edited",            color: "bg-sky-50 text-sky-600" },
+  "trip.created":          { label: "Trip logged",            color: "bg-ocean-100 text-ocean-700" },
+  "trip.updated":          { label: "Trip edited",            color: "bg-ocean-50 text-ocean-600" },
   "trip.deleted":          { label: "Trip deleted",           color: "bg-red-50 text-red-600" },
-  "maintenance.logged":    { label: "Maintenance logged",     color: "bg-emerald-100 text-emerald-700" },
-  "maintenance.updated":   { label: "Maintenance edited",     color: "bg-emerald-50 text-emerald-600" },
+  "maintenance.logged":    { label: "Maintenance logged",     color: "bg-green-100 text-green-700" },
+  "maintenance.updated":   { label: "Maintenance edited",     color: "bg-green-50 text-green-600" },
   "maintenance.deleted":   { label: "Maintenance deleted",    color: "bg-red-50 text-red-600" },
   "checkin.logged":        { label: "Boat check-in",          color: "bg-amber-100 text-amber-700" },
   "inventory.created":     { label: "Inventory item added",   color: "bg-violet-100 text-violet-700" },

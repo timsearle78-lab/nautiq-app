@@ -41,10 +41,10 @@ export default function GreetingCard({ boatId, hidden }: GreetingCardProps) {
   const paragraphs = data?.greeting.split(/\n\n+/).filter(Boolean) ?? [];
 
   const chipStyle = (color: "green" | "amber" | "red" | "neutral"): React.CSSProperties => {
-    if (color === "green") return { background: "#0E7A3D", color: "#FFFFFF", border: "1.5px solid #0E7A3D" };
-    if (color === "amber") return { background: "#D9A300", color: "#3D2A00", border: "1.5px solid #D9A300" };
-    if (color === "red") return { background: "#E0342A", color: "#FFFFFF", border: "1.5px solid #E0342A" };
-    return { background: "#F4F7FA", color: "#8FB3CC", border: "1.5px solid #DBE3EA" };
+    if (color === "green") return { background: "var(--color-status-healthy-fg)", color: "#FFFFFF", border: "1.5px solid #0E7A3D" };
+    if (color === "amber") return { background: "var(--color-status-warning-fg)", color: "var(--color-amber-ink)", border: "1.5px solid #D9A300" };
+    if (color === "red") return { background: "var(--color-status-critical-fg)", color: "#FFFFFF", border: "1.5px solid #E0342A" };
+    return { background: "var(--color-app-bg)", color: "var(--color-navy-mute)", border: "1.5px solid #DBE3EA" };
   };
 
   const healthChipColor = data
@@ -62,23 +62,23 @@ export default function GreetingCard({ boatId, hidden }: GreetingCardProps) {
           <div className="flex items-center gap-2">
             <div
               className="flex h-7 w-7 items-center justify-center rounded-full flex-shrink-0"
-              style={{ background: "#0B2942" }}
+              style={{ background: "var(--color-navy-700)" }}
             >
               <svg width={14} height={14} viewBox="0 0 100 100" fill="none" aria-hidden="true">
-                <circle cx="50" cy="18" r="9" fill="#FFC730" />
+                <circle cx="50" cy="18" r="9" fill="var(--color-amber-400)" />
                 <line x1="50" y1="27" x2="50" y2="84" stroke="#FFFFFF" strokeWidth="7" strokeLinecap="round" />
                 <line x1="26" y1="43" x2="74" y2="43" stroke="#FFFFFF" strokeWidth="7" strokeLinecap="round" />
                 <path d="M16 56 C 16 76, 32 86, 50 86 C 68 86, 84 76, 84 56" stroke="#FFFFFF" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" fill="none" />
               </svg>
             </div>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "#0B2942" }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-navy-700)" }}>
               NautIQ — Your Personal Boat Assistant
             </span>
           </div>
           <button
             onClick={() => setDismissed(true)}
             className="transition-opacity hover:opacity-70 shrink-0"
-            style={{ color: "#8FB3CC", fontSize: 15, lineHeight: 1 }}
+            style={{ color: "var(--color-navy-mute)", fontSize: 15, lineHeight: 1 }}
             aria-label="Dismiss"
           >
             ✕
@@ -121,8 +121,8 @@ export default function GreetingCard({ boatId, hidden }: GreetingCardProps) {
           </div>
         ) : (
           <div className="flex gap-1.5 mb-3">
-            <div className="h-5 w-24 rounded-full animate-pulse" style={{ background: "#F4F7FA" }} />
-            <div className="h-5 w-20 rounded-full animate-pulse" style={{ background: "#F4F7FA" }} />
+            <div className="h-5 w-24 rounded-full animate-pulse" style={{ background: "var(--color-app-bg)" }} />
+            <div className="h-5 w-20 rounded-full animate-pulse" style={{ background: "var(--color-app-bg)" }} />
           </div>
         )}
 
@@ -130,20 +130,20 @@ export default function GreetingCard({ boatId, hidden }: GreetingCardProps) {
         {paragraphs.length > 0 ? (
           <div className="space-y-2">
             {paragraphs.map((p, i) => (
-              <p key={i} style={{ fontSize: 14, color: "#0B2942", lineHeight: 1.6 }}>{p}</p>
+              <p key={i} style={{ fontSize: 14, color: "var(--color-navy-700)", lineHeight: 1.6 }}>{p}</p>
             ))}
           </div>
         ) : (
           <div className="space-y-2">
-            <div className="h-3.5 rounded animate-pulse w-full" style={{ background: "#F4F7FA" }} />
-            <div className="h-3.5 rounded animate-pulse w-4/5" style={{ background: "#F4F7FA" }} />
-            <div className="h-3.5 rounded animate-pulse w-3/5" style={{ background: "#F4F7FA" }} />
+            <div className="h-3.5 rounded animate-pulse w-full" style={{ background: "var(--color-app-bg)" }} />
+            <div className="h-3.5 rounded animate-pulse w-4/5" style={{ background: "var(--color-app-bg)" }} />
+            <div className="h-3.5 rounded animate-pulse w-3/5" style={{ background: "var(--color-app-bg)" }} />
           </div>
         )}
 
         {data && (
           <div className="mt-3" style={{ borderTop: "1.5px solid #DBE3EA", paddingTop: 10 }}>
-            <a href="/health" style={{ fontSize: 13, fontWeight: 700, color: "#0B7EB8" }}>
+            <a href="/health" style={{ fontSize: 13, fontWeight: 700, color: "var(--color-ocean-600)" }}>
               Read full update →
             </a>
           </div>

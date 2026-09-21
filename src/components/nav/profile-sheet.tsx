@@ -89,7 +89,7 @@ export default function ProfileSheet({ email, initials, isAdmin, boats = [], sel
             {/* Boat switcher */}
             {boats.length > 0 && (
               <div className="px-5 pb-4" style={{ borderBottom: "1.5px solid #DBE3EA" }}>
-                <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#8FB3CC", textTransform: "uppercase", marginBottom: 8 }}>My boats</p>
+                <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "var(--color-navy-mute)", textTransform: "uppercase", marginBottom: 8 }}>My boats</p>
                 <div className="space-y-1">
                   {boats.map((boat) => {
                     const isActive = boat.id === selectedBoatId;
@@ -109,26 +109,26 @@ export default function ProfileSheet({ email, initials, isAdmin, boats = [], sel
                         }}
                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left"
                         style={{
-                          background: isActive ? "#0B2942" : isSwitching ? "#EBF2F8" : "#F4F7FA",
-                          border: `1.5px solid ${isActive ? "#0B2942" : isSwitching ? "#0B7EB8" : "#DBE3EA"}`,
+                          background: isActive ? "var(--color-navy-700)" : isSwitching ? "#EBF2F8" : "var(--color-app-bg)",
+                          border: `1.5px solid ${isActive ? "var(--color-navy-700)" : isSwitching ? "var(--color-ocean-600)" : "var(--color-border)"}`,
                           opacity: switchingBoatId && !isSwitching ? 0.5 : 1,
                         }}
                       >
                         {isSwitching ? (
                           <span style={{
                             width: 15, height: 15, flexShrink: 0,
-                            border: "2px solid #DBE3EA", borderTopColor: "#0B7EB8",
+                            border: "2px solid #DBE3EA", borderTopColor: "var(--color-ocean-600)",
                             borderRadius: "50%", display: "inline-block",
                             animation: "spin 0.7s linear infinite",
                           }} />
                         ) : (
-                          <Anchor size={15} style={{ color: isActive ? "#FFC730" : "#8FB3CC", flexShrink: 0 }} />
+                          <Anchor size={15} style={{ color: isActive ? "var(--color-amber-400)" : "var(--color-navy-mute)", flexShrink: 0 }} />
                         )}
-                        <span style={{ fontSize: 14, fontWeight: 700, color: isActive ? "#FFFFFF" : isSwitching ? "#0B7EB8" : "#0B2942" }}>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: isActive ? "#FFFFFF" : isSwitching ? "var(--color-ocean-600)" : "var(--color-navy-700)" }}>
                           {isSwitching ? "Switching…" : boat.name}
                         </span>
                         {isActive && !isSwitching && (
-                          <span className="ml-auto rounded-full px-2 py-0.5" style={{ fontSize: 11, fontWeight: 700, background: "#FFC730", color: "#3D2A00" }}>
+                          <span className="ml-auto rounded-full px-2 py-0.5" style={{ fontSize: 11, fontWeight: 700, background: "var(--color-amber-400)", color: "var(--color-amber-ink)" }}>
                             Active
                           </span>
                         )}

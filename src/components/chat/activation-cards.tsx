@@ -22,7 +22,7 @@ function DismissibleCard({ id, children }: { id: string; children: React.ReactNo
       <button
         onClick={dismiss}
         className="absolute top-3 right-3 p-1 rounded-full transition-opacity hover:opacity-70"
-        style={{ color: "#8FB3CC" }}
+        style={{ color: "var(--color-navy-mute)" }}
         aria-label="Dismiss"
       >
         <X size={14} />
@@ -38,13 +38,13 @@ export function NoTripsCard({ boatId }: { boatId: string }) {
         <div className="flex items-start gap-3 px-4 py-3.5 pr-10">
           <div
             className="flex h-8 w-8 items-center justify-center rounded-full shrink-0 mt-0.5"
-            style={{ background: "#0B7EB8" }}
+            style={{ background: "var(--color-ocean-600)" }}
           >
             <MapPin size={14} color="#FFFFFF" />
           </div>
           <div className="min-w-0 flex-1">
-            <p style={{ fontSize: 15, fontWeight: 800, color: "#0B2942" }}>Log your first trip</p>
-            <p style={{ fontSize: 13, color: "#8FB3CC", marginTop: 2, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 15, fontWeight: 800, color: "var(--color-navy-700)" }}>Log your first trip</p>
+            <p style={{ fontSize: 13, color: "var(--color-navy-mute)", marginTop: 2, lineHeight: 1.5 }}>
               Track engine hours and fuel every time you head out — NautIQ uses this to predict when components are due for service.
             </p>
           </div>
@@ -58,7 +58,7 @@ export function NoTripsCard({ boatId }: { boatId: string }) {
             Log a trip
             <ChevronRight size={12} />
           </Link>
-          <span style={{ fontSize: 12, color: "#8FB3CC" }}>or say "I just went for a sail"</span>
+          <span style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>or say "I just went for a sail"</span>
         </div>
       </div>
     </DismissibleCard>
@@ -72,13 +72,13 @@ export function NoInventoryCard() {
         <div className="flex items-start gap-3 px-4 py-3.5 pr-10">
           <div
             className="flex h-8 w-8 items-center justify-center rounded-full shrink-0 mt-0.5"
-            style={{ background: "#0E7A3D" }}
+            style={{ background: "var(--color-status-healthy-fg)" }}
           >
             <Package size={14} color="#FFFFFF" />
           </div>
           <div className="min-w-0 flex-1">
-            <p style={{ fontSize: 15, fontWeight: 800, color: "#0B2942" }}>Add your first spare parts</p>
-            <p style={{ fontSize: 13, color: "#8FB3CC", marginTop: 2, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 15, fontWeight: 800, color: "var(--color-navy-700)" }}>Add your first spare parts</p>
+            <p style={{ fontSize: 13, color: "var(--color-navy-mute)", marginTop: 2, lineHeight: 1.5 }}>
               Keep track of what&apos;s on board — oil filters, impellers, flares, first aid kit. NautIQ alerts you when stocks run low or items expire.
             </p>
           </div>
@@ -92,7 +92,7 @@ export function NoInventoryCard() {
             Add spares
             <ChevronRight size={12} />
           </Link>
-          <span style={{ fontSize: 12, color: "#8FB3CC" }}>or scan a product with the camera</span>
+          <span style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>or scan a product with the camera</span>
         </div>
       </div>
     </DismissibleCard>

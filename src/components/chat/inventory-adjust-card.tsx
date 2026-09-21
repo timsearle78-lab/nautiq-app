@@ -90,7 +90,7 @@ function CreateItemCard({
 
   if (saved) {
     return (
-      <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 flex items-center gap-2">
+      <div className="mt-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 flex items-center gap-2">
         <span>✓</span>
         <span>"{name}" added to inventory</span>
       </div>
@@ -237,7 +237,7 @@ export default function InventoryAdjustCard({
 
   if (saved) {
     return (
-      <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 flex items-center gap-2">
+      <div className="mt-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 flex items-center gap-2">
         <span>✓</span>
         <span>Inventory {isAdd ? "restocked" : "updated"}</span>
       </div>

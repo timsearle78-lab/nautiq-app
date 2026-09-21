@@ -44,14 +44,14 @@ export default function LoginForm() {
     background: "#FFFFFF",
     padding: "13px 15px",
     fontSize: 14.5,
-    color: "#0F2335",
+    color: "var(--color-navy-700)",
     width: "100%",
     outline: "none",
   } as const;
 
   const focusHandlers = {
     onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
-      e.target.style.borderColor = "#0B7EB8";
+      e.target.style.borderColor = "var(--color-ocean-600)";
       e.target.style.boxShadow = "0 0 0 4px rgba(11,126,184,.14)";
     },
     onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
@@ -105,8 +105,8 @@ export default function LoginForm() {
         {/* White form panel */}
         <div className="flex-1 px-6 py-8 md:p-10" style={{ background: "#FFFFFF" }}>
           <div className="mx-auto max-w-sm">
-            <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0F2335" }}>Sign in</h2>
-            <p className="mt-2" style={{ fontSize: 14, color: "#8FB3CC" }}>
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: "var(--color-navy-700)" }}>Sign in</h2>
+            <p className="mt-2" style={{ fontSize: 14, color: "var(--color-navy-mute)" }}>
               Access your boat and maintenance planner.
             </p>
 
@@ -115,7 +115,7 @@ export default function LoginForm() {
                 <label
                   htmlFor="email"
                   className="mb-2 block"
-                  style={{ fontSize: 13, fontWeight: 600, color: "#0F2335" }}
+                  style={{ fontSize: 13, fontWeight: 600, color: "var(--color-navy-700)" }}
                 >
                   Email
                 </label>
@@ -136,13 +136,13 @@ export default function LoginForm() {
                 <div className="mb-2 flex items-center justify-between">
                   <label
                     htmlFor="password"
-                    style={{ fontSize: 13, fontWeight: 600, color: "#0F2335" }}
+                    style={{ fontSize: 13, fontWeight: 600, color: "var(--color-navy-700)" }}
                   >
                     Password
                   </label>
                   <Link
                     href="/forgot-password"
-                    style={{ fontSize: 13, color: "#8FB3CC" }}
+                    style={{ fontSize: 13, color: "var(--color-navy-mute)" }}
                     className="hover:text-ocean-600 transition-colors"
                   >
                     Forgot password?
@@ -172,7 +172,7 @@ export default function LoginForm() {
                   <div className="w-10 h-6 rounded-full bg-slate-200 peer-checked:bg-ocean-500 transition-colors" />
                   <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4" />
                 </div>
-                <span style={{ fontSize: 13, color: "#0F2335", fontWeight: 500 }}>Stay signed in on this device</span>
+                <span style={{ fontSize: 13, color: "var(--color-navy-700)", fontWeight: 500 }}>Stay signed in on this device</span>
               </label>
 
               <button
@@ -190,7 +190,7 @@ export default function LoginForm() {
                     borderRadius: 11,
                     border: `1px solid ${isError ? "#F3C4C4" : "#B8E2C8"}`,
                     background: isError ? "#FDEBEB" : "#E7F6EE",
-                    color: isError ? "#E0342A" : "#0E7A3D",
+                    color: isError ? "var(--color-status-critical-fg)" : "var(--color-status-healthy-fg)",
                     fontSize: 13,
                   }}
                 >
@@ -199,29 +199,29 @@ export default function LoginForm() {
               ) : null}
             </form>
 
-            <p className="mt-6" style={{ fontSize: 14, color: "#8FB3CC" }}>
+            <p className="mt-6" style={{ fontSize: 14, color: "var(--color-navy-mute)" }}>
               New to NautIQ?{" "}
               <Link
                 href="/signup"
-                style={{ fontWeight: 600, color: "#0B7EB8" }}
+                style={{ fontWeight: 600, color: "var(--color-ocean-600)" }}
                 className="hover:underline"
               >
                 Create an account
               </Link>
             </p>
 
-            <p className="mt-4" style={{ fontSize: 12, color: "#8FB3CC" }}>
+            <p className="mt-4" style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>
               By signing in you agree to our{" "}
-              <Link href="/legal/terms" style={{ color: "#0B7EB8" }} className="hover:underline">Terms of Service</Link>
+              <Link href="/legal/terms" style={{ color: "var(--color-ocean-600)" }} className="hover:underline">Terms of Service</Link>
               {" "}and{" "}
-              <Link href="/legal/privacy" style={{ color: "#0B7EB8" }} className="hover:underline">Privacy Policy</Link>.
+              <Link href="/legal/privacy" style={{ color: "var(--color-ocean-600)" }} className="hover:underline">Privacy Policy</Link>.
             </p>
           </div>
         </div>
       </div>
 
       {process.env.NEXT_PUBLIC_BUILD_TIME && (
-        <p className="mt-4 text-xs hidden md:block" style={{ color: "#8FB3CC" }}>
+        <p className="mt-4 text-xs hidden md:block" style={{ color: "var(--color-navy-mute)" }}>
           v{new Date(process.env.NEXT_PUBLIC_BUILD_TIME).toLocaleString(undefined, {
             year: "numeric", month: "short", day: "numeric",
             hour: "2-digit", minute: "2-digit",
