@@ -27,10 +27,29 @@ export default async function AppLayout({
     .order("created_at", { ascending: true });
 
   const boats = boatsData ?? [];
-  if (boats.length === 0) redirect("/onboarding");
+
+  if (boats.length === 0) {
+    // Before sending to onboarding, check if this user is a member of any shared boat
+    const { data: memberBoats } = await supabase
+      .from("boat_members")
+      .select("boat_id")
+      .eq("user_id", user.id)
+      .limit(1);
+    if (!memberBoats || memberBoats.length === 0) redirect("/onboarding");
+  }
 
   const selectedBoatId = await getSelectedBoatId();
-  const boatId = boats.find((b) => b.id === selectedBoatId)?.id ?? boats[0].id;
+
+  // Fall back to member boats if the user owns none
+  let boatId = boats.find((b) => b.id === selectedBoatId)?.id ?? boats[0]?.id;
+  if (!boatId) {
+    const { data: allAccessible } = await supabase
+      .from("boats")
+      .select("id")
+      .order("created_at", { ascending: true })
+      .limit(1);
+    boatId = allAccessible?.[0]?.id ?? "";
+  }
 
   const email = user.email ?? "";
   const initials = email.slice(0, 2).toUpperCase();
