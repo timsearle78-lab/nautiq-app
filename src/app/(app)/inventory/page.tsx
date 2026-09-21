@@ -8,6 +8,7 @@ import {
   getMissingCriticalSpares,
 } from "@/lib/inventory/queries";
 import { getSelectedBoatId } from "@/lib/selected-boat";
+import { getUser, getUserBoats } from "@/lib/supabase/cached-queries";
 
 import { AddInventorySheet } from "@/components/inventory/add-inventory-sheet";
 import { InventoryTable } from "@/components/inventory/inventory-table";
@@ -24,22 +25,15 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
   const statusFilter = params.status ?? "";
   const componentFilter = params.component ?? "";
 
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [user, boatsData, supabase] = await Promise.all([
+    getUser(),
+    getUserBoats(),
+    createClient(),
+  ]);
 
   if (!user) redirect("/login?next=/inventory");
 
-  const { data: boats, error: boatsError } = await supabase
-    .from("boats")
-    .select("id,name,type,created_at")
-    .order("created_at", { ascending: true });
-
-  if (boatsError) {
-    throw new Error(`Failed to load boats: ${boatsError.message}`);
-  }
+  const boats = boatsData as { id: string; name: string; type: string | null; created_at: string }[];
 
   if (!boats || boats.length === 0) {
     return (
@@ -62,9 +56,9 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     : boats[0].id;
 
   const [inventoryItems, components, missingCriticalSpares, categoriesRes] = await Promise.all([
-    getInventoryItems(activeBoatId),
-    getBoatComponents(activeBoatId),
-    getMissingCriticalSpares(activeBoatId),
+    getInventoryItems(activeBoatId, supabase),
+    getBoatComponents(activeBoatId, supabase),
+    getMissingCriticalSpares(activeBoatId, supabase),
     supabase
       .from("inventory_items")
       .select("category")

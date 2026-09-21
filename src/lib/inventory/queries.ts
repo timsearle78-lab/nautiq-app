@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 export type InventoryItemRow = {
   id: string;
@@ -73,13 +74,14 @@ export type ActivityFeedRow = {
 };
 
 export async function getInventoryItems(
-  boatId: string
+  boatId: string,
+  supabaseClient?: SupabaseClient
 ): Promise<InventoryItemRow[]> {
   if (!boatId) {
     throw new Error("getInventoryItems requires a boatId");
   }
 
-  const supabase = await createClient();
+  const supabase = supabaseClient ?? await createClient();
 
   const { data, error } = await supabase
     .from("inventory_items")
@@ -140,8 +142,8 @@ export async function getInventoryItems(
   }));
 }
 
-export async function getBoatComponents(boatId: string) {
-  const supabase = await createClient();
+export async function getBoatComponents(boatId: string, supabaseClient?: SupabaseClient) {
+  const supabase = supabaseClient ?? await createClient();
 
   const { data, error } = await supabase
     .from("components")
@@ -156,12 +158,12 @@ export async function getBoatComponents(boatId: string) {
   return data ?? [];
 }
 
-export async function getMissingCriticalSpares(boatId: string) {
+export async function getMissingCriticalSpares(boatId: string, supabaseClient?: SupabaseClient) {
     if (!boatId) {
       throw new Error("getMissingCriticalSpares requires a boatId");
     }
 
-  const supabase = await createClient();
+  const supabase = supabaseClient ?? await createClient();
 
   const { data, error } = await supabase.rpc("get_missing_critical_spares", {
     p_boat_id: boatId,

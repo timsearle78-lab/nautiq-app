@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getBoatHealth } from "@/lib/components/health";
 import { getSelectedBoatId } from "@/lib/selected-boat";
+import { getUser, getUserBoats } from "@/lib/supabase/cached-queries";
 import { AlertTriangle, CheckCircle, Clock, HelpCircle, Package, ShieldAlert } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
 import { formatDate } from "@/lib/format-date";
@@ -50,21 +51,21 @@ function recommendation(issue: InventoryIssue): string {
 }
 
 export default async function HealthPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const [{ data: boatsData }, selectedBoatId] = await Promise.all([
-    supabase.from("boats").select("id,name,type").order("created_at", { ascending: true }),
+  const [user, boatsData, selectedBoatId, supabase] = await Promise.all([
+    getUser(),
+    getUserBoats(),
     getSelectedBoatId(),
+    createClient(),
   ]);
 
-  const boats = (boatsData ?? []) as BoatRow[];
+  if (!user) redirect("/login");
+
+  const boats = boatsData as BoatRow[];
   if (boats.length === 0) redirect("/onboarding");
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
   const [health, engineHoursRes, inventoryRes, componentsRes] = await Promise.all([
-    getBoatHealth(boat.id),
+    getBoatHealth(boat.id, supabase),
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
     supabase
       .from("inventory_items")

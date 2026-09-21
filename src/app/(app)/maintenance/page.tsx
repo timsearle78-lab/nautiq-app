@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
+import { getUser, getUserBoats } from "@/lib/supabase/cached-queries";
 import { getBoatHealth } from "@/lib/components/health";
 import { AddComponentSheet } from "@/components/components/add-component-sheet";
 import { formatDate } from "@/lib/format-date";
@@ -102,24 +103,15 @@ export default async function MaintenancePage({
   const params = await searchParams;
   const selectedHorizon = parseHorizon(params.horizon);
 
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [user, boatsData, supabase] = await Promise.all([
+    getUser(),
+    getUserBoats(),
+    createClient(),
+  ]);
 
   if (!user) redirect("/login?next=/maintenance");
 
-  const { data: boatsData, error: boatsError } = await supabase
-    .from("boats")
-    .select("id,name,type,created_at")
-    .order("created_at", { ascending: true });
-
-  if (boatsError) {
-    throw new Error(`Failed to load boats: ${boatsError.message}`);
-  }
-
-  const boats = (boatsData ?? []) as BoatRow[];
+  const boats = boatsData as BoatRow[];
 
   if (boats.length === 0) {
     redirect("/onboarding");

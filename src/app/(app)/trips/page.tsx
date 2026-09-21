@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
+import { getUser, getUserBoats } from "@/lib/supabase/cached-queries";
 import { AddTripButton } from "@/components/trips/add-trip-button";
 import { EngineHoursChart } from "@/components/trips/engine-hours-chart";
 import { DeleteTripButton } from "@/components/trips/delete-trip-button";
@@ -106,18 +107,17 @@ function StatCard({ label, week, month, year }: StatCardProps) {
 export default async function TripsPage() {
   noStore();
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const [boatId, { data: boats }] = await Promise.all([
+  const [user, boatsData, boatId, supabase] = await Promise.all([
+    getUser(),
+    getUserBoats(),
     getSelectedBoatId(),
-    supabase.from("boats").select("id, name").order("created_at"),
+    createClient(),
   ]);
 
-  const boat = boats?.find((b) => b.id === boatId) ?? boats?.[0] ?? null;
+  if (!user) redirect("/login");
+
+  const boats = boatsData as { id: string; name: string }[];
+  const boat = boats.find((b) => b.id === boatId) ?? boats[0] ?? null;
 
   let trips: TripRow[] = [];
   if (boat) {
@@ -125,7 +125,8 @@ export default async function TripsPage() {
       .from("trips")
       .select("id, started_at, ended_at, engine_hours_delta, fuel_added_litres, notes, source")
       .eq("boat_id", boat.id)
-      .order("started_at", { ascending: false, nullsFirst: false });
+      .order("started_at", { ascending: false, nullsFirst: false })
+      .limit(500);
     trips = (data ?? []) as TripRow[];
   }
 

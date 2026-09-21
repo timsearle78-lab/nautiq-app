@@ -3,6 +3,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getSelectedBoatId } from "@/lib/selected-boat";
+import { getUser, getUserBoats } from "@/lib/supabase/cached-queries";
 import { SpendByMonthChart } from "@/components/costs/spend-by-month-chart";
 import { SpendByCategoryChart, type CategorySlice } from "@/components/costs/spend-by-category-chart";
 
@@ -22,16 +23,16 @@ type YearRow = {
 export default async function CostsPage() {
   noStore();
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const [selectedBoatId, { data: boats }] = await Promise.all([
+  const [user, boatsData, selectedBoatId, supabase] = await Promise.all([
+    getUser(),
+    getUserBoats(),
     getSelectedBoatId(),
-    supabase.from("boats").select("id, name").order("created_at", { ascending: true }),
+    createClient(),
   ]);
 
-  const boatList = boats ?? [];
+  if (!user) redirect("/login");
+
+  const boatList = boatsData as { id: string; name: string }[];
   const boat = boatList.find((b) => b.id === selectedBoatId) ?? boatList[0];
   if (!boat) redirect("/onboarding");
 
@@ -41,14 +42,16 @@ export default async function CostsPage() {
       .select("performed_at, cost, component:components(name, system:systems(name))")
       .eq("boat_id", boat.id)
       .not("cost", "is", null)
-      .order("performed_at", { ascending: false }),
+      .order("performed_at", { ascending: false })
+      .limit(1000),
     supabase
       .from("inventory_transactions")
       .select("created_at, cost, notes, inventory_item:inventory_items(name, category)")
       .eq("boat_id", boat.id)
       .eq("transaction_type", "add")
       .not("cost", "is", null)
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .limit(1000),
   ]);
 
   type MRow = {
