@@ -18,10 +18,8 @@ export default function ForgotPasswordPage() {
 
     try {
       const supabase = createClient();
-      const redirectTo =
-        typeof window !== "undefined"
-          ? `${window.location.origin}/update-password`
-          : undefined;
+      const appOrigin = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.nautiq.cloud";
+      const redirectTo = `${appOrigin}/update-password`;
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
       if (error) throw error;

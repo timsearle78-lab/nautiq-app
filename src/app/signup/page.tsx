@@ -29,8 +29,8 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const supabase = createClient();
-      const emailRedirectTo =
-        typeof window !== "undefined" ? `${window.location.origin}/login` : undefined;
+      const appOrigin = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.nautiq.cloud";
+      const emailRedirectTo = `${appOrigin}/login`;
 
       const { error } = await supabase.auth.signUp({
         email,
