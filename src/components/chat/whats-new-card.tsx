@@ -31,18 +31,18 @@ export default function WhatsNewCard({ hidden }: { hidden: boolean }) {
         <div className="flex items-center gap-2">
           <div
             className="flex h-7 w-7 items-center justify-center rounded-full flex-shrink-0"
-            style={{ background: "#FFC730" }}
+            style={{ background: "var(--color-amber-400)" }}
           >
-            <Sparkles size={13} color="#3D2A00" />
+            <Sparkles size={13} color="var(--color-amber-ink)" />
           </div>
-          <p style={{ fontSize: 14, fontWeight: 800, color: "#0B2942" }}>
+          <p style={{ fontSize: 14, fontWeight: 800, color: "var(--color-navy-700)" }}>
             {"What's new"} — {LATEST_RELEASE.label}
           </p>
         </div>
         <button
           onClick={dismiss}
           className="flex h-7 w-7 items-center justify-center rounded-full transition-opacity hover:opacity-70"
-          style={{ color: "#8FB3CC" }}
+          style={{ color: "var(--color-navy-mute)" }}
         >
           <X size={15} />
         </button>
@@ -50,10 +50,10 @@ export default function WhatsNewCard({ hidden }: { hidden: boolean }) {
 
       <ul className="px-4 pb-4 mt-1 space-y-2">
         {LATEST_RELEASE.features.map((f, i) => (
-          <li key={i} className="flex items-start gap-2" style={{ fontSize: 14, color: "#0B2942", lineHeight: 1.5 }}>
+          <li key={i} className="flex items-start gap-2" style={{ fontSize: 14, color: "var(--color-navy-700)", lineHeight: 1.5 }}>
             <span
               className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
-              style={{ background: "#FFC730" }}
+              style={{ background: "var(--color-amber-400)" }}
             />
             {f}
           </li>
@@ -63,7 +63,7 @@ export default function WhatsNewCard({ hidden }: { hidden: boolean }) {
       <div className="px-4 py-2.5" style={{ borderTop: "1.5px solid #DBE3EA" }}>
         <button
           onClick={dismiss}
-          style={{ fontSize: 13, fontWeight: 700, color: "#0B7EB8" }}
+          style={{ fontSize: 13, fontWeight: 700, color: "var(--color-ocean-600)" }}
           className="hover:opacity-80 transition-opacity"
         >
           Got it — dismiss

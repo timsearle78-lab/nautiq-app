@@ -64,13 +64,13 @@ function timelineStatusLabel(status: TimelineRow["status"]) {
 function timelineStatusStyle(status: TimelineRow["status"]): React.CSSProperties {
   switch (status) {
     case "overdue":
-      return { background: "#E0342A", color: "#FFFFFF", border: "1.5px solid #E0342A" };
+      return { background: "var(--color-status-critical-fg)", color: "#FFFFFF", border: "1.5px solid #E0342A" };
     case "due_soon":
-      return { background: "#D9A300", color: "#3D2A00", border: "1.5px solid #D9A300" };
+      return { background: "var(--color-status-warning-fg)", color: "var(--color-amber-ink)", border: "1.5px solid #D9A300" };
     case "planned":
-      return { background: "#0B7EB8", color: "#FFFFFF", border: "1.5px solid #0B7EB8" };
+      return { background: "var(--color-ocean-600)", color: "#FFFFFF", border: "1.5px solid #0B7EB8" };
     default:
-      return { background: "#F4F7FA", color: "#8FB3CC", border: "1.5px solid #DBE3EA" };
+      return { background: "var(--color-app-bg)", color: "var(--color-navy-mute)", border: "1.5px solid #DBE3EA" };
   }
 }
 
@@ -197,7 +197,7 @@ export default async function MaintenancePage({
   return (
     <main className="space-y-5">
       {/* Navy page hero */}
-      <section className="w-full px-4 pt-5 pb-5" style={{ background: "#0B2942" }}>
+      <section className="w-full px-4 pt-5 pb-5" style={{ background: "var(--color-navy-700)" }}>
         <div className="flex items-center justify-between gap-3">
           <div>
             <h1 style={{ fontSize: 28, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>Maintenance</h1>
@@ -220,32 +220,32 @@ export default async function MaintenancePage({
       <div className="px-4 space-y-5">
 
       <section className="grid gap-3 grid-cols-2 md:grid-cols-4">
-        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: "#F4F7FA", border: "1.5px solid #DBE3EA" }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#0B2942", opacity: 0.5 }}>TOTAL</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{allHealth.length}</div>
+        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: "var(--color-app-bg)", border: "1.5px solid #DBE3EA" }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "var(--color-navy-700)", opacity: 0.5 }}>TOTAL</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: "var(--color-navy-700)", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{allHealth.length}</div>
         </div>
 
-        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: overdueCount > 0 ? "#E0342A" : "#F4F7FA", border: `1.5px solid ${overdueCount > 0 ? "#E0342A" : "#DBE3EA"}` }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: overdueCount > 0 ? "rgba(255,255,255,0.75)" : "#8FB3CC" }}>OVERDUE</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: overdueCount > 0 ? "#FFFFFF" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{overdueCount}</div>
+        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: overdueCount > 0 ? "var(--color-status-critical-fg)" : "var(--color-app-bg)", border: `1.5px solid ${overdueCount > 0 ? "var(--color-status-critical-fg)" : "var(--color-border)"}` }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: overdueCount > 0 ? "rgba(255,255,255,0.75)" : "var(--color-navy-mute)" }}>OVERDUE</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: overdueCount > 0 ? "#FFFFFF" : "var(--color-navy-700)", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{overdueCount}</div>
         </div>
 
-        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: dueSoonCount > 0 ? "#D9A300" : "#F4F7FA", border: `1.5px solid ${dueSoonCount > 0 ? "#D9A300" : "#DBE3EA"}` }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: dueSoonCount > 0 ? "rgba(61,42,0,0.65)" : "#8FB3CC" }}>DUE SOON</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: dueSoonCount > 0 ? "#3D2A00" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{dueSoonCount}</div>
+        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: dueSoonCount > 0 ? "var(--color-status-warning-fg)" : "var(--color-app-bg)", border: `1.5px solid ${dueSoonCount > 0 ? "var(--color-status-warning-fg)" : "var(--color-border)"}` }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: dueSoonCount > 0 ? "rgba(61,42,0,0.65)" : "var(--color-navy-mute)" }}>DUE SOON</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: dueSoonCount > 0 ? "var(--color-amber-ink)" : "var(--color-navy-700)", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{dueSoonCount}</div>
         </div>
 
-        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: okCount > 0 ? "#0E7A3D" : "#F4F7FA", border: `1.5px solid ${okCount > 0 ? "#0E7A3D" : "#DBE3EA"}` }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: okCount > 0 ? "rgba(255,255,255,0.75)" : "#8FB3CC" }}>HEALTHY</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: okCount > 0 ? "#FFFFFF" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{okCount}</div>
+        <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: okCount > 0 ? "var(--color-status-healthy-fg)" : "var(--color-app-bg)", border: `1.5px solid ${okCount > 0 ? "var(--color-status-healthy-fg)" : "var(--color-border)"}` }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: okCount > 0 ? "rgba(255,255,255,0.75)" : "var(--color-navy-mute)" }}>HEALTHY</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: okCount > 0 ? "#FFFFFF" : "var(--color-navy-700)", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{okCount}</div>
         </div>
       </section>
 
       <section className="card p-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <h2 style={{ fontSize: 16, fontWeight: 800, color: "#0B2942" }}>Predictive Timeline</h2>
-            <p style={{ fontSize: 13, color: "#8FB3CC", marginTop: 4 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--color-navy-700)" }}>Predictive Timeline</h2>
+            <p style={{ fontSize: 13, color: "var(--color-navy-mute)", marginTop: 4 }}>
               Forecast upcoming maintenance based on service intervals and recent usage.
             </p>
           </div>
@@ -263,9 +263,9 @@ export default async function MaintenancePage({
                     padding: "4px 12px",
                     fontSize: 12,
                     fontWeight: 800,
-                    background: active ? "#0B2942" : "#F4F7FA",
-                    color: active ? "#FFFFFF" : "#8FB3CC",
-                    border: `1.5px solid ${active ? "#0B2942" : "#DBE3EA"}`,
+                    background: active ? "var(--color-navy-700)" : "var(--color-app-bg)",
+                    color: active ? "#FFFFFF" : "var(--color-navy-mute)",
+                    border: `1.5px solid ${active ? "var(--color-navy-700)" : "var(--color-border)"}`,
                   }}
                 >
                   {days}d
@@ -276,29 +276,29 @@ export default async function MaintenancePage({
         </div>
 
         <div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-4">
-          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelineOverdue.length > 0 ? "#E0342A" : "#F4F7FA", border: `1.5px solid ${timelineOverdue.length > 0 ? "#E0342A" : "#DBE3EA"}` }}>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelineOverdue.length > 0 ? "rgba(255,255,255,0.75)" : "#8FB3CC" }}>OVERDUE</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: timelineOverdue.length > 0 ? "#FFFFFF" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelineOverdue.length}</div>
+          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelineOverdue.length > 0 ? "var(--color-status-critical-fg)" : "var(--color-app-bg)", border: `1.5px solid ${timelineOverdue.length > 0 ? "var(--color-status-critical-fg)" : "var(--color-border)"}` }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelineOverdue.length > 0 ? "rgba(255,255,255,0.75)" : "var(--color-navy-mute)" }}>OVERDUE</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: timelineOverdue.length > 0 ? "#FFFFFF" : "var(--color-navy-700)", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelineOverdue.length}</div>
           </div>
 
-          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelineDueSoon.length > 0 ? "#D9A300" : "#F4F7FA", border: `1.5px solid ${timelineDueSoon.length > 0 ? "#D9A300" : "#DBE3EA"}` }}>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelineDueSoon.length > 0 ? "rgba(61,42,0,0.65)" : "#8FB3CC" }}>DUE SOON</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: timelineDueSoon.length > 0 ? "#3D2A00" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelineDueSoon.length}</div>
+          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelineDueSoon.length > 0 ? "var(--color-status-warning-fg)" : "var(--color-app-bg)", border: `1.5px solid ${timelineDueSoon.length > 0 ? "var(--color-status-warning-fg)" : "var(--color-border)"}` }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelineDueSoon.length > 0 ? "rgba(61,42,0,0.65)" : "var(--color-navy-mute)" }}>DUE SOON</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: timelineDueSoon.length > 0 ? "var(--color-amber-ink)" : "var(--color-navy-700)", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelineDueSoon.length}</div>
           </div>
 
-          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelinePlanned.length > 0 ? "#0B7EB8" : "#F4F7FA", border: `1.5px solid ${timelinePlanned.length > 0 ? "#0B7EB8" : "#DBE3EA"}` }}>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelinePlanned.length > 0 ? "rgba(255,255,255,0.75)" : "#8FB3CC" }}>PLANNED · {selectedHorizon}D</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: timelinePlanned.length > 0 ? "#FFFFFF" : "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelinePlanned.length}</div>
+          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: timelinePlanned.length > 0 ? "var(--color-ocean-600)" : "var(--color-app-bg)", border: `1.5px solid ${timelinePlanned.length > 0 ? "var(--color-ocean-600)" : "var(--color-border)"}` }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: timelinePlanned.length > 0 ? "rgba(255,255,255,0.75)" : "var(--color-navy-mute)" }}>PLANNED · {selectedHorizon}D</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: timelinePlanned.length > 0 ? "#FFFFFF" : "var(--color-navy-700)", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelinePlanned.length}</div>
           </div>
 
-          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: "#F4F7FA", border: "1.5px solid #DBE3EA" }}>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#0B2942", opacity: 0.5 }}>UNKNOWN</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: "#0B2942", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelineUnknown.length}</div>
+          <div className="rounded-[18px] p-4 flex flex-col gap-1" style={{ background: "var(--color-app-bg)", border: "1.5px solid #DBE3EA" }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "var(--color-navy-700)", opacity: 0.5 }}>UNKNOWN</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "var(--color-navy-700)", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{timelineUnknown.length}</div>
           </div>
         </div>
 
         {timelinePreview.length === 0 ? (
-          <p className="mt-4" style={{ fontSize: 14, color: "#8FB3CC" }}>
+          <p className="mt-4" style={{ fontSize: 14, color: "var(--color-navy-mute)" }}>
             No predictive maintenance items are currently forecast.
           </p>
         ) : (
@@ -307,8 +307,8 @@ export default async function MaintenancePage({
               <div key={row.component_id} className="card p-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div>
-                    <Link href={`/components/${row.component_id}`} style={{ fontSize: 15, fontWeight: 800, color: "#0B2942" }} className="hover:opacity-70 transition-opacity">{row.component_name}</Link>
-                    <div style={{ fontSize: 13, color: "#8FB3CC", marginTop: 2 }}>
+                    <Link href={`/components/${row.component_id}`} style={{ fontSize: 15, fontWeight: 800, color: "var(--color-navy-700)" }} className="hover:opacity-70 transition-opacity">{row.component_name}</Link>
+                    <div style={{ fontSize: 13, color: "var(--color-navy-mute)", marginTop: 2 }}>
                       {row.system_name ?? "—"}
                     </div>
                   </div>
@@ -322,29 +322,29 @@ export default async function MaintenancePage({
                 </div>
 
                 <div className="mt-4 grid gap-3 md:grid-cols-3">
-                  <div className="rounded-[13px] p-3" style={{ background: "#F4F7FA" }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#8FB3CC", textTransform: "uppercase" }}>
+                  <div className="rounded-[13px] p-3" style={{ background: "var(--color-app-bg)" }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "var(--color-navy-mute)", textTransform: "uppercase" }}>
                       Predicted due
                     </div>
-                    <div className="mt-1" style={{ fontSize: 14, fontWeight: 800, color: "#0B2942" }}>
+                    <div className="mt-1" style={{ fontSize: 14, fontWeight: 800, color: "var(--color-navy-700)" }}>
                       {formatDate(row.predicted_due_date)}
                     </div>
                   </div>
 
-                  <div className="rounded-[13px] p-3" style={{ background: "#F4F7FA" }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#8FB3CC", textTransform: "uppercase" }}>
+                  <div className="rounded-[13px] p-3" style={{ background: "var(--color-app-bg)" }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "var(--color-navy-mute)", textTransform: "uppercase" }}>
                       Hrs since service
                     </div>
-                    <div className="mt-1" style={{ fontSize: 14, fontWeight: 800, color: "#0B2942" }}>
+                    <div className="mt-1" style={{ fontSize: 14, fontWeight: 800, color: "var(--color-navy-700)" }}>
                       {row.hours_since_service != null ? Math.round(row.hours_since_service) : "—"}
                     </div>
                   </div>
 
-                  <div className="rounded-[13px] p-3" style={{ background: "#F4F7FA" }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#8FB3CC", textTransform: "uppercase" }}>
+                  <div className="rounded-[13px] p-3" style={{ background: "var(--color-app-bg)" }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "var(--color-navy-mute)", textTransform: "uppercase" }}>
                       Hrs until due
                     </div>
-                    <div className="mt-1" style={{ fontSize: 14, fontWeight: 800, color: "#0B2942" }}>
+                    <div className="mt-1" style={{ fontSize: 14, fontWeight: 800, color: "var(--color-navy-700)" }}>
                       {row.hours_until_due != null ? Math.round(row.hours_until_due) : "—"}
                     </div>
                   </div>
@@ -353,15 +353,15 @@ export default async function MaintenancePage({
                 <div className="mt-3">
                   {(() => {
                     const score = Math.min(100, Math.round(Number(row.risk_score ?? 0)));
-                    const barColor = score >= 70 ? "#E0342A" : score >= 40 ? "#D9A300" : "#0E7A3D";
+                    const barColor = score >= 70 ? "var(--color-status-critical-fg)" : score >= 40 ? "var(--color-status-warning-fg)" : "var(--color-status-healthy-fg)";
                     const barBg = score >= 70 ? "#FDECEA" : score >= 40 ? "#FFF6DF" : "#E6F6EC";
                     const label = score >= 70 ? "High risk" : score >= 40 ? "Moderate risk" : "Low risk";
                     return (
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="flex items-center gap-1.5" style={{ fontSize: 11, fontWeight: 800, color: "#8FB3CC", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                          <span className="flex items-center gap-1.5" style={{ fontSize: 11, fontWeight: 800, color: "var(--color-navy-mute)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                             <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                              <path d="M6 1L7.5 4.5H11L8.25 6.75L9.25 10.5L6 8.25L2.75 10.5L3.75 6.75L1 4.5H4.5L6 1Z" fill="#0B7EB8" />
+                              <path d="M6 1L7.5 4.5H11L8.25 6.75L9.25 10.5L6 8.25L2.75 10.5L3.75 6.75L1 4.5H4.5L6 1Z" fill="var(--color-ocean-600)" />
                             </svg>
                             AI Risk
                           </span>

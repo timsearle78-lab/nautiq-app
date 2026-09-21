@@ -115,13 +115,13 @@ export default function AcceptInvitePage() {
         <div className="flex-1 px-6 py-8 md:p-10" style={{ background: "#FFFFFF" }}>
           <div className="mx-auto max-w-sm flex flex-col justify-center h-full">
             {status === "loading" && (
-              <p style={{ fontSize: 14, color: "#8FB3CC" }}>Checking invite…</p>
+              <p style={{ fontSize: 14, color: "var(--color-navy-mute)" }}>Checking invite…</p>
             )}
 
             {status === "login" && (
               <>
-                <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0F2335" }}>Sign in to accept</h2>
-                <p className="mt-2" style={{ fontSize: 14, color: "#8FB3CC" }}>
+                <h2 style={{ fontSize: 20, fontWeight: 600, color: "var(--color-navy-700)" }}>Sign in to accept</h2>
+                <p className="mt-2" style={{ fontSize: 14, color: "var(--color-navy-mute)" }}>
                   You need a NautIQ account to join this boat.
                 </p>
                 <div className="mt-6 space-y-3">
@@ -136,7 +136,7 @@ export default function AcceptInvitePage() {
                     className="block w-full py-3 rounded-xl text-sm font-semibold text-center"
                     style={{
                       border: "1.5px solid #DBE3EA",
-                      color: "#0B2942",
+                      color: "var(--color-navy-700)",
                     }}
                   >
                     Create a free account
@@ -147,9 +147,9 @@ export default function AcceptInvitePage() {
 
             {(status === "confirm" || status === "accepting") && (
               <>
-                <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0F2335" }}>Join {boatName}</h2>
-                <p className="mt-2" style={{ fontSize: 14, color: "#8FB3CC" }}>
-                  Accept the invitation to add <strong style={{ color: "#0F2335" }}>{boatName}</strong> to your NautIQ. You&apos;ll have full access to its logs, maintenance records, and inventory.
+                <h2 style={{ fontSize: 20, fontWeight: 600, color: "var(--color-navy-700)" }}>Join {boatName}</h2>
+                <p className="mt-2" style={{ fontSize: 14, color: "var(--color-navy-mute)" }}>
+                  Accept the invitation to add <strong style={{ color: "var(--color-navy-700)" }}>{boatName}</strong> to your NautIQ. You&apos;ll have full access to its logs, maintenance records, and inventory.
                 </p>
                 <button
                   onClick={accept}
@@ -171,9 +171,9 @@ export default function AcceptInvitePage() {
                     <path d="M4 10l4.5 4.5L16 6" stroke="#059669" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
-                <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0F2335" }}>You&apos;re in!</h2>
-                <p className="mt-2" style={{ fontSize: 14, color: "#8FB3CC" }}>
-                  <strong style={{ color: "#0F2335" }}>{boatName}</strong> has been added to your account. Redirecting you now…
+                <h2 style={{ fontSize: 20, fontWeight: 600, color: "var(--color-navy-700)" }}>You&apos;re in!</h2>
+                <p className="mt-2" style={{ fontSize: 14, color: "var(--color-navy-mute)" }}>
+                  <strong style={{ color: "var(--color-navy-700)" }}>{boatName}</strong> has been added to your account. Redirecting you now…
                 </p>
               </>
             )}
@@ -188,12 +188,12 @@ export default function AcceptInvitePage() {
                     <path d="M6 6l8 8M14 6l-8 8" stroke="#DC2626" strokeWidth="2.2" strokeLinecap="round" />
                   </svg>
                 </div>
-                <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0F2335" }}>Invite invalid</h2>
-                <p className="mt-2" style={{ fontSize: 14, color: "#8FB3CC" }}>{errorMsg}</p>
+                <h2 style={{ fontSize: 20, fontWeight: 600, color: "var(--color-navy-700)" }}>Invite invalid</h2>
+                <p className="mt-2" style={{ fontSize: 14, color: "var(--color-navy-mute)" }}>{errorMsg}</p>
                 <a
                   href="/"
                   className="mt-6 block text-sm font-medium"
-                  style={{ color: "#0B7EB8" }}
+                  style={{ color: "var(--color-ocean-600)" }}
                 >
                   Back to NautIQ
                 </a>

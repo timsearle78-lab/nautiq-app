@@ -8,9 +8,9 @@ interface HealthGaugeProps {
 }
 
 function gaugeColor(score: number, overdueCount: number) {
-  if (overdueCount > 0 || score < 60) return { stroke: "#E0342A", text: "#E0342A", label: "Needs attention" };
-  if (score < 80) return { stroke: "#FFC730", text: "#F0B012", label: "Could be better" };
-  return { stroke: "#0E7A3D", text: "#0E7A3D", label: "Ship shape" };
+  if (overdueCount > 0 || score < 60) return { stroke: "var(--color-status-critical-fg)", text: "var(--color-status-critical-fg)", label: "Needs attention" };
+  if (score < 80) return { stroke: "var(--color-amber-400)", text: "#F0B012", label: "Could be better" };
+  return { stroke: "var(--color-status-healthy-fg)", text: "var(--color-status-healthy-fg)", label: "Ship shape" };
 }
 
 export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11 }: HealthGaugeProps) {
@@ -30,7 +30,7 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11 
       {/* Navy circle behind the gauge */}
       <div
         className="relative flex items-center justify-center rounded-full"
-        style={{ width: size, height: size, background: "#0B2942" }}
+        style={{ width: size, height: size, background: "var(--color-navy-700)" }}
       >
         <svg
           width={size}

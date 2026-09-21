@@ -26,8 +26,8 @@ type InventoryIssue = {
 
 
 function issueLabel(issue: InventoryIssue): { text: string; style: React.CSSProperties } {
-  const red: React.CSSProperties = { background: "#E0342A", color: "#FFFFFF", border: "1.5px solid #E0342A" };
-  const amber: React.CSSProperties = { background: "#D9A300", color: "#3D2A00", border: "1.5px solid #D9A300" };
+  const red: React.CSSProperties = { background: "var(--color-status-critical-fg)", color: "#FFFFFF", border: "1.5px solid #E0342A" };
+  const amber: React.CSSProperties = { background: "var(--color-status-warning-fg)", color: "var(--color-amber-ink)", border: "1.5px solid #D9A300" };
   if (issue.issue === "expired") return { text: "Expired", style: red };
   if (issue.issue === "out_of_stock") return { text: issue.is_critical ? "Out of stock (critical)" : "Out of stock", style: red };
   if (issue.issue === "expiring_soon") {
@@ -156,7 +156,7 @@ export default async function HealthPage() {
   return (
     <main className="space-y-5">
       {/* Navy page hero */}
-      <div className="w-full px-4 pt-5 pb-5" style={{ background: "#0B2942" }}>
+      <div className="w-full px-4 pt-5 pb-5" style={{ background: "var(--color-navy-700)" }}>
         <div className="flex items-center justify-between gap-3">
           <div>
             <h1 style={{ fontSize: 28, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>Boat Health</h1>
@@ -171,19 +171,19 @@ export default async function HealthPage() {
         <div className="flex items-center justify-between gap-4">
           <HealthGauge score={healthScore} overdueCount={overdue.length} size={140} />
           <div className="flex-1 grid grid-cols-2 gap-2">
-            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: overdue.length > 0 ? "#E0342A" : "#F4F7FA", border: `1.5px solid ${overdue.length > 0 ? "#E0342A" : "#DBE3EA"}` }}>
-              <div style={{ fontSize: 24, fontWeight: 800, color: overdue.length > 0 ? "#FFFFFF" : "#0B2942" }}>{overdue.length}</div>
-              <div style={{ fontSize: 11, color: overdue.length > 0 ? "rgba(255,255,255,0.7)" : "#8FB3CC", marginTop: 2 }}>Overdue</div>
+            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: overdue.length > 0 ? "var(--color-status-critical-fg)" : "var(--color-app-bg)", border: `1.5px solid ${overdue.length > 0 ? "var(--color-status-critical-fg)" : "var(--color-border)"}` }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: overdue.length > 0 ? "#FFFFFF" : "var(--color-navy-700)" }}>{overdue.length}</div>
+              <div style={{ fontSize: 11, color: overdue.length > 0 ? "rgba(255,255,255,0.7)" : "var(--color-navy-mute)", marginTop: 2 }}>Overdue</div>
             </div>
-            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: dueSoon.length > 0 ? "#D9A300" : "#F4F7FA", border: `1.5px solid ${dueSoon.length > 0 ? "#D9A300" : "#DBE3EA"}` }}>
-              <div style={{ fontSize: 24, fontWeight: 800, color: dueSoon.length > 0 ? "#3D2A00" : "#0B2942" }}>{dueSoon.length}</div>
-              <div style={{ fontSize: 11, color: dueSoon.length > 0 ? "rgba(61,42,0,0.6)" : "#8FB3CC", marginTop: 2 }}>Due soon</div>
+            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: dueSoon.length > 0 ? "var(--color-status-warning-fg)" : "var(--color-app-bg)", border: `1.5px solid ${dueSoon.length > 0 ? "var(--color-status-warning-fg)" : "var(--color-border)"}` }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: dueSoon.length > 0 ? "var(--color-amber-ink)" : "var(--color-navy-700)" }}>{dueSoon.length}</div>
+              <div style={{ fontSize: 11, color: dueSoon.length > 0 ? "rgba(61,42,0,0.6)" : "var(--color-navy-mute)", marginTop: 2 }}>Due soon</div>
             </div>
-            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: ok.length > 0 ? "#0E7A3D" : "#F4F7FA", border: `1.5px solid ${ok.length > 0 ? "#0E7A3D" : "#DBE3EA"}` }}>
-              <div style={{ fontSize: 24, fontWeight: 800, color: ok.length > 0 ? "#FFFFFF" : "#0B2942" }}>{ok.length}</div>
-              <div style={{ fontSize: 11, color: ok.length > 0 ? "rgba(255,255,255,0.7)" : "#8FB3CC", marginTop: 2 }}>Healthy</div>
+            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: ok.length > 0 ? "var(--color-status-healthy-fg)" : "var(--color-app-bg)", border: `1.5px solid ${ok.length > 0 ? "var(--color-status-healthy-fg)" : "var(--color-border)"}` }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: ok.length > 0 ? "#FFFFFF" : "var(--color-navy-700)" }}>{ok.length}</div>
+              <div style={{ fontSize: 11, color: ok.length > 0 ? "rgba(255,255,255,0.7)" : "var(--color-navy-mute)", marginTop: 2 }}>Healthy</div>
             </div>
-            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: "#0B7EB8", border: "1.5px solid #0B7EB8" }}>
+            <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: "var(--color-ocean-600)", border: "1.5px solid #0B7EB8" }}>
               <div style={{ fontSize: 24, fontWeight: 800, color: "#FFFFFF" }}>{engineHours}</div>
               <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>Engine hrs</div>
             </div>
@@ -193,7 +193,7 @@ export default async function HealthPage() {
         {/* Why this score */}
         {scoreReasons.length > 0 && (
           <div className="mt-4 pt-4" style={{ borderTop: "1.5px solid #DBE3EA" }}>
-            <p style={{ fontSize: 13, color: "#0B2942" }}>
+            <p style={{ fontSize: 13, color: "var(--color-navy-700)" }}>
               <span style={{ fontWeight: 700 }}>Why {healthScore}/100? </span>
               {scoreReasons.join(", ")}.
               {healthScore < 100 ? " Fix the items below to restore your score to 100." : ""}
@@ -202,7 +202,7 @@ export default async function HealthPage() {
         )}
         {scoreReasons.length === 0 && healthScore === 100 && (
           <div className="mt-4 pt-4" style={{ borderTop: "1.5px solid #DBE3EA" }}>
-            <p style={{ fontSize: 13, color: "#0B2942" }}>
+            <p style={{ fontSize: 13, color: "var(--color-navy-700)" }}>
               <span style={{ fontWeight: 700 }}>All clear.</span> Every component is within its service interval and all inventory levels are good.
             </p>
           </div>
@@ -212,10 +212,10 @@ export default async function HealthPage() {
       {/* All clear */}
       {!hasIssues && (
         <div className="card p-5 flex items-center gap-3" style={{ borderColor: "#0E7A3D33", background: "#E6F6EC" }}>
-          <CheckCircle size={22} style={{ color: "#0E7A3D", flexShrink: 0 }} />
+          <CheckCircle size={22} style={{ color: "var(--color-status-healthy-fg)", flexShrink: 0 }} />
           <div>
-            <div style={{ fontWeight: 700, color: "#0E7A3D" }}>Everything looks good</div>
-            <div style={{ fontSize: 13, color: "#0E7A3D", opacity: 0.8 }}>No overdue maintenance, no low stock, no expiry issues.</div>
+            <div style={{ fontWeight: 700, color: "var(--color-status-healthy-fg)" }}>Everything looks good</div>
+            <div style={{ fontSize: 13, color: "var(--color-status-healthy-fg)", opacity: 0.8 }}>No overdue maintenance, no low stock, no expiry issues.</div>
           </div>
         </div>
       )}
@@ -223,22 +223,22 @@ export default async function HealthPage() {
       {/* Overdue maintenance */}
       {overdue.length > 0 && (
         <div id="overdue" className="card overflow-hidden">
-          <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1.5px solid rgba(255,255,255,0.15)", background: "#E0342A" }}>
+          <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1.5px solid rgba(255,255,255,0.15)", background: "var(--color-status-critical-fg)" }}>
             <AlertTriangle size={16} style={{ color: "#FFFFFF", flexShrink: 0 }} />
             <h2 style={{ fontSize: 14, fontWeight: 700, color: "#FFFFFF" }}>Overdue maintenance ({overdue.length})</h2>
           </div>
-          <div className="divide-y" style={{ borderColor: "#DBE3EA" }}>
+          <div className="divide-y" style={{ borderColor: "var(--color-border)" }}>
             {overdue.map((row) => (
               <Link
                 key={row.component_id}
                 href={`/components/${row.component_id}`}
                 className="flex items-start gap-3 px-4 py-3"
               >
-                <AlertTriangle size={16} style={{ color: "#E0342A", flexShrink: 0, marginTop: 2 }} />
+                <AlertTriangle size={16} style={{ color: "var(--color-status-critical-fg)", flexShrink: 0, marginTop: 2 }} />
                 <div className="min-w-0 flex-1">
-                  <div style={{ fontWeight: 700, fontSize: 14, color: "#0B2942" }}>{row.component_name}</div>
-                  <div style={{ fontSize: 12, color: "#8FB3CC" }}>{row.system_name ?? "—"}</div>
-                  <div style={{ fontSize: 12, color: "#E0342A", fontWeight: 600, marginTop: 2 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: "var(--color-navy-700)" }}>{row.component_name}</div>
+                  <div style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>{row.system_name ?? "—"}</div>
+                  <div style={{ fontSize: 12, color: "var(--color-status-critical-fg)", fontWeight: 600, marginTop: 2 }}>
                     Log a service to bring this back on track →
                   </div>
                 </div>
@@ -252,23 +252,23 @@ export default async function HealthPage() {
       {/* Due soon maintenance */}
       {dueSoon.length > 0 && (
         <div id="due-soon" className="card overflow-hidden">
-          <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1.5px solid rgba(0,0,0,0.1)", background: "#D9A300" }}>
-            <Clock size={16} style={{ color: "#3D2A00", flexShrink: 0 }} />
-            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#3D2A00" }}>Due soon ({dueSoon.length})</h2>
+          <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1.5px solid rgba(0,0,0,0.1)", background: "var(--color-status-warning-fg)" }}>
+            <Clock size={16} style={{ color: "var(--color-amber-ink)", flexShrink: 0 }} />
+            <h2 style={{ fontSize: 14, fontWeight: 700, color: "var(--color-amber-ink)" }}>Due soon ({dueSoon.length})</h2>
           </div>
-          <div className="divide-y" style={{ borderColor: "#DBE3EA" }}>
+          <div className="divide-y" style={{ borderColor: "var(--color-border)" }}>
             {dueSoon.map((row) => (
               <Link
                 key={row.component_id}
                 href={`/components/${row.component_id}`}
                 className="flex items-start gap-3 px-4 py-3"
               >
-                <Clock size={16} style={{ color: "#D9A300", flexShrink: 0, marginTop: 2 }} />
+                <Clock size={16} style={{ color: "var(--color-status-warning-fg)", flexShrink: 0, marginTop: 2 }} />
                 <div className="min-w-0 flex-1">
-                  <div style={{ fontWeight: 700, fontSize: 14, color: "#0B2942" }}>{row.component_name}</div>
-                  <div style={{ fontSize: 12, color: "#8FB3CC" }}>{row.system_name ?? "—"}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: "var(--color-navy-700)" }}>{row.component_name}</div>
+                  <div style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>{row.system_name ?? "—"}</div>
                   {row.predicted_due_date && (
-                    <div style={{ fontSize: 12, color: "#D9A300", fontWeight: 600, marginTop: 2 }}>
+                    <div style={{ fontSize: 12, color: "var(--color-status-warning-fg)", fontWeight: 600, marginTop: 2 }}>
                       Due {formatDate(row.predicted_due_date)} — schedule service now →
                     </div>
                   )}
@@ -284,10 +284,10 @@ export default async function HealthPage() {
       {inventoryIssues.length > 0 && (
         <div className="card overflow-hidden">
           <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1.5px solid #DBE3EA" }}>
-            <Package size={16} style={{ color: "#8FB3CC", flexShrink: 0 }} />
-            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#0B2942" }}>Inventory issues ({inventoryIssues.length})</h2>
+            <Package size={16} style={{ color: "var(--color-navy-mute)", flexShrink: 0 }} />
+            <h2 style={{ fontSize: 14, fontWeight: 700, color: "var(--color-navy-700)" }}>Inventory issues ({inventoryIssues.length})</h2>
           </div>
-          <div className="divide-y" style={{ borderColor: "#DBE3EA" }}>
+          <div className="divide-y" style={{ borderColor: "var(--color-border)" }}>
             {inventoryIssues.map((issue) => {
               const badge = issueLabel(issue);
               const rec = recommendation(issue);
@@ -299,15 +299,15 @@ export default async function HealthPage() {
                   className="flex items-start gap-3 px-4 py-3"
                 >
                   {issue.is_critical
-                    ? <ShieldAlert size={16} style={{ color: isUrgent ? "#E0342A" : "#D9A300", flexShrink: 0, marginTop: 2 }} />
-                    : <Package size={16} style={{ color: isUrgent ? "#E0342A" : "#D9A300", flexShrink: 0, marginTop: 2 }} />
+                    ? <ShieldAlert size={16} style={{ color: isUrgent ? "var(--color-status-critical-fg)" : "var(--color-status-warning-fg)", flexShrink: 0, marginTop: 2 }} />
+                    : <Package size={16} style={{ color: isUrgent ? "var(--color-status-critical-fg)" : "var(--color-status-warning-fg)", flexShrink: 0, marginTop: 2 }} />
                   }
                   <div className="min-w-0 flex-1">
-                    <div style={{ fontWeight: 700, fontSize: 14, color: "#0B2942" }}>{issue.name}</div>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: "var(--color-navy-700)" }}>{issue.name}</div>
                     {issue.component_name && (
-                      <div style={{ fontSize: 12, color: "#8FB3CC" }}>{issue.component_name}</div>
+                      <div style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>{issue.component_name}</div>
                     )}
-                    <div style={{ fontSize: 12, fontWeight: 600, marginTop: 2, color: isUrgent ? "#E0342A" : "#D9A300" }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, marginTop: 2, color: isUrgent ? "var(--color-status-critical-fg)" : "var(--color-status-warning-fg)" }}>
                       {rec} →
                     </div>
                   </div>
@@ -317,7 +317,7 @@ export default async function HealthPage() {
             })}
           </div>
           <div className="px-4 py-2" style={{ borderTop: "1.5px solid #DBE3EA" }}>
-            <Link href="/inventory" style={{ fontSize: 13, color: "#0B7EB8", fontWeight: 600 }}>
+            <Link href="/inventory" style={{ fontSize: 13, color: "var(--color-ocean-600)", fontWeight: 600 }}>
               Go to inventory →
             </Link>
           </div>
@@ -327,13 +327,13 @@ export default async function HealthPage() {
       {/* All components */}
       <div className="card overflow-hidden">
         <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: "1.5px solid #DBE3EA" }}>
-          <h2 style={{ fontSize: 15, fontWeight: 800, color: "#0B2942" }}>All components</h2>
-          <Link href="/maintenance" style={{ fontSize: 13, color: "#0B7EB8", fontWeight: 600 }}>
+          <h2 style={{ fontSize: 15, fontWeight: 800, color: "var(--color-navy-700)" }}>All components</h2>
+          <Link href="/maintenance" style={{ fontSize: 13, color: "var(--color-ocean-600)", fontWeight: 600 }}>
             Full timeline →
           </Link>
         </div>
         {healthComponents.length === 0 ? (
-          <div className="px-4 py-6" style={{ fontSize: 14, color: "#8FB3CC" }}>No components tracked yet.</div>
+          <div className="px-4 py-6" style={{ fontSize: 14, color: "var(--color-navy-mute)" }}>No components tracked yet.</div>
         ) : (
           healthComponents
             .sort((a, b) => {
@@ -347,7 +347,7 @@ export default async function HealthPage() {
                 status === "due_soon" ? Clock :
                 status === "ok" ? CheckCircle : HelpCircle;
               const iconStyle: React.CSSProperties = {
-                color: status === "overdue" ? "#E0342A" : status === "due_soon" ? "#D9A300" : status === "ok" ? "#0E7A3D" : "#8FB3CC",
+                color: status === "overdue" ? "var(--color-status-critical-fg)" : status === "due_soon" ? "var(--color-status-warning-fg)" : status === "ok" ? "var(--color-status-healthy-fg)" : "var(--color-navy-mute)",
                 flexShrink: 0,
               };
               const label =
@@ -356,7 +356,7 @@ export default async function HealthPage() {
                 status === "ok" ? "OK" : "Unknown";
               const labelStyle: React.CSSProperties = {
                 fontSize: 12, fontWeight: 700,
-                color: status === "overdue" ? "#E0342A" : status === "due_soon" ? "#D9A300" : status === "ok" ? "#0E7A3D" : "#8FB3CC",
+                color: status === "overdue" ? "var(--color-status-critical-fg)" : status === "due_soon" ? "var(--color-status-warning-fg)" : status === "ok" ? "var(--color-status-healthy-fg)" : "var(--color-navy-mute)",
               };
 
               return (
@@ -367,8 +367,8 @@ export default async function HealthPage() {
                 >
                   <Icon size={16} style={iconStyle} />
                   <div className="min-w-0 flex-1">
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "#0B2942" }} className="truncate">{row.component_name}</div>
-                    <div style={{ fontSize: 12, color: "#8FB3CC" }}>{row.system_name ?? "—"}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-navy-700)" }} className="truncate">{row.component_name}</div>
+                    <div style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>{row.system_name ?? "—"}</div>
                   </div>
                   <span style={labelStyle}>{label}</span>
                 </Link>

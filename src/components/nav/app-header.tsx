@@ -20,7 +20,7 @@ export default async function AppHeader() {
     const activeBoat = boats.find((b) => b.id === selectedId) ?? boats[0];
 
     return (
-      <header className="h-14 shrink-0 z-30" style={{ background: "#0B2942", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+      <header className="h-14 shrink-0 z-30" style={{ background: "var(--color-navy-700)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <div
           className="h-full mx-auto w-full max-w-[1040px]"
           style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", paddingInline: "4px" }}
@@ -29,7 +29,7 @@ export default async function AppHeader() {
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <NautiqAnchorIcon size={20} color="white" />
             <span style={{ fontSize: 17, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
-              Naut<span style={{ color: "#FFC730" }}>IQ</span>
+              Naut<span style={{ color: "var(--color-amber-400)" }}>IQ</span>
             </span>
           </span>
           <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.6)", textAlign: "right", paddingRight: 16, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -40,7 +40,7 @@ export default async function AppHeader() {
     );
   } catch {
     return (
-      <header className="h-14 shrink-0 z-30" style={{ background: "#0B2942", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+      <header className="h-14 shrink-0 z-30" style={{ background: "var(--color-navy-700)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <div
           className="h-full mx-auto w-full max-w-[1040px]"
           style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", paddingInline: "4px" }}
@@ -49,7 +49,7 @@ export default async function AppHeader() {
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <NautiqAnchorIcon size={20} color="white" />
             <span style={{ fontSize: 17, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
-              Naut<span style={{ color: "#FFC730" }}>IQ</span>
+              Naut<span style={{ color: "var(--color-amber-400)" }}>IQ</span>
             </span>
           </span>
           <span />

@@ -91,13 +91,13 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
                       <td className="px-4 py-3">
                         <span className={`inline-flex items-center gap-1 text-xs font-medium rounded-full px-2 py-0.5 ${
                           isAdd
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            ? "bg-green-50 text-green-700 border border-green-200"
                             : "bg-red-50 text-red-600 border border-red-200"
                         }`}>
                           {isAdd ? "+" : "−"} {isAdd ? "Added" : "Used"}
                         </span>
                       </td>
-                      <td className={`px-4 py-3 text-right font-semibold tabular-nums ${isAdd ? "text-emerald-700" : "text-red-600"}`}>
+                      <td className={`px-4 py-3 text-right font-semibold tabular-nums ${isAdd ? "text-green-700" : "text-red-600"}`}>
                         {isAdd ? "+" : ""}{tx.quantity_delta} {itemData.unit ?? ""}
                       </td>
                       <td className="px-4 py-3 text-right font-medium text-slate-700 hidden sm:table-cell">

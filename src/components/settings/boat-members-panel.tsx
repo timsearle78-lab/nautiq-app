@@ -113,16 +113,16 @@ export function BoatMembersPanel({ boatId, boatName, isOwner }: Props) {
 
           {/* Invite link section */}
           {isOwner && (
-            <div className="rounded-xl bg-blue-50 border border-blue-100 p-3 space-y-2">
+            <div className="rounded-xl bg-ocean-50 border border-ocean-100 p-3 space-y-2">
               {inviteCode ? (
                 <>
-                  <p className="text-xs font-semibold text-blue-800">Invite link</p>
-                  <p className="text-xs text-blue-600 break-all font-mono">{inviteUrl}</p>
-                  <p className="text-xs text-blue-400">Expires {expiryLabel}</p>
+                  <p className="text-xs font-semibold text-ocean-900">Invite link</p>
+                  <p className="text-xs text-ocean-600 break-all font-mono">{inviteUrl}</p>
+                  <p className="text-xs text-ocean-400">Expires {expiryLabel}</p>
                   <div className="flex gap-2">
                     <button
                       onClick={copyLink}
-                      className="flex-1 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700"
+                      className="flex-1 py-1.5 rounded-lg text-xs font-semibold bg-ocean-600 text-white hover:bg-ocean-700"
                     >
                       {copied ? "Copied!" : "Copy link"}
                     </button>
@@ -136,11 +136,11 @@ export function BoatMembersPanel({ boatId, boatName, isOwner }: Props) {
                 </>
               ) : (
                 <>
-                  <p className="text-xs text-blue-700">Generate a link to share with a co-owner. It expires after 7 days and can only be used once.</p>
+                  <p className="text-xs text-ocean-700">Generate a link to share with a co-owner. It expires after 7 days and can only be used once.</p>
                   <button
                     onClick={generateInvite}
                     disabled={generating}
-                    className="w-full py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="w-full py-1.5 rounded-lg text-xs font-semibold bg-ocean-600 text-white hover:bg-ocean-700 disabled:opacity-50"
                   >
                     {generating ? "Generating…" : `Generate invite link for ${boatName}`}
                   </button>

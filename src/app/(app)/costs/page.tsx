@@ -185,7 +185,7 @@ export default async function CostsPage() {
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 text-center">
               <div className="text-xs text-slate-500 mb-1">Parts</div>
-              <div className="text-xl font-bold text-emerald-600">{fmt(totalParts)}</div>
+              <div className="text-xl font-bold text-green-600">{fmt(totalParts)}</div>
             </div>
           </div>
 
@@ -274,7 +274,7 @@ export default async function CostsPage() {
                         {new Date(r.created_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
                       </td>
                       <td className="px-4 py-3 text-slate-800">{getItemName(r)}</td>
-                      <td className="px-4 py-3 text-right font-medium text-emerald-700">{fmt(Number(r.cost))}</td>
+                      <td className="px-4 py-3 text-right font-medium text-green-700">{fmt(Number(r.cost))}</td>
                     </tr>
                   ))}
                 </tbody>

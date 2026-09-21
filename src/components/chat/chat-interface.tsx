@@ -119,7 +119,7 @@ function NavyHero({ boat, healthScore, overdueCount, engineHours, lastActivityDa
   const activityWarning = daysSinceActivity != null && daysSinceActivity >= 30;
 
   return (
-    <div className="w-full px-4 pt-5 pb-5" style={{ background: "#0B2942" }}>
+    <div className="w-full px-4 pt-5 pb-5" style={{ background: "var(--color-navy-700)" }}>
       <div className="flex items-center gap-4">
         {/* Gauge */}
         <Link href="/health" className="hover:opacity-80 transition-opacity flex-shrink-0">
@@ -133,7 +133,7 @@ function NavyHero({ boat, healthScore, overdueCount, engineHours, lastActivityDa
           <p style={{ fontSize: 24, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1, marginTop: 2 }}>
             {getHealthHeadline(healthScore, overdueCount)}
           </p>
-          <p style={{ fontSize: 12, fontWeight: 700, color: "#FFC730", letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 6 }}>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "var(--color-amber-400)", letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 6 }}>
             BOAT HEALTH
           </p>
           <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginTop: 1 }}>
@@ -167,7 +167,7 @@ function NavyHero({ boat, healthScore, overdueCount, engineHours, lastActivityDa
             <Link
               href="/health"
               className="rounded-full px-2.5 py-1 hover:opacity-80 transition-opacity"
-              style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,199,48,0.15)", color: "#FFC730" }}
+              style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,199,48,0.15)", color: "var(--color-amber-400)" }}
             >
               View health →
             </Link>
@@ -512,44 +512,44 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
               <Link
                 href="/components?status=overdue"
                 className="rounded-[18px] px-4 py-4 block active:opacity-80"
-                style={{ background: overdueCount > 0 ? "#E0342A" : "#FFFFFF", border: `1.5px solid ${overdueCount > 0 ? "#E0342A" : "#DBE3EA"}` }}
+                style={{ background: overdueCount > 0 ? "var(--color-status-critical-fg)" : "#FFFFFF", border: `1.5px solid ${overdueCount > 0 ? "var(--color-status-critical-fg)" : "var(--color-border)"}` }}
               >
-                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: overdueCount > 0 ? "#FFFFFF" : "#0B2942", fontVariantNumeric: "tabular-nums" }}>{animOverdue}</div>
-                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: overdueCount > 0 ? "rgba(255,255,255,0.7)" : "#8FB3CC", letterSpacing: "0.08em" }}>MAINT. OVERDUE</div>
+                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: overdueCount > 0 ? "#FFFFFF" : "var(--color-navy-700)", fontVariantNumeric: "tabular-nums" }}>{animOverdue}</div>
+                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: overdueCount > 0 ? "rgba(255,255,255,0.7)" : "var(--color-navy-mute)", letterSpacing: "0.08em" }}>MAINT. OVERDUE</div>
               </Link>
               {/* Due soon */}
               <Link
                 href="/components?status=due_soon"
                 className="rounded-[18px] px-4 py-4 block active:opacity-80"
-                style={{ background: dueSoonCount > 0 ? "#D9A300" : "#FFFFFF", border: `1.5px solid ${dueSoonCount > 0 ? "#D9A300" : "#DBE3EA"}` }}
+                style={{ background: dueSoonCount > 0 ? "var(--color-status-warning-fg)" : "#FFFFFF", border: `1.5px solid ${dueSoonCount > 0 ? "var(--color-status-warning-fg)" : "var(--color-border)"}` }}
               >
-                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: dueSoonCount > 0 ? "#3D2A00" : "#0B2942", fontVariantNumeric: "tabular-nums" }}>{animDueSoon}</div>
-                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: dueSoonCount > 0 ? "rgba(61,42,0,0.6)" : "#8FB3CC", letterSpacing: "0.08em" }}>DUE SOON</div>
+                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: dueSoonCount > 0 ? "var(--color-amber-ink)" : "var(--color-navy-700)", fontVariantNumeric: "tabular-nums" }}>{animDueSoon}</div>
+                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: dueSoonCount > 0 ? "rgba(61,42,0,0.6)" : "var(--color-navy-mute)", letterSpacing: "0.08em" }}>DUE SOON</div>
               </Link>
               {/* Inventory tile */}
               {lowCriticalCount > 0 ? (
                 <Link
                   href="/inventory?status=missing"
                   className="rounded-[18px] px-4 py-4 block active:opacity-80"
-                  style={{ background: "#FFC730", border: "1.5px solid #E6B200" }}
+                  style={{ background: "var(--color-amber-400)", border: "1.5px solid #E6B200" }}
                 >
-                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#3D2A00", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
-                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#3D2A00", letterSpacing: "0.08em", opacity: 0.7 }}>CRITICAL LOW</div>
+                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "var(--color-amber-ink)", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
+                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "var(--color-amber-ink)", letterSpacing: "0.08em", opacity: 0.7 }}>CRITICAL LOW</div>
                 </Link>
               ) : lowStockCount > 0 ? (
                 <Link
                   href="/inventory?status=low"
                   className="rounded-[18px] px-4 py-4 block active:opacity-80"
-                  style={{ background: "#D9A300", border: "1.5px solid #D9A300" }}
+                  style={{ background: "var(--color-status-warning-fg)", border: "1.5px solid #D9A300" }}
                 >
-                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#3D2A00", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
+                  <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "var(--color-amber-ink)", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
                   <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "rgba(61,42,0,0.6)", letterSpacing: "0.08em" }}>SPARES LOW</div>
                 </Link>
               ) : (
                 <Link
                   href="/health"
                   className="rounded-[18px] px-4 py-4 block active:opacity-80"
-                  style={{ background: "#0E7A3D", border: "1.5px solid #0E7A3D" }}
+                  style={{ background: "var(--color-status-healthy-fg)", border: "1.5px solid #0E7A3D" }}
                 >
                   <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#FFFFFF", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
                   <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "rgba(255,255,255,0.7)", letterSpacing: "0.08em" }}>HEALTHY</div>
@@ -561,8 +561,8 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 className="rounded-[18px] px-4 py-4 block active:opacity-80"
                 style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA" }}
               >
-                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "#0B2942", fontVariantNumeric: "tabular-nums" }}>{animEngineHours}</div>
-                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "#8FB3CC", letterSpacing: "0.08em" }}>ENGINE HRS</div>
+                <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "var(--color-navy-700)", fontVariantNumeric: "tabular-nums" }}>{animEngineHours}</div>
+                <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "var(--color-navy-mute)", letterSpacing: "0.08em" }}>ENGINE HRS</div>
               </Link>
             </div>
 
@@ -570,8 +570,8 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             {(urgentItems.length > 0 || lowStockCount > 0) ? (
               <div className="mx-4 animate-fade-up" style={{ animationDelay: "280ms" }}>
                 <div className="flex items-center justify-between mb-2 px-1">
-                  <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "#5F7488", letterSpacing: "0.1em" }}>NEEDS ATTENTION</p>
-                  <Link href="/health" className="text-xs font-bold" style={{ color: "#0B7EB8" }}>View all →</Link>
+                  <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--color-navy-500)", letterSpacing: "0.1em" }}>NEEDS ATTENTION</p>
+                  <Link href="/health" className="text-xs font-bold" style={{ color: "var(--color-ocean-600)" }}>View all →</Link>
                 </div>
                 <div className="card overflow-hidden" style={{ padding: 0 }}>
                   {urgentItems.map((item, i) => {
@@ -584,15 +584,15 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                         className="flex items-center gap-3 px-4 active:opacity-70"
                         style={{
                           minHeight: 56,
-                          borderLeft: `5px solid ${isOverdue ? "#E0342A" : "#D9A300"}`,
+                          borderLeft: `5px solid ${isOverdue ? "var(--color-status-critical-fg)" : "var(--color-status-warning-fg)"}`,
                           borderBottom: (i < urgentItems.length - 1 || lowStockCount > 0) ? "1px solid #DBE3EA" : "none",
                         }}
                       >
                         <div className="min-w-0 flex-1">
-                          <div className="font-bold truncate" style={{ fontSize: 15, color: "#0B2942" }}>{item.component_name}</div>
-                          <div className="text-xs" style={{ color: "#5F7488" }}>{item.system_name ?? "—"}</div>
+                          <div className="font-bold truncate" style={{ fontSize: 15, color: "var(--color-navy-700)" }}>{item.component_name}</div>
+                          <div className="text-xs" style={{ color: "var(--color-navy-500)" }}>{item.system_name ?? "—"}</div>
                         </div>
-                        <span className="badge flex-shrink-0" style={isOverdue ? { background: "#E0342A", color: "#FFF" } : { background: "#D9A300", color: "#3D2A00" }}>
+                        <span className="badge flex-shrink-0" style={isOverdue ? { background: "var(--color-status-critical-fg)", color: "#FFF" } : { background: "var(--color-status-warning-fg)", color: "var(--color-amber-ink)" }}>
                           {isOverdue ? "OVERDUE" : due ? `DUE ${due}` : "DUE SOON"}
                         </span>
                       </Link>
@@ -605,23 +605,23 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                       className="flex items-center gap-3 px-4 active:opacity-70"
                       style={{
                         minHeight: 56,
-                        borderLeft: `5px solid ${item.is_critical ? "#E0342A" : "#D9A300"}`,
+                        borderLeft: `5px solid ${item.is_critical ? "var(--color-status-critical-fg)" : "var(--color-status-warning-fg)"}`,
                         borderBottom: i < Math.min(lowStockItems.length, 4) - 1 ? "1px solid #DBE3EA" : "none",
                       }}
                     >
                       <div className="min-w-0 flex-1">
-                        <div className="font-bold truncate" style={{ fontSize: 15, color: "#0B2942" }}>{item.name}</div>
-                        <div className="text-xs" style={{ color: "#5F7488" }}>
+                        <div className="font-bold truncate" style={{ fontSize: 15, color: "var(--color-navy-700)" }}>{item.name}</div>
+                        <div className="text-xs" style={{ color: "var(--color-navy-500)" }}>
                           {item.quantity} {item.unit ?? ""} remaining{item.minimum_quantity != null ? ` · min ${item.minimum_quantity}` : ""}
                         </div>
                       </div>
-                      <span className="badge flex-shrink-0" style={item.is_critical && item.quantity <= 0 ? { background: "#E0342A", color: "#FFF" } : { background: "#D9A300", color: "#3D2A00" }}>
+                      <span className="badge flex-shrink-0" style={item.is_critical && item.quantity <= 0 ? { background: "var(--color-status-critical-fg)", color: "#FFF" } : { background: "var(--color-status-warning-fg)", color: "var(--color-amber-ink)" }}>
                         {item.is_critical && item.quantity <= 0 ? "MISSING" : "LOW"}
                       </span>
                     </Link>
                   ))}
                   {lowStockCount > 4 && (
-                    <Link href="/inventory" className="block px-4 py-3 text-xs font-bold" style={{ color: "#0B7EB8", borderTop: "1px solid #DBE3EA" }}>
+                    <Link href="/inventory" className="block px-4 py-3 text-xs font-bold" style={{ color: "var(--color-ocean-600)", borderTop: "1px solid #DBE3EA" }}>
                       +{lowStockCount - 4} more →
                     </Link>
                   )}
@@ -629,24 +629,24 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
               </div>
             ) : (
               <div className="card px-4 py-3.5 flex items-center gap-3 mx-4 animate-fade-up" style={{ animationDelay: "280ms", background: "#E6F6EC", borderColor: "#A8DDB8" }}>
-                <CheckCircle size={18} className="flex-shrink-0" style={{ color: "#0E7A3D" } as React.CSSProperties} />
+                <CheckCircle size={18} className="flex-shrink-0" style={{ color: "var(--color-status-healthy-fg)" } as React.CSSProperties} />
                 <div>
-                  <div className="font-bold" style={{ fontSize: 15, color: "#0B2942" }}>All clear</div>
-                  <div className="text-xs" style={{ color: "#5F7488" }}>No overdue maintenance or low-stock items.</div>
+                  <div className="font-bold" style={{ fontSize: 15, color: "var(--color-navy-700)" }}>All clear</div>
+                  <div className="text-xs" style={{ color: "var(--color-navy-500)" }}>No overdue maintenance or low-stock items.</div>
                 </div>
               </div>
             )}
 
             {/* Quick prompts — suggestion chips V2 */}
             <div className="pt-1 px-4 animate-fade-up" style={{ animationDelay: "360ms" }}>
-              <p className="text-xs font-bold uppercase tracking-widest mb-3 text-center" style={{ color: "#5F7488", letterSpacing: "0.1em" }}>ASK THE ASSISTANT</p>
+              <p className="text-xs font-bold uppercase tracking-widest mb-3 text-center" style={{ color: "var(--color-navy-500)", letterSpacing: "0.1em" }}>ASK THE ASSISTANT</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {quickPrompts.map(({ label, text }) => (
                   <button
                     key={label}
                     onClick={() => sendMessage({ text })}
                     className="text-sm font-semibold active:opacity-70 transition-opacity"
-                    style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA", borderRadius: 8, padding: "8px 16px", color: "#0B2942" }}
+                    style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA", borderRadius: 8, padding: "8px 16px", color: "var(--color-navy-700)" }}
                   >
                     {label}
                   </button>
@@ -712,7 +712,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             style={{
               width: 44,
               height: 44,
-              background: isRecording ? "#E0342A" : "#0B2942",
+              background: isRecording ? "var(--color-status-critical-fg)" : "var(--color-navy-700)",
               color: "#fff",
               border: "none",
               flexShrink: 0,
@@ -736,9 +736,9 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             className="flex-1 resize-none rounded-2xl px-4 py-2.5 text-sm focus:outline-none"
             style={{
               minHeight: "40px",
-              background: "#F4F7FA",
+              background: "var(--color-app-bg)",
               border: "1.5px solid #DBE3EA",
-              color: "#0B2942",
+              color: "var(--color-navy-700)",
             }}
           />
 
@@ -746,7 +746,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             type="button"
             onClick={() => setMessages([])}
             className="flex shrink-0 items-center justify-center rounded-full transition-opacity hover:opacity-70"
-            style={{ width: 40, height: 40, background: "#F4F7FA", border: "1.5px solid #DBE3EA", color: "#8FB3CC" }}
+            style={{ width: 40, height: 40, background: "var(--color-app-bg)", border: "1.5px solid #DBE3EA", color: "var(--color-navy-mute)" }}
             aria-label="New chat"
           >
             <RotateCcw size={15} />
@@ -756,7 +756,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             className="flex shrink-0 items-center justify-center rounded-full transition disabled:opacity-40"
-            style={{ width: 40, height: 40, background: "#0B2942", color: "#FFFFFF" }}
+            style={{ width: 40, height: 40, background: "var(--color-navy-700)", color: "#FFFFFF" }}
           >
             <Send size={16} />
           </button>

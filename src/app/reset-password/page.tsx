@@ -45,14 +45,14 @@ export default function ResetPasswordPage() {
     background: "#FFFFFF",
     padding: "13px 15px",
     fontSize: 14.5,
-    color: "#0F2335",
+    color: "var(--color-navy-700)",
     width: "100%",
     outline: "none",
   };
 
   const focusHandlers = {
     onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
-      e.target.style.borderColor = "#0B7EB8";
+      e.target.style.borderColor = "var(--color-ocean-600)";
       e.target.style.boxShadow = "0 0 0 4px rgba(11,126,184,.14)";
     },
     onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
@@ -70,7 +70,7 @@ export default function ResetPasswordPage() {
 
         <form onSubmit={handleSubmit} className="mt-7 space-y-4">
           <div>
-            <label htmlFor="password" className="mb-2 block" style={{ fontSize: 13, fontWeight: 600, color: "#0F2335" }}>
+            <label htmlFor="password" className="mb-2 block" style={{ fontSize: 13, fontWeight: 600, color: "var(--color-navy-700)" }}>
               New password
             </label>
             <input
@@ -88,7 +88,7 @@ export default function ResetPasswordPage() {
           </div>
 
           <div>
-            <label htmlFor="confirm" className="mb-2 block" style={{ fontSize: 13, fontWeight: 600, color: "#0F2335" }}>
+            <label htmlFor="confirm" className="mb-2 block" style={{ fontSize: 13, fontWeight: 600, color: "var(--color-navy-700)" }}>
               Confirm password
             </label>
             <input
@@ -120,7 +120,7 @@ export default function ResetPasswordPage() {
                 borderRadius: 11,
                 border: `1px solid ${isError ? "#F3C4C4" : "#B8E2C8"}`,
                 background: isError ? "#FDEBEB" : "#E7F6EE",
-                color: isError ? "#E0342A" : "#0E7A3D",
+                color: isError ? "var(--color-status-critical-fg)" : "var(--color-status-healthy-fg)",
                 fontSize: 13,
               }}
             >

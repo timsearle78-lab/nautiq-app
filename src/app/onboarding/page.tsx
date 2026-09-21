@@ -529,7 +529,7 @@ export default function OnboardingPage() {
                 },
                 {
                   icon: Anchor,
-                  iconCls: "bg-purple-400/20 text-purple-300 border border-purple-400/20",
+                  iconCls: "bg-ocean-500/20 text-ocean-300 border border-ocean-500/20",
                   label: "Trips",
                   desc: "Log trips with engine hours to keep accurate maintenance records based on actual usage, not just time.",
                 },

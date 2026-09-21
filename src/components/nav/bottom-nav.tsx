@@ -16,7 +16,7 @@ interface Tab {
 }
 
 function AnchorIcon({ active }: { active: boolean }) {
-  const color = active ? "#FFC730" : "#8FB3CC";
+  const color = active ? "var(--color-amber-400)" : "var(--color-navy-mute)";
   return <NautiqAnchorIcon size={22} color={color} />;
 }
 
@@ -37,7 +37,7 @@ export default function BottomNav({ userEmail, userInitials, isAdmin, boats = []
     {
       href: "/chat",
       label: "HOME",
-      renderIcon: (active: boolean) => <Home size={22} strokeWidth={active ? 2.5 : 1.75} color={active ? "#FFC730" : "#8FB3CC"} />,
+      renderIcon: (active: boolean) => <Home size={22} strokeWidth={active ? 2.5 : 1.75} color={active ? "var(--color-amber-400)" : "var(--color-navy-mute)"} />,
     },
     {
       href: "/trips",
@@ -47,12 +47,12 @@ export default function BottomNav({ userEmail, userInitials, isAdmin, boats = []
     {
       href: "/maintenance",
       label: "MAINTAIN",
-      renderIcon: (active: boolean) => <Wrench size={22} strokeWidth={active ? 2.5 : 1.75} color={active ? "#FFC730" : "#8FB3CC"} />,
+      renderIcon: (active: boolean) => <Wrench size={22} strokeWidth={active ? 2.5 : 1.75} color={active ? "var(--color-amber-400)" : "var(--color-navy-mute)"} />,
     },
     {
       href: "/inventory",
       label: "INVENTORY",
-      renderIcon: (active: boolean) => <Package size={22} strokeWidth={active ? 2.5 : 1.75} color={active ? "#FFC730" : "#8FB3CC"} />,
+      renderIcon: (active: boolean) => <Package size={22} strokeWidth={active ? 2.5 : 1.75} color={active ? "var(--color-amber-400)" : "var(--color-navy-mute)"} />,
     },
   ];
 
@@ -60,7 +60,7 @@ export default function BottomNav({ userEmail, userInitials, isAdmin, boats = []
     <>
       <nav
         className="fixed bottom-0 left-0 right-0 z-40 pb-[env(safe-area-inset-bottom)]"
-        style={{ background: "#0B2942", borderTop: "1px solid rgba(255,255,255,0.08)" }}
+        style={{ background: "var(--color-navy-700)", borderTop: "1px solid rgba(255,255,255,0.08)" }}
       >
         <div className="flex mx-auto w-full max-w-[1040px]" style={{ height: 60 }}>
           {tabs.map(({ href, label, renderIcon }) => {
@@ -74,7 +74,7 @@ export default function BottomNav({ userEmail, userInitials, isAdmin, boats = []
                     fontSize: 10,
                     fontWeight: 800,
                     letterSpacing: "0.08em",
-                    color: active ? "#FFC730" : "#8FB3CC",
+                    color: active ? "var(--color-amber-400)" : "var(--color-navy-mute)",
                     lineHeight: 1,
                   }}
                 >
@@ -83,7 +83,7 @@ export default function BottomNav({ userEmail, userInitials, isAdmin, boats = []
                 {active && (
                   <span
                     className="absolute top-0 left-1/2 -translate-x-1/2 rounded-full"
-                    style={{ width: 28, height: 2.5, background: "#FFC730" }}
+                    style={{ width: 28, height: 2.5, background: "var(--color-amber-400)" }}
                   />
                 )}
               </>
@@ -122,7 +122,7 @@ export default function BottomNav({ userEmail, userInitials, isAdmin, boats = []
           >
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold leading-none"
-              style={{ background: "#FFC730", color: "#3D2A00" }}
+              style={{ background: "var(--color-amber-400)", color: "var(--color-amber-ink)" }}
             >
               {userInitials}
             </div>
