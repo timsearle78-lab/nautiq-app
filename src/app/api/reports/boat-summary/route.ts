@@ -53,7 +53,7 @@ export async function GET(req: Request) {
     generatedAt: new Date().toISOString(),
     boat: { name: boat.name, type: boat.type },
     engineHours: engineHoursRes.data ?? 0,
-    health,
+    health: health.components,
     inventory: inventoryRes.data ?? [],
     recentTrips: tripsRes.data ?? [],
     maintenanceHistory: maintenanceRes.data ?? [],

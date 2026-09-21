@@ -138,19 +138,20 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
                 getBoatHealth(boatId!, supabase),
                 supabase.rpc("get_boat_engine_hours", { p_boat_id: boatId }),
               ]);
-              const knownHealth = health.filter((c) => c.risk_score != null);
+              const { components: hc, penalties } = health;
+              const knownHealth = hc.filter((c) => c.risk_score != null);
               const avgRisk =
                 knownHealth.length > 0
                   ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
                   : 0;
-              const healthScore = Math.max(0, Math.round(100 - avgRisk));
+              const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory));
               return {
                 boatName: boat.name,
                 engineHours: hoursRes.data ?? 0,
                 healthScore,
-                overdueCount: health.filter((c) => c.status === "overdue").length,
-                dueSoonCount: health.filter((c) => c.status === "due soon").length,
-                urgentItems: health
+                overdueCount: hc.filter((c) => c.status === "overdue").length,
+                dueSoonCount: hc.filter((c) => c.status === "due soon").length,
+                urgentItems: hc
                   .filter((c) => c.status === "overdue")
                   .slice(0, 3)
                   .map((c) => c.component_name),
@@ -172,8 +173,8 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
           ),
           execute: async ({ overdueOnly = false }: { overdueOnly?: boolean }) => {
             try {
-              const health = await getBoatHealth(boatId!, supabase);
-              const filtered = health
+              const { components: hc } = await getBoatHealth(boatId!, supabase);
+              const filtered = hc
                 .filter((r) => {
                   const s = (r.status ?? "").toLowerCase();
                   if (overdueOnly) return s === "overdue";
@@ -504,14 +505,15 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
                   .limit(1),
               ]);
 
-              const knownHealth = health.filter((c) => c.risk_score != null);
+              const { components: hc2, penalties: pen2 } = health;
+              const knownHealth = hc2.filter((c) => c.risk_score != null);
               const avgRisk =
                 knownHealth.length > 0
                   ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
                   : 0;
-              const healthScore = Math.max(0, Math.round(100 - avgRisk));
-              const overdueCount = health.filter((c) => c.status === "overdue").length;
-              const dueSoonCount = health.filter((c) => c.status === "due soon").length;
+              const healthScore = Math.max(0, Math.round(100 - avgRisk - pen2.inactivity - pen2.inventory));
+              const overdueCount = hc2.filter((c) => c.status === "overdue").length;
+              const dueSoonCount = hc2.filter((c) => c.status === "due soon").length;
 
               const recentTrips = tripsRes.data ?? [];
               const recentMaintenance = maintenanceRes.data ?? [];

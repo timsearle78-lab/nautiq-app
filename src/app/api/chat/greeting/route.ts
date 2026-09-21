@@ -68,14 +68,15 @@ export async function POST(req: Request) {
       .limit(5),
   ]);
 
-  const knownHealth = health.filter((c) => c.risk_score != null);
+  const { components: hc, penalties } = health;
+  const knownHealth = hc.filter((c) => c.risk_score != null);
   const avgRisk =
     knownHealth.length > 0
       ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
       : 0;
-  const healthScore = Math.max(0, Math.round(100 - avgRisk));
-  const overdueCount = health.filter((c) => c.status === "overdue").length;
-  const dueSoonCount = health.filter((c) => c.status === "due soon").length;
+  const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory));
+  const overdueCount = hc.filter((c) => c.status === "overdue").length;
+  const dueSoonCount = hc.filter((c) => c.status === "due soon").length;
 
   const recentTrips = tripsRes.data ?? [];
   const recentMaintenance = maintenanceRes.data ?? [];
