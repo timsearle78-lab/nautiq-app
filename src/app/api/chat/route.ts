@@ -50,7 +50,6 @@ export async function POST(req: Request) {
       .from("boats")
       .select("id, name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description")
       .eq("id", boatId)
-      .eq("user_id", user.id)
       .single();
     if (!boat) return new Response("Boat not found", { status: 404 });
 

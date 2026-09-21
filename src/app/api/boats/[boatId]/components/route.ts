@@ -13,7 +13,6 @@ export async function GET(
     .from("boats")
     .select("id")
     .eq("id", boatId)
-    .eq("user_id", user.id)
     .single();
   if (!boat) return Response.json({ error: "Unauthorized" }, { status: 403 });
 

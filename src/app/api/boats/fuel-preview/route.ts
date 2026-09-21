@@ -14,7 +14,6 @@ export async function GET(req: Request) {
       .from("boats")
       .select("fuel_consumption_lph")
       .eq("id", boatId)
-      .eq("user_id", user.id)
       .single(),
     supabase
       .from("inventory_items")

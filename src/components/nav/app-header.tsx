@@ -12,7 +12,6 @@ export default async function AppHeader() {
     const { data: boats } = await supabase
       .from("boats")
       .select("id, name")
-      .eq("user_id", user.id)
       .order("created_at", { ascending: true });
 
     if (!boats || boats.length === 0) return null;

@@ -294,6 +294,28 @@ How visits affect your health score:
 
 "Activity" includes any logged trip, saved maintenance record, or check-in — whichever happened most recently.`,
   },
+  {
+    id: "co-ownership",
+    title: "Boat co-ownership",
+    content: `Share your boat with crewmates or co-owners so you can all log trips, maintenance, and inventory under the same boat.
+
+To invite a co-owner:
+1. Go to Profile → Settings → Your boats.
+2. In the boat card, tap "Co-owners" to expand the panel.
+3. Tap "Generate invite link."
+4. Copy and share the link (valid for 7 days, single-use).
+
+The invited person follows the link, signs in or creates a free NautIQ account, and taps "Accept invitation." The boat then appears in their account with full access.
+
+To remove a co-owner:
+1. Open the Co-owners panel in Settings for that boat.
+2. Tap "Remove" next to their email.
+
+Notes:
+- Only the original boat owner can invite or remove co-owners.
+- Co-owners can log trips, maintenance, and inventory changes — they have full write access.
+- Deleting a boat is only possible for the original owner.`,
+  },
 ];
 
 // Compact version injected into the AI chat system prompt.
@@ -345,6 +367,8 @@ WELCOME GREETING / PBA: Each time you open the Home screen, your personal boat a
 BOAT VISITS / CHECK-INS: Even if you don't take a trip, you should log a visit when you go to check on your boat. Open the Quick Actions menu (☰ icon, top left) and tap "Log Visit." Enter the date and an optional note. Regular visits prevent the health score from dropping due to inactivity — the score decreases if your boat hasn't been visited, used, or serviced in 30+ days. The Home screen shows "Last visit: Xd ago" in the health panel so you can see at a glance when you were last aboard.
 
 HOME ICON: Tapping the Home tab in the bottom navigation when you're already on the Home screen resets the chat and returns you to the health overview — useful for starting a fresh conversation without navigating away.
+
+BOAT CO-OWNERSHIP / SYNDICATE: Share a boat with crewmates or co-owners. In Profile → Settings → Your boats, open the "Co-owners" section for a boat and tap "Generate invite link." Send the link to the person you want to add — they follow the link, create an account or sign in, and the boat is added to their NautIQ. Both owners see the same boat, trips, maintenance records, and inventory. The boat owner can remove a co-owner from the same Co-owners panel. To accept an invite, the recipient must be signed in; if not, the link prompts them to sign in or create an account first.
 
 HEALTH SCORE BREAKDOWN: The boat health score is 100 minus two penalties applied in sequence:
 1. Component risk average: Each component with a known service interval is assessed. "OK" components (less than 85% through their interval) contribute 0 risk. Components 85–100% through their interval contribute linearly up to 100 risk points. Overdue components contribute 100+ (quadratic — the longer overdue, the worse). Inventory penalties (low/out-of-stock/expired spares) are added to the linked component's risk score. The average of all component risk scores is subtracted from 100.

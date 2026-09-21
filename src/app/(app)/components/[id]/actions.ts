@@ -87,8 +87,7 @@ export async function logMaintenance(
       .from("components")
       .update(componentUpdatePayload)
       .eq("id", componentId)
-      .eq("boat_id", boatId)
-      .eq("user_id", user.id);
+      .eq("boat_id", boatId);
 
     if (componentUpdateError) {
       return {
@@ -161,8 +160,7 @@ export async function updateMaintenanceEvent(
     const { error: updateError } = await supabase
       .from("maintenance_events")
       .update({ performed_at: performedAt, work_done: workDone, notes, vendor, engine_hours_at_service: engineHoursAtService, cost })
-      .eq("id", eventId)
-      .eq("user_id", user.id);
+      .eq("id", eventId);
 
     if (updateError) return { error: `Failed to update: ${updateError.message}` };
 
@@ -171,7 +169,6 @@ export async function updateMaintenanceEvent(
       .from("maintenance_events")
       .select("performed_at, engine_hours_at_service")
       .eq("component_id", componentId)
-      .eq("user_id", user.id)
       .order("performed_at", { ascending: false, nullsFirst: false })
       .limit(1)
       .single();
@@ -183,8 +180,7 @@ export async function updateMaintenanceEvent(
           last_serviced_at: latest.performed_at,
           ...(latest.engine_hours_at_service != null ? { last_serviced_hours: latest.engine_hours_at_service } : {}),
         })
-        .eq("id", componentId)
-        .eq("user_id", user.id);
+        .eq("id", componentId);
     }
 
     revalidatePath(`/components/${componentId}`);
@@ -204,8 +200,7 @@ export async function deleteMaintenanceEvent(eventId: string, componentId: strin
   const { error } = await supabase
     .from("maintenance_events")
     .delete()
-    .eq("id", eventId)
-    .eq("user_id", user.id);
+    .eq("id", eventId);
 
   if (error) throw new Error(error.message);
 
@@ -247,8 +242,7 @@ export async function updateComponent(
   const { error } = await supabase
     .from("components")
     .update({ name, system_id, install_date, notes, service_interval_years, service_interval_months, service_interval_days, service_interval_engine_hours })
-    .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("id", id);
 
   if (error) return { error: error.message };
 
@@ -271,8 +265,7 @@ export async function deleteComponent(
   const { error } = await supabase
     .from("components")
     .delete()
-    .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("id", id);
 
   if (error) return { error: error.message };
 

@@ -19,7 +19,6 @@ export async function GET(req: Request) {
   const { data: boats } = await supabase
     .from("boats")
     .select("id,name,type,created_at")
-    .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
   const boatList = (boats ?? []) as BoatRow[];

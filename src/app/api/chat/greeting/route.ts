@@ -24,7 +24,6 @@ export async function POST(req: Request) {
     .from("boats")
     .select("id, name")
     .eq("id", boatId)
-    .eq("user_id", user.id)
     .single();
   if (!boat) return new Response("Not found", { status: 404 });
 
