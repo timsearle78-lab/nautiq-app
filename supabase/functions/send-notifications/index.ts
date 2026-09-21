@@ -254,7 +254,43 @@ function buildHealthSummaryEmail(boatName: string, score: number, overdue: Compo
   return emailShell(body);
 }
 
-function buildOverdueAlertEmail(boatName: string, component: ComponentHealth) {
+function buildAllClearEmail(boatName: string, score: number, okCount: number) {
+  const body = `
+    <!-- Header -->
+    <tr><td style="${EMAIL_HEADER_STYLE}">
+      ${LOGO_SVG}
+      <p style="color:rgba(159,186,206,0.85);font-size:13px;margin:8px 0 0;${EMAIL_BODY_FONT}">${boatName} — Boat Health Summary</p>
+    </td></tr>
+
+    <!-- Score -->
+    <tr><td style="padding:28px 32px 20px;text-align:center;">
+      <div style="display:inline-block;background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:16px;padding:20px 32px;">
+        <div style="font-size:48px;font-weight:800;color:${scoreColor(score)};line-height:1;${EMAIL_BODY_FONT}">${score}</div>
+        <div style="font-size:13px;font-weight:600;color:#1D9B55;margin-top:4px;">Health score</div>
+      </div>
+      <p style="font-size:15px;font-weight:600;color:#0F2335;margin:16px 0 4px;">All clear — ${boatName} is in good shape</p>
+      <p style="font-size:14px;color:#8593A0;margin:0;line-height:1.5;">${okCount} component${okCount !== 1 ? "s" : ""} tracked, no maintenance issues or inventory problems.</p>
+    </td></tr>
+
+    <!-- CTA -->
+    <tr><td style="padding:8px 32px 32px;text-align:center;">
+      <a href="${APP_URL}/health" style="display:inline-block;background:linear-gradient(135deg,#15A0D6,#0B7EB8);color:#FFFFFF;text-decoration:none;border-radius:12px;padding:13px 32px;font-size:14px;font-weight:700;letter-spacing:0.1px;${EMAIL_BODY_FONT}box-shadow:0 4px 12px rgba(11,126,184,0.28);">
+        View health report →
+      </a>
+    </td></tr>
+
+    <!-- Footer -->
+    <tr><td style="padding:16px 32px;border-top:1px solid #EEF1F5;text-align:center;background:#F8FAFC;">
+      <p style="color:#8593A0;font-size:12px;margin:0;line-height:1.6;${EMAIL_BODY_FONT}">
+        You're receiving this because you enabled health summary emails in NautIQ.<br>
+        <a href="${APP_URL}/settings" style="color:#0B7EB8;text-decoration:none;">Manage notification preferences</a>
+      </p>
+    </td></tr>`;
+
+  return emailShell(body);
+}
+
+
   const body = `
     <!-- Header -->
     <tr><td style="${EMAIL_HEADER_STYLE}">
@@ -509,18 +545,29 @@ Deno.serve(async (req) => {
       const hasIssues = overdue.length > 0 || dueSoon.length > 0 || inventoryIssues.length > 0;
 
       // ---- Health summary email ----
-      if (pref.health_summary !== "none" && hasIssues) {
-        const shouldSend = pref.health_summary === "daily" ||
-          (pref.health_summary === "weekly" && todayDow === (pref.health_summary_day ?? 1));
+      const summaryFreq = pref.health_summary as string;
+      const isAlways = summaryFreq === "daily_always" || summaryFreq === "weekly_always";
+      const baseFreq = summaryFreq === "daily_always" ? "daily" : summaryFreq === "weekly_always" ? "weekly" : summaryFreq;
+
+      if (baseFreq !== "none" && (hasIssues || isAlways)) {
+        const shouldSend = baseFreq === "daily" ||
+          (baseFreq === "weekly" && todayDow === (pref.health_summary_day ?? 1));
 
         const lastSent = pref.last_health_summary_at ? new Date(pref.last_health_summary_at) : null;
-        const cooldownHours = pref.health_summary === "daily" ? 20 : 6 * 24;
+        const cooldownHours = baseFreq === "daily" ? 20 : 6 * 24;
         const cooldownMs = cooldownHours * 3_600_000;
         const cooldownOk = !lastSent || (now.getTime() - lastSent.getTime()) > cooldownMs;
 
         if (shouldSend && cooldownOk) {
-          const subject = `NautIQ Update: ${boat.name} health report`;
-          const html = buildHealthSummaryEmail(boat.name, healthScore, overdue, dueSoon, inventoryIssues);
+          let subject: string;
+          let html: string;
+          if (hasIssues) {
+            subject = `NautIQ Update: ${boat.name} health report`;
+            html = buildHealthSummaryEmail(boat.name, healthScore, overdue, dueSoon, inventoryIssues);
+          } else {
+            subject = `NautIQ Update: ${boat.name} is all clear`;
+            html = buildAllClearEmail(boat.name, healthScore, ok.length);
+          }
           await sendEmail(pref.email, subject, html);
 
           await supabase

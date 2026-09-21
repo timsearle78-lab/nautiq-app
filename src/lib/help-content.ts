@@ -136,6 +136,11 @@ Each component has a service interval (time-based and/or engine-hour-based). Nau
 Notification email: by default, alerts go to your account email. Enter a different address here if you want notifications sent elsewhere.
 
 Boat health summary: choose how often you receive a health digest email.
+- Daily (when issues exist): sent each day you have overdue or due-soon components, or inventory problems.
+- Daily (always): sent every day regardless — shows an all-clear email when everything is healthy.
+- Weekly (when issues exist): sent once a week on your chosen day, only if issues exist.
+- Weekly (always): sent every week on your chosen day, whether or not there are issues.
+- Off: no health summary emails.
 - Off: no summary emails.
 - Daily: an email every day while your boat needs attention.
 - Weekly: one email per week while your boat needs attention. When "Weekly" is selected, a day-of-week picker appears (Sunday–Saturday) so you choose which day the email arrives.
@@ -145,7 +150,7 @@ Overdue maintenance alerts: tick this checkbox to receive an email the moment a 
 
 Tap "Save preferences" to apply any changes.
 
-Check now: tap this button to run the notification check immediately. You'll see a confirmation message once it completes. Emails will only be sent if issues are found.`,
+Check now: tap this button to run the notification check immediately. You'll see a confirmation message once it completes. Emails will only be sent if your preference is set and the cooldown has passed.`,
   },
   {
     id: "inventory",

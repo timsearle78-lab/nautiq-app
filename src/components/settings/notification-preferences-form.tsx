@@ -7,7 +7,7 @@ import { Bell, Send } from "lucide-react";
 
 type Prefs = {
   email: string;
-  health_summary: "none" | "daily" | "weekly";
+  health_summary: "none" | "daily" | "weekly" | "daily_always" | "weekly_always";
   health_summary_day: number;
   overdue_alerts: boolean;
 };
@@ -49,13 +49,15 @@ export function NotificationPreferencesForm({ prefs, userEmail }: { prefs: Prefs
           <label className="mb-1.5 block text-sm font-medium text-slate-700">Boat health summary</label>
           <select name="health_summary" value={healthSummary} onChange={e => setHealthSummary(e.target.value as Prefs["health_summary"])} className="select-field">
             <option value="none">Off — no health summary emails</option>
-            <option value="daily">Daily — sent each day while issues exist</option>
-            <option value="weekly">Weekly — sent once a week while issues exist</option>
+            <option value="daily">Daily — when issues exist</option>
+            <option value="daily_always">Daily — always, even when all OK</option>
+            <option value="weekly">Weekly — when issues exist</option>
+            <option value="weekly_always">Weekly — always, even when all OK</option>
           </select>
-          <p className="mt-1 text-xs text-slate-400">Emails are only sent while your boat health needs attention. When everything is OK, no emails are sent.</p>
+          <p className="mt-1 text-xs text-slate-400">Choose whether to receive a summary only when there are issues, or on a fixed schedule regardless.</p>
         </div>
 
-        {healthSummary === "weekly" && (
+        {(healthSummary === "weekly" || healthSummary === "weekly_always") && (
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Weekly summary day</label>
             <select name="health_summary_day" defaultValue={String(defaults.health_summary_day)} className="select-field">

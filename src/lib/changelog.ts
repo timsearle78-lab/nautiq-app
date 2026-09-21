@@ -7,6 +7,13 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-09-21",
+    label: "September 2026 update",
+    features: [
+      "Health summary emails can now be sent on a fixed daily or weekly schedule, even when everything is OK — choose 'always' in notification settings",
+    ],
+  },
+  {
     date: "2026-09-09",
     label: "September 2026 update",
     features: [
