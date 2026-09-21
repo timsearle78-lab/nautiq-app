@@ -31,13 +31,13 @@ export async function POST(req: NextRequest) {
   const targetEmail = targetData.user.email;
   if (!targetEmail) return NextResponse.json({ error: "Target user has no email" }, { status: 400 });
 
-  // Generate a one-time magic link for the target user
+  // Generate a one-time magic link token
   const { data: linkData, error: linkErr } = await adminClient.auth.admin.generateLink({
     type: "magiclink",
     email: targetEmail,
   });
 
-  if (linkErr || !linkData.properties?.action_link) {
+  if (linkErr || !linkData.properties?.hashed_token) {
     return NextResponse.json({ error: linkErr?.message ?? "Failed to generate link" }, { status: 500 });
   }
 
@@ -49,11 +49,17 @@ export async function POST(req: NextRequest) {
     targetEmail,
     targetId: userId,
   }), {
-    httpOnly: false, // needs to be readable client-side for the banner
+    httpOnly: false, // readable client-side for the banner
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 8, // 8 hours
+    maxAge: 60 * 60 * 8,
   });
 
-  return NextResponse.json({ actionLink: linkData.properties.action_link });
+  // Build a local confirm URL that exchanges the token server-side and sets cookies
+  const confirmUrl = new URL("/auth/confirm", req.nextUrl.origin);
+  confirmUrl.searchParams.set("token_hash", linkData.properties.hashed_token);
+  confirmUrl.searchParams.set("type", "magiclink");
+  confirmUrl.searchParams.set("next", "/");
+
+  return NextResponse.json({ actionLink: confirmUrl.toString() });
 }
