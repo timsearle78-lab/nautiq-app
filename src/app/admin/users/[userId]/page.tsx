@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { ImpersonateButton } from "@/components/admin/impersonate-button";
 
 export const dynamic = "force-dynamic";
 
@@ -111,9 +112,12 @@ export default async function AdminUserDetailPage({
             <div className="text-lg font-bold text-slate-900">{targetEmail}</div>
             <div className="text-xs text-slate-400 mt-0.5 font-mono">{userId}</div>
           </div>
-          <div className="text-right text-sm text-slate-500 shrink-0">
-            {createdAt && <div>Joined {fmtDateTime(createdAt)}</div>}
-            {lastSignIn && <div className="text-xs text-slate-400 mt-0.5">Last sign-in {fmtDateTime(lastSignIn)}</div>}
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <div className="text-right text-sm text-slate-500">
+              {createdAt && <div>Joined {fmtDateTime(createdAt)}</div>}
+              {lastSignIn && <div className="text-xs text-slate-400 mt-0.5">Last sign-in {fmtDateTime(lastSignIn)}</div>}
+            </div>
+            <ImpersonateButton userId={userId} userEmail={targetEmail} />
           </div>
         </div>
 

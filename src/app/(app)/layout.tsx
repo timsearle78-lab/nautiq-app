@@ -6,6 +6,7 @@ import AppHeader from "@/components/nav/app-header";
 import BottomNav from "@/components/nav/bottom-nav";
 import ScrollToTop from "@/components/ui/scroll-to-top";
 import GlobalActionsMenu from "@/components/nav/global-actions-menu";
+import { ImpersonationBanner } from "@/components/admin/impersonation-banner";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 
 export default async function AppLayout({
@@ -45,6 +46,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex flex-col h-[100dvh]" style={{ background: "#F4F7FA" }}>
+      <ImpersonationBanner />
       <AppHeader />
       <main className="flex-1 overflow-y-auto pb-16 mx-auto w-full max-w-[1040px]">
         {children}
