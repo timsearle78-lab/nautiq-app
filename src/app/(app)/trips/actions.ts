@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { parseOptionalNumber } from "@/lib/parse-form-data";
+import { recordAudit } from "@/lib/audit";
 
 export type TripActionState = { error?: string; success?: string };
 
@@ -98,6 +99,7 @@ export async function updateTrip(
       }
     }
 
+    recordAudit({ userId: user.id, boatId: existingTrip.boat_id, action: "trip.updated", entityType: "trip", entityId: tripId });
     revalidatePath("/trips");
     return { success: "Trip updated." };
   } catch (error) {
@@ -110,6 +112,8 @@ export async function deleteTrip(tripId: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
+  const { data: trip } = await supabase.from("trips").select("boat_id").eq("id", tripId).single();
+
   const { error } = await supabase
     .from("trips")
     .delete()
@@ -117,5 +121,6 @@ export async function deleteTrip(tripId: string) {
 
   if (error) throw new Error(error.message);
 
+  if (trip) recordAudit({ userId: user.id, boatId: trip.boat_id, action: "trip.deleted", entityType: "trip", entityId: tripId });
   revalidatePath("/trips");
 }

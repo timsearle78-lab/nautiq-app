@@ -158,7 +158,7 @@ export default async function AdminPage() {
                 return (
                   <tr key={u.id} className="hover:bg-slate-50/50 transition">
                     <td className="px-4 py-3 font-medium text-slate-800">
-                      <span>{u.email ?? "—"}</span>
+                      <a href={`/admin/users/${u.id}`} className="hover:text-ocean-600 hover:underline transition">{u.email ?? "—"}</a>
                       {isAdmin && (
                         <span className="ml-2 text-xs font-medium text-ocean-600 bg-ocean-50 border border-ocean-200 rounded-full px-1.5 py-0.5">
                           Admin

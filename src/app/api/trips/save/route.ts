@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { recordAudit } from "@/lib/audit";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -49,6 +50,8 @@ export async function POST(req: Request) {
   });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
+
+  recordAudit({ userId: user.id, boatId: boatId, action: "trip.created", entityType: "trip", metadata: { engine_hours_delta, source: source ?? "ai_quick_log" } });
 
   // Consume fuel from inventory (whether entered manually or estimated)
   if (resolvedFuel && resolvedFuel > 0) {

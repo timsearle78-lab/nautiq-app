@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { recordAudit } from "@/lib/audit";
 
 export type CheckinActionState = {
   error?: string;
@@ -39,6 +40,7 @@ export async function logCheckin(
 
     if (insertError) return { error: insertError.message };
 
+    recordAudit({ userId: user.id, boatId, action: "checkin.logged", entityType: "boat_checkin" });
     revalidatePath("/chat");
     revalidatePath("/health");
     return { success: true };
