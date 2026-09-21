@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { parseOptionalNumber, parseRequiredNumber } from "@/lib/parse-form-data";
+import { recordAudit } from "@/lib/audit";
 
 type ActionState = {
   error?: string;
@@ -65,6 +66,7 @@ export async function createInventoryItem(
       return { error: error.message };
     }
 
+    recordAudit({ userId: user.id, boatId: boat_id, action: "inventory.created", entityType: "inventory_item", metadata: { name } });
     revalidatePath(`/inventory?boat=${boat_id}`);
     revalidatePath("/inventory");
     return { success: "Inventory item created." };
@@ -81,6 +83,7 @@ export async function adjustInventoryStock(
 ): Promise<ActionState> {
   try {
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
     const boat_id = String(formData.get("boat_id") ?? "").trim();
     const inventory_item_id = String(formData.get("inventory_item_id") ?? "").trim();
@@ -108,6 +111,7 @@ export async function adjustInventoryStock(
       return { error: error.message };
     }
 
+    if (user) recordAudit({ userId: user.id, boatId: boat_id, action: `inventory.stock_${transaction_type}`, entityType: "inventory_item", entityId: inventory_item_id, metadata: { quantity_delta } });
     revalidatePath(`/inventory?boat=${boat_id}`);
     revalidatePath("/inventory");
     return { success: "Stock updated." };

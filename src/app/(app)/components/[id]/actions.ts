@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { parseOptionalNumber } from "@/lib/parse-form-data";
+import { recordAudit } from "@/lib/audit";
 
 export type MaintenanceActionState = {
   error?: string;
@@ -117,6 +118,7 @@ export async function logMaintenance(
       }
     }
 
+    recordAudit({ userId: user.id, boatId, action: "maintenance.logged", entityType: "maintenance_event", entityId: eventId, metadata: { component_id: componentId, work_done: workDone } });
     revalidatePath(`/components/${componentId}`);
     revalidatePath(`/components/${componentId}#log-maintenance`);
     revalidatePath(`/components?boat=${boatId}`);
@@ -183,6 +185,7 @@ export async function updateMaintenanceEvent(
         .eq("id", componentId);
     }
 
+    recordAudit({ userId: user.id, action: "maintenance.updated", entityType: "maintenance_event", entityId: eventId, metadata: { component_id: componentId } });
     revalidatePath(`/components/${componentId}`);
     revalidatePath("/components");
     revalidatePath("/maintenance");
@@ -204,6 +207,7 @@ export async function deleteMaintenanceEvent(eventId: string, componentId: strin
 
   if (error) throw new Error(error.message);
 
+  recordAudit({ userId: user.id, action: "maintenance.deleted", entityType: "maintenance_event", entityId: eventId });
   revalidatePath(`/components/${componentId}`);
   revalidatePath("/components");
   revalidatePath("/maintenance");
