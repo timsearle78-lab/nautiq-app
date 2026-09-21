@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -32,7 +33,12 @@ export async function POST(req: Request) {
     .single();
 
   if (!existing) {
-    const { error: insertErr } = await supabase.from("boat_members").insert({
+    // Use service role to bypass RLS — the invite validity check above is the auth gate
+    const admin = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const { error: insertErr } = await admin.from("boat_members").insert({
       boat_id: invite.boat_id,
       user_id: user.id,
       invited_by: invite.created_by,
