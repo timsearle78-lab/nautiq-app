@@ -99,21 +99,21 @@ export default async function AdminUserDetailPage({
 
   return (
     <>
-      <div className="flex items-center gap-3 mb-6">
-        <a href="/admin" className="text-sm text-ocean-600 hover:underline">← Admin</a>
-        <span className="text-slate-300">/</span>
-        <span className="text-sm text-slate-500 truncate max-w-xs">{targetEmail}</span>
+      <div className="flex items-center gap-2 mb-6 min-w-0">
+        <a href="/admin" className="text-sm text-ocean-600 hover:underline shrink-0">← Admin</a>
+        <span className="text-slate-300 shrink-0">/</span>
+        <span className="text-sm text-slate-500 truncate">{targetEmail}</span>
       </div>
 
       {/* User header */}
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 mb-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="text-lg font-bold text-slate-900">{targetEmail}</div>
-            <div className="text-xs text-slate-400 mt-0.5 font-mono">{userId}</div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <div className="text-base font-bold text-slate-900 break-all leading-snug">{targetEmail}</div>
+            <div className="text-xs text-slate-400 mt-0.5 font-mono truncate">{userId}</div>
           </div>
-          <div className="flex flex-col items-end gap-2 shrink-0">
-            <div className="text-right text-sm text-slate-500">
+          <div className="flex flex-row sm:flex-col items-start sm:items-end gap-3 sm:gap-2 shrink-0">
+            <div className="text-sm text-slate-500 sm:text-right">
               {createdAt && <div>Joined {fmtDateTime(createdAt)}</div>}
               {lastSignIn && <div className="text-xs text-slate-400 mt-0.5">Last sign-in {fmtDateTime(lastSignIn)}</div>}
             </div>
@@ -180,31 +180,27 @@ export default async function AdminUserDetailPage({
               const meta = ACTION_LABELS[e.action];
               const boatName = e.boat_id ? boatNameMap.get(e.boat_id) : null;
               return (
-                <div key={e.id} className="px-4 py-3 flex items-start gap-3 hover:bg-slate-50/50 transition">
-                  <div className="mt-0.5 shrink-0">
-                    <span className={`inline-block text-xs font-medium rounded-full px-2.5 py-1 ${meta?.color ?? "bg-slate-100 text-slate-600"}`}>
+                <div key={e.id} className="px-4 py-3 hover:bg-slate-50/50 transition">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <span className={`shrink-0 inline-block text-xs font-medium rounded-full px-2.5 py-1 ${meta?.color ?? "bg-slate-100 text-slate-600"}`}>
                       {meta?.label ?? e.action}
                     </span>
+                    <span className="text-xs text-slate-400 text-right whitespace-nowrap">
+                      {fmtDateTime(e.created_at)}
+                    </span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    {boatName && (
-                      <span className="text-xs text-slate-400 mr-2">{boatName}</span>
-                    )}
-                    {e.metadata && Object.keys(e.metadata).length > 0 && (
-                      <span className="text-xs text-slate-500">
-                        {Object.entries(e.metadata)
-                          .filter(([, v]) => v != null && v !== "")
-                          .map(([k, v]) => `${k}: ${v}`)
-                          .join(" · ")}
-                      </span>
-                    )}
-                    {e.entity_id && (
-                      <div className="text-xs text-slate-300 font-mono mt-0.5 truncate">{e.entity_id}</div>
-                    )}
-                  </div>
-                  <div className="text-xs text-slate-400 shrink-0 text-right whitespace-nowrap">
-                    {fmtDateTime(e.created_at)}
-                  </div>
+                  {(boatName || (e.metadata && Object.keys(e.metadata).length > 0)) && (
+                    <div className="text-xs text-slate-500 mt-1 leading-relaxed">
+                      {boatName && <span className="text-slate-400 mr-2">{boatName}</span>}
+                      {e.metadata && Object.entries(e.metadata)
+                        .filter(([, v]) => v != null && v !== "")
+                        .map(([k, v]) => `${k}: ${v}`)
+                        .join(" · ")}
+                    </div>
+                  )}
+                  {e.entity_id && (
+                    <div className="text-xs text-slate-300 font-mono mt-0.5 truncate">{e.entity_id}</div>
+                  )}
                 </div>
               );
             })}
