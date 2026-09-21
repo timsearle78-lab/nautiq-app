@@ -13,6 +13,7 @@ export const CHANGELOG: Release[] = [
       "Health summary emails can now be sent on a fixed daily or weekly schedule, even when everything is OK — choose 'always' in notification settings",
       "Boat co-ownership: share a link with crewmates so they can log trips, maintenance, and inventory under the same boat",
       "Design system consistency improvements across all screens",
+      "Faster page loads — parallel data fetching and reduced redundant queries",
     ],
   },
   {

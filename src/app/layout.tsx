@@ -1,6 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-plus-jakarta-sans",
+});
 
 export const metadata: Metadata = {
   title: "NautIQ",
@@ -40,14 +47,8 @@ export default function RootLayout({
       <head>
         {/* Set theme before first paint to avoid flash */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('nautiq_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);})();` }} />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet"
-        />
       </head>
-      <body className="antialiased">
+      <body className={`antialiased ${plusJakartaSans.className}`}>
         <ThemeProvider>
         {children}
         </ThemeProvider>

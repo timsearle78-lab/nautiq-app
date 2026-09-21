@@ -1,33 +1,27 @@
 export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import AppHeader from "@/components/nav/app-header";
 import BottomNav from "@/components/nav/bottom-nav";
 import ScrollToTop from "@/components/ui/scroll-to-top";
 import GlobalActionsMenu from "@/components/nav/global-actions-menu";
 import { ImpersonationBanner } from "@/components/admin/impersonation-banner";
 import { getSelectedBoatId } from "@/lib/selected-boat";
+import { getUser, getUserBoats } from "@/lib/supabase/cached-queries";
 
 export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [user, allBoatsData] = await Promise.all([
+    getUser(),
+    getUserBoats(),
+  ]);
 
   if (!user) redirect("/login");
 
-  // Fetch all accessible boats — RLS returns owned boats + member boats
-  const { data: allBoatsData } = await supabase
-    .from("boats")
-    .select("id, name, user_id")
-    .order("created_at", { ascending: true });
-
-  const allBoats = allBoatsData ?? [];
+  const allBoats = allBoatsData as { id: string; name: string; user_id: string }[];
 
   // If no accessible boats at all, go to onboarding
   if (allBoats.length === 0) redirect("/onboarding");
