@@ -55,8 +55,18 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     throw error;
   }
 
-  if (!component || component.user_id !== user.id) {
+  if (!component) {
     notFound();
+  }
+  if (component.user_id !== user.id) {
+    // Check if co-owner
+    const { data: membership } = await supabase
+      .from("boat_members")
+      .select("id")
+      .eq("boat_id", component.boat_id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!membership) notFound();
   }
 
   const [history, linkedInventory, boatInventory, tripsData, { data: systemsData }] = await Promise.all([

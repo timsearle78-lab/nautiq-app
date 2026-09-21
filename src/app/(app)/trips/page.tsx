@@ -22,17 +22,18 @@ type TripRow = {
 };
 
 function startOf(unit: "week" | "month" | "year"): Date {
-  const now = new Date();
-  if (unit === "week") {
-    const d = new Date(now);
-    d.setUTCHours(0, 0, 0, 0);
-    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); // Monday
-    return d;
+  const d = new Date();
+  if (unit === "year") {
+    return new Date(d.getFullYear(), 0, 1, 0, 0, 0, 0);
   }
   if (unit === "month") {
-    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+    return new Date(d.getFullYear(), d.getMonth(), 1, 0, 0, 0, 0);
   }
-  return new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
+  // week: Monday
+  const day = d.getDay(); // 0=Sun
+  const diff = (day === 0 ? -6 : 1 - day);
+  const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff, 0, 0, 0, 0);
+  return monday;
 }
 
 function sumEngineHours(trips: TripRow[], since: Date) {
@@ -259,15 +260,15 @@ export default async function TripsPage() {
                             {src}
                           </span>
                         )}
-                        <EditTripButton
+                        {boat && <EditTripButton
                           tripId={trip.id}
-                          boatId={boat!.id}
+                          boatId={boat.id}
                           startedAt={trip.started_at}
                           endedAt={trip.ended_at}
                           engineHoursDelta={trip.engine_hours_delta}
                           fuelAddedLitres={trip.fuel_added_litres}
                           notes={trip.notes}
-                        />
+                        />}
                         <DeleteTripButton tripId={trip.id} />
                       </div>
                     </div>

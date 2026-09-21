@@ -112,12 +112,13 @@ export async function deleteTrip(tripId: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  const { data: trip } = await supabase.from("trips").select("boat_id").eq("id", tripId).single();
+  const { data: trip } = await supabase.from("trips").select("boat_id").eq("id", tripId).eq("user_id", user.id).single();
 
   const { error } = await supabase
     .from("trips")
     .delete()
-    .eq("id", tripId);
+    .eq("id", tripId)
+    .eq("user_id", user.id);
 
   if (error) throw new Error(error.message);
 

@@ -9,14 +9,15 @@ type AuditParams = {
   metadata?: Record<string, unknown>;
 };
 
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const adminClient = url && key ? createAdminClient(url, key) : null;
+
 // Fire-and-forget — never awaited in the calling action so it can't block.
 export function recordAudit(params: AuditParams): void {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) return;
+  if (!adminClient) return;
 
-  const admin = createAdminClient(url, key);
-  admin.from("audit_events").insert({
+  adminClient.from("audit_events").insert({
     user_id: params.userId,
     boat_id: params.boatId ?? null,
     action: params.action,

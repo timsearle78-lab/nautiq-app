@@ -98,7 +98,7 @@ export default async function SettingsPage() {
               </div>
               <div className="px-4 py-4 space-y-4">
                 {isOwner && <BoatImageUpload boatId={boat.id} imageUrl={boat.image_url} />}
-                <EditBoatForm boatId={boat.id} name={boat.name} type={boat.type} propulsion={boat.propulsion} hull_design={boat.hull_design} hull_material={boat.hull_material} length_m={boat.length_m} beam_m={boat.beam_m} draft_m={boat.draft_m} description={boat.description} fuel_consumption_lph={boat.fuel_consumption_lph} />
+                {isOwner && <EditBoatForm boatId={boat.id} name={boat.name} type={boat.type} propulsion={boat.propulsion} hull_design={boat.hull_design} hull_material={boat.hull_material} length_m={boat.length_m} beam_m={boat.beam_m} draft_m={boat.draft_m} description={boat.description} fuel_consumption_lph={boat.fuel_consumption_lph} />}
                 <BoatMembersPanel boatId={boat.id} boatName={boat.name} isOwner={isOwner} />
               </div>
               {isOwner && (

@@ -39,8 +39,8 @@ export default async function CostsPage() {
   const [{ data: maintenanceData }, { data: partsData }] = await Promise.all([
     supabase
       .from("maintenance_events")
-      .select("performed_at, cost, component:components(name, system:systems(name))")
-      .eq("boat_id", boat.id)
+      .select("performed_at, cost, component:components!inner(name, boat_id, system:systems(name))")
+      .eq("components.boat_id", boat.id)
       .not("cost", "is", null)
       .order("performed_at", { ascending: false })
       .limit(1000),

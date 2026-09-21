@@ -177,6 +177,10 @@ export default function OnboardingPage() {
   // ── Handlers ────────────────────────────────────────────────────
 
   async function handleCreateBoat() {
+    if (boatId) {
+      setStep(2); // already created, just advance
+      return;
+    }
     if (!boatName.trim()) { setError("Please enter a boat name."); return; }
     setError(null);
     setLoading(true);
@@ -205,15 +209,21 @@ export default function OnboardingPage() {
     const items = sparePresets.filter((p) => selectedSpares.has(p.name));
     if (items.length === 0) { setStep(4); return; }
     setLoading(true);
+    setError(null);
     try {
-      await fetch("/api/onboarding/seed-inventory", {
+      const res = await fetch("/api/onboarding/seed-inventory", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ boatId, items }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Failed to add inventory items. Please try again.");
+        return;
+      }
+      setStep(4);
     } finally {
       setLoading(false);
-      setStep(4);
     }
   }
 

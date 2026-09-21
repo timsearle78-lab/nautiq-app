@@ -14,6 +14,7 @@ export const CHANGELOG: Release[] = [
       "Boat co-ownership: share a link with crewmates so they can log trips, maintenance, and inventory under the same boat",
       "Design system consistency improvements across all screens",
       "Faster page loads — parallel data fetching and reduced redundant queries",
+      "Various reliability and security fixes",
     ],
   },
   {

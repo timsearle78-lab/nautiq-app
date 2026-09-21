@@ -100,7 +100,7 @@ export default async function HealthPage() {
       }
       if (expiry <= in90Days) {
         inventoryIssues.push({ id: item.id, name: item.name, issue: "expiring_soon", is_critical: item.is_critical, quantity: qty, minimum_quantity: item.minimum_quantity, unit: item.unit, expiry_date: item.expiry_date, component_name });
-        continue;
+        // Do NOT continue — fall through to also check stock levels
       }
     }
 
@@ -150,8 +150,8 @@ export default async function HealthPage() {
   if (penalties.inactivityStatus) {
     scoreReasons.push(`boat activity ${penalties.inactivityStatus} — no trips, maintenance, or visits logged recently`);
   }
-  if (penalties.inventory > 0 && outCount === 0 && expiredCount === 0) {
-    scoreReasons.push("unlinked inventory items out of stock or expired");
+  if (penalties.inventory > 0) {
+    scoreReasons.push("Unlinked inventory items need attention");
   }
 
   return (
@@ -169,6 +169,13 @@ export default async function HealthPage() {
       <div className="px-4 space-y-5">
       {/* Score + tiles */}
       <div className="card p-5">
+        {healthComponents.length === 0 ? (
+          <div className="py-4 text-center">
+            <p style={{ fontSize: 15, fontWeight: 700, color: "var(--color-navy-700)" }}>No components tracked yet</p>
+            <p style={{ fontSize: 13, color: "var(--color-navy-mute)", marginTop: 6 }}>Add your first component to start tracking boat health.</p>
+          </div>
+        ) : (
+        <>
         <div className="flex items-center justify-between gap-4">
           <HealthGauge score={healthScore} overdueCount={overdue.length} size={140} />
           <div className="flex-1 grid grid-cols-2 gap-2">
@@ -207,6 +214,8 @@ export default async function HealthPage() {
               <span style={{ fontWeight: 700 }}>All clear.</span> Every component is within its service interval and all inventory levels are good.
             </p>
           </div>
+        )}
+        </>
         )}
       </div>
 

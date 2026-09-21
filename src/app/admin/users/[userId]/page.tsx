@@ -60,7 +60,7 @@ export default async function AdminUserDetailPage({
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
   const adminClient = createAdminClient(supabaseUrl, serviceRoleKey);
 
-  const [{ data: targetUser }, { data: auditRows, error: auditError }, { data: boats }] = await Promise.all([
+  const [{ data: targetUser }, { data: auditRows, error: auditError }] = await Promise.all([
     adminClient.auth.admin.getUserById(userId),
     adminClient
       .from("audit_events")
@@ -68,11 +68,6 @@ export default async function AdminUserDetailPage({
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(200),
-    adminClient.from("boats").select("id, name").in(
-      "id",
-      // We'll resolve boat names after fetching
-      [userId] // placeholder — re-fetched below
-    ),
   ]);
 
   // Fetch boats accessible to this user (owned + member)
