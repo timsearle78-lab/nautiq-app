@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS public.boat_members (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   boat_id     uuid NOT NULL REFERENCES public.boats(id) ON DELETE CASCADE,
   user_id     uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  invited_by  uuid NOT NULL REFERENCES auth.users(id) ON DELETE SET NULL,
+  invited_by  uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   joined_at   timestamptz NOT NULL DEFAULT now(),
   UNIQUE (boat_id, user_id)
 );
