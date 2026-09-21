@@ -36,14 +36,23 @@ export default async function CostsPage() {
   const boat = boatList.find((b) => b.id === selectedBoatId) ?? boatList[0];
   if (!boat) redirect("/onboarding");
 
+  // Get component IDs for this boat to filter maintenance events correctly
+  const { data: boatComponentIds } = await supabase
+    .from("components")
+    .select("id")
+    .eq("boat_id", boat.id);
+  const componentIds = (boatComponentIds ?? []).map((c: { id: string }) => c.id);
+
   const [{ data: maintenanceData }, { data: partsData }] = await Promise.all([
-    supabase
-      .from("maintenance_events")
-      .select("performed_at, cost, component:components!inner(name, boat_id, system:systems(name))")
-      .eq("components.boat_id", boat.id)
-      .not("cost", "is", null)
-      .order("performed_at", { ascending: false })
-      .limit(1000),
+    componentIds.length === 0
+      ? Promise.resolve({ data: [] })
+      : supabase
+          .from("maintenance_events")
+          .select("performed_at, cost, component:components!inner(name, system:systems(name))")
+          .in("component_id", componentIds)
+          .not("cost", "is", null)
+          .order("performed_at", { ascending: false })
+          .limit(1000),
     supabase
       .from("inventory_transactions")
       .select("created_at, cost, notes, inventory_item:inventory_items(name, category)")

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getUserBoats } from "@/lib/supabase/cached-queries";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
 import { AddComponentSheet } from "@/components/components/add-component-sheet";
@@ -95,16 +96,7 @@ export default async function ComponentsPage({
 
   if (!user) redirect("/login?next=/components");
 
-  const { data: boatsData, error: boatsError } = await supabase
-    .from("boats")
-    .select("id,name,type,created_at")
-    .order("created_at", { ascending: true });
-
-  if (boatsError) {
-    throw new Error(`Failed to load boats: ${boatsError.message}`);
-  }
-
-  const boats = (boatsData ?? []) as BoatRow[];
+  const boats = (await getUserBoats()) as BoatRow[];
 
   if (boats.length === 0) {
     redirect("/onboarding");

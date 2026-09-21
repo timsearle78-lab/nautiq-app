@@ -184,7 +184,8 @@ export async function updateMaintenanceEvent(
           last_serviced_at: latest.performed_at,
           ...(latest.engine_hours_at_service != null ? { last_serviced_hours: latest.engine_hours_at_service } : {}),
         })
-        .eq("id", componentId);
+        .eq("id", componentId)
+        .eq("user_id", user.id);
     }
 
     recordAudit({ userId: user.id, action: "maintenance.updated", entityType: "maintenance_event", entityId: eventId, metadata: { component_id: componentId } });
