@@ -20,36 +20,23 @@ export default async function AppLayout({
 
   if (!user) redirect("/login");
 
-  const { data: boatsData } = await supabase
+  // Fetch all accessible boats — RLS returns owned boats + member boats
+  const { data: allBoatsData } = await supabase
     .from("boats")
-    .select("id, name")
-    .eq("user_id", user.id)
+    .select("id, name, user_id")
     .order("created_at", { ascending: true });
 
-  const boats = boatsData ?? [];
+  const allBoats = allBoatsData ?? [];
 
-  if (boats.length === 0) {
-    // Before sending to onboarding, check if this user is a member of any shared boat
-    const { data: memberBoats } = await supabase
-      .from("boat_members")
-      .select("boat_id")
-      .eq("user_id", user.id)
-      .limit(1);
-    if (!memberBoats || memberBoats.length === 0) redirect("/onboarding");
-  }
+  // If no accessible boats at all, go to onboarding
+  if (allBoats.length === 0) redirect("/onboarding");
+
+  // "boats" for the nav switcher = only owned boats (so BottomNav/switcher still works)
+  const boats = allBoats.filter((b) => b.user_id === user.id);
 
   const selectedBoatId = await getSelectedBoatId();
-
-  // Fall back to member boats if the user owns none
-  let boatId = boats.find((b) => b.id === selectedBoatId)?.id ?? boats[0]?.id;
-  if (!boatId) {
-    const { data: allAccessible } = await supabase
-      .from("boats")
-      .select("id")
-      .order("created_at", { ascending: true })
-      .limit(1);
-    boatId = allAccessible?.[0]?.id ?? "";
-  }
+  const boatId =
+    allBoats.find((b) => b.id === selectedBoatId)?.id ?? allBoats[0].id;
 
   const email = user.email ?? "";
   const initials = email.slice(0, 2).toUpperCase();
@@ -64,7 +51,7 @@ export default async function AppLayout({
       </main>
       <ScrollToTop />
       <GlobalActionsMenu boatId={boatId} />
-      <BottomNav userEmail={email} userInitials={initials} isAdmin={isAdmin} boats={boats} selectedBoatId={boatId} />
+      <BottomNav userEmail={email} userInitials={initials} isAdmin={isAdmin} boats={allBoats} selectedBoatId={boatId} />
     </div>
   );
 }
