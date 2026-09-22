@@ -1,10 +1,20 @@
 import { NextResponse } from "next/server";
 import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
-// CORS is handled by the middleware (proxy.ts) — do NOT set these headers here
-// too, or the browser will see duplicates and reject the response.
-export async function OPTIONS() {
-  return new Response(null, { status: 204 });
+const CORS_ORIGINS = ["https://nautiq.cloud", "https://www.nautiq.cloud"];
+
+function corsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get("origin") ?? "";
+  const allowedOrigin = CORS_ORIGINS.includes(origin) ? origin : CORS_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+}
+
+export async function OPTIONS(req: Request) {
+  return new Response(null, { status: 204, headers: corsHeaders(req) });
 }
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
@@ -12,14 +22,16 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
   .map((e) => e.trim())
   .filter(Boolean);
 
-function json(body: unknown, status = 200) {
-  return NextResponse.json(body, { status });
+function json(body: unknown, status = 200, headers?: Record<string, string>) {
+  return NextResponse.json(body, { status, headers });
 }
 
 export async function POST(req: Request) {
+  const hdrs = corsHeaders(req);
+
   // 5 signups per IP per hour
   if (!rateLimit(`waitlist:${getClientIp(req)}`, 5, 60 * 60 * 1000)) {
-    return tooManyRequests();
+    return tooManyRequests(hdrs);
   }
 
   let email: string;
@@ -27,16 +39,16 @@ export async function POST(req: Request) {
     const body = await req.json();
     email = (body.email ?? "").trim().toLowerCase();
   } catch {
-    return json({ error: "Bad request" }, 400);
+    return json({ error: "Bad request" }, 400, hdrs);
   }
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return json({ error: "Invalid email" }, 422);
+    return json({ error: "Invalid email" }, 422, hdrs);
   }
 
   if (ADMIN_EMAILS.length === 0 || !process.env.RESEND_API_KEY) {
     console.warn("[waitlist] ADMIN_EMAILS or RESEND_API_KEY not configured — skipping email");
-    return json({ ok: true });
+    return json({ ok: true }, 200, hdrs);
   }
 
   const signedAt = new Date().toLocaleString("en-NZ", {
@@ -107,7 +119,7 @@ export async function POST(req: Request) {
   if (!adminRes.ok) {
     const err = await adminRes.text();
     console.error("[waitlist] Resend admin error:", adminRes.status, err);
-    return json({ error: "Failed to send notification" }, 502);
+    return json({ error: "Failed to send notification" }, 502, hdrs);
   }
 
   if (!confirmRes.ok) {
@@ -116,5 +128,5 @@ export async function POST(req: Request) {
     console.error("[waitlist] Resend confirmation error:", confirmRes.status, err);
   }
 
-  return json({ ok: true });
+  return json({ ok: true }, 200, hdrs);
 }
