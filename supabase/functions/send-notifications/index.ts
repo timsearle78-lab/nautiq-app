@@ -3,8 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
-const FROM_EMAIL = Deno.env.get("NOTIFY_FROM_EMAIL") ?? "NautIQ <notifications@nautiq.app>";
-const APP_URL = Deno.env.get("APP_URL") ?? "https://nautiq.app";
+const FROM_EMAIL = Deno.env.get("NOTIFY_FROM_EMAIL") ?? "NautIQ <notifications@nautiq.cloud>";
+const APP_URL = Deno.env.get("APP_URL") ?? "https://app.nautiq.cloud";
 
 // ---------------------------------------------------------------------------
 // Health scoring — mirrors src/lib/components/health.ts
@@ -144,7 +144,7 @@ function emailShell(bodyContent: string) {
       <table role="presentation" width="100%" style="max-width:560px;background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(11,41,66,0.10);">
         ${bodyContent}
       </table>
-      <p style="margin:16px 0 0;font-size:12px;color:#8593A0;${EMAIL_BODY_FONT}">NautIQ · <a href="${APP_URL}" style="color:#8593A0;text-decoration:none;">nautiq.app</a></p>
+      <p style="margin:16px 0 0;font-size:12px;color:#8593A0;${EMAIL_BODY_FONT}">NautIQ · <a href="${APP_URL}" style="color:#8593A0;text-decoration:none;">app.nautiq.cloud</a></p>
     </td></tr>
   </table>
 </body>
