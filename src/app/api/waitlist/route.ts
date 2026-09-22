@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
 import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "https://nautiq.cloud",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
-
+// CORS is handled by the middleware (proxy.ts) — do NOT set these headers here
+// too, or the browser will see duplicates and reject the response.
 export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: CORS_HEADERS });
+  return new Response(null, { status: 204 });
 }
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
@@ -17,7 +13,7 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
   .filter(Boolean);
 
 function json(body: unknown, status = 200) {
-  return NextResponse.json(body, { status, headers: CORS_HEADERS });
+  return NextResponse.json(body, { status });
 }
 
 export async function POST(req: Request) {
