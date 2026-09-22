@@ -103,7 +103,7 @@ export function NotificationPreferencesForm({ prefs, userEmail }: { prefs: Prefs
           className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
         >
           <Send size={14} />
-          {checkPending ? "Sending…" : "Check now"}
+          {checkPending ? "Sending…" : "Send test email"}
         </button>
         {checkState.error && (
           <span className="text-sm text-red-600">{checkState.error}</span>

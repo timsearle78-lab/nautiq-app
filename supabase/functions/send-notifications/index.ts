@@ -3,8 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
-const FROM_EMAIL = Deno.env.get("NOTIFY_FROM_EMAIL") ?? "NautIQ <notifications@nautiq.app>";
-const APP_URL = Deno.env.get("APP_URL") ?? "https://nautiq.app";
+const FROM_EMAIL = Deno.env.get("NOTIFY_FROM_EMAIL") ?? "NautIQ <notifications@nautiq.cloud>";
+const APP_URL = Deno.env.get("APP_URL") ?? "https://app.nautiq.cloud";
 
 // ---------------------------------------------------------------------------
 // Health scoring — mirrors src/lib/components/health.ts
@@ -144,7 +144,7 @@ function emailShell(bodyContent: string) {
       <table role="presentation" width="100%" style="max-width:560px;background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(11,41,66,0.10);">
         ${bodyContent}
       </table>
-      <p style="margin:16px 0 0;font-size:12px;color:#8593A0;${EMAIL_BODY_FONT}">NautIQ · <a href="${APP_URL}" style="color:#8593A0;text-decoration:none;">nautiq.app</a></p>
+      <p style="margin:16px 0 0;font-size:12px;color:#8593A0;${EMAIL_BODY_FONT}">NautIQ · <a href="${APP_URL}" style="color:#8593A0;text-decoration:none;">app.nautiq.cloud</a></p>
     </td></tr>
   </table>
 </body>
@@ -290,7 +290,7 @@ function buildAllClearEmail(boatName: string, score: number, okCount: number) {
   return emailShell(body);
 }
 
-
+function buildOverdueAlertEmail(boatName: string, component: ComponentHealth) {
   const body = `
     <!-- Header -->
     <tr><td style="${EMAIL_HEADER_STYLE}">
@@ -408,6 +408,17 @@ Deno.serve(async (req) => {
     return new Response("Method not allowed", { status: 405 });
   }
 
+  // Parse optional body params for targeted test sends
+  let targetUserId: string | null = null;
+  let force = false;
+  if (req.method === "POST") {
+    try {
+      const body = await req.json().catch(() => ({}));
+      targetUserId = body.target_user_id ?? null;
+      force = !!body.force;
+    } catch { /* no body */ }
+  }
+
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false },
   });
@@ -415,11 +426,17 @@ Deno.serve(async (req) => {
   const now = new Date();
   const todayDow = now.getUTCDay(); // 0=Sun … 6=Sat
 
-  // Fetch all users with active notification preferences
-  const { data: prefs, error: prefsErr } = await supabase
+  // Fetch notification preferences — optionally scoped to a single user
+  let prefsQuery = supabase
     .from("user_settings")
     .select("*")
     .or("health_summary.neq.none,overdue_alerts.eq.true");
+
+  if (targetUserId) {
+    prefsQuery = prefsQuery.eq("user_id", targetUserId);
+  }
+
+  const { data: prefs, error: prefsErr } = await prefsQuery;
 
   if (prefsErr) {
     console.error("Failed to load preferences:", prefsErr.message);
@@ -432,13 +449,28 @@ Deno.serve(async (req) => {
     const sent: string[] = [];
 
     try {
-      // Load boats for this user
-      const { data: boatsData } = await supabase
+      // Load boats for this user (owned + co-owned via boat_members)
+      const { data: ownedBoats } = await supabase
         .from("boats")
         .select("id, name")
         .eq("user_id", pref.user_id);
 
-      const boats = (boatsData ?? []) as { id: string; name: string }[];
+      const { data: memberRows } = await supabase
+        .from("boat_members")
+        .select("boat_id")
+        .eq("user_id", pref.user_id);
+
+      const memberBoatIds = (memberRows ?? []).map((r: { boat_id: string }) => r.boat_id);
+      let boats = (ownedBoats ?? []) as { id: string; name: string }[];
+
+      if (memberBoatIds.length > 0) {
+        const { data: memberBoats } = await supabase
+          .from("boats")
+          .select("id, name")
+          .in("id", memberBoatIds);
+        boats = [...boats, ...(memberBoats ?? [])];
+      }
+
       if (boats.length === 0) continue;
 
       // Use the first/primary boat (could extend to all boats later)
@@ -550,13 +582,13 @@ Deno.serve(async (req) => {
       const baseFreq = summaryFreq === "daily_always" ? "daily" : summaryFreq === "weekly_always" ? "weekly" : summaryFreq;
 
       if (baseFreq !== "none" && (hasIssues || isAlways)) {
-        const shouldSend = baseFreq === "daily" ||
+        const shouldSend = force || baseFreq === "daily" ||
           (baseFreq === "weekly" && todayDow === (pref.health_summary_day ?? 1));
 
         const lastSent = pref.last_health_summary_at ? new Date(pref.last_health_summary_at) : null;
         const cooldownHours = baseFreq === "daily" ? 20 : 6 * 24;
         const cooldownMs = cooldownHours * 3_600_000;
-        const cooldownOk = !lastSent || (now.getTime() - lastSent.getTime()) > cooldownMs;
+        const cooldownOk = force || !lastSent || (now.getTime() - lastSent.getTime()) > cooldownMs;
 
         if (shouldSend && cooldownOk) {
           let subject: string;
@@ -596,7 +628,7 @@ Deno.serve(async (req) => {
         for (const component of overdue) {
           const lastNotified = recentMap.get(component.componentId);
           const sevenDaysMs = 7 * 24 * 3_600_000;
-          if (lastNotified && (now.getTime() - lastNotified.getTime()) < sevenDaysMs) continue;
+          if (!force && lastNotified && (now.getTime() - lastNotified.getTime()) < sevenDaysMs) continue;
 
           const subject = `NautIQ Update: ${component.componentName} is overdue on ${boat.name}`;
           const html = buildOverdueAlertEmail(boat.name, component);

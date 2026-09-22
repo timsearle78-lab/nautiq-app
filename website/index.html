@@ -195,18 +195,18 @@
 
   <p class="sub">AI-powered maintenance tracking, trip logging, and inventory management — all in one place. Your boat tells you what it needs, before things go wrong.</p>
 
-  <form class="form-row" id="wl" onsubmit="submit(event)">
+  <form class="form-row" id="wl" onsubmit="handleSignup(event)">
     <input type="email" placeholder="your@email.com" required autocomplete="email" aria-label="Email address" />
     <button type="submit" class="btn">Get early access</button>
   </form>
   <p class="note" id="note">No spam. We'll reach out when we're ready for you.</p>
-  <p class="success" id="ok">You're on the list — we'll be in touch.</p>
+  <p class="success" id="ok">You're on the list — check your inbox for a confirmation email.</p>
   <p class="error" id="err">Something went wrong — please try again.</p>
 
   <footer>© 2026 NautIQ</footer>
 
 <script>
-async function submit(e) {
+async function handleSignup(e) {
   e.preventDefault();
   const form = document.getElementById('wl');
   const btn = form.querySelector('button');

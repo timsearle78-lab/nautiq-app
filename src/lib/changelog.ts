@@ -7,9 +7,10 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
-    date: "2026-09-21",
+    date: "2026-09-22",
     label: "September 2026 update",
     features: [
+      "Test your notification emails instantly — tap 'Send test email' in Settings to trigger an email based on your current boat status",
       "Health summary emails can now be sent on a fixed daily or weekly schedule, even when everything is OK — choose 'always' in notification settings",
       "Boat co-ownership: share a link with crewmates so they can log trips, maintenance, and inventory under the same boat",
       "Design system consistency improvements across all screens",
