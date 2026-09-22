@@ -9,8 +9,8 @@ const PUBLIC_API_PATHS = ["/api/waitlist"];
 export async function updateSession(request: NextRequest) {
   // Handle CORS for public API routes before touching auth — the middleware's
   // NextResponse.next() can shadow headers set by the route handler itself.
-  const pathname = request.nextUrl.pathname;
-  if (PUBLIC_API_PATHS.some((p) => pathname.startsWith(p))) {
+  const requestPath = request.nextUrl.pathname;
+  if (PUBLIC_API_PATHS.some((p) => requestPath.startsWith(p))) {
     const origin = request.headers.get("origin") ?? "";
     const allowedOrigin = PUBLIC_API_CORS_ORIGINS.includes(origin) ? origin : PUBLIC_API_CORS_ORIGINS[0];
     const corsHeaders = {
