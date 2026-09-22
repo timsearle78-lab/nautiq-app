@@ -290,7 +290,7 @@ function buildAllClearEmail(boatName: string, score: number, okCount: number) {
   return emailShell(body);
 }
 
-
+function buildOverdueAlertEmail(boatName: string, component: ComponentHealth) {
   const body = `
     <!-- Header -->
     <tr><td style="${EMAIL_HEADER_STYLE}">
@@ -432,13 +432,28 @@ Deno.serve(async (req) => {
     const sent: string[] = [];
 
     try {
-      // Load boats for this user
-      const { data: boatsData } = await supabase
+      // Load boats for this user (owned + co-owned via boat_members)
+      const { data: ownedBoats } = await supabase
         .from("boats")
         .select("id, name")
         .eq("user_id", pref.user_id);
 
-      const boats = (boatsData ?? []) as { id: string; name: string }[];
+      const { data: memberRows } = await supabase
+        .from("boat_members")
+        .select("boat_id")
+        .eq("user_id", pref.user_id);
+
+      const memberBoatIds = (memberRows ?? []).map((r: { boat_id: string }) => r.boat_id);
+      let boats = (ownedBoats ?? []) as { id: string; name: string }[];
+
+      if (memberBoatIds.length > 0) {
+        const { data: memberBoats } = await supabase
+          .from("boats")
+          .select("id, name")
+          .in("id", memberBoatIds);
+        boats = [...boats, ...(memberBoats ?? [])];
+      }
+
       if (boats.length === 0) continue;
 
       // Use the first/primary boat (could extend to all boats later)
