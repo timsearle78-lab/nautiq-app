@@ -19,7 +19,7 @@ function json(body: unknown, status = 200) {
 export async function POST(req: Request) {
   // 5 signups per IP per hour
   if (!rateLimit(`waitlist:${getClientIp(req)}`, 5, 60 * 60 * 1000)) {
-    return tooManyRequests(CORS_HEADERS);
+    return tooManyRequests();
   }
 
   let email: string;
