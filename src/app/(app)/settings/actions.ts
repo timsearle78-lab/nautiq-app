@@ -172,15 +172,15 @@ export async function triggerNotificationsNow(_prev: ActionState): Promise<Actio
       "Authorization": `Bearer ${serviceRoleKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({}),
+    body: JSON.stringify({ target_user_id: user.id, force: true }),
   });
 
   if (!res.ok) {
     const text = await res.text().catch(() => res.statusText);
-    return { error: `Notification check failed: ${text}` };
+    return { error: `Test email failed: ${text}` };
   }
 
-  return { success: "Check complete — emails sent if any issues were found" };
+  return { success: "Test email sent — check your inbox (or spam folder)" };
 }
 
 export async function deleteBoat(_prev: ActionState, formData: FormData): Promise<ActionState> {

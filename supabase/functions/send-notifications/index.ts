@@ -408,6 +408,17 @@ Deno.serve(async (req) => {
     return new Response("Method not allowed", { status: 405 });
   }
 
+  // Parse optional body params for targeted test sends
+  let targetUserId: string | null = null;
+  let force = false;
+  if (req.method === "POST") {
+    try {
+      const body = await req.json().catch(() => ({}));
+      targetUserId = body.target_user_id ?? null;
+      force = !!body.force;
+    } catch { /* no body */ }
+  }
+
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false },
   });
@@ -415,11 +426,17 @@ Deno.serve(async (req) => {
   const now = new Date();
   const todayDow = now.getUTCDay(); // 0=Sun … 6=Sat
 
-  // Fetch all users with active notification preferences
-  const { data: prefs, error: prefsErr } = await supabase
+  // Fetch notification preferences — optionally scoped to a single user
+  let prefsQuery = supabase
     .from("user_settings")
     .select("*")
     .or("health_summary.neq.none,overdue_alerts.eq.true");
+
+  if (targetUserId) {
+    prefsQuery = prefsQuery.eq("user_id", targetUserId);
+  }
+
+  const { data: prefs, error: prefsErr } = await prefsQuery;
 
   if (prefsErr) {
     console.error("Failed to load preferences:", prefsErr.message);
@@ -565,13 +582,13 @@ Deno.serve(async (req) => {
       const baseFreq = summaryFreq === "daily_always" ? "daily" : summaryFreq === "weekly_always" ? "weekly" : summaryFreq;
 
       if (baseFreq !== "none" && (hasIssues || isAlways)) {
-        const shouldSend = baseFreq === "daily" ||
+        const shouldSend = force || baseFreq === "daily" ||
           (baseFreq === "weekly" && todayDow === (pref.health_summary_day ?? 1));
 
         const lastSent = pref.last_health_summary_at ? new Date(pref.last_health_summary_at) : null;
         const cooldownHours = baseFreq === "daily" ? 20 : 6 * 24;
         const cooldownMs = cooldownHours * 3_600_000;
-        const cooldownOk = !lastSent || (now.getTime() - lastSent.getTime()) > cooldownMs;
+        const cooldownOk = force || !lastSent || (now.getTime() - lastSent.getTime()) > cooldownMs;
 
         if (shouldSend && cooldownOk) {
           let subject: string;
@@ -611,7 +628,7 @@ Deno.serve(async (req) => {
         for (const component of overdue) {
           const lastNotified = recentMap.get(component.componentId);
           const sevenDaysMs = 7 * 24 * 3_600_000;
-          if (lastNotified && (now.getTime() - lastNotified.getTime()) < sevenDaysMs) continue;
+          if (!force && lastNotified && (now.getTime() - lastNotified.getTime()) < sevenDaysMs) continue;
 
           const subject = `NautIQ Update: ${component.componentName} is overdue on ${boat.name}`;
           const html = buildOverdueAlertEmail(boat.name, component);

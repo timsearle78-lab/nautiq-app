@@ -150,7 +150,7 @@ Overdue maintenance alerts: tick this checkbox to receive an email the moment a 
 
 Tap "Save preferences" to apply any changes.
 
-Check now: tap this button to run the notification check immediately. You'll see a confirmation message once it completes. Emails will only be sent if your preference is set and the cooldown has passed.`,
+Send test email: tap this button to immediately send yourself a test email based on your current boat health and notification settings. It bypasses the daily/weekly schedule and any cooldown, so you'll always receive an email — useful for confirming that your address and preferences are set up correctly.`,
   },
   {
     id: "inventory",
