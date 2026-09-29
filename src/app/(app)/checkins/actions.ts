@@ -25,14 +25,12 @@ export async function logCheckin(
     if (!boatId) return { error: "Missing boat." };
     if (!checkedAt) return { error: "Please enter the visit date." };
 
-    // Verify the user owns this boat
-    const { data: boat } = await supabase
-      .from("boats")
-      .select("id")
-      .eq("id", boatId)
-      .eq("user_id", user.id)
-      .single();
-    if (!boat) return { error: "Boat not found." };
+    // Verify the user owns or is a co-owner of this boat
+    const [{ data: ownedBoat }, { data: memberRow }] = await Promise.all([
+      supabase.from("boats").select("id").eq("id", boatId).eq("user_id", user.id).maybeSingle(),
+      supabase.from("boat_members").select("id").eq("boat_id", boatId).eq("user_id", user.id).maybeSingle(),
+    ]);
+    if (!ownedBoat && !memberRow) return { error: "Boat not found." };
 
     const { error: insertError } = await supabase
       .from("boat_checkins")
