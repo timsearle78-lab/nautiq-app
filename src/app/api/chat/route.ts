@@ -143,7 +143,7 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
                 knownHealth.length > 0
                   ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
                   : 0;
-              const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory));
+              const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory - penalties.watchItems));
               return {
                 boatName: boat.name,
                 engineHours: hoursRes.data ?? 0,

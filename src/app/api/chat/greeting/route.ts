@@ -73,7 +73,7 @@ export async function POST(req: Request) {
     knownHealth.length > 0
       ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
       : 0;
-  const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory));
+  const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory - penalties.watchItems));
   const overdueCount = hc.filter((c) => c.status === "overdue").length;
   const dueSoonCount = hc.filter((c) => c.status === "due soon").length;
 

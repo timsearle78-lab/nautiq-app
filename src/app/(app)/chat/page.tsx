@@ -80,7 +80,7 @@ export default async function ChatPage() {
   const avgRisk = knownComponents.length > 0
     ? knownComponents.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownComponents.length
     : 0;
-  const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory));
+  const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory - penalties.watchItems));
 
   const overdueCount = healthComponents.filter((r) => normalizeStatus(r.status) === "overdue").length;
   const dueSoonCount = healthComponents.filter((r) => normalizeStatus(r.status) === "due_soon").length;

@@ -131,7 +131,7 @@ export default async function HealthPage() {
   const avgRisk = knownComponents.length > 0
     ? knownComponents.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownComponents.length
     : 0;
-  const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory));
+  const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory - penalties.watchItems));
 
   const hasIssues = overdue.length > 0 || dueSoon.length > 0 || inventoryIssues.length > 0;
 
@@ -152,6 +152,9 @@ export default async function HealthPage() {
   }
   if (penalties.inventory > 0) {
     scoreReasons.push("Unlinked inventory items need attention");
+  }
+  if (penalties.watchItemCount > 0) {
+    scoreReasons.push(`${penalties.watchItemCount} watch item${penalties.watchItemCount !== 1 ? "s" : ""} left unresolved`);
   }
 
   return (

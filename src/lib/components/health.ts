@@ -179,6 +179,10 @@ export type BoatHealthPenalties = {
   inactivity: number;
   /** "due soon" | "overdue" | null — severity of the inactivity penalty. */
   inactivityStatus: "due soon" | "overdue" | null;
+  /** Penalty for unresolved maintenance watch items left too long (0 if none). */
+  watchItems: number;
+  /** Count of watch items contributing to the penalty. */
+  watchItemCount: number;
 };
 
 export type BoatHealth = {
@@ -191,7 +195,7 @@ export type BoatHealth = {
 export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseClient): Promise<BoatHealth> {
   const supabase = supabaseClient ?? await createClient();
 
-  const [{ data: componentsData }, { data: tripsData }, { data: inventoryData }, { data: latestTripData }, { data: latestMaintenanceData }, { data: latestCheckinData }] = await Promise.all([
+  const [{ data: componentsData }, { data: tripsData }, { data: inventoryData }, { data: latestTripData }, { data: latestMaintenanceData }, { data: latestCheckinData }, { data: watchItemsData }] = await Promise.all([
     supabase
       .from("components")
       .select("id, name, install_date, service_interval_years, service_interval_months, service_interval_days, service_interval_engine_hours, system:systems(id, name)")
@@ -227,9 +231,14 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
       .eq("boat_id", boatId)
       .order("checked_at", { ascending: false })
       .limit(1),
+    supabase
+      .from("maintenance_watch_items")
+      .select("created_at")
+      .eq("boat_id", boatId)
+      .is("resolved_at", null),
   ]);
 
-  if (!componentsData || componentsData.length === 0) return { components: [], penalties: { inventory: 0, inactivity: 0, inactivityStatus: null } };
+  if (!componentsData || componentsData.length === 0) return { components: [], penalties: { inventory: 0, inactivity: 0, inactivityStatus: null, watchItems: 0, watchItemCount: 0 } };
 
   const componentIds = componentsData.map((c: Record<string, unknown>) => c.id as string);
 
@@ -438,12 +447,26 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
     }
   }
 
+  // Watch item penalty — unresolved items left too long drag down health.
+  // 7–29 days: −5 each, 30–59 days: −10 each, 60+ days: −20 each. Capped at 40.
+  let watchItemPenalty = 0;
+  let watchItemCount = 0;
+  for (const item of watchItemsData ?? []) {
+    const days = daysBetween((item as { created_at: string }).created_at);
+    if (days >= 60) { watchItemPenalty += 20; watchItemCount++; }
+    else if (days >= 30) { watchItemPenalty += 10; watchItemCount++; }
+    else if (days >= 7) { watchItemPenalty += 5; watchItemCount++; }
+  }
+  watchItemPenalty = Math.min(watchItemPenalty, 40);
+
   return {
     components: componentRows,
     penalties: {
       inventory: Math.min(boatUnlinkedPenalty, 100),
       inactivity: inactivityPenalty,
       inactivityStatus,
+      watchItems: watchItemPenalty,
+      watchItemCount,
     },
   };
 }
