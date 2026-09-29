@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { updateInventoryItem, deleteInventoryItem } from "@/app/(app)/inventory/[id]/actions";
 import SaveSuccessBanner from "@/components/ui/save-success-banner";
+import { InventoryPhotoManager } from "@/components/inventory/inventory-photo-manager";
 import { Package, AlertTriangle } from "lucide-react";
 
 type ComponentOption = { id: string; name: string };
@@ -22,6 +23,7 @@ type Item = {
   notes: string | null;
   is_critical: boolean;
   expiry_date: string | null;
+  photo_urls: string[] | null;
 };
 
 const inputCls =
@@ -160,6 +162,11 @@ export function EditInventoryItemForm({
             <input type="checkbox" name="is_critical" defaultChecked={item.is_critical} className="rounded border-slate-300 text-ocean-600 focus:ring-ocean-500" />
             Mark as critical spare
           </label>
+
+          <InventoryPhotoManager
+            itemId={item.id}
+            initialUrls={item.photo_urls ?? []}
+          />
 
           {saveState.error && (
             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{saveState.error}</div>
