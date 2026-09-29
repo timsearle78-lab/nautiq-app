@@ -146,13 +146,13 @@ export default async function MaintenancePage({
     created_at: r.created_at,
   }));
 
-  const maintenanceComponentOptions = allHealth.map((r) => ({ id: r.component_id, name: r.component_name }));
-
   const allHealth = (allHealthRaw.components as HealthRow[]).filter((r) => !r.component_id.startsWith("__")).sort((a, b) => {
     const statusCompare = statusRank(a.status) - statusRank(b.status);
     if (statusCompare !== 0) return statusCompare;
     return Number(b.risk_score ?? 0) - Number(a.risk_score ?? 0);
   });
+
+  const maintenanceComponentOptions = allHealth.map((r) => ({ id: r.component_id, name: r.component_name }));
 
   const horizonDate = new Date();
   horizonDate.setDate(horizonDate.getDate() + selectedHorizon);
