@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 
-// GET /api/boats/[boatId]/members — list members with emails (owner only)
+// GET /api/boats/[boatId]/members — list members with emails (owner or co-owner)
 export async function GET(_req: Request, { params }: { params: Promise<{ boatId: string }> }) {
   const { boatId } = await params;
 
@@ -9,13 +9,12 @@ export async function GET(_req: Request, { params }: { params: Promise<{ boatId:
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return new Response("Unauthorized", { status: 401 });
 
-  const { data: boat } = await supabase
-    .from("boats")
-    .select("id")
-    .eq("id", boatId)
-    .eq("user_id", user.id)
-    .single();
-  if (!boat) return new Response("Not found", { status: 404 });
+  // Allow access for the boat owner OR any co-owner
+  const [{ data: ownedBoat }, { data: memberRow }] = await Promise.all([
+    supabase.from("boats").select("id").eq("id", boatId).eq("user_id", user.id).maybeSingle(),
+    supabase.from("boat_members").select("id").eq("boat_id", boatId).eq("user_id", user.id).maybeSingle(),
+  ]);
+  if (!ownedBoat && !memberRow) return new Response("Not found", { status: 404 });
 
   const { data: members } = await supabase
     .from("boat_members")
