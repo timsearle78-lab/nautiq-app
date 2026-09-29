@@ -10,11 +10,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ boatId:
   if (!user) return new Response("Unauthorized", { status: 401 });
 
   // Allow access for the boat owner OR any co-owner
-  const [{ data: ownedBoat }, { data: memberRow }] = await Promise.all([
-    supabase.from("boats").select("id").eq("id", boatId).eq("user_id", user.id).maybeSingle(),
+  const [{ data: boat }, { data: memberRow }] = await Promise.all([
+    supabase.from("boats").select("id, user_id, created_at").eq("id", boatId).eq("user_id", user.id).maybeSingle(),
     supabase.from("boat_members").select("id").eq("boat_id", boatId).eq("user_id", user.id).maybeSingle(),
   ]);
-  if (!ownedBoat && !memberRow) return new Response("Not found", { status: 404 });
+
+  // If not the owner, fetch the boat separately to get owner info
+  const boatData = boat ?? (await supabase.from("boats").select("id, user_id, created_at").eq("id", boatId).maybeSingle()).data;
+  if (!boat && !memberRow) return new Response("Not found", { status: 404 });
 
   const { data: members } = await supabase
     .from("boat_members")
@@ -28,14 +31,26 @@ export async function GET(_req: Request, { params }: { params: Promise<{ boatId:
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
+  // Include the boat owner as the first entry
+  const ownerEntry = await (async () => {
+    if (!boatData) return null;
+    const { data: { user: ownerUser } } = await adminClient.auth.admin.getUserById(boatData.user_id);
+    return { id: `owner-${boatData.user_id}`, user_id: boatData.user_id, email: ownerUser?.email ?? "unknown", joined_at: boatData.created_at, role: "owner" as const };
+  })();
+
   const enriched = await Promise.all(
     (members ?? []).map(async (m) => {
       const { data: { user: u } } = await adminClient.auth.admin.getUserById(m.user_id);
-      return { id: m.id, user_id: m.user_id, email: u?.email ?? "unknown", joined_at: m.joined_at };
+      return { id: m.id, user_id: m.user_id, email: u?.email ?? "unknown", joined_at: m.joined_at, role: "co-owner" as const };
     })
   );
 
-  return Response.json(enriched);
+  const result = [
+    ...(ownerEntry ? [ownerEntry] : []),
+    ...enriched,
+  ];
+
+  return Response.json(result);
 }
 
 // DELETE /api/boats/[boatId]/members?memberId=xxx — remove a member (owner only)

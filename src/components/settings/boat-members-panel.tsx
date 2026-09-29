@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type Member = { id: string; user_id: string; email: string; joined_at: string };
+type Member = { id: string; user_id: string; email: string; joined_at: string; role?: "owner" | "co-owner" };
 
 interface Props {
   boatId: string;
@@ -109,10 +109,17 @@ export function BoatMembersPanel({ boatId, boatName, isOwner }: Props) {
               {members.map((m) => (
                 <li key={m.id} className="flex items-center justify-between gap-2 py-1.5 px-3 rounded-xl bg-slate-50 border border-slate-100">
                   <div>
-                    <p className="text-xs font-medium text-slate-700">{m.email}</p>
-                    <p className="text-xs text-slate-400">Joined {new Date(m.joined_at).toLocaleDateString()}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-xs font-medium text-slate-700">{m.email}</p>
+                      {m.role === "owner" && (
+                        <span className="text-[10px] font-semibold text-ocean-600 bg-ocean-50 border border-ocean-100 rounded-full px-1.5 py-0.5 leading-none">Owner</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-400">
+                      {m.role === "owner" ? `Since ${new Date(m.joined_at).toLocaleDateString()}` : `Joined ${new Date(m.joined_at).toLocaleDateString()}`}
+                    </p>
                   </div>
-                  {isOwner && (
+                  {isOwner && m.role !== "owner" && (
                     <button
                       onClick={() => removeMember(m.id)}
                       className="text-xs text-red-500 hover:text-red-700 font-medium"
