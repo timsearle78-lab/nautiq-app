@@ -11,6 +11,7 @@ import MessageBubble from "./message-bubble";
 import LogTripSheet from "./log-trip-sheet";
 import ScanConfirmSheet, { type ScanResult } from "./scan-confirm-sheet";
 import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
+import AddWatchItemSheet from "@/components/maintenance/add-watch-item-sheet";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import WhatsNewCard from "@/components/chat/whats-new-card";
 import GreetingCard from "@/components/chat/greeting-card";
@@ -261,6 +262,7 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
 export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, hideGreeting, hideWhatsNew, hasTrips, hasInventory, lastActivityDate }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
+  const [showWatchItemSheet, setShowWatchItemSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -318,6 +320,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     if (!action) return;
     sessionStorage.removeItem("nautiq_pending_action");
     if (action === "scan") { setShowScanPicker(true); return; }
+    if (action === "watch-item") { setShowWatchItemSheet(true); return; }
     // sendMessage needs the chat transport to settle after mount
     const timer = setTimeout(() => {
       if (action === "restock") sendMessage({ text: "I just bought some spare parts" });
@@ -336,13 +339,16 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     const onRestock = () => sendMessageRef.current({ text: "I just bought some spare parts" });
     const onUsed = () => sendMessageRef.current({ text: "I just used a spare part" });
     const onScan = () => setShowScanPicker(true);
+    const onWatchItem = () => setShowWatchItemSheet(true);
     window.addEventListener("nautiq:action-restock", onRestock);
     window.addEventListener("nautiq:action-used", onUsed);
     window.addEventListener("nautiq:action-scan", onScan);
+    window.addEventListener("nautiq:action-watch-item", onWatchItem);
     return () => {
       window.removeEventListener("nautiq:action-restock", onRestock);
       window.removeEventListener("nautiq:action-used", onUsed);
       window.removeEventListener("nautiq:action-scan", onScan);
+      window.removeEventListener("nautiq:action-watch-item", onWatchItem);
     };
   }, []);
 
@@ -651,6 +657,17 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                     {label}
                   </button>
                 ))}
+                <button
+                  onClick={() => setShowWatchItemSheet(true)}
+                  className="flex items-center gap-1.5 text-sm font-semibold active:opacity-70 transition-opacity"
+                  style={{ background: "#FFFBEB", border: "1.5px solid #FDE68A", borderRadius: 8, padding: "8px 16px", color: "#92400E" }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  Watch list
+                </button>
               </div>
             </div>
           </div>
@@ -834,6 +851,15 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           boatId={boat.id}
           onClose={() => setShowTripSheet(false)}
           onSaved={() => { setShowTripSheet(false); onTripSaved(); }}
+        />
+      )}
+
+      {showWatchItemSheet && (
+        <AddWatchItemSheet
+          boatId={boat.id}
+          components={components}
+          onClose={() => setShowWatchItemSheet(false)}
+          onSaved={() => { setShowWatchItemSheet(false); router.refresh(); }}
         />
       )}
     </div>

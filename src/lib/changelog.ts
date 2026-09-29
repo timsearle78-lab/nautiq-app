@@ -11,6 +11,7 @@ export const CHANGELOG: Release[] = [
     label: "September 2026 update",
     features: [
       "Inventory items now support up to 3 photos — upload from your device or take a photo with your camera, tap a thumbnail to view full size",
+      "New Watch List on the Maintenance page — add anything to keep an eye on (wear and tear, things to sort later) with photos and notes; when you're ready, tap Mark done to convert it straight into a maintenance log entry",
     ],
   },
   {

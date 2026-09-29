@@ -110,6 +110,30 @@ The Maintenance Overview shows all components sorted by urgency. Use the "All Co
 Maintenance gap suggestions: When you open the Home screen, NautIQ checks your component list against a typical maintenance schedule for your boat type. If anything important is missing, a yellow suggestion card appears — tap it to see what components are worth adding and why. Tap "Add" next to any suggestion to go straight to the add component form.`,
   },
   {
+    id: "watch-list",
+    title: "Using the Watch List",
+    content: `The Watch List is on the Maintenance page. It's for tracking anything that needs attention but isn't a full maintenance job yet — wear and tear, something to keep an eye on, a reminder to sort something later.
+
+To add a watch item:
+1. Go to the Maintenance page and tap "Add" in the Watch List section, OR
+2. Tap "Watch item" in the Quick Actions menu (☰ icon, top left), OR
+3. Tap the "Watch list" button on the Home screen.
+
+Fill in:
+- What needs attention (required) — e.g. "Safety line lashing wearing thin"
+- Component (optional) — link it to a specific component on your boat
+- Notes (optional) — any extra detail
+- Photos (optional) — up to 3 photos; tap Camera to take one or Choose to pick from your library
+
+When you're ready to deal with it:
+1. Tap "Mark done" on the watch item card.
+2. A maintenance log form opens, pre-filled with the watch item's title and component.
+3. Add the date, work done, engine hours, and any notes.
+4. Tap "Mark done & log maintenance" — the watch item is resolved and a maintenance record is created.
+
+To remove a watch item without logging maintenance, tap "Delete."`,
+  },
+  {
     id: "components",
     title: "What are components and systems?",
     content: `Components are the individual parts of your boat that need regular maintenance — for example: engine, impeller, raw water pump, standing rigging, life jackets, fire extinguishers, bilge pump.
@@ -365,6 +389,8 @@ SIGN IN: On the login page there is a "Stay signed in on this device" toggle (on
 COST TRACKING: Add a cost when logging maintenance (the "Cost" field in the log form or chat draft card) or when restocking inventory (the "Cost paid" field in the restock card). All costs are visible in Profile → Cost tracker, which shows total spend by year, broken down into maintenance vs parts. Useful for understanding total cost of ownership and for resale documentation.
 
 WELCOME GREETING / PBA: Each time you open the Home screen, your personal boat assistant (PBA) greets you with a personalised summary — recent activity, health status, trip encouragement, and maintenance reminders. The card can be dismissed. You can also ask "give me an update", "how's my boat doing", or "what's new" at any time in chat to get the same personalised briefing.
+
+WATCH LIST: The Watch List on the Maintenance page is for tracking things that need attention but aren't a full maintenance job yet — e.g. wear and tear, something to keep an eye on, or a reminder to sort something later. To add a watch item: open the Maintenance page and tap "Add" in the Watch List section, or tap Watch item in the Quick Actions menu (☰, top left), or tap the "Watch list" shortcut on the Home screen. Fill in a title (required), optionally pick a component, add notes, and attach up to 3 photos. When you're ready to resolve a watch item, tap "Mark done" on the card — a log maintenance form opens pre-filled with the watch item's title and component, so you can add details and save it as a proper maintenance log entry. The watch item is then marked resolved and disappears from the list. To remove a watch item without logging maintenance, tap "Delete."
 
 BOAT VISITS / CHECK-INS: Even if you don't take a trip, you should log a visit when you go to check on your boat. Open the Quick Actions menu (☰ icon, top left) and tap "Log Visit." Enter the date and an optional note. Regular visits prevent the health score from dropping due to inactivity — the score decreases if your boat hasn't been visited, used, or serviced in 30+ days. The Home screen shows "Last visit: Xd ago" in the health panel so you can see at a glance when you were last aboard.
 
