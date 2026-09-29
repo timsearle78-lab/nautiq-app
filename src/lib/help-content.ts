@@ -274,6 +274,7 @@ How the score is calculated:
 - Inventory penalties are added to a component's risk if linked spares are low (out of stock: +25–40, below minimum: +15–25, at minimum: +5–10 — critical items are penalised more).
 - The component risk scores are averaged and subtracted from 100.
 - An inactivity penalty is then subtracted directly (not averaged): −15 pts if no trips, maintenance, or visits in 30–59 days; −35 pts for 60–89 days; −60 pts for 90+ days. This always has a visible impact.
+- Unresolved watch items that have been sitting too long also subtract directly: −5 pts each for items 7–29 days old, −10 pts each for 30–59 days old, −20 pts each for 60+ days old, capped at −40 pts total. Resolving the watch items removes the penalty.
 - The Health page shows a "Why X/100?" explanation listing the reasons. You can also ask the AI "explain my health score" for a full breakdown.
 
 The score and breakdown are shown on the Home screen and in the health banner at the top of the chat.
@@ -398,8 +399,9 @@ HOME ICON: Tapping the Home tab in the bottom navigation when you're already on 
 
 BOAT CO-OWNERSHIP / SYNDICATE: Share a boat with crewmates or co-owners. In Profile → Settings → Your boats, open the "Co-owners" section for a boat and tap "Generate invite link." Send the link to the person you want to add — they follow the link, create an account or sign in, and the boat is added to their NautIQ. Both owners see the same boat, trips, maintenance records, and inventory. The boat owner can remove a co-owner from the same Co-owners panel. To accept an invite, the recipient must be signed in; if not, the link prompts them to sign in or create an account first.
 
-HEALTH SCORE BREAKDOWN: The boat health score is 100 minus two penalties applied in sequence:
+HEALTH SCORE BREAKDOWN: The boat health score is 100 minus penalties applied in sequence:
 1. Component risk average: Each component with a known service interval is assessed. "OK" components (less than 85% through their interval) contribute 0 risk. Components 85–100% through their interval contribute linearly up to 100 risk points. Overdue components contribute 100+ (quadratic — the longer overdue, the worse). Inventory penalties (low/out-of-stock/expired spares) are added to the linked component's risk score. The average of all component risk scores is subtracted from 100.
-2. Inactivity penalty (direct deduction — not diluted): If the boat hasn't had a trip, maintenance event, or check-in in 30+ days, a penalty is subtracted directly: 30–59 days = −15 pts, 60–89 days = −35 pts, 90+ days = −60 pts. This always has a meaningful impact regardless of how many healthy components exist.
-To explain "why is my score X?": list overdue components, due-soon components, inventory issues, and whether there's an inactivity penalty. The Health page also shows a "Why X/100?" explanation automatically.
+2. Inactivity penalty (direct deduction — not diluted): If the boat hasn't had a trip, maintenance event, or check-in in 30+ days, a penalty is subtracted directly: 30–59 days = −15 pts, 60–89 days = −35 pts, 90+ days = −60 pts.
+3. Watch item penalty (direct deduction): Unresolved maintenance watch items left too long reduce the score — 7–29 days old = −5 pts each, 30–59 days old = −10 pts each, 60+ days old = −20 pts each. Capped at −40 pts total. Resolving the watch items removes the penalty.
+To explain "why is my score X?": list overdue components, due-soon components, inventory issues, inactivity penalty, and unresolved watch items. The Health page also shows a "Why X/100?" explanation automatically.
 `.trim();
