@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { X, ScanLine, PackagePlus, PackageMinus, Plus, DollarSign, Anchor } from "lucide-react";
+import { X, ScanLine, PackagePlus, PackageMinus, Plus, DollarSign, Anchor, Eye } from "lucide-react";
 import TripTimerButton from "@/components/nav/trip-timer-button";
 import LogTripSheet from "@/components/chat/log-trip-sheet";
 import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
 import LogCheckinSheet from "@/components/checkins/log-checkin-sheet";
+import AddWatchItemSheet from "@/components/maintenance/add-watch-item-sheet";
 
 interface GlobalActionsMenuProps {
   boatId: string;
@@ -25,6 +26,7 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
   const [showTrip, setShowTrip] = useState(false);
   const [showMaintenance, setShowMaintenance] = useState(false);
   const [showCheckin, setShowCheckin] = useState(false);
+  const [showWatchItem, setShowWatchItem] = useState(false);
   const [components, setComponents] = useState<ComponentOption[]>([]);
   const [inventory, setInventory] = useState<InventoryOption[]>([]);
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -64,7 +66,7 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
     }
   }
 
-  if (!open && !showTrip && !showMaintenance && !showCheckin) return null;
+  if (!open && !showTrip && !showMaintenance && !showCheckin && !showWatchItem) return null;
 
   return (
     <>
@@ -141,6 +143,14 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
                   Used item
                 </button>
 
+                <button
+                  onClick={act(() => setShowWatchItem(true))}
+                  className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700 hover:bg-amber-100 transition"
+                >
+                  <Eye size={16} />
+                  Watch item
+                </button>
+
               </div>
 
               <Link
@@ -182,6 +192,15 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
           boatId={boatId}
           onClose={() => setShowCheckin(false)}
           onSaved={() => { setShowCheckin(false); router.refresh(); }}
+        />
+      )}
+
+      {showWatchItem && (
+        <AddWatchItemSheet
+          boatId={boatId}
+          components={components}
+          onClose={() => setShowWatchItem(false)}
+          onSaved={() => { setShowWatchItem(false); router.refresh(); }}
         />
       )}
     </>

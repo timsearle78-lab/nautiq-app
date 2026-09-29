@@ -8,6 +8,8 @@ import { getBoatHealth } from "@/lib/components/health";
 import { AddComponentSheet } from "@/components/components/add-component-sheet";
 import { formatDate } from "@/lib/format-date";
 import { type StatusFilter, normalizeStatus } from "@/lib/component-status";
+import WatchList from "@/components/maintenance/watch-list";
+import type { WatchItem } from "@/components/maintenance/watch-item-card";
 
 export const dynamic = "force-dynamic";
 
@@ -120,12 +122,31 @@ export default async function MaintenancePage({
   const selectedBoatId = await getSelectedBoatId();
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const [allHealthRaw, { data: maintenanceSystemsData }] = await Promise.all([
+  const [allHealthRaw, { data: maintenanceSystemsData }, { data: watchItemsRaw }] = await Promise.all([
     getBoatHealth(boat.id, supabase),
     supabase.from("systems").select("id,name").eq("boat_id", boat.id).order("name"),
+    supabase
+      .from("maintenance_watch_items")
+      .select("id,title,notes,photo_urls,component_id,components(name),created_at")
+      .eq("boat_id", boat.id)
+      .is("resolved_at", null)
+      .order("created_at", { ascending: false }),
   ]);
 
   const maintenanceSystems = (maintenanceSystemsData ?? []) as { id: string; name: string }[];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const watchItems: WatchItem[] = (watchItemsRaw ?? []).map((r: any) => ({
+    id: r.id,
+    title: r.title,
+    notes: r.notes ?? null,
+    photo_urls: r.photo_urls ?? null,
+    component_id: r.component_id ?? null,
+    component_name: r.components?.name ?? null,
+    created_at: r.created_at,
+  }));
+
+  const maintenanceComponentOptions = allHealth.map((r) => ({ id: r.component_id, name: r.component_name }));
 
   const allHealth = (allHealthRaw.components as HealthRow[]).filter((r) => !r.component_id.startsWith("__")).sort((a, b) => {
     const statusCompare = statusRank(a.status) - statusRank(b.status);
@@ -374,6 +395,13 @@ export default async function MaintenancePage({
           </div>
         )}
       </section>
+
+      <WatchList
+        boatId={boat.id}
+        initialItems={watchItems}
+        components={maintenanceComponentOptions}
+        inventoryOptions={[]}
+      />
       </div>
 
     </main>
