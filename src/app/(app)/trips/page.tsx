@@ -273,6 +273,7 @@ export default async function TripsPage() {
                           engineHoursDelta={trip.engine_hours_delta}
                           fuelAddedLitres={trip.fuel_added_litres}
                           notes={trip.notes}
+                          photoUrls={trip.photo_urls ?? []}
                         />}
                         <DeleteTripButton tripId={trip.id} />
                       </div>
