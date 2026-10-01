@@ -7,6 +7,7 @@ import { AddTripButton } from "@/components/trips/add-trip-button";
 import { EngineHoursChart } from "@/components/trips/engine-hours-chart";
 import { DeleteTripButton } from "@/components/trips/delete-trip-button";
 import { EditTripButton } from "@/components/trips/edit-trip-button";
+import { TripPhotos } from "@/components/trips/trip-photos";
 
 
 export const dynamic = "force-dynamic";
@@ -19,6 +20,7 @@ type TripRow = {
   fuel_added_litres: number | null;
   notes: string | null;
   source: string | null;
+  photo_urls: string[] | null;
 };
 
 function startOf(unit: "week" | "month" | "year"): Date {
@@ -124,7 +126,7 @@ export default async function TripsPage() {
   if (boat) {
     const { data } = await supabase
       .from("trips")
-      .select("id, started_at, ended_at, engine_hours_delta, fuel_added_litres, notes, source")
+      .select("id, started_at, ended_at, engine_hours_delta, fuel_added_litres, notes, source, photo_urls")
       .eq("boat_id", boat.id)
       .order("started_at", { ascending: false, nullsFirst: false })
       .limit(500);
@@ -252,6 +254,9 @@ export default async function TripsPage() {
                         </div>
                         {trip.notes && (
                           <div className="mt-1 line-clamp-2" style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>{trip.notes}</div>
+                        )}
+                        {trip.photo_urls && trip.photo_urls.length > 0 && (
+                          <TripPhotos urls={trip.photo_urls} />
                         )}
                       </div>
                       <div className="flex items-center gap-1 shrink-0">

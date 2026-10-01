@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const { error } = await supabase.from("trips").insert({
+  const { data: insertedTrip, error } = await supabase.from("trips").insert({
     boat_id: boatId,
     user_id: user.id,
     started_at: started_at ?? new Date().toISOString(),
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     start_longitude: start_longitude ?? null,
     end_latitude: end_latitude ?? null,
     end_longitude: end_longitude ?? null,
-  });
+  }).select("id").single();
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
 
@@ -81,5 +81,5 @@ export async function POST(req: Request) {
   revalidatePath("/chat");
   revalidatePath("/maintenance");
 
-  return Response.json({ ok: true });
+  return Response.json({ ok: true, id: insertedTrip?.id });
 }

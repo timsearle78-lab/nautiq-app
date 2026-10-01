@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, MapPin, Fuel } from "lucide-react";
+import { X, MapPin, Fuel, Camera, ImagePlus, Trash2 } from "lucide-react";
 import type { GpsCoords } from "@/hooks/use-trip-timer";
 import NautiqAnchorIcon from "@/components/ui/nautiq-anchor-icon";
 import VoiceTextarea from "@/components/ui/voice-textarea";
@@ -85,9 +85,29 @@ export default function LogTripSheet({
   );
   const [fuelLitres, setFuelLitres] = useState(prefillFuelLitres?.toString() ?? "");
   const [notes, setNotes] = useState(prefillNotes ?? "");
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  const MAX_PHOTOS = 3;
+
+  function addFiles(files: FileList | null) {
+    if (!files) return;
+    const toAdd = Array.from(files).slice(0, MAX_PHOTOS - photos.length);
+    setPreviews((p) => [...p, ...toAdd.map((f) => URL.createObjectURL(f))]);
+    setPhotos((p) => [...p, ...toAdd]);
+  }
+
+  function removePhoto(i: number) {
+    URL.revokeObjectURL(previews[i]);
+    setPhotos((p) => p.filter((_, j) => j !== i));
+    setPreviews((p) => p.filter((_, j) => j !== i));
+  }
 
   type FuelPreview = { rate: number; fuelItem: { name: string; quantity: number; unit: string | null } | null } | null;
   const [fuelPreview, setFuelPreview] = useState<FuelPreview>(null);
@@ -134,6 +154,19 @@ export default function LogTripSheet({
         }),
       });
       if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (photos.length > 0 && data.id) {
+          setUploadingPhotos(true);
+          try {
+            const photoFormData = new FormData();
+            photos.forEach((f) => photoFormData.append("photos", f));
+            await fetch(`/api/trips/${data.id}/photos`, { method: "POST", body: photoFormData });
+          } catch (e) {
+            console.error("Photo upload error:", e);
+          } finally {
+            setUploadingPhotos(false);
+          }
+        }
         setSaved(true);
         setTimeout(() => onSaved(), 1500);
       } else {
@@ -147,11 +180,12 @@ export default function LogTripSheet({
     }
   }
 
+  const isBusy = saving || uploadingPhotos;
   if (saved) return <SaveSuccessSheet message="Trip saved!" />;
 
   return (
     <>
-      {saving && <NautiqSpinner overlay />}
+      {isBusy && <NautiqSpinner overlay />}
       <div className="fixed inset-0 z-40 bg-black/30" onClick={onClose} />
       <div className="fixed bottom-16 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl animate-in slide-in-from-bottom duration-200 max-h-[calc(100dvh-4rem)] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
@@ -275,6 +309,50 @@ export default function LogTripSheet({
             />
           </div>
 
+          {/* Photos */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+              Photos <span className="text-xs font-normal text-slate-400">up to {MAX_PHOTOS}</span>
+            </label>
+            {previews.length > 0 && (
+              <div className="flex gap-2 mb-2 flex-wrap">
+                {previews.map((src, i) => (
+                  <div key={i} className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt="" className="w-20 h-20 object-cover rounded-xl border border-slate-200" />
+                    <button
+                      type="button"
+                      onClick={() => removePhoto(i)}
+                      className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow"
+                    >
+                      <Trash2 size={10} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {photos.length < MAX_PHOTOS && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => cameraInputRef.current?.click()}
+                  className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 transition hover:border-ocean-300 hover:text-ocean-600"
+                >
+                  <Camera size={15} /> Camera
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 transition hover:border-ocean-300 hover:text-ocean-600"
+                >
+                  <ImagePlus size={15} /> Choose
+                </button>
+                <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => addFiles(e.target.files)} />
+                <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
+              </div>
+            )}
+          </div>
+
           {(prefillStartCoords || prefillEndCoords) && (
             <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 space-y-2">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
@@ -315,10 +393,10 @@ export default function LogTripSheet({
         <div className="px-4 pb-6 pt-2">
           <button
             onClick={handleSave}
-            disabled={saving}
+            disabled={isBusy}
             className="w-full rounded-xl btn-primary py-3.5 text-base font-semibold text-white transition disabled:opacity-50"
           >
-            {saving ? "Saving…" : "Save Trip"}
+            {uploadingPhotos ? "Uploading photos…" : saving ? "Saving…" : "Save Trip"}
           </button>
         </div>
       </div>
