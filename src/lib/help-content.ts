@@ -74,6 +74,8 @@ Engine hours are required for every trip — they're used to calculate when main
 
 Automatic fuel estimation: If you leave the Fuel field blank but enter engine hours, NautIQ can calculate fuel used automatically. Go to Settings → Your boats → edit your boat, and set a "Fuel consumption" rate in litres per hour (e.g. 8.5 for a typical diesel). Once set, any trip saved without manual fuel entry will have fuel estimated from hours × rate, and that amount will be deducted from your fuel inventory automatically.
 
+Trip photos: You can attach up to 3 photos to any trip when logging it — tap Camera to take a photo or Choose to select from your device. Photos appear as small thumbnails on the trip in the Trips list; tap any thumbnail to view it full size.
+
 To edit or delete a trip: Go to the Trips page, find the trip in the list, and tap the pencil icon to edit it. You can change the dates, times, engine hours, fuel, and notes. Tap the bin icon to delete a trip.`,
   },
   {
