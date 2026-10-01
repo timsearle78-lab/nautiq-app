@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Camera, ImagePlus, X, ZoomIn, ChevronLeft, ChevronRight } from "lucide-react";
+import { Camera, ImagePlus, Trash2, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 const MAX_PHOTOS = 3;
 
@@ -74,66 +74,58 @@ export function InventoryPhotoManager({ itemId, initialUrls }: Props) {
   return (
     <div>
       <label className="mb-1.5 block text-sm font-medium text-slate-700">
-        Photos <span className="text-slate-400 font-normal">({urls.length}/{MAX_PHOTOS})</span>
+        Photos <span className="text-xs font-normal text-slate-400">up to {MAX_PHOTOS}</span>
       </label>
 
-      <div className="flex flex-wrap gap-2">
-        {/* Thumbnails */}
-        {urls.map((url, i) => (
-          <div
-            key={url}
-            className="relative group w-20 h-20 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 cursor-pointer"
-            onClick={() => setLightboxIdx(i)}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-              <ZoomIn size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+      {urls.length > 0 && (
+        <div className="flex gap-2 mb-2 flex-wrap">
+          {urls.map((url, i) => (
+            <div key={url} className="relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={url}
+                alt=""
+                className="w-20 h-20 object-cover rounded-xl border border-slate-200 cursor-pointer hover:opacity-90 transition"
+                onClick={() => setLightboxIdx(i)}
+              />
+              <button
+                type="button"
+                onClick={() => handleDelete(url)}
+                className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow"
+              >
+                <Trash2 size={10} />
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); handleDelete(url); }}
-              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-              aria-label="Remove photo"
-            >
-              <X size={10} />
-            </button>
-          </div>
-        ))}
+          ))}
+        </div>
+      )}
 
-        {/* Add buttons */}
-        {canAdd && (
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 text-slate-400 hover:border-ocean-400 hover:text-ocean-500 hover:bg-ocean-50 transition-colors flex flex-col items-center justify-center gap-1 disabled:opacity-50"
-              title="Upload from device"
-            >
-              <ImagePlus size={18} />
-              <span className="text-[10px] font-medium leading-tight text-center">Upload</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => cameraInputRef.current?.click()}
-              disabled={uploading}
-              className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 text-slate-400 hover:border-ocean-400 hover:text-ocean-500 hover:bg-ocean-50 transition-colors flex flex-col items-center justify-center gap-1 disabled:opacity-50"
-              title="Take a photo"
-            >
-              <Camera size={18} />
-              <span className="text-[10px] font-medium leading-tight text-center">Camera</span>
-            </button>
-          </div>
-        )}
-
-        {uploading && (
-          <div className="w-20 h-20 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-ocean-500 border-t-transparent rounded-full animate-spin" />
-          </div>
-        )}
-      </div>
-
+      {canAdd && (
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => cameraInputRef.current?.click()}
+            disabled={uploading}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 transition hover:border-ocean-300 hover:text-ocean-600 disabled:opacity-50"
+          >
+            <Camera size={15} /> Camera
+          </button>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 transition hover:border-ocean-300 hover:text-ocean-600 disabled:opacity-50"
+          >
+            <ImagePlus size={15} /> Choose
+          </button>
+          {uploading && (
+            <div className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-400">
+              <div className="w-4 h-4 border-2 border-ocean-500 border-t-transparent rounded-full animate-spin" />
+              Uploading…
+            </div>
+          )}
+        </div>
+      )}
       {/* Hidden file inputs */}
       <input
         ref={fileInputRef}
