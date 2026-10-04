@@ -195,7 +195,12 @@ export type BoatHealth = {
 export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseClient): Promise<BoatHealth> {
   const supabase = supabaseClient ?? await createClient();
 
-  const [{ data: componentsData }, { data: tripsData }, { data: inventoryData }, { data: latestTripData }, { data: latestMaintenanceData }, { data: latestCheckinData }, { data: watchItemsData }] = await Promise.all([
+  // Only fetch trips from the last 3 years — enough for any realistic service interval
+  const threeYearsAgo = new Date();
+  threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
+  const threeYearsAgoStr = threeYearsAgo.toISOString().slice(0, 10);
+
+  const [{ data: componentsData }, { data: tripsData }, { data: inventoryData }, { data: latestTripData }, { data: latestMaintenanceData }, { data: latestCheckinData }, { data: watchItemsData }, { data: eventsData }] = await Promise.all([
     supabase
       .from("components")
       .select("id, name, install_date, service_interval_years, service_interval_months, service_interval_days, service_interval_engine_hours, system:systems(id, name)")
@@ -206,6 +211,7 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
       .select("started_at, engine_hours_delta")
       .eq("boat_id", boatId)
       .not("engine_hours_delta", "is", null)
+      .gte("started_at", threeYearsAgoStr)
       .order("started_at", { ascending: true }),
     supabase
       .from("inventory_items")
@@ -236,11 +242,16 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
       .select("created_at")
       .eq("boat_id", boatId)
       .is("resolved_at", null),
+    supabase
+      .from("maintenance_events")
+      .select("component_id, performed_at, engine_hours_at_service, components!inner(boat_id)")
+      .eq("components.boat_id", boatId)
+      .not("performed_at", "is", null)
+      .order("performed_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false }),
   ]);
 
   if (!componentsData || componentsData.length === 0) return { components: [], penalties: { inventory: 0, inactivity: 0, inactivityStatus: null, watchItems: 0, watchItemCount: 0 } };
-
-  const componentIds = componentsData.map((c: Record<string, unknown>) => c.id as string);
 
   type TripRow = { started_at: string | null; engine_hours_delta: number };
   const trips = (tripsData ?? []) as TripRow[];
@@ -289,14 +300,6 @@ export async function getBoatHealth(boatId: string, supabaseClient?: SupabaseCli
       boatUnlinkedPenalty += totalPenalty;
     }
   }
-
-  // Fetch latest maintenance event per component in one query
-  const { data: eventsData } = await supabase
-    .from("maintenance_events")
-    .select("component_id, performed_at, engine_hours_at_service")
-    .in("component_id", componentIds)
-    .order("performed_at", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false });
 
   type EventRow = { component_id: string; performed_at: string | null; engine_hours_at_service: number | null };
   const latestEvent = new Map<string, EventRow>();
