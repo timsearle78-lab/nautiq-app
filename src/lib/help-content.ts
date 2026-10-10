@@ -361,7 +361,9 @@ SYSTEMS: Manage systems (groups of components) in Profile → Settings → Syste
 
 LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving (GPS location captured), "Stop Trip" when back (GPS location captured again); (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours." If you enter engine hours but leave Fuel blank, NautIQ will estimate fuel used automatically if a fuel consumption rate (litres/hour) is set on your boat in Settings. The estimated fuel is saved with the trip and deducted from your fuel inventory.
 
-FUEL CONSUMPTION RATE: Set in Profile → Settings → Your boats → edit your boat → "Fuel consumption (litres/hour)". Once set, any trip saved without manual fuel entry will calculate fuel as hours × rate and deduct that amount from inventory automatically. The transaction note will show it was auto-estimated.
+FUEL CONSUMPTION RATE: Set in Profile → Settings → Your boats → edit your boat → "Consumption rate (L/hr)". Once set, any trip saved without manual fuel entry will calculate fuel as hours × rate and deduct that amount from inventory automatically. The transaction note will show it was auto-estimated.
+
+FUEL GAUGE: Set your tank capacity in Profile → Settings → Your boats → edit your boat → "Tank capacity (litres)". A fuel gauge will then appear on the Boat Health page next to your health score, showing your current fuel level as a percentage. The current level is read from your fuel inventory item (any inventory item whose name contains "fuel", "diesel", or "petrol"). Update that inventory item after refuelling to keep the gauge accurate.
 
 EMAIL TO LOG: Email maintenance notes to log@nautiq.cloud from your registered email address. NautIQ parses the email with AI and shows a pre-filled maintenance record card on the Home screen next time you open the app. Tap "Complete maintenance record" to review and save, or X to dismiss.
 

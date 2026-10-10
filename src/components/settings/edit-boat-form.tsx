@@ -24,9 +24,10 @@ type Props = {
   draft_m?: number | null;
   description?: string | null;
   fuel_consumption_lph?: number | null;
+  fuel_tank_litres?: number | null;
 };
 
-export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description, fuel_consumption_lph }: Props) {
+export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description, fuel_consumption_lph, fuel_tank_litres }: Props) {
   const [state, action, pending] = useActionState(updateBoat, {});
 
   return (
@@ -125,23 +126,42 @@ export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull
         </div>
       </div>
 
-      {/* Fuel consumption */}
-      <div>
-        <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Fuel consumption <span className="font-normal text-slate-400">(litres/hour, optional)</span>
-        </label>
-        <input
-          name="fuel_consumption_lph"
-          type="number"
-          step="0.1"
-          min="0"
-          defaultValue={fuel_consumption_lph ?? ""}
-          placeholder="e.g. 8.5"
-          className={inputCls}
-        />
-        <p className="mt-1 text-xs text-slate-400">
-          If set, fuel used will be estimated automatically when you log a trip without entering fuel manually.
-        </p>
+      {/* Fuel */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700">
+            Consumption rate <span className="font-normal text-slate-400">(L/hr)</span>
+          </label>
+          <input
+            name="fuel_consumption_lph"
+            type="number"
+            step="0.1"
+            min="0"
+            defaultValue={fuel_consumption_lph ?? ""}
+            placeholder="e.g. 8.5"
+            className={inputCls}
+          />
+          <p className="mt-1 text-xs text-slate-400">
+            Used to estimate fuel consumed per trip.
+          </p>
+        </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700">
+            Tank capacity <span className="font-normal text-slate-400">(litres)</span>
+          </label>
+          <input
+            name="fuel_tank_litres"
+            type="number"
+            step="1"
+            min="0"
+            defaultValue={fuel_tank_litres ?? ""}
+            placeholder="e.g. 200"
+            className={inputCls}
+          />
+          <p className="mt-1 text-xs text-slate-400">
+            Used to show your fuel level gauge.
+          </p>
+        </div>
       </div>
 
       {/* Boat description */}
