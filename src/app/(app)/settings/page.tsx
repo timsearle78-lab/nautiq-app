@@ -25,7 +25,7 @@ type NotificationPrefs = {
   hide_whats_new: boolean;
 };
 
-type BoatRow = { id: string; name: string; type: string | null; image_url: string | null; propulsion: string | null; hull_design: string | null; hull_material: string | null; length_m: number | null; beam_m: number | null; draft_m: number | null; description: string | null; fuel_consumption_lph: number | null; user_id: string };
+type BoatRow = { id: string; name: string; type: string | null; image_url: string | null; propulsion: string | null; hull_design: string | null; hull_material: string | null; length_m: number | null; beam_m: number | null; draft_m: number | null; description: string | null; fuel_consumption_lph: number | null; fuel_tank_litres: number | null; user_id: string };
 type SystemRow = { id: string; name: string; boat_id: string };
 
 export default async function SettingsPage() {
@@ -38,7 +38,7 @@ export default async function SettingsPage() {
   const [{ data: boatsData, error: boatsErr }, { data: notifPrefsData }] = await Promise.all([
     supabase
       .from("boats")
-      .select("id,name,type,image_url,propulsion,hull_design,hull_material,length_m,beam_m,draft_m,description,fuel_consumption_lph,user_id")
+      .select("id,name,type,image_url,propulsion,hull_design,hull_material,length_m,beam_m,draft_m,description,fuel_consumption_lph,fuel_tank_litres,user_id")
       .order("created_at", { ascending: true }),
     supabase
       .from("user_settings")
@@ -51,7 +51,7 @@ export default async function SettingsPage() {
   let boats: BoatRow[];
   if (boatsErr) {
     const { data: fallback } = await supabase.from("boats").select("id,name,type,user_id").order("created_at", { ascending: true });
-    boats = ((fallback ?? []) as Pick<BoatRow, "id" | "name" | "type" | "user_id">[]).map((b) => ({ ...b, image_url: null, propulsion: null, hull_design: null, hull_material: null, length_m: null, beam_m: null, draft_m: null, description: null, fuel_consumption_lph: null }));
+    boats = ((fallback ?? []) as Pick<BoatRow, "id" | "name" | "type" | "user_id">[]).map((b) => ({ ...b, image_url: null, propulsion: null, hull_design: null, hull_material: null, length_m: null, beam_m: null, draft_m: null, description: null, fuel_consumption_lph: null, fuel_tank_litres: null }));
   } else {
     boats = (boatsData ?? []) as BoatRow[];
   }
@@ -98,7 +98,7 @@ export default async function SettingsPage() {
               </div>
               <div className="px-4 py-4 space-y-4">
                 {isOwner && <BoatImageUpload boatId={boat.id} imageUrl={boat.image_url} />}
-                {isOwner && <EditBoatForm boatId={boat.id} name={boat.name} type={boat.type} propulsion={boat.propulsion} hull_design={boat.hull_design} hull_material={boat.hull_material} length_m={boat.length_m} beam_m={boat.beam_m} draft_m={boat.draft_m} description={boat.description} fuel_consumption_lph={boat.fuel_consumption_lph} />}
+                {isOwner && <EditBoatForm boatId={boat.id} name={boat.name} type={boat.type} propulsion={boat.propulsion} hull_design={boat.hull_design} hull_material={boat.hull_material} length_m={boat.length_m} beam_m={boat.beam_m} draft_m={boat.draft_m} description={boat.description} fuel_consumption_lph={boat.fuel_consumption_lph} fuel_tank_litres={boat.fuel_tank_litres} />}
                 <BoatMembersPanel boatId={boat.id} boatName={boat.name} isOwner={isOwner} />
               </div>
               {isOwner && (
