@@ -218,6 +218,62 @@ To edit an inventory item: Tap the pencil icon next to an item in the list, or t
 Photos: You can attach up to 3 photos to any inventory item — useful for showing the part, its location on the boat, or a label with the part number. On the item's edit page, scroll down to the Photos section. Tap "Upload" to select an image from your device, or tap "Camera" to take a new photo. Tap any thumbnail to view it full size. To remove a photo, hover over the thumbnail and tap the X, or open it full size and tap "Remove".`,
   },
   {
+    id: "best-practices",
+    title: "Setting up inventory and maintenance: best practices",
+    content: `How you structure inventory and maintenance components makes a big difference to how useful NautIQ is day-to-day. Here are the recommended patterns.
+
+INVENTORY: one item per physical location, or one item per interchangeable batch
+
+Use a separate inventory item for each physically distinct item that has its own location or its own expiry date:
+- "Fire extinguisher — cockpit" (qty: 1, location: Cockpit, expiry: Jan 2027, critical spare: yes)
+- "Fire extinguisher — saloon" (qty: 1, location: Saloon, expiry: Mar 2026, critical spare: yes)
+- "Fire extinguisher — engine bay" (qty: 1, location: Engine bay, expiry: Jan 2027, critical spare: yes)
+
+This way each extinguisher's expiry is tracked independently and you'll get an alert for the one that's coming due, not a single merged expiry for all of them.
+
+Use a single item with a higher quantity for interchangeable parts stored together:
+- "Alternator belt" (qty: 3, location: Spares locker, min qty: 1) — three identical belts stored together, any one is interchangeable.
+- "Engine oil filter" (qty: 2, location: Engine bay locker, min qty: 1)
+- "Impeller" (qty: 2, min qty: 1)
+
+The rule of thumb: if the items are identical and stored together, use quantity. If they differ by location, expiry date, or spec, give each one its own record.
+
+Tip: use a consistent category (e.g. "Safety") for related items. On the Inventory page you can filter by linked component, and on the Health page grouped items are easier to review at a glance.
+
+MAINTENANCE COMPONENTS: one component per inspection or service task
+
+Create a component for every recurring inspection or service task — not just for physical parts. For example:
+
+Fire extinguisher check:
+1. Go to Maintain → Add component.
+2. Name it "Fire extinguisher check" and put it in the Safety system.
+3. Set a time-based service interval — e.g. every 12 months.
+4. Link the fire extinguisher inventory items to this component (Linked spare → select each extinguisher).
+
+This means:
+- The component will show as due when the annual check is approaching.
+- If any extinguisher inventory item is low (e.g. you've disposed of a failed unit and haven't replaced it), the component's risk score is penalised automatically.
+- You get a single maintenance history of every inspection, rather than trying to remember when you last checked them.
+
+Other examples of inspection-style components to add:
+- "Life jacket inspection" (Safety, annual)
+- "EPIRB check" (Safety, annual — link your EPIRB inventory item)
+- "Bilge pump test" (Plumbing, 3 months)
+- "Flare check" (Safety, annual — link your flare inventory items with their expiry dates)
+
+LOGGING MAINTENANCE for an inspection
+
+When you carry out a fire extinguisher check (or any inspection):
+1. Go to Maintain → tap "Fire extinguisher check."
+2. Tap "Log Maintenance."
+3. Fill in the date, work done (e.g. "Annual visual inspection — all three extinguishers pressure checked and in date"), and any notes.
+4. Tap "Save." The component resets to healthy and the next due date is recalculated.
+
+This gives you a permanent record of every inspection with dates, notes, and photos if needed — useful for insurance, surveys, or sale.
+
+You can also email a maintenance note to log@nautiq.cloud and NautIQ will parse it into a draft maintenance record for you to review.`,
+  },
+  {
     id: "chat",
     title: "How to use the AI assistant",
     content: `The Home screen is your AI assistant. You can type or speak to it — tap the microphone button to use your voice.
@@ -376,6 +432,8 @@ MAINTENANCE: Each component has a time/engine-hour service interval. NautIQ uses
 COMPONENTS & SYSTEMS: Components = individual parts needing service (engine, impeller, life jackets…). Systems = groups (Engine, Safety, Electrical…). Add/edit from Maintain tab. Delete from Danger Zone on component page.
 
 INVENTORY: Add items via "+ Add item" or camera "Scan item" on Home. Adjust stock by saying "I used X" or "I bought X" to the AI, or via the Restock item / Used item chips, or from the item's page. Use the "Low stock only" toggle on the Inventory page to filter instantly. Link spares to components so low stock raises the risk score. Set an expiry date on items like flares, first aid supplies, or fuel treatment — items expiring within 90 days show an amber badge; expired items show red. The "Expiring soon" tile on the Inventory page shows the count at a glance. Expired critical items increase the boat health risk score. Photos: Each inventory item can have up to 3 photos. Open the item's edit page (tap the pencil icon) and scroll to Photos — tap "Upload" to choose an image from your device or "Camera" to take a photo. Tap a thumbnail to view full size. Remove a photo with the X on the thumbnail or the Remove button in full-size view.
+
+INVENTORY & MAINTENANCE BEST PRACTICES: Use a SEPARATE inventory item for each physically distinct item that has its own location or expiry date (e.g. three fire extinguishers in different locations = three records, each with its own expiry). Use a SINGLE item with higher quantity for identical interchangeable parts stored together (e.g. 3 alternator belts in the spares locker = one record, qty 3, min qty 1). Use a consistent category (e.g. "Safety") to group related items. Create a MAINTENANCE COMPONENT for every recurring inspection task, not just physical parts — e.g. "Fire extinguisher check" in the Safety system with a 12-month interval. Link the extinguisher inventory items to that component so low stock raises the risk score automatically. Log a maintenance record every time you carry out the check — fill in date, work done, and notes for a permanent inspection history. Other inspection components to set up: life jacket inspection (annual), EPIRB check (annual), bilge pump test (3 months), flare check (annual — link flare inventory with expiry dates).
 
 BOAT REPORT / PDF: Say "download a boat report" or "send me a PDF summary" to generate and download a full PDF of health, maintenance schedule, inventory, and recent trips. Also available from Profile tab → "Download Boat Report."
 
