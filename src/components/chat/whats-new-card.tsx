@@ -40,7 +40,9 @@ export default function WhatsNewCard({ hidden }: { hidden: boolean }) {
               {"What's new"} — {LATEST_RELEASE.label}
             </p>
             <p style={{ fontSize: 12, color: "var(--color-navy-mute)", marginTop: 1 }}>
-              {new Date(LATEST_RELEASE.date + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}
+              {process.env.NEXT_PUBLIC_BUILD_TIME
+                ? new Date(process.env.NEXT_PUBLIC_BUILD_TIME).toLocaleString(undefined, { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })
+                : new Date(LATEST_RELEASE.date + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}
             </p>
           </div>
         </div>
