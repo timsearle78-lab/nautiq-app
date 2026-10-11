@@ -44,7 +44,7 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11,
       {/* Navy circle behind the gauge */}
       <div
         className="relative flex items-center justify-center rounded-full"
-        style={{ width: size, height: size, background: "var(--color-navy-700)" }}
+        style={{ width: size, height: size, background: "var(--color-navy-700)", overflow: "visible" }}
       >
         <svg
           width={size}
