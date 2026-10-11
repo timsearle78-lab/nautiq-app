@@ -84,6 +84,7 @@ export async function POST(req: Request) {
   const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory - penalties.watchItems));
   const overdueCount = hc.filter((c) => c.status === "overdue").length;
   const dueSoonCount = hc.filter((c) => c.status === "due soon").length;
+  const unresolvedWatchCount = penalties.watchItemCount;
 
   const fuelTankLitres = (boat as { fuel_tank_litres?: number | null }).fuel_tank_litres ?? null;
   const fuelCurrentLitres = fuelItemRes.data ? Number(fuelItemRes.data.quantity) : null;
@@ -116,6 +117,7 @@ export async function POST(req: Request) {
   if (lowCritical.length > 0) alerts.push(`Low critical stock: ${lowCritical.join(", ")}`);
   if (expiringSoon.length > 0) alerts.push(`Expiring within 90 days: ${expiringSoon.join(", ")}`);
   if (atRiskComponents.length > 0) alerts.push(`Maintenance ${atRiskComponents.map((c) => `${c.component_name} (${c.status})`).join(", ")}`);
+  if (unresolvedWatchCount > 0) alerts.push(`${unresolvedWatchCount} unresolved watch item${unresolvedWatchCount !== 1 ? "s" : ""} on the Watch List`);
 
   const context = [
     `Health score: ${healthScore}/100`,
@@ -141,6 +143,7 @@ ${context}
 Instructions:
 - Lead with the most important actionable issue if one exists (missing spares, overdue service, expiring items). Name it specifically.
 - If there are no issues, give brief positive context and one tip or nudge (e.g. suggest a sail, remind about upcoming service).
+- Only mention watch list items if "unresolved watch items" appears explicitly in ACTIONABLE ISSUES above. Never invent or assume watch items exist.
 - Plain text only — no markdown, no bullet points, no lists.
 - Friendly and direct, like a knowledgeable marina friend. Do not be sycophantic.`,
   });
