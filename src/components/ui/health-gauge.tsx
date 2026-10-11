@@ -25,8 +25,8 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11,
 
   const { stroke, text, label } = gaugeColor(score, overdueCount);
 
-  const fuelStrokeWidth = Math.max(3, strokeWidth * 0.4);
-  const fuelGap = 3;
+  const fuelStrokeWidth = strokeWidth;
+  const fuelGap = 5;
   const fuelR = r + strokeWidth / 2 + fuelGap + fuelStrokeWidth / 2;
   const fuelCircumference = 2 * Math.PI * fuelR;
   const fuelArcLength = fuelCircumference * 0.75;
