@@ -99,6 +99,22 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11,
               style={{ transition: "stroke-dasharray 0.6s ease" }}
             />
           )}
+          {/* E / F labels at arc endpoints */}
+          {fuelPct != null && (() => {
+            const labelR = fuelR + fuelStrokeWidth / 2 + 5;
+            const d = labelR * Math.SQRT1_2; // cos/sin of 45°
+            const fontSize = Math.max(7, fuelStrokeWidth * 1.6);
+            return (
+              <>
+                <text x={cx - d} y={cy + d} textAnchor="middle" dominantBaseline="middle"
+                  fontSize={fontSize} fontWeight="700" fill="rgba(255,255,255,0.45)"
+                  style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>E</text>
+                <text x={cx + d} y={cy + d} textAnchor="middle" dominantBaseline="middle"
+                  fontSize={fontSize} fontWeight="700" fill="rgba(255,255,255,0.45)"
+                  style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>F</text>
+              </>
+            );
+          })()}
         </svg>
         {/* Center text */}
         <div className="relative flex flex-col items-center leading-none">
