@@ -193,7 +193,9 @@ To filter inventory, tap any of the coloured stat tiles at the top of the Invent
 To add an item manually:
 1. Go to the Inventory tab and tap "+ Add item."
 2. Fill in the name, quantity, unit (ea, L, kg, etc.), category, and optionally link it to a maintenance component.
-3. Mark it as a critical spare if it's essential for safety or operation.
+3. Add an expiry date if the item has one (e.g. flares, first aid supplies, fire extinguishers).
+4. Add notes for any details like fitting info or service notes.
+5. Mark it as a critical spare if it's essential for safety or operation.
 
 To scan an item:
 1. Open the ☰ menu and tap "Scan item."
