@@ -181,7 +181,7 @@ Send test email: tap this button to immediately send yourself a test email based
   {
     id: "inventory",
     title: "How to manage inventory",
-    content: `The Inventory tab is your on-board register — record everything on the boat: spare parts, safety equipment (EPIRB, PLB, VHF, life jackets, flares, fire extinguishers), tools, consumables, and anything else you want to track. Each item has a current quantity and an optional minimum quantity — when stock drops below the minimum, it shows as low stock.
+    content: `The Inventory tab is your on-board register — record everything on the boat: spare parts, safety equipment (EPIRB, PLB, VHF, life jackets, flares, fire extinguishers), tools, consumables, and anything else you want to track. Each item has a current quantity and an optional minimum quantity — when stock reaches or drops below the minimum, it shows as low stock.
 
 To filter inventory, tap any of the coloured stat tiles at the top of the Inventory page:
 - Tap "Low stock", "Critical missing", "Stocked", or "Expiring soon" to show only items in that category.

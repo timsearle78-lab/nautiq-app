@@ -281,10 +281,10 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const onTripSaved = useCallback(() => router.refresh(), [router]);
 
   const lowCriticalItems = inventoryItems.filter(
-    (i) => i.minimum_quantity != null && i.quantity < i.minimum_quantity && i.is_critical
+    (i) => i.minimum_quantity != null && i.quantity <= i.minimum_quantity && i.is_critical
   );
   const lowStockItems = inventoryItems.filter(
-    (i) => i.minimum_quantity != null && i.quantity < i.minimum_quantity
+    (i) => i.minimum_quantity != null && i.quantity <= i.minimum_quantity
   );
   const lowCriticalCount = lowCriticalItems.length;
   const lowStockCount = lowStockItems.length;

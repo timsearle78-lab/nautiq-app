@@ -7,7 +7,7 @@ function getStatus(item: InventoryItemRow) {
   if (item.is_critical && Number(item.quantity) <= 0) {
     return { label: "MISSING", badgeCls: "badge badge-missing", edge: "row-edge-critical" };
   }
-  if (item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity)) {
+  if (item.minimum_quantity != null && Number(item.quantity) <= Number(item.minimum_quantity)) {
     return { label: "LOW", badgeCls: "badge badge-low", edge: "row-edge-warning" };
   }
   return { label: "OK", badgeCls: "badge badge-ok", edge: "row-edge-healthy" };

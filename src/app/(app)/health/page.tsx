@@ -121,7 +121,7 @@ export default async function HealthPage() {
     // Stock issues
     if (min > 0 && qty === 0) {
       inventoryIssues.push({ id: item.id, name: item.name, issue: "out_of_stock", is_critical: item.is_critical, quantity: qty, minimum_quantity: item.minimum_quantity, unit: item.unit, expiry_date: item.expiry_date, component_name });
-    } else if (min > 0 && qty < min) {
+    } else if (min > 0 && qty <= min) {
       inventoryIssues.push({ id: item.id, name: item.name, issue: "low_stock", is_critical: item.is_critical, quantity: qty, minimum_quantity: item.minimum_quantity, unit: item.unit, expiry_date: item.expiry_date, component_name });
     }
   }

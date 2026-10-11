@@ -103,7 +103,7 @@ export async function POST(req: Request) {
   type InvRow = { name: string; quantity: number; minimum_quantity: number | null; is_critical: boolean; expiry_date: string | null };
   const invItems = (inventoryRes.data ?? []) as InvRow[];
   const missingCritical = invItems.filter((i) => i.is_critical && Number(i.quantity) <= 0).map((i) => i.name);
-  const lowCritical = invItems.filter((i) => i.is_critical && Number(i.quantity) > 0 && i.minimum_quantity != null && Number(i.quantity) < Number(i.minimum_quantity)).map((i) => i.name);
+  const lowCritical = invItems.filter((i) => i.is_critical && Number(i.quantity) > 0 && i.minimum_quantity != null && Number(i.quantity) <= Number(i.minimum_quantity)).map((i) => i.name);
   const expiringSoon = invItems.filter((i) => i.expiry_date && i.expiry_date <= in90Days && i.expiry_date >= today).map((i) => i.name);
 
   type CompRow = { component_name: string; status: string; predicted_due_date: string | null };
@@ -113,7 +113,7 @@ export async function POST(req: Request) {
   const timeOfDay = hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening";
 
   const alerts: string[] = [];
-  if (missingCritical.length > 0) alerts.push(`CRITICAL MISSING spares: ${missingCritical.join(", ")} — must be sourced before next sail`);
+  if (missingCritical.length > 0) alerts.push(`CRITICAL MISSING items: ${missingCritical.join(", ")} — must be sourced before next sail`);
   if (lowCritical.length > 0) alerts.push(`Low critical stock: ${lowCritical.join(", ")}`);
   if (expiringSoon.length > 0) alerts.push(`Expiring within 90 days: ${expiringSoon.join(", ")}`);
   if (atRiskComponents.length > 0) alerts.push(`Maintenance ${atRiskComponents.map((c) => `${c.component_name} (${c.status})`).join(", ")}`);
