@@ -287,7 +287,7 @@ export async function generateBoatPdf(): Promise<void> {
         }
         if (hookData.section === "body") {
           const item = data.inventory[hookData.row.index];
-          if (item?.minimum_quantity != null && item.quantity < item.minimum_quantity) {
+          if (item?.minimum_quantity != null && item.quantity <= item.minimum_quantity) {
             hookData.cell.styles.fillColor = rgb("#FDECEA");
           }
         }
