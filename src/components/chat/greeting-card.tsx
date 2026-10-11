@@ -15,6 +15,7 @@ interface GreetingData {
   engineHours: number;
   tripCount: number;
   daysSinceTrip: number | null;
+  fuelPct: number | null;
 }
 
 export default function GreetingCard({ boatId, hidden }: GreetingCardProps) {
@@ -116,6 +117,15 @@ export default function GreetingCard({ boatId, hidden }: GreetingCardProps) {
             {data.tripCount > 0 && (
               <span className="inline-flex items-center rounded-full px-2.5 py-0.5" style={{ fontSize: 12, fontWeight: 600, ...chipStyle("neutral") }}>
                 {data.tripCount} trip{data.tripCount !== 1 ? "s" : ""} this month
+              </span>
+            )}
+
+            {data.fuelPct != null && (
+              <span
+                className="inline-flex items-center rounded-full px-2.5 py-0.5"
+                style={{ fontSize: 12, fontWeight: 600, ...chipStyle(data.fuelPct < 0.2 ? "red" : data.fuelPct < 0.4 ? "amber" : "neutral") }}
+              >
+                ⛽ {Math.round(data.fuelPct * 100)}% fuel
               </span>
             )}
           </div>

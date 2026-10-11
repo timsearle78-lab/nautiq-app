@@ -151,7 +151,28 @@ function emailShell(bodyContent: string) {
 </html>`;
 }
 
-function buildHealthSummaryEmail(boatName: string, score: number, overdue: ComponentHealth[], dueSoon: ComponentHealth[], inventoryIssues: InventoryIssue[]) {
+function fuelBarHtml(fuelPct: number | null): string {
+  if (fuelPct == null) return "";
+  const pct = Math.round(fuelPct * 100);
+  const color = fuelPct < 0.2 ? "#DC2626" : fuelPct < 0.4 ? "#D97706" : "#0B7EB8";
+  const label = fuelPct < 0.2 ? "Low" : fuelPct < 0.4 ? "Reserve" : fuelPct < 0.7 ? "Half" : "Full";
+  return `
+    <tr><td style="padding:0 32px 16px;">
+      <table role="presentation" width="100%" style="border:1.5px solid #E0E6EC;border-radius:12px;overflow:hidden;background:#F8FAFC;">
+        <tr>
+          <td style="padding:12px 16px;">
+            <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#475569;">Fuel level</span>
+            <div style="margin-top:6px;background:#E0E6EC;border-radius:6px;height:8px;overflow:hidden;">
+              <div style="background:${color};height:8px;width:${pct}%;border-radius:6px;"></div>
+            </div>
+            <div style="margin-top:5px;font-size:12px;color:${color};font-weight:700;">${pct}% — ${label}</div>
+          </td>
+        </tr>
+      </table>
+    </td></tr>`;
+}
+
+function buildHealthSummaryEmail(boatName: string, score: number, overdue: ComponentHealth[], dueSoon: ComponentHealth[], inventoryIssues: InventoryIssue[], fuelPct: number | null = null) {
   const totalIssues = overdue.length + dueSoon.length + inventoryIssues.length;
 
   const overdueRows = overdue.map((c, i) => `
@@ -236,6 +257,8 @@ function buildHealthSummaryEmail(boatName: string, score: number, overdue: Compo
       </table>
     </td></tr>` : ""}
 
+    ${fuelBarHtml(fuelPct)}
+
     <!-- CTA -->
     <tr><td style="padding:8px 32px 32px;text-align:center;">
       <a href="${APP_URL}/health" style="display:inline-block;background:linear-gradient(135deg,#15A0D6,#0B7EB8);color:#FFFFFF;text-decoration:none;border-radius:12px;padding:13px 32px;font-size:14px;font-weight:700;letter-spacing:0.1px;${EMAIL_BODY_FONT}box-shadow:0 4px 12px rgba(11,126,184,0.28);">
@@ -254,7 +277,7 @@ function buildHealthSummaryEmail(boatName: string, score: number, overdue: Compo
   return emailShell(body);
 }
 
-function buildAllClearEmail(boatName: string, score: number, okCount: number) {
+function buildAllClearEmail(boatName: string, score: number, okCount: number, fuelPct: number | null = null) {
   const body = `
     <!-- Header -->
     <tr><td style="${EMAIL_HEADER_STYLE}">
@@ -271,6 +294,8 @@ function buildAllClearEmail(boatName: string, score: number, okCount: number) {
       <p style="font-size:15px;font-weight:600;color:#0F2335;margin:16px 0 4px;">All clear — ${boatName} is in good shape</p>
       <p style="font-size:14px;color:#8593A0;margin:0;line-height:1.5;">${okCount} component${okCount !== 1 ? "s" : ""} tracked, no maintenance issues or inventory problems.</p>
     </td></tr>
+
+    ${fuelBarHtml(fuelPct)}
 
     <!-- CTA -->
     <tr><td style="padding:8px 32px 32px;text-align:center;">
@@ -452,7 +477,7 @@ Deno.serve(async (req) => {
       // Load boats for this user (owned + co-owned via boat_members)
       const { data: ownedBoats } = await supabase
         .from("boats")
-        .select("id, name")
+        .select("id, name, fuel_tank_litres")
         .eq("user_id", pref.user_id);
 
       const { data: memberRows } = await supabase
@@ -461,7 +486,7 @@ Deno.serve(async (req) => {
         .eq("user_id", pref.user_id);
 
       const memberBoatIds = (memberRows ?? []).map((r: { boat_id: string }) => r.boat_id);
-      let boats = (ownedBoats ?? []) as { id: string; name: string }[];
+      let boats = (ownedBoats ?? []) as { id: string; name: string; fuel_tank_litres: number | null }[];
 
       if (memberBoatIds.length > 0) {
         const { data: memberBoats } = await supabase
@@ -486,7 +511,7 @@ Deno.serve(async (req) => {
       const componentIds = ((componentsData ?? []) as Record<string, unknown>[]).map((c) => c.id as string);
 
       // Load trips, maintenance events, and inventory in parallel
-      const [{ data: tripsData }, { data: eventsData }, { data: inventoryData }] = await Promise.all([
+      const [{ data: tripsData }, { data: eventsData }, { data: inventoryData }, { data: fuelItemData }] = await Promise.all([
         supabase
           .from("trips")
           .select("started_at, engine_hours_delta")
@@ -505,6 +530,14 @@ Deno.serve(async (req) => {
           .from("inventory_items")
           .select("id, name, quantity, minimum_quantity, is_critical, expiry_date")
           .eq("boat_id", boat.id),
+        supabase
+          .from("inventory_items")
+          .select("quantity")
+          .eq("boat_id", boat.id)
+          .or("name.ilike.%fuel%,name.ilike.%diesel%,name.ilike.%petrol%,name.ilike.%gasoline%")
+          .order("name")
+          .limit(1)
+          .maybeSingle(),
       ]);
 
       type TripRow = { started_at: string | null; engine_hours_delta: number };
@@ -576,6 +609,13 @@ Deno.serve(async (req) => {
 
       const hasIssues = overdue.length > 0 || dueSoon.length > 0 || inventoryIssues.length > 0;
 
+      // Fuel level
+      const fuelTankLitres = (boat as { fuel_tank_litres?: number | null }).fuel_tank_litres ?? null;
+      const fuelCurrentLitres = fuelItemData ? Number((fuelItemData as { quantity: number }).quantity) : null;
+      const fuelPct = fuelTankLitres && fuelTankLitres > 0 && fuelCurrentLitres != null
+        ? Math.min(1, Math.max(0, fuelCurrentLitres / fuelTankLitres))
+        : null;
+
       // ---- Health summary email ----
       const summaryFreq = pref.health_summary as string;
       const isAlways = summaryFreq === "daily_always" || summaryFreq === "weekly_always";
@@ -595,10 +635,10 @@ Deno.serve(async (req) => {
           let html: string;
           if (hasIssues) {
             subject = `NautIQ Update: ${boat.name} health report`;
-            html = buildHealthSummaryEmail(boat.name, healthScore, overdue, dueSoon, inventoryIssues);
+            html = buildHealthSummaryEmail(boat.name, healthScore, overdue, dueSoon, inventoryIssues, fuelPct);
           } else {
             subject = `NautIQ Update: ${boat.name} is all clear`;
-            html = buildAllClearEmail(boat.name, healthScore, ok.length);
+            html = buildAllClearEmail(boat.name, healthScore, ok.length, fuelPct);
           }
           await sendEmail(pref.email, subject, html);
 

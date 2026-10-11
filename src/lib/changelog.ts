@@ -10,7 +10,7 @@ export const CHANGELOG: Release[] = [
     date: "2026-10-08",
     label: "October 2026 update",
     features: [
-      "Fuel gauge — set your tank size in Settings and a live fuel level gauge now appears on the Boat Health page next to your health score",
+      "Fuel ring — the fuel level is now shown as a subtle outer ring on the health gauge, visible everywhere the health score appears: Boat Health page, home screen, emails, and the PDF report",
       "Trip photos — add up to 3 photos when logging a trip; tap any thumbnail to view full size with a lightbox",
     ],
   },

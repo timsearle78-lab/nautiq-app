@@ -8,7 +8,6 @@ import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getUser, getUserBoats } from "@/lib/supabase/cached-queries";
 import { AlertTriangle, CheckCircle, Clock, HelpCircle, Package, ShieldAlert } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
-import { FuelGauge } from "@/components/ui/fuel-gauge";
 import { formatDate } from "@/lib/format-date";
 import { normalizeStatus } from "@/lib/component-status";
 
@@ -87,6 +86,9 @@ export default async function HealthPage() {
   const engineHours = (engineHoursRes.data as number) ?? 0;
   const fuelTankLitres = (boatDetailsRes.data?.fuel_tank_litres as number | null) ?? null;
   const fuelCurrentLitres = fuelItemRes.data ? (Number(fuelItemRes.data.quantity) ?? null) : null;
+  const fuelPct = fuelTankLitres && fuelTankLitres > 0 && fuelCurrentLitres != null
+    ? Math.min(1, Math.max(0, fuelCurrentLitres / fuelTankLitres))
+    : null;
 
   type InvRow = { id: string; name: string; quantity: number; minimum_quantity: number | null; unit: string | null; is_critical: boolean; expiry_date: string | null; component_id: string | null };
   const inventoryItems = (inventoryRes.data ?? []) as InvRow[];
@@ -193,8 +195,17 @@ export default async function HealthPage() {
         <>
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col items-center gap-3">
-            <HealthGauge score={healthScore} overdueCount={overdue.length} size={130} />
-            <FuelGauge currentLitres={fuelCurrentLitres} tankLitres={fuelTankLitres} size={110} />
+            <HealthGauge score={healthScore} overdueCount={overdue.length} size={130} fuelPct={fuelPct} />
+            {fuelPct != null && (
+              <div style={{ fontSize: 11, color: "var(--color-navy-mute)", textAlign: "center" }}>
+                {Math.round(fuelCurrentLitres!)} / {Math.round(fuelTankLitres!)} L fuel
+              </div>
+            )}
+            {fuelPct == null && fuelTankLitres == null && (
+              <div style={{ fontSize: 11, color: "var(--color-navy-mute)", textAlign: "center" }}>
+                Set tank size in Settings
+              </div>
+            )}
           </div>
           <div className="flex-1 grid grid-cols-2 gap-2">
             <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: overdue.length > 0 ? "var(--color-status-critical-fg)" : "var(--color-app-bg)", border: `1.5px solid ${overdue.length > 0 ? "var(--color-status-critical-fg)" : "var(--color-border)"}` }}>

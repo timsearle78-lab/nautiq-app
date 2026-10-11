@@ -5,6 +5,7 @@ interface HealthGaugeProps {
   overdueCount: number;
   size?: number;
   strokeWidth?: number;
+  fuelPct?: number | null;
 }
 
 function gaugeColor(score: number, overdueCount: number) {
@@ -13,7 +14,7 @@ function gaugeColor(score: number, overdueCount: number) {
   return { stroke: "var(--color-status-healthy-fg)", text: "var(--color-status-healthy-fg)", label: "Ship shape" };
 }
 
-export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11 }: HealthGaugeProps) {
+export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11, fuelPct }: HealthGaugeProps) {
   const r = (size - strokeWidth * 2) / 2;
   const cx = size / 2;
   const cy = size / 2;
@@ -24,6 +25,19 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11 
   const progress = Math.max(0, Math.min(1, score / 100)) * arcLength;
 
   const { stroke, text, label } = gaugeColor(score, overdueCount);
+
+  // Fuel ring — thin outer arc, same 270° sweep
+  const fuelStrokeWidth = Math.max(3, strokeWidth * 0.4);
+  const fuelGap = 3;
+  const fuelR = r + strokeWidth / 2 + fuelGap + fuelStrokeWidth / 2;
+  const fuelCircumference = 2 * Math.PI * fuelR;
+  const fuelArcLength = fuelCircumference * 0.75;
+  const fuelProgress = fuelPct != null ? Math.max(0, Math.min(1, fuelPct)) * fuelArcLength : 0;
+  const fuelColor =
+    fuelPct == null ? null :
+    fuelPct < 0.2 ? "#E53E3E" :
+    fuelPct < 0.4 ? "#D97706" :
+    "#0B7EB8";
 
   return (
     <div className="flex flex-col items-center">
@@ -60,6 +74,31 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11 
             transform={`rotate(135 ${cx} ${cy})`}
             style={{ transition: "stroke-dasharray 0.6s ease" }}
           />
+          {/* Fuel ring track */}
+          {fuelPct != null && (
+            <circle
+              cx={cx} cy={cy} r={fuelR}
+              fill="none"
+              stroke="rgba(255,255,255,0.08)"
+              strokeWidth={fuelStrokeWidth}
+              strokeDasharray={`${fuelArcLength} ${fuelCircumference - fuelArcLength}`}
+              strokeLinecap="round"
+              transform={`rotate(135 ${cx} ${cy})`}
+            />
+          )}
+          {/* Fuel ring fill */}
+          {fuelPct != null && fuelProgress > 0 && (
+            <circle
+              cx={cx} cy={cy} r={fuelR}
+              fill="none"
+              stroke={fuelColor!}
+              strokeWidth={fuelStrokeWidth}
+              strokeDasharray={`${fuelProgress} ${fuelCircumference - fuelProgress}`}
+              strokeLinecap="round"
+              transform={`rotate(135 ${cx} ${cy})`}
+              style={{ transition: "stroke-dasharray 0.6s ease" }}
+            />
+          )}
         </svg>
         {/* Center text */}
         <div className="relative flex flex-col items-center leading-none">

@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
   const { data: boat } = await supabase
     .from("boats")
-    .select("id, name")
+    .select("id, name, fuel_tank_litres")
     .eq("id", boatId)
     .single();
   if (!boat) return new Response("Not found", { status: 404 });
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   const today = new Date().toISOString().slice(0, 10);
   const in90Days = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
-  const [health, tripsRes, maintenanceRes, engineHoursRes, lastTripRes, inventoryRes, overdueComponentsRes] = await Promise.all([
+  const [health, tripsRes, maintenanceRes, engineHoursRes, lastTripRes, inventoryRes, overdueComponentsRes, fuelItemRes] = await Promise.all([
     getBoatHealth(boatId),
     supabase
       .from("trips")
@@ -65,6 +65,14 @@ export async function POST(req: Request) {
       .in("status", ["overdue", "due soon"])
       .order("status", { ascending: true })
       .limit(5),
+    supabase
+      .from("inventory_items")
+      .select("quantity")
+      .eq("boat_id", boatId)
+      .or("name.ilike.%fuel%,name.ilike.%diesel%,name.ilike.%petrol%,name.ilike.%gasoline%")
+      .order("name")
+      .limit(1)
+      .maybeSingle(),
   ]);
 
   const { components: hc, penalties } = health;
@@ -76,6 +84,12 @@ export async function POST(req: Request) {
   const healthScore = Math.max(0, Math.round(100 - avgRisk - penalties.inactivity - penalties.inventory - penalties.watchItems));
   const overdueCount = hc.filter((c) => c.status === "overdue").length;
   const dueSoonCount = hc.filter((c) => c.status === "due soon").length;
+
+  const fuelTankLitres = (boat as { fuel_tank_litres?: number | null }).fuel_tank_litres ?? null;
+  const fuelCurrentLitres = fuelItemRes.data ? Number(fuelItemRes.data.quantity) : null;
+  const fuelPct = fuelTankLitres && fuelTankLitres > 0 && fuelCurrentLitres != null
+    ? Math.min(1, Math.max(0, fuelCurrentLitres / fuelTankLitres))
+    : null;
 
   const recentTrips = tripsRes.data ?? [];
   const recentMaintenance = maintenanceRes.data ?? [];
@@ -139,5 +153,6 @@ Instructions:
     engineHours: engineHoursRes.data ?? 0,
     tripCount: recentTrips.length,
     daysSinceTrip,
+    fuelPct,
   });
 }

@@ -15,10 +15,10 @@ export async function GET(req: Request) {
 
   const selectedId = await getSelectedBoatId();
 
-  type BoatRow = { id: string; name: string; type: string | null; created_at: string };
+  type BoatRow = { id: string; name: string; type: string | null; created_at: string; fuel_tank_litres: number | null };
   const { data: boats } = await supabase
     .from("boats")
-    .select("id,name,type,created_at")
+    .select("id,name,type,created_at,fuel_tank_litres")
     .order("created_at", { ascending: true });
 
   const boatList = (boats ?? []) as BoatRow[];
@@ -26,7 +26,7 @@ export async function GET(req: Request) {
 
   const boat: BoatRow = boatList.find((b) => b.id === selectedId) ?? boatList[0];
 
-  const [health, inventoryRes, engineHoursRes, tripsRes, maintenanceRes] = await Promise.all([
+  const [health, inventoryRes, engineHoursRes, tripsRes, maintenanceRes, fuelItemRes] = await Promise.all([
     getBoatHealth(boat.id, supabase),
     supabase
       .from("inventory_items")
@@ -46,11 +46,25 @@ export async function GET(req: Request) {
       .eq("boat_id", boat.id)
       .order("performed_at", { ascending: false })
       .limit(50),
+    supabase
+      .from("inventory_items")
+      .select("quantity")
+      .eq("boat_id", boat.id)
+      .or("name.ilike.%fuel%,name.ilike.%diesel%,name.ilike.%petrol%,name.ilike.%gasoline%")
+      .order("name")
+      .limit(1)
+      .maybeSingle(),
   ]);
+
+  const fuelTankLitres = boat.fuel_tank_litres ?? null;
+  const fuelCurrentLitres = fuelItemRes.data ? Number(fuelItemRes.data.quantity) : null;
+  const fuelPct = fuelTankLitres && fuelTankLitres > 0 && fuelCurrentLitres != null
+    ? Math.min(1, Math.max(0, fuelCurrentLitres / fuelTankLitres))
+    : null;
 
   return Response.json({
     generatedAt: new Date().toISOString(),
-    boat: { name: boat.name, type: boat.type },
+    boat: { name: boat.name, type: boat.type, fuelTankLitres, fuelCurrentLitres, fuelPct },
     engineHours: engineHoursRes.data ?? 0,
     health: health.components,
     inventory: inventoryRes.data ?? [],
