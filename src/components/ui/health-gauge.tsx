@@ -103,7 +103,7 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11,
           {fuelPct != null && (() => {
             const labelR = fuelR + fuelStrokeWidth / 2 + 5;
             const d = labelR * Math.SQRT1_2; // cos/sin of 45°
-            const fontSize = Math.max(7, fuelStrokeWidth * 1.6);
+            const fontSize = Math.max(10, size * 0.085);
             return (
               <>
                 <text x={cx - d} y={cy + d} textAnchor="middle" dominantBaseline="middle"
