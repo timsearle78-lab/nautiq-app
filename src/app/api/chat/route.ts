@@ -510,9 +510,10 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
                 knownHealth.length > 0
                   ? knownHealth.reduce((s, c) => s + (c.risk_score ?? 0), 0) / knownHealth.length
                   : 0;
-              const healthScore = Math.max(0, Math.round(100 - avgRisk - pen2.inactivity - pen2.inventory));
+              const healthScore = Math.max(0, Math.round(100 - avgRisk - pen2.inactivity - pen2.inventory - pen2.watchItems));
               const overdueCount = hc2.filter((c) => c.status === "overdue").length;
               const dueSoonCount = hc2.filter((c) => c.status === "due soon").length;
+              const unresolvedWatchCount = pen2.watchItemCount;
 
               const recentTrips = tripsRes.data ?? [];
               const recentMaintenance = maintenanceRes.data ?? [];
@@ -528,6 +529,7 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
                 `Health score: ${healthScore}/100`,
                 `Overdue items: ${overdueCount}`,
                 `Due soon: ${dueSoonCount}`,
+                unresolvedWatchCount > 0 ? `Unresolved watch list items: ${unresolvedWatchCount}` : null,
                 `Trips in last 30 days: ${recentTrips.length}`,
                 daysSinceTrip !== null
                   ? `Last trip: ${daysSinceTrip} day${daysSinceTrip !== 1 ? "s" : ""} ago`
@@ -535,7 +537,7 @@ The UI renders tool results as formatted cards automatically — do NOT add any 
                 recentMaintenance.length > 0
                   ? `Maintenance in last 30 days: ${recentMaintenance.map((m) => m.work_done).filter(Boolean).join(", ")}`
                   : "No maintenance logged in the last 30 days",
-              ].join("\n");
+              ].filter(Boolean).join("\n");
 
               const { text: greetingText } = await generateText({
                 model: createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })("claude-haiku-4-5-20251001"),
@@ -552,6 +554,7 @@ Instructions:
 - If health score < 60 or overdue count > 0: gently encourage them to tackle something specific
 - If they haven't been out in 14+ days or have no trips: encourage them to get the boat out
 - Mention logging diesel top-ups or trips if relevant
+- Only mention watch list items if "Unresolved watch list items" appears explicitly in the context above — never assume or invent them.
 - Keep it to 3-5 sentences. Plain text — no markdown, no bullet points.
 - Never mention the owner's name. Refer to the boat by name.`,
               });
