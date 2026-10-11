@@ -101,16 +101,16 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11,
           )}
           {/* E / F labels at arc endpoints */}
           {fuelPct != null && (() => {
-            const labelR = fuelR + fuelStrokeWidth / 2 + 5;
+            const labelR = fuelR + fuelStrokeWidth / 2 + 8;
             const d = labelR * Math.SQRT1_2; // cos/sin of 45°
-            const fontSize = Math.max(10, size * 0.085);
+            const fontSize = Math.max(11, size * 0.11);
             return (
               <>
                 <text x={cx - d} y={cy + d} textAnchor="middle" dominantBaseline="middle"
-                  fontSize={fontSize} fontWeight="700" fill="rgba(255,255,255,0.45)"
+                  fontSize={fontSize} fontWeight="700" fill="rgba(255,255,255,0.55)"
                   style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>E</text>
                 <text x={cx + d} y={cy + d} textAnchor="middle" dominantBaseline="middle"
-                  fontSize={fontSize} fontWeight="700" fill="rgba(255,255,255,0.45)"
+                  fontSize={fontSize} fontWeight="700" fill="rgba(255,255,255,0.55)"
                   style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>F</text>
               </>
             );
