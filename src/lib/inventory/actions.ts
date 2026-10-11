@@ -37,6 +37,7 @@ export async function createInventoryItem(
     const unit = String(formData.get("unit") ?? "").trim() || null;
     const storage_location = String(formData.get("storage_location") ?? "").trim() || null;
     const notes = String(formData.get("notes") ?? "").trim() || null;
+    const expiry_date = String(formData.get("expiry_date") ?? "").trim() || null;
     const is_critical = formData.get("is_critical") === "on";
 
     if (!boat_id) return { error: "Boat is required." };
@@ -59,6 +60,7 @@ export async function createInventoryItem(
       unit,
       storage_location,
       notes,
+      expiry_date,
       is_critical,
     });
 

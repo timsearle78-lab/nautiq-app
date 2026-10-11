@@ -106,9 +106,14 @@ export function AddInventoryItemForm({
             <input name="sku" className={inputCls} placeholder="Optional item number" />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Notes</label>
-            <input name="notes" className={inputCls} placeholder="e.g. fits YSM12" />
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Expiry date</label>
+            <input name="expiry_date" type="date" className={inputCls} />
           </div>
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700">Notes</label>
+          <textarea name="notes" rows={3} className={`${inputCls} resize-none`} placeholder="e.g. fits YSM12" />
         </div>
 
         <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer">
