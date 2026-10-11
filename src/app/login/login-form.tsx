@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import NautiqLogo from "@/components/ui/nautiq-logo";
 
 export default function LoginForm() {
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [staySignedIn, setStaySignedIn] = useState(true);
@@ -28,7 +30,8 @@ export default function LoginForm() {
         body: JSON.stringify({ persist: staySignedIn }),
       });
       setStatus("Signed in successfully.");
-      window.location.href = "/chat";
+      const next = searchParams.get("next");
+      window.location.href = next && next.startsWith("/") ? next : "/chat";
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Failed to sign in.");
     } finally {
