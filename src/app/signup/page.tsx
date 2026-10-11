@@ -109,7 +109,7 @@ export default function SignupPage() {
             </h1>
             <p className="mt-3 leading-6" style={{ fontSize: 14, color: "rgba(159,186,206,0.85)" }}>
               Log trips, track maintenance, forecast service work, and stay
-              ahead of critical spares.
+              ahead of what matters.
             </p>
           </div>
           <div

@@ -11,13 +11,13 @@ export const HELP_SECTIONS: HelpSection[] = [
   {
     id: "overview",
     title: "What is NautIQ?",
-    content: `NautIQ is a boat management app that helps you stay on top of maintenance, track your time on the water, and manage your spare parts — all in one place.
+    content: `NautIQ is a boat management app that helps you stay on top of maintenance, track your time on the water, and manage everything on board — all in one place.
 
 The app has five main areas:
 - Home (Chat): Your AI assistant. Ask questions, log trips by voice, update inventory, get maintenance reminders, and download a boat report.
 - Trips: A log of every time you've been out on the water, with engine hours and fuel tracking.
 - Maintain: An overview of all your boat's components and their service status. Tells you what's overdue, due soon, or healthy.
-- Inventory: A list of all your spare parts and supplies, with stock levels and low-stock alerts.
+- Inventory: A register of everything on board — spare parts, safety equipment, consumables, tools, and gear — with stock levels and expiry tracking.
 - Profile: Account settings, boat details, boat report PDF download, and this help guide.`,
   },
   {
@@ -91,7 +91,7 @@ Each component has a service interval defined in time (months/years) and/or engi
 To log maintenance:
 1. Go to the Maintain tab and tap a component, or go directly to a component's page from anywhere in the app.
 2. Tap the "Log Maintenance" button at the top of the component page.
-3. Fill in the date, work done, engine hours at the time of service, vendor, and any notes. You can also mark a spare part as consumed.
+3. Fill in the date, work done, engine hours at the time of service, vendor, and any notes. You can also mark an inventory item as consumed.
 4. Optionally attach up to 3 photos — tap "Camera" to take a photo or "Choose" to pick from your device's library. Thumbnails appear in the form and can be removed before saving.
 5. Tap "Save maintenance record." Photos are uploaded automatically after the record is saved.
 
@@ -180,8 +180,8 @@ Send test email: tap this button to immediately send yourself a test email based
   },
   {
     id: "inventory",
-    title: "How to manage spare parts (inventory)",
-    content: `The Inventory tab shows all your spare parts and supplies. Each item has a current quantity and an optional minimum quantity — when stock drops below the minimum, it shows as low stock.
+    title: "How to manage inventory",
+    content: `The Inventory tab is your on-board register — record everything on the boat: spare parts, safety equipment (EPIRB, PLB, VHF, life jackets, flares, fire extinguishers), tools, consumables, and anything else you want to track. Each item has a current quantity and an optional minimum quantity — when stock drops below the minimum, it shows as low stock.
 
 To filter inventory, tap any of the coloured stat tiles at the top of the Inventory page:
 - Tap "Low stock", "Critical missing", "Stocked", or "Expiring soon" to show only items in that category.
@@ -195,7 +195,7 @@ To add an item manually:
 2. Fill in the name, quantity, unit (ea, L, kg, etc.), category, and optionally link it to a maintenance component.
 3. Add an expiry date if the item has one (e.g. flares, first aid supplies, fire extinguishers).
 4. Add notes for any details like fitting info or service notes.
-5. Mark it as a critical spare if it's essential for safety or operation.
+5. Mark it as a critical item if it's essential for safety or operation.
 
 To scan an item:
 1. Open the ☰ menu and tap "Scan item."
@@ -209,7 +209,7 @@ To adjust stock (used or restocked a part):
 - You can also say to the AI: "I used 2 oil filters" or "I bought a new impeller."
 - Tap "Restock item" or "Used item" below the chat box for a quick shortcut.
 
-Linking spares to components: When a spare is linked to a component, low stock for that spare increases the component's risk score — so you'll be reminded to restock before you need to service it.
+Linking items to components: When an inventory item is linked to a component, low stock increases the component's risk score — so you'll be reminded to restock before you need to service it.
 
 Expiry dates: You can record an expiry date on any inventory item (e.g. flares, first aid supplies, epoxy, fuel treatment). Items expiring within 90 days show an amber "Exp. Xd" badge; expired items show a red "Expired" badge. The Inventory page shows an "Expiring soon" tile so you can see at a glance how many items need attention. Expired and near-expired critical items also increase your boat's health risk score.
 
@@ -225,9 +225,9 @@ Photos: You can attach up to 3 photos to any inventory item — useful for showi
 INVENTORY: one item per physical location, or one item per interchangeable batch
 
 Use a separate inventory item for each physically distinct item that has its own location or its own expiry date:
-- "Fire extinguisher — cockpit" (qty: 1, location: Cockpit, expiry: Jan 2027, critical spare: yes)
-- "Fire extinguisher — saloon" (qty: 1, location: Saloon, expiry: Mar 2026, critical spare: yes)
-- "Fire extinguisher — engine bay" (qty: 1, location: Engine bay, expiry: Jan 2027, critical spare: yes)
+- "Fire extinguisher — cockpit" (qty: 1, location: Cockpit, expiry: Jan 2027, critical item: yes)
+- "Fire extinguisher — saloon" (qty: 1, location: Saloon, expiry: Mar 2026, critical item: yes)
+- "Fire extinguisher — engine bay" (qty: 1, location: Engine bay, expiry: Jan 2027, critical item: yes)
 
 This way each extinguisher's expiry is tracked independently and you'll get an alert for the one that's coming due, not a single merged expiry for all of them.
 
@@ -248,7 +248,7 @@ Fire extinguisher check:
 1. Go to Maintain → Add component.
 2. Name it "Fire extinguisher check" and put it in the Safety system.
 3. Set a time-based service interval — e.g. every 12 months.
-4. Link the fire extinguisher inventory items to this component (Linked spare → select each extinguisher).
+4. Link the fire extinguisher inventory items to this component (Linked inventory items → select each extinguisher).
 
 This means:
 - The component will show as due when the annual check is approaching.
@@ -281,7 +281,7 @@ You can also email a maintenance note to log@nautiq.cloud and NautIQ will parse 
 Things you can ask or say:
 - "What maintenance is due?" → shows overdue and upcoming service items.
 - "How's the boat doing?" → shows the overall health score and urgent items.
-- "What spares am I low on?" → shows your inventory status.
+- "What am I low on?" → shows your inventory status.
 - "I did an oil change today" → creates a maintenance record (AI parses the work, you review and save).
 - "I serviced the engine" or "changed the impeller" → same as above — any maintenance statement triggers a draft card.
 - "I went sailing for 3 hours today" → logs a trip (AI parses your words).
@@ -296,7 +296,7 @@ Quick actions menu: tap the ☰ button (top left of the chat screen) to open a m
 - Log Maintenance
 - Scan item: tap "Scan item," then choose to take a photo or pick from your device to identify and add a part to inventory.
 - Restock item: quickly log that you bought new parts.
-- Used item: quickly log that you consumed a spare.
+- Used item: quickly log that you consumed an inventory item.
 - New chat: clear the conversation and start fresh (appears when there are messages).
 
 To reset the conversation, open the ☰ menu and tap "New chat". This clears the current chat without deleting any saved data.
@@ -327,11 +327,11 @@ The PDF is generated on your device and saved automatically to your downloads fo
   {
     id: "health",
     title: "Understanding the health score",
-    content: `The health score (0–100) represents the overall condition of your boat's maintenance. A score of 100 means everything is within service intervals and well-stocked. The score drops as components approach or exceed their service intervals, or when linked spare parts run low.
+    content: `The health score (0–100) represents the overall condition of your boat's maintenance. A score of 100 means everything is within service intervals and well-stocked. The score drops as components approach or exceed their service intervals, or when linked inventory items run low.
 
 How the score is calculated:
 - Each component gets a risk score based on how far through its service interval it is (time and/or engine hours). Components that are more than 85% through their interval are marked "due soon" and start contributing risk; overdue components contribute more (quadratic scale).
-- Inventory penalties are added to a component's risk if linked spares are low (out of stock: +25–40, below minimum: +15–25, at minimum: +5–10 — critical items are penalised more).
+- Inventory penalties are added to a component's risk if linked inventory items are low (out of stock: +25–40, below minimum: +15–25, at minimum: +5–10 — critical items are penalised more).
 - The component risk scores are averaged and subtracted from 100.
 - An inactivity penalty is then subtracted directly (not averaged): −15 pts if no trips, maintenance, or visits in 30–59 days; −35 pts for 60–89 days; −60 pts for 90+ days. This always has a visible impact.
 - Unresolved watch items that have been sitting too long also subtract directly: −5 pts each for items 7–29 days old, −10 pts each for 30–59 days old, −20 pts each for 60+ days old, capped at −40 pts total. Resolving the watch items removes the penalty.
@@ -342,7 +342,7 @@ The score and breakdown are shown on the Home screen and in the health banner at
 Home screen dashboard tiles: The four tiles next to the gauge on the Home screen highlight the most important issues.
 - "Maint. overdue" (red): number of components past their service interval.
 - "Due soon" (amber): components approaching their service interval.
-- "Critical low" (red) or "Spares low" (amber): shown instead of the healthy count when inventory items drop below their minimum stock level. Critical items are highlighted in red.
+- "Critical low" (red) or "Stock low" (amber): shown instead of the healthy count when inventory items drop below their minimum stock level. Critical items are highlighted in red.
 - "Engine hrs": total engine hours logged.
 
 The "Needs attention" list below the gauge shows individual overdue or due-soon maintenance items (tap to open the component) and any low-stock inventory items (tap to open the inventory item). If everything is fine, a green "All clear" banner is shown.`,
@@ -409,9 +409,9 @@ Notes:
 export const HELP_SYSTEM_PROMPT = `
 APP USAGE GUIDE (answer "how do I" questions using this):
 
-OVERVIEW: NautIQ has 5 sections — Home/Chat (AI assistant), Trips (engine hours log), Maintain (component service tracking), Inventory (spare parts), Profile (settings/help/report).
+OVERVIEW: NautIQ has 5 sections — Home/Chat (AI assistant), Trips (engine hours log), Maintain (component service tracking), Inventory (on-board register of parts, safety equipment, consumables, tools, and gear), Profile (settings/help/report).
 
-GETTING STARTED: After creating your boat, the Home screen shows prompt cards if you haven't logged a trip or added spare parts yet. Tap "Log a trip" or "Add spares" on those cards to get started, or dismiss them with the X. Once you've completed the action, the card won't appear again.
+GETTING STARTED: After creating your boat, the Home screen shows prompt cards if you haven't logged a trip or added inventory yet. Tap "Log a trip" or "Add items" on those cards to get started, or dismiss them with the X. Once you've completed the action, the card won't appear again.
 
 BOAT SETUP: First-time wizard asks for name, type, propulsion, hull design, hull material, and an optional free-text description — then creates systems and components automatically. Edit boat specs (name, type, propulsion, hull design, hull material, dimensions: length/beam/draft, photo, description) in Profile → Settings → Your boats. Add more boats via the "Add a new boat" section at the bottom of Settings. Switch boats via the top-right selector. To delete a boat, tap "Permanently delete this boat" in its settings card and confirm by typing the boat name — this removes all data and cannot be undone. Boat specs and description refine component suggestions and AI advice.
 
@@ -431,7 +431,7 @@ MAINTENANCE: Each component has a time/engine-hour service interval. NautIQ uses
 
 COMPONENTS & SYSTEMS: Components = individual parts needing service (engine, impeller, life jackets…). Systems = groups (Engine, Safety, Electrical…). Add/edit from Maintain tab. Delete from Danger Zone on component page.
 
-INVENTORY: Add items via "+ Add item" or camera "Scan item" on Home. Adjust stock by saying "I used X" or "I bought X" to the AI, or via the Restock item / Used item chips, or from the item's page. Use the "Low stock only" toggle on the Inventory page to filter instantly. Link spares to components so low stock raises the risk score. Set an expiry date on items like flares, first aid supplies, or fuel treatment — items expiring within 90 days show an amber badge; expired items show red. The "Expiring soon" tile on the Inventory page shows the count at a glance. Expired critical items increase the boat health risk score. Photos: Each inventory item can have up to 3 photos. Open the item's edit page (tap the pencil icon) and scroll to Photos — tap "Upload" to choose an image from your device or "Camera" to take a photo. Tap a thumbnail to view full size. Remove a photo with the X on the thumbnail or the Remove button in full-size view.
+INVENTORY: The inventory is the on-board register — record everything on the boat: spare parts, safety equipment (EPIRB, PLB, VHF, life jackets, flares, fire extinguishers), tools, consumables, and any other gear. Add items via "+ Add item" or camera "Scan item" on Home. Adjust stock by saying "I used X" or "I bought X" to the AI, or via the Restock item / Used item chips, or from the item's page. Link items to components so low stock raises the risk score. Set an expiry date on items like flares, fire extinguishers, first aid supplies, or fuel treatment — items expiring within 90 days show an amber badge; expired items show red. The "Expiring soon" tile on the Inventory page shows the count at a glance. Expired critical items increase the boat health risk score. Photos: Each inventory item can have up to 3 photos. Open the item's edit page (tap the pencil icon) and scroll to Photos — tap "Upload" to choose an image from your device or "Camera" to take a photo. Tap a thumbnail to view full size. Remove a photo with the X on the thumbnail or the Remove button in full-size view.
 
 INVENTORY & MAINTENANCE BEST PRACTICES: Use a SEPARATE inventory item for each physically distinct item that has its own location or expiry date (e.g. three fire extinguishers in different locations = three records, each with its own expiry). Use a SINGLE item with higher quantity for identical interchangeable parts stored together (e.g. 3 alternator belts in the spares locker = one record, qty 3, min qty 1). Use a consistent category (e.g. "Safety") to group related items. Create a MAINTENANCE COMPONENT for every recurring inspection task, not just physical parts — e.g. "Fire extinguisher check" in the Safety system with a 12-month interval. Link the extinguisher inventory items to that component so low stock raises the risk score automatically. Log a maintenance record every time you carry out the check — fill in date, work done, and notes for a permanent inspection history. Other inspection components to set up: life jacket inspection (annual), EPIRB check (annual), bilge pump test (3 months), flare check (annual — link flare inventory with expiry dates).
 
@@ -439,7 +439,7 @@ BOAT REPORT / PDF: Say "download a boat report" or "send me a PDF summary" to ge
 
 NOTIFICATIONS: Configure in Profile → Settings → Notifications. Options: (1) Notification email — defaults to your login email; enter another address to redirect alerts. (2) Boat health summary — Off / Daily / Weekly; emails only sent while issues exist. Weekly mode shows a day-of-week picker. (3) Overdue maintenance alerts — checkbox; sends an email when a component goes overdue, at most once per component per 7 days. Tap "Save preferences" to save. Use "Check now" to trigger an immediate check (sends emails if issues found).
 
-HEALTH SCORE: 0–100. Drops as components go overdue, spares run low, or inventory expires. Shown on the Home screen and in the header. Tap the score to open the Boat Health page — it explains exactly why the score is what it is, lists overdue maintenance, due-soon items, and inventory issues, and gives a specific recommendation for each item to restore the score to 100. The Home screen shows four tiles: "Maint. overdue" (red), "Due soon" (amber), an inventory tile ("Critical low" in red or "Spares low" in amber when stock is low, else "Healthy" in green), and "Engine hrs". A "Needs attention" list below the gauge shows individual overdue/due-soon maintenance items and low-stock inventory items; tap any row to go to that component or inventory item.
+HEALTH SCORE: 0–100. Drops as components go overdue, inventory items run low, or items expire. Shown on the Home screen and in the header. Tap the score to open the Boat Health page — it explains exactly why the score is what it is, lists overdue maintenance, due-soon items, and inventory issues, and gives a specific recommendation for each item to restore the score to 100. The Home screen shows four tiles: "Maint. overdue" (red), "Due soon" (amber), an inventory tile ("Critical low" in red or "Spares low" in amber when stock is low, else "Healthy" in green), and "Engine hrs". A "Needs attention" list below the gauge shows individual overdue/due-soon maintenance items and low-stock inventory items; tap any row to go to that component or inventory item.
 
 VOICE: Every notes field has a mic button. The main mic button on Home sends voice messages to the AI.
 
@@ -464,7 +464,7 @@ HOME ICON: Tapping the Home tab in the bottom navigation when you're already on 
 BOAT CO-OWNERSHIP / SYNDICATE: Share a boat with crewmates or co-owners. In Profile → Settings → Your boats, open the "Co-owners" section for a boat and tap "Generate invite link." Send the link to the person you want to add — they follow the link, create an account or sign in, and the boat is added to their NautIQ. Both owners see the same boat, trips, maintenance records, and inventory. The boat owner can remove a co-owner from the same Co-owners panel. To accept an invite, the recipient must be signed in; if not, the link prompts them to sign in or create an account first.
 
 HEALTH SCORE BREAKDOWN: The boat health score is 100 minus penalties applied in sequence:
-1. Component risk average: Each component with a known service interval is assessed. "OK" components (less than 85% through their interval) contribute 0 risk. Components 85–100% through their interval contribute linearly up to 100 risk points. Overdue components contribute 100+ (quadratic — the longer overdue, the worse). Inventory penalties (low/out-of-stock/expired spares) are added to the linked component's risk score. The average of all component risk scores is subtracted from 100.
+1. Component risk average: Each component with a known service interval is assessed. "OK" components (less than 85% through their interval) contribute 0 risk. Components 85–100% through their interval contribute linearly up to 100 risk points. Overdue components contribute 100+ (quadratic — the longer overdue, the worse). Inventory penalties (low/out-of-stock/expired inventory items) are added to the linked component's risk score. The average of all component risk scores is subtracted from 100.
 2. Inactivity penalty (direct deduction — not diluted): If the boat hasn't had a trip, maintenance event, or check-in in 30+ days, a penalty is subtracted directly: 30–59 days = −15 pts, 60–89 days = −35 pts, 90+ days = −60 pts.
 3. Watch item penalty (direct deduction): Unresolved maintenance watch items left too long reduce the score — 7–29 days old = −5 pts each, 30–59 days old = −10 pts each, 60+ days old = −20 pts each. Capped at −40 pts total. Resolving the watch items removes the penalty.
 To explain "why is my score X?": list overdue components, due-soon components, inventory issues, inactivity penalty, and unresolved watch items. The Health page also shows a "Why X/100?" explanation automatically.

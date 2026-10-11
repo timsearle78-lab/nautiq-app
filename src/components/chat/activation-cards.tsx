@@ -77,7 +77,7 @@ export function NoInventoryCard() {
             <Package size={14} color="#FFFFFF" />
           </div>
           <div className="min-w-0 flex-1">
-            <p style={{ fontSize: 15, fontWeight: 800, color: "var(--color-navy-700)" }}>Add your first spare parts</p>
+            <p style={{ fontSize: 15, fontWeight: 800, color: "var(--color-navy-700)" }}>Build your inventory</p>
             <p style={{ fontSize: 13, color: "var(--color-navy-mute)", marginTop: 2, lineHeight: 1.5 }}>
               Keep track of what&apos;s on board — oil filters, impellers, flares, first aid kit. NautIQ alerts you when stocks run low or items expire.
             </p>
@@ -89,7 +89,7 @@ export function NoInventoryCard() {
             className="flex items-center gap-1.5 btn-primary px-4 py-2"
             style={{ fontSize: 13, minHeight: "auto", borderRadius: 8 }}
           >
-            Add spares
+            Add items
             <ChevronRight size={12} />
           </Link>
           <span style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>or scan a product with the camera</span>

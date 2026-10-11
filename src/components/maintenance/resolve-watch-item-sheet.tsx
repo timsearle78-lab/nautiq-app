@@ -186,7 +186,7 @@ export default function ResolveWatchItemSheet({
           {inventoryOptions.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Spare parts used <span className="text-xs font-normal text-slate-400">(optional)</span>
+                Items used <span className="text-xs font-normal text-slate-400">(optional)</span>
               </label>
               <select name="inventory_item_id" defaultValue="" className="select-field">
                 <option value="">None</option>

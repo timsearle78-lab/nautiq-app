@@ -43,7 +43,7 @@ function issueLabel(issue: InventoryIssue): { text: string; style: React.CSSProp
 function recommendation(issue: InventoryIssue): string {
   if (issue.issue === "expired") return `Replace expired ${issue.name}`;
   if (issue.issue === "expiring_soon") return `Replace ${issue.name} before it expires`;
-  if (issue.issue === "out_of_stock") return `Restock ${issue.name} — ${issue.is_critical ? "critical spare, zero on hand" : "currently out of stock"}`;
+  if (issue.issue === "out_of_stock") return `Restock ${issue.name} — ${issue.is_critical ? "critical item, zero on hand" : "currently out of stock"}`;
   // low_stock
   const min = issue.minimum_quantity ?? 0;
   const unit = issue.unit ? ` ${issue.unit}` : "";
