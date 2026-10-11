@@ -270,7 +270,7 @@ function buildHealthSummaryEmail(boatName: string, score: number, overdue: Compo
     <tr><td style="padding:16px 32px;border-top:1px solid #EEF1F5;text-align:center;background:#F8FAFC;">
       <p style="color:#8593A0;font-size:12px;margin:0;line-height:1.6;${EMAIL_BODY_FONT}">
         You're receiving this because you enabled health summary emails in NautIQ.<br>
-        <a href="${APP_URL}/settings" style="color:#0B7EB8;text-decoration:none;">Manage notification preferences</a>
+        To unsubscribe, go to <a href="${APP_URL}/settings" style="color:#0B7EB8;text-decoration:none;">Settings → Notifications</a> and turn off email alerts.
       </p>
     </td></tr>`;
 
@@ -308,7 +308,7 @@ function buildAllClearEmail(boatName: string, score: number, okCount: number, fu
     <tr><td style="padding:16px 32px;border-top:1px solid #EEF1F5;text-align:center;background:#F8FAFC;">
       <p style="color:#8593A0;font-size:12px;margin:0;line-height:1.6;${EMAIL_BODY_FONT}">
         You're receiving this because you enabled health summary emails in NautIQ.<br>
-        <a href="${APP_URL}/settings" style="color:#0B7EB8;text-decoration:none;">Manage notification preferences</a>
+        To unsubscribe, go to <a href="${APP_URL}/settings" style="color:#0B7EB8;text-decoration:none;">Settings → Notifications</a> and turn off email alerts.
       </p>
     </td></tr>`;
 
@@ -358,8 +358,8 @@ function buildOverdueAlertEmail(boatName: string, component: ComponentHealth) {
     <!-- Footer -->
     <tr><td style="padding:16px 32px;border-top:1px solid #EEF1F5;text-align:center;background:#F8FAFC;">
       <p style="color:#8593A0;font-size:12px;margin:0;line-height:1.6;${EMAIL_BODY_FONT}">
-        You're receiving this because you enabled overdue alerts in NautIQ.<br>
-        <a href="${APP_URL}/settings" style="color:#0B7EB8;text-decoration:none;">Manage notification preferences</a>
+        You're receiving this because you enabled overdue maintenance alerts in NautIQ.<br>
+        To unsubscribe, go to <a href="${APP_URL}/settings" style="color:#0B7EB8;text-decoration:none;">Settings → Notifications</a> and turn off email alerts.
       </p>
     </td></tr>`;
 
