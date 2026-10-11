@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 interface HealthGaugeProps {
   score: number;
   overdueCount: number;
@@ -24,6 +26,11 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11,
   const progress = Math.max(0, Math.min(1, score / 100)) * arcLength;
 
   const { stroke, text, label } = gaugeColor(score, overdueCount);
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { const id = requestAnimationFrame(() => setMounted(true)); return () => cancelAnimationFrame(id); }, []);
+  const animatedProgress = mounted ? progress : 0;
+  const animatedFuelProgress = mounted ? fuelProgress : 0;
 
   const fuelStrokeWidth = strokeWidth;
   const fuelGap = 5;
@@ -74,9 +81,9 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11,
         {/* Health arc progress */}
         <circle cx={cx} cy={cy} r={r} fill="none"
           stroke={stroke} strokeWidth={strokeWidth}
-          strokeDasharray={`${progress} ${circumference - progress}`} strokeLinecap="round"
+          strokeDasharray={`${animatedProgress} ${circumference - animatedProgress}`} strokeLinecap="round"
           transform={`rotate(135 ${cx} ${cy})`}
-          style={{ transition: "stroke-dasharray 0.6s ease" }} />
+          style={{ transition: "stroke-dasharray 0.7s ease" }} />
 
         {/* Fuel ring track */}
         {fuelPct != null && (
@@ -87,12 +94,12 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11,
         )}
 
         {/* Fuel ring fill */}
-        {fuelPct != null && fuelProgress > 0 && (
+        {fuelPct != null && fuelProgress >= 0 && (
           <circle cx={cx} cy={cy} r={fuelR} fill="none"
             stroke={fuelColor!} strokeWidth={fuelStrokeWidth}
-            strokeDasharray={`${fuelProgress} ${fuelCircumference - fuelProgress}`} strokeLinecap="round"
+            strokeDasharray={`${animatedFuelProgress} ${fuelCircumference - animatedFuelProgress}`} strokeLinecap="round"
             transform={`rotate(135 ${cx} ${cy})`}
-            style={{ transition: "stroke-dasharray 0.6s ease" }} />
+            style={{ transition: "stroke-dasharray 0.9s ease 0.2s" }} />
         )}
 
         {/* E / F labels — backed by small navy circles so they read on any background */}
