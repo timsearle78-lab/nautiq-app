@@ -55,6 +55,7 @@ interface ChatInterfaceProps {
   hasTrips: boolean;
   hasInventory: boolean;
   lastActivityDate: string | null;
+  fuelPct?: number | null;
 }
 
 function useCountUp(target: number, decimals = 0, duration = 650) {
@@ -109,12 +110,13 @@ function daysSince(isoDate: string) {
   return Math.max(0, Math.floor((now.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)));
 }
 
-function NavyHero({ boat, healthScore, overdueCount, engineHours, lastActivityDate }: {
+function NavyHero({ boat, healthScore, overdueCount, engineHours, lastActivityDate, fuelPct }: {
   boat: Boat;
   healthScore: number;
   overdueCount: number;
   engineHours: number;
   lastActivityDate: string | null;
+  fuelPct?: number | null;
 }) {
   const daysSinceActivity = lastActivityDate ? daysSince(lastActivityDate) : null;
   const activityWarning = daysSinceActivity != null && daysSinceActivity >= 30;
@@ -124,7 +126,7 @@ function NavyHero({ boat, healthScore, overdueCount, engineHours, lastActivityDa
       <div className="flex items-center gap-4">
         {/* Gauge */}
         <Link href="/health" className="hover:opacity-80 transition-opacity flex-shrink-0">
-          <HealthGauge score={healthScore} overdueCount={overdueCount} size={110} />
+          <HealthGauge score={healthScore} overdueCount={overdueCount} size={110} fuelPct={fuelPct} />
         </Link>
         {/* Right side */}
         <div className="flex-1 min-w-0">
@@ -259,7 +261,7 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
   );
 }
 
-export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, hideGreeting, hideWhatsNew, hasTrips, hasInventory, lastActivityDate }: ChatInterfaceProps) {
+export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, hideGreeting, hideWhatsNew, hasTrips, hasInventory, lastActivityDate, fuelPct }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [showWatchItemSheet, setShowWatchItemSheet] = useState(false);
@@ -485,6 +487,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
               overdueCount={overdueCount}
               engineHours={engineHours}
               lastActivityDate={lastActivityDate}
+              fuelPct={fuelPct}
             />
             {/* Action cards below health */}
             {tripDrafts.map((draft) => (

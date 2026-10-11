@@ -41,7 +41,7 @@ export default async function ChatPage() {
 
   if (!boat) redirect("/onboarding");
 
-  const [engineHoursRes, health, componentsRes, inventoryRes, tripsCountRes, pendingDrafts, pendingTripDrafts, userSettingsRes, lastTripRes, lastCheckinRes] = await Promise.all([
+  const [engineHoursRes, health, componentsRes, inventoryRes, tripsCountRes, pendingDrafts, pendingTripDrafts, userSettingsRes, lastTripRes, lastCheckinRes, boatDetailsRes, fuelItemRes] = await Promise.all([
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
     getBoatHealth(boat.id),
     supabase.from("components").select("id, name").eq("boat_id", boat.id).order("name"),
@@ -52,6 +52,8 @@ export default async function ChatPage() {
     supabase.from("user_settings").select("hide_greeting, hide_whats_new").eq("user_id", user.id).single(),
     supabase.from("trips").select("started_at").eq("boat_id", boat.id).not("started_at", "is", null).order("started_at", { ascending: false }).limit(1),
     supabase.from("boat_checkins").select("checked_at").eq("boat_id", boat.id).order("checked_at", { ascending: false }).limit(1),
+    supabase.from("boats").select("fuel_tank_litres").eq("id", boat.id).single(),
+    supabase.from("inventory_items").select("quantity").eq("boat_id", boat.id).or("name.ilike.%fuel%,name.ilike.%diesel%,name.ilike.%petrol%,name.ilike.%gasoline%").order("name").limit(1).maybeSingle(),
   ]);
 
   const components = (componentsRes.data ?? []) as { id: string; name: string }[];
@@ -73,6 +75,12 @@ export default async function ChatPage() {
   const lastActivityDate = [lastTripDate, lastCheckinDate].filter(Boolean).sort().reverse()[0] ?? null;
   const hideGreeting = userSettings?.hide_greeting ?? false;
   const hideWhatsNew = userSettings?.hide_whats_new ?? false;
+
+  const fuelTankLitres = (boatDetailsRes.data?.fuel_tank_litres as number | null) ?? null;
+  const fuelCurrentLitres = fuelItemRes.data ? Number(fuelItemRes.data.quantity) : null;
+  const fuelPct = fuelTankLitres && fuelTankLitres > 0 && fuelCurrentLitres != null
+    ? Math.min(1, Math.max(0, fuelCurrentLitres / fuelTankLitres))
+    : null;
 
   const { components: rawHealthComponents, penalties } = health;
   const healthComponents = rawHealthComponents.filter((r) => !r.component_id.startsWith("__"));
@@ -109,6 +117,7 @@ export default async function ChatPage() {
       hasTrips={hasTrips}
       hasInventory={hasInventory}
       lastActivityDate={lastActivityDate}
+      fuelPct={fuelPct}
     />
   );
 }
