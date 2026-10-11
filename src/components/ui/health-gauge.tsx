@@ -27,17 +27,17 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11,
 
   const { stroke, text, label } = gaugeColor(score, overdueCount);
 
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { const id = requestAnimationFrame(() => setMounted(true)); return () => cancelAnimationFrame(id); }, []);
-  const animatedProgress = mounted ? progress : 0;
-  const animatedFuelProgress = mounted ? fuelProgress : 0;
-
   const fuelStrokeWidth = strokeWidth;
   const fuelGap = 5;
   const fuelR = r + strokeWidth / 2 + fuelGap + fuelStrokeWidth / 2;
   const fuelCircumference = 2 * Math.PI * fuelR;
   const fuelArcLength = fuelCircumference * 0.75;
   const fuelProgress = fuelPct != null ? Math.max(0, Math.min(1, fuelPct)) * fuelArcLength : 0;
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { const id = requestAnimationFrame(() => setMounted(true)); return () => cancelAnimationFrame(id); }, []);
+  const animatedProgress = mounted ? progress : 0;
+  const animatedFuelProgress = mounted ? fuelProgress : 0;
   const fuelColor =
     fuelPct == null ? null :
     fuelPct < 0.2 ? "#E53E3E" :
