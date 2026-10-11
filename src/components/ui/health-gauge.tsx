@@ -39,108 +39,136 @@ export function HealthGauge({ score, overdueCount, size = 140, strokeWidth = 11,
     fuelPct < 0.4 ? "#D97706" :
     "#0B7EB8";
 
+  // E/F label geometry — placed as HTML outside the clipping navy circle
+  const fontSize = Math.max(11, size * 0.11);
+  const labelR = fuelR + fuelStrokeWidth / 2 + 8;
+  const d = labelR * Math.SQRT1_2; // cos/sin of 45° — arc endpoints
+  // Extra padding around the navy circle so labels have room
+  const pad = Math.ceil(fontSize / 2) + 4;
+
   return (
     <div className="flex flex-col items-center">
-      {/* Navy circle behind the gauge */}
-      <div
-        className="relative flex items-center justify-center rounded-full"
-        style={{ width: size, height: size, background: "var(--color-navy-700)", overflow: "visible" }}
-      >
-        <svg
-          width={size}
-          height={size}
-          viewBox={`0 0 ${size} ${size}`}
-          className="absolute inset-0"
-          style={{ overflow: "visible" }}
+      {/* Outer wrapper — larger than the navy circle, no clipping, holds E/F labels */}
+      <div className="relative" style={{ width: size + pad * 2, height: size + pad * 2 }}>
+        {/* Navy circle */}
+        <div
+          className="absolute flex items-center justify-center rounded-full"
+          style={{ width: size, height: size, top: pad, left: pad, background: "var(--color-navy-700)" }}
         >
-          {/* Track */}
-          <circle
-            cx={cx} cy={cy} r={r}
-            fill="none"
-            stroke="rgba(255,255,255,0.1)"
-            strokeWidth={strokeWidth}
-            strokeDasharray={`${arcLength} ${gap}`}
-            strokeLinecap="round"
-            transform={`rotate(135 ${cx} ${cy})`}
-          />
-          {/* Progress arc — amber/red/green */}
-          <circle
-            cx={cx} cy={cy} r={r}
-            fill="none"
-            stroke={stroke}
-            strokeWidth={strokeWidth}
-            strokeDasharray={`${progress} ${circumference - progress}`}
-            strokeLinecap="round"
-            transform={`rotate(135 ${cx} ${cy})`}
-            style={{ transition: "stroke-dasharray 0.6s ease" }}
-          />
-          {/* Fuel ring track */}
-          {fuelPct != null && (
+          <svg
+            width={size}
+            height={size}
+            viewBox={`0 0 ${size} ${size}`}
+            className="absolute inset-0"
+            style={{ overflow: "visible" }}
+          >
+            {/* Track */}
             <circle
-              cx={cx} cy={cy} r={fuelR}
+              cx={cx} cy={cy} r={r}
               fill="none"
-              stroke="rgba(255,255,255,0.08)"
-              strokeWidth={fuelStrokeWidth}
-              strokeDasharray={`${fuelArcLength} ${fuelCircumference - fuelArcLength}`}
+              stroke="rgba(255,255,255,0.1)"
+              strokeWidth={strokeWidth}
+              strokeDasharray={`${arcLength} ${gap}`}
               strokeLinecap="round"
               transform={`rotate(135 ${cx} ${cy})`}
             />
-          )}
-          {/* Fuel ring fill */}
-          {fuelPct != null && fuelProgress > 0 && (
+            {/* Progress arc — amber/red/green */}
             <circle
-              cx={cx} cy={cy} r={fuelR}
+              cx={cx} cy={cy} r={r}
               fill="none"
-              stroke={fuelColor!}
-              strokeWidth={fuelStrokeWidth}
-              strokeDasharray={`${fuelProgress} ${fuelCircumference - fuelProgress}`}
+              stroke={stroke}
+              strokeWidth={strokeWidth}
+              strokeDasharray={`${progress} ${circumference - progress}`}
               strokeLinecap="round"
               transform={`rotate(135 ${cx} ${cy})`}
               style={{ transition: "stroke-dasharray 0.6s ease" }}
             />
-          )}
-          {/* E / F labels at arc endpoints */}
-          {fuelPct != null && (() => {
-            const labelR = fuelR + fuelStrokeWidth / 2 + 8;
-            const d = labelR * Math.SQRT1_2; // cos/sin of 45°
-            const fontSize = Math.max(11, size * 0.11);
-            return (
-              <>
-                <text x={cx - d} y={cy + d} textAnchor="middle" dominantBaseline="middle"
-                  fontSize={fontSize} fontWeight="700" fill="rgba(255,255,255,0.55)"
-                  style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>E</text>
-                <text x={cx + d} y={cy + d} textAnchor="middle" dominantBaseline="middle"
-                  fontSize={fontSize} fontWeight="700" fill="rgba(255,255,255,0.55)"
-                  style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>F</text>
-              </>
-            );
-          })()}
-        </svg>
-        {/* Center text */}
-        <div className="relative flex flex-col items-center leading-none">
-          <span
-            style={{
-              fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-              fontWeight: 800,
-              fontSize: size * 0.26,
-              color: "#FFFFFF",
-              lineHeight: 1,
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            {score}
-          </span>
-          <span
-            style={{
-              fontSize: size * 0.085,
-              color: "rgba(255,255,255,0.45)",
-              fontWeight: 600,
-              marginTop: 2,
-            }}
-          >
-            OF 100
-          </span>
+            {/* Fuel ring track */}
+            {fuelPct != null && (
+              <circle
+                cx={cx} cy={cy} r={fuelR}
+                fill="none"
+                stroke="rgba(255,255,255,0.08)"
+                strokeWidth={fuelStrokeWidth}
+                strokeDasharray={`${fuelArcLength} ${fuelCircumference - fuelArcLength}`}
+                strokeLinecap="round"
+                transform={`rotate(135 ${cx} ${cy})`}
+              />
+            )}
+            {/* Fuel ring fill */}
+            {fuelPct != null && fuelProgress > 0 && (
+              <circle
+                cx={cx} cy={cy} r={fuelR}
+                fill="none"
+                stroke={fuelColor!}
+                strokeWidth={fuelStrokeWidth}
+                strokeDasharray={`${fuelProgress} ${fuelCircumference - fuelProgress}`}
+                strokeLinecap="round"
+                transform={`rotate(135 ${cx} ${cy})`}
+                style={{ transition: "stroke-dasharray 0.6s ease" }}
+              />
+            )}
+          </svg>
+          {/* Center text */}
+          <div className="relative flex flex-col items-center leading-none">
+            <span
+              style={{
+                fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+                fontWeight: 800,
+                fontSize: size * 0.26,
+                color: "#FFFFFF",
+                lineHeight: 1,
+                fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              {score}
+            </span>
+            <span
+              style={{
+                fontSize: size * 0.085,
+                color: "rgba(255,255,255,0.45)",
+                fontWeight: 600,
+                marginTop: 2,
+              }}
+            >
+              OF 100
+            </span>
+          </div>
         </div>
+
+        {/* E / F labels — siblings of navy circle, not children, so no clipping */}
+        {fuelPct != null && (
+          <>
+            <span
+              style={{
+                position: "absolute",
+                left: pad + cx - d,
+                top: pad + cy + d,
+                transform: "translate(-50%, -50%)",
+                fontSize,
+                fontWeight: 700,
+                color: "rgba(255,255,255,0.6)",
+                fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+                lineHeight: 1,
+                pointerEvents: "none",
+              }}
+            >E</span>
+            <span
+              style={{
+                position: "absolute",
+                left: pad + cx + d,
+                top: pad + cy + d,
+                transform: "translate(-50%, -50%)",
+                fontSize,
+                fontWeight: 700,
+                color: "rgba(255,255,255,0.6)",
+                fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+                lineHeight: 1,
+                pointerEvents: "none",
+              }}
+            >F</span>
+          </>
+        )}
       </div>
       <span
         className="mt-2 text-xs font-bold uppercase tracking-wide"
