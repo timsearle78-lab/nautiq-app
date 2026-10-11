@@ -123,7 +123,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
           <div>
             <h1 style={{ fontSize: 28, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>Inventory</h1>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>
-              Spares, consumables, and critical items on board.
+              Parts, equipment, consumables, and safety gear on board.
             </p>
           </div>
           <div className="flex-shrink-0">

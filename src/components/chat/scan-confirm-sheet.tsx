@@ -280,7 +280,7 @@ export default function ScanConfirmSheet({ boatId, scanResult, components, onClo
                   </div>
                   <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer">
                     <input type="checkbox" name="is_critical" defaultChecked={scanResult.is_critical} className="rounded border-slate-300 text-ocean-600 focus:ring-ocean-500" />
-                    Mark as critical spare
+                    Mark as critical item
                   </label>
                 </div>
               )}

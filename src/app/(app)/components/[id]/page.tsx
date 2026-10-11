@@ -201,7 +201,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
 
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-          <h2 className="text-base font-semibold text-slate-800">Linked spares</h2>
+          <h2 className="text-base font-semibold text-slate-800">Linked inventory items</h2>
 
           {linkedInventory.length === 0 ? (
             <p className="mt-4 text-sm text-slate-500">

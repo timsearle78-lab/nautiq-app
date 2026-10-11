@@ -261,7 +261,7 @@ export default function OnboardingPage() {
               {[
                 { icon: Wrench,         label: "Maintenance tracking", desc: "Never miss a service with smart reminders based on time and engine hours" },
                 { icon: LayoutDashboard, label: "Health dashboard",   desc: "See your boat's overall health score and what needs attention" },
-                { icon: Package,        label: "Inventory management", desc: "Track spare parts so you're never caught short at sea" },
+                { icon: Package,        label: "Inventory management", desc: "Track everything on board — parts, safety gear, equipment, and consumables" },
                 { icon: MessageSquare,  label: "AI assistant",        desc: "Log trips, find parts, and get answers by just describing them" },
               ].map(({ icon: Icon, label, desc }) => (
                 <div key={label} className="flex gap-3">
@@ -435,7 +435,7 @@ export default function OnboardingPage() {
               )}
             </div>
 
-            <NavButtons onBack={() => setStep(1)} onNext={() => setStep(3)} nextLabel="Set up spares" />
+            <NavButtons onBack={() => setStep(1)} onNext={() => setStep(3)} nextLabel="Set up inventory" />
           </div>
         )}
 
@@ -443,14 +443,14 @@ export default function OnboardingPage() {
         {step === 3 && (
           <div>
             <ProgressBar step={3} total={TOTAL_STEPS} />
-            <h2 className="text-xl font-bold text-white">Stock your spares</h2>
+            <h2 className="text-xl font-bold text-white">Build your inventory</h2>
             <p className="text-sm text-ocean-200/70 mt-1 mb-5">
-              Select the essential spare parts to add to your inventory. Critical items are pre-selected.
+              Select items to add to your inventory. Critical items are pre-selected.
             </p>
 
             <div className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-sm overflow-hidden mb-1">
               <div className="px-4 py-2 border-b border-white/8 flex items-center justify-between">
-                <span className="text-xs font-semibold text-ocean-200/70 uppercase tracking-wide">Recommended spares</span>
+                <span className="text-xs font-semibold text-ocean-200/70 uppercase tracking-wide">Suggested items</span>
                 <button
                   onClick={() => {
                     if (selectedSpares.size === sparePresets.length) {
@@ -535,7 +535,7 @@ export default function OnboardingPage() {
                   icon: Package,
                   iconCls: "bg-green-400/20 text-green-300 border border-green-400/20",
                   label: "Inventory",
-                  desc: "Know exactly what spares you have on board. Get alerts when stock runs low or critical items are missing.",
+                  desc: "Know exactly what's on board — parts, safety gear, equipment, consumables. Get alerts when stock runs low or critical items are missing.",
                 },
                 {
                   icon: Anchor,
@@ -578,7 +578,7 @@ export default function OnboardingPage() {
                 "Try asking: \"I went out for 2 hours this morning\"",
                 "Log your first maintenance event on a component",
                 "Check your health score under the Health tab",
-                "Add more spares via Inventory → Add item",
+                "Add more items via Inventory → Add item",
               ].map((tip) => (
                 <div key={tip} className="flex items-start gap-2">
                   <CheckCircle2 size={14} className="text-ocean-500 flex-shrink-0 mt-0.5" />

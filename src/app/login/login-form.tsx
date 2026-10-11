@@ -84,7 +84,7 @@ export default function LoginForm() {
               Predictive maintenance for real boat ownership.
             </h1>
             <p className="mt-3 leading-6" style={{ fontSize: 14, color: "rgba(159,186,206,0.85)" }}>
-              Track trips, maintenance, spares, and engine hours in one place.
+              Track trips, maintenance, inventory, and engine hours in one place.
               Stay ahead of service needs instead of reacting late.
             </p>
           </div>

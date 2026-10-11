@@ -11,14 +11,14 @@ export async function MissingCriticalSparesCard({
   return (
     <section className="rounded-xl border p-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold">Missing critical spares</h3>
+        <h3 className="text-base font-semibold">Missing critical items</h3>
         <Link href={`/inventory?boat=${boatId}&low=1`} className="text-sm underline">
           View inventory
         </Link>
       </div>
 
       {items.length === 0 ? (
-        <p className="mt-4 text-sm text-neutral-600">No missing critical spares.</p>
+        <p className="mt-4 text-sm text-neutral-600">No missing critical items.</p>
       ) : (
         <ul className="mt-4 space-y-3">
           {items.slice(0, 5).map((item) => (

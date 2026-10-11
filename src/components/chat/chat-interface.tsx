@@ -325,8 +325,8 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     if (action === "watch-item") { setShowWatchItemSheet(true); return; }
     // sendMessage needs the chat transport to settle after mount
     const timer = setTimeout(() => {
-      if (action === "restock") sendMessage({ text: "I just bought some spare parts" });
-      if (action === "used") sendMessage({ text: "I just used a spare part" });
+      if (action === "restock") sendMessage({ text: "I just bought some items for the boat" });
+      if (action === "used") sendMessage({ text: "I just used an item from inventory" });
     }, 400);
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -466,7 +466,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
 
   const quickPrompts = [
     { label: "What's due?", text: "What maintenance is coming up?" },
-    { label: "Spares check", text: "What spares am I low on?" },
+    { label: "Stock check", text: "What inventory items am I low on?" },
     { label: "Boat health", text: "How's the boat doing overall?" },
     { label: "Boat report", text: "Download a boat report" },
   ];
@@ -552,7 +552,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                   style={{ background: "var(--color-status-warning-fg)", border: "1.5px solid #D9A300" }}
                 >
                   <div className="font-bold tabular-nums" style={{ fontSize: 32, lineHeight: 1, color: "var(--color-amber-ink)", fontVariantNumeric: "tabular-nums" }}>{animInventory}</div>
-                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "rgba(61,42,0,0.6)", letterSpacing: "0.08em" }}>SPARES LOW</div>
+                  <div className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: "rgba(61,42,0,0.6)", letterSpacing: "0.08em" }}>STOCK LOW</div>
                 </Link>
               ) : (
                 <Link
