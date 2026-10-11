@@ -98,6 +98,12 @@ export async function POST(req: Request) {
     ? Math.min(1, Math.max(0, fuelCurrentLitres / fuelTankLitres))
     : null;
 
+  const fuelTankLitres = (boat as { fuel_tank_litres?: number | null }).fuel_tank_litres ?? null;
+  const fuelCurrentLitres = fuelItemRes.data ? Number(fuelItemRes.data.quantity) : null;
+  const fuelPct = fuelTankLitres && fuelTankLitres > 0 && fuelCurrentLitres != null
+    ? Math.min(1, Math.max(0, fuelCurrentLitres / fuelTankLitres))
+    : null;
+
   const recentTrips = tripsRes.data ?? [];
   const recentMaintenance = maintenanceRes.data ?? [];
   const lastTrip = lastTripRes.data?.[0];
