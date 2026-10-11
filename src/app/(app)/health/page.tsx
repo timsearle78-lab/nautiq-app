@@ -8,10 +8,11 @@ import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getUser, getUserBoats } from "@/lib/supabase/cached-queries";
 import { AlertTriangle, CheckCircle, Clock, HelpCircle, Package, ShieldAlert } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
+import { FuelGauge } from "@/components/ui/fuel-gauge";
 import { formatDate } from "@/lib/format-date";
 import { normalizeStatus } from "@/lib/component-status";
 
-type BoatRow = { id: string; name: string; type: string | null };
+type BoatRow = { id: string; name: string; type: string | null; fuel_tank_litres: number | null };
 
 type InventoryIssue = {
   id: string;
@@ -60,11 +61,11 @@ export default async function HealthPage() {
 
   if (!user) redirect("/login");
 
-  const boats = boatsData as BoatRow[];
+  const boats = boatsData as unknown as BoatRow[];
   if (boats.length === 0) redirect("/onboarding");
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const [health, engineHoursRes, inventoryRes, componentsRes] = await Promise.all([
+  const [health, engineHoursRes, inventoryRes, componentsRes, boatDetailsRes, fuelItemRes] = await Promise.all([
     getBoatHealth(boat.id, supabase),
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
     supabase
@@ -72,9 +73,20 @@ export default async function HealthPage() {
       .select("id, name, quantity, minimum_quantity, unit, is_critical, expiry_date, component_id")
       .eq("boat_id", boat.id),
     supabase.from("components").select("id, name").eq("boat_id", boat.id),
+    supabase.from("boats").select("fuel_tank_litres").eq("id", boat.id).single(),
+    supabase
+      .from("inventory_items")
+      .select("quantity, unit")
+      .eq("boat_id", boat.id)
+      .or("name.ilike.%fuel%,name.ilike.%diesel%,name.ilike.%petrol%,name.ilike.%gasoline%")
+      .order("name")
+      .limit(1)
+      .maybeSingle(),
   ]);
 
   const engineHours = (engineHoursRes.data as number) ?? 0;
+  const fuelTankLitres = (boatDetailsRes.data?.fuel_tank_litres as number | null) ?? null;
+  const fuelCurrentLitres = fuelItemRes.data ? (Number(fuelItemRes.data.quantity) ?? null) : null;
 
   type InvRow = { id: string; name: string; quantity: number; minimum_quantity: number | null; unit: string | null; is_critical: boolean; expiry_date: string | null; component_id: string | null };
   const inventoryItems = (inventoryRes.data ?? []) as InvRow[];
@@ -180,7 +192,10 @@ export default async function HealthPage() {
         ) : (
         <>
         <div className="flex items-center justify-between gap-4">
-          <HealthGauge score={healthScore} overdueCount={overdue.length} size={140} />
+          <div className="flex flex-col items-center gap-3">
+            <HealthGauge score={healthScore} overdueCount={overdue.length} size={130} />
+            <FuelGauge currentLitres={fuelCurrentLitres} tankLitres={fuelTankLitres} size={110} />
+          </div>
           <div className="flex-1 grid grid-cols-2 gap-2">
             <div className="rounded-[14px] px-3 py-3 text-center" style={{ background: overdue.length > 0 ? "var(--color-status-critical-fg)" : "var(--color-app-bg)", border: `1.5px solid ${overdue.length > 0 ? "var(--color-status-critical-fg)" : "var(--color-border)"}` }}>
               <div style={{ fontSize: 24, fontWeight: 800, color: overdue.length > 0 ? "#FFFFFF" : "var(--color-navy-700)" }}>{overdue.length}</div>

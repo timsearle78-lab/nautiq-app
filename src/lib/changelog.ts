@@ -7,9 +7,10 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
-    date: "2026-10-01",
+    date: "2026-10-08",
     label: "October 2026 update",
     features: [
+      "Fuel gauge — set your tank size in Settings and a live fuel level gauge now appears on the Boat Health page next to your health score",
       "Trip photos — add up to 3 photos when logging a trip; tap any thumbnail to view full size with a lightbox",
     ],
   },
