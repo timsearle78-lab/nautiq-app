@@ -35,9 +35,14 @@ export default function WhatsNewCard({ hidden }: { hidden: boolean }) {
           >
             <Sparkles size={13} color="var(--color-amber-ink)" />
           </div>
-          <p style={{ fontSize: 14, fontWeight: 800, color: "var(--color-navy-700)" }}>
-            {"What's new"} — {LATEST_RELEASE.label}
-          </p>
+          <div>
+            <p style={{ fontSize: 14, fontWeight: 800, color: "var(--color-navy-700)" }}>
+              {"What's new"} — {LATEST_RELEASE.label}
+            </p>
+            <p style={{ fontSize: 12, color: "var(--color-navy-mute)", marginTop: 1 }}>
+              {new Date(LATEST_RELEASE.date + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}
+            </p>
+          </div>
         </div>
         <button
           onClick={dismiss}
