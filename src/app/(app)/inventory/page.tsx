@@ -81,7 +81,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     if (componentFilter && item.component_id !== componentFilter) return false;
     if (statusFilter) {
       const isMissing = item.is_critical && Number(item.quantity) <= 0;
-      const isLow = !isMissing && item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity);
+      const isLow = !isMissing && item.minimum_quantity != null && Number(item.quantity) <= Number(item.minimum_quantity);
       const isExpiring = !!item.expiry_date && (() => {
         const exp = new Date(item.expiry_date!); exp.setHours(0, 0, 0, 0);
         return exp <= in90Days2;
@@ -98,7 +98,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
 
   const lowStockCount = inventoryItems.filter((item) => {
     const isMissing = item.is_critical && Number(item.quantity) <= 0;
-    return !isMissing && item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity);
+    return !isMissing && item.minimum_quantity != null && Number(item.quantity) <= Number(item.minimum_quantity);
   }).length;
 
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -111,7 +111,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
 
   const stockedCount = inventoryItems.filter((item) => {
     const isMissing = item.is_critical && Number(item.quantity) <= 0;
-    const isLow = !isMissing && item.minimum_quantity != null && Number(item.quantity) < Number(item.minimum_quantity);
+    const isLow = !isMissing && item.minimum_quantity != null && Number(item.quantity) <= Number(item.minimum_quantity);
     return !isMissing && !isLow;
   }).length;
 
