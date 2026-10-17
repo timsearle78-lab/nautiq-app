@@ -39,12 +39,20 @@ export async function createInventoryItem(
     const notes = String(formData.get("notes") ?? "").trim() || null;
     const expiry_date = String(formData.get("expiry_date") ?? "").trim() || null;
     const is_critical = formData.get("is_critical") === "on";
+    const is_fuel_source = formData.get("is_fuel_source") === "on";
 
     if (!boat_id) return { error: "Boat is required." };
     if (!name) return { error: "Item name is required." };
     if (quantity < 0) return { error: "Quantity cannot be negative." };
     if (minimum_quantity != null && minimum_quantity < 0) {
       return { error: "Minimum quantity cannot be negative." };
+    }
+
+    if (is_fuel_source) {
+      await supabase
+        .from("inventory_items")
+        .update({ is_fuel_source: false })
+        .eq("boat_id", boat_id);
     }
 
     const { error } = await supabase.from("inventory_items").insert({
@@ -62,6 +70,7 @@ export async function createInventoryItem(
       notes,
       expiry_date,
       is_critical,
+      is_fuel_source,
     });
 
     if (error) {

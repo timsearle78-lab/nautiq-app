@@ -121,6 +121,15 @@ export function AddInventoryItemForm({
           Mark as critical item
         </label>
 
+        <label className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            name="is_fuel_source"
+            className="h-4 w-4 rounded border-slate-300 text-ocean-600 focus:ring-ocean-500"
+          />
+          <span className="text-sm text-slate-700">Primary fuel source (used for fuel gauge)</span>
+        </label>
+
         {state.error && (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {state.error}

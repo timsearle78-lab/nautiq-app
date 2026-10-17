@@ -50,8 +50,7 @@ export async function GET(req: Request) {
       .from("inventory_items")
       .select("quantity")
       .eq("boat_id", boat.id)
-      .or("name.ilike.%fuel%,name.ilike.%diesel%,name.ilike.%petrol%,name.ilike.%gasoline%")
-      .order("name")
+      .eq("is_fuel_source", true)
       .limit(1)
       .maybeSingle(),
   ]);
