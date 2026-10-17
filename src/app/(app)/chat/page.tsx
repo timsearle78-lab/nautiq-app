@@ -6,6 +6,7 @@ import { getBoatHealth } from "@/lib/components/health";
 import { getMissingComponents } from "@/lib/component-suggestions";
 import { getPendingDrafts } from "@/lib/maintenance-drafts";
 import { getPendingTripDrafts } from "@/lib/trip-drafts";
+import { getPendingPurchaseDrafts } from "@/lib/inventory-purchase-drafts";
 import ChatInterface from "@/components/chat/chat-interface";
 
 export const dynamic = "force-dynamic";
@@ -41,7 +42,7 @@ export default async function ChatPage() {
 
   if (!boat) redirect("/onboarding");
 
-  const [engineHoursRes, health, componentsRes, inventoryRes, tripsCountRes, pendingDrafts, pendingTripDrafts, userSettingsRes, lastTripRes, lastCheckinRes, boatDetailsRes, fuelItemRes] = await Promise.all([
+  const [engineHoursRes, health, componentsRes, inventoryRes, tripsCountRes, pendingDrafts, pendingTripDrafts, pendingPurchaseDrafts, userSettingsRes, lastTripRes, lastCheckinRes, boatDetailsRes, fuelItemRes] = await Promise.all([
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
     getBoatHealth(boat.id),
     supabase.from("components").select("id, name").eq("boat_id", boat.id).order("name"),
@@ -49,6 +50,7 @@ export default async function ChatPage() {
     supabase.from("trips").select("id", { count: "exact", head: true }).eq("boat_id", boat.id),
     getPendingDrafts(),
     getPendingTripDrafts(),
+    getPendingPurchaseDrafts(),
     supabase.from("user_settings").select("hide_greeting, hide_whats_new").eq("user_id", user.id).single(),
     supabase.from("trips").select("started_at").eq("boat_id", boat.id).not("started_at", "is", null).order("started_at", { ascending: false }).limit(1),
     supabase.from("boat_checkins").select("checked_at").eq("boat_id", boat.id).order("checked_at", { ascending: false }).limit(1),
@@ -112,6 +114,7 @@ export default async function ChatPage() {
       missingSuggestions={missingSuggestions}
       pendingDrafts={pendingDrafts}
       pendingTripDrafts={pendingTripDrafts}
+      initialPurchaseDrafts={pendingPurchaseDrafts}
       hideGreeting={hideGreeting}
       hideWhatsNew={hideWhatsNew}
       hasTrips={hasTrips}

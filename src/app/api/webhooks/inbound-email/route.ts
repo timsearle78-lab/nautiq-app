@@ -53,7 +53,20 @@ type TripParsed = {
   issues: string | null;
 };
 
-type ParsedEmail = MaintenanceParsed | TripParsed;
+type InventoryPurchaseItem = {
+  name: string;
+  quantity: number | null;
+  unit: string | null;
+  price: number | null;
+  notes: string | null;
+};
+
+type InventoryPurchaseParsed = {
+  type: "inventory_purchase";
+  items: InventoryPurchaseItem[];
+};
+
+type ParsedEmail = MaintenanceParsed | TripParsed | InventoryPurchaseParsed;
 
 async function parseEmailWithAI(subject: string, body: string): Promise<ParsedEmail> {
   const maintenanceEmpty: MaintenanceParsed = { type: "maintenance", component_name: null, work_done: null, performed_at: null, engine_hours: null, vendor: null, notes: null };
@@ -103,6 +116,20 @@ If MAINTENANCE, return ONLY this JSON:
   "engine_hours": total engine hours at time of service or null,
   "vendor": "who did the work or where parts were bought, or null",
   "notes": "any extra details worth keeping, or null"
+}
+
+If INVENTORY PURCHASE (a receipt, invoice, parts order, chandlery purchase, or shopping list — items bought or received for the boat), return ONLY this JSON:
+{
+  "type": "inventory_purchase",
+  "items": [
+    {
+      "name": "exact product name",
+      "quantity": number or null,
+      "unit": "ea / L / m / kg / box / pack / etc. or null",
+      "price": total price in dollars as a number or null,
+      "notes": "any extra detail e.g. brand, SKU, or null"
+    }
+  ]
 }`,
         },
       ],
@@ -228,7 +255,7 @@ export async function POST(req: NextRequest) {
       parsed_notes: parsed.notes,
       parsed_issues: parsed.issues,
     }));
-  } else {
+  } else if (parsed.type === "maintenance") {
     ({ error: insertError } = await supabase.from("maintenance_drafts").insert({
       user_id: user.id,
       boat_id: boatId,
@@ -241,6 +268,15 @@ export async function POST(req: NextRequest) {
       parsed_engine_hours: parsed.engine_hours,
       parsed_vendor: parsed.vendor,
       parsed_notes: parsed.notes,
+    }));
+  } else if (parsed.type === "inventory_purchase") {
+    ({ error: insertError } = await supabase.from("inventory_purchase_drafts").insert({
+      user_id: user.id,
+      boat_id: boatId,
+      email_from: senderEmail,
+      email_subject: subject,
+      email_body: body.slice(0, 4000),
+      parsed_items: parsed.items,
     }));
   }
 

@@ -103,6 +103,8 @@ After logging, the component's health score resets and the next due date is reca
 
 Email to log: You can also email your maintenance notes to log@nautiq.cloud from the email address registered to your account. NautIQ reads the email, uses AI to extract the component, work done, date, engine hours, vendor, and notes, then presents a pre-filled maintenance record on your Home screen the next time you open the app. Just tap "Complete maintenance record" to review and save it. The draft can be dismissed with the X button if you don't want to save it.
 
+Purchase emails: Forward a receipt, invoice, parts order, or chandlery purchase to log@nautiq.cloud and NautIQ will parse the items. A "Purchase email received" card will appear on your Home screen listing each item with quantity and price. Items that match something already in your inventory are highlighted in green — tapping "Add to inventory" will top up their stock. Unrecognised items are created as new inventory entries. Toggle individual items off to skip them before saving.
+
 To delete a maintenance record, go to the component page, find the record in the maintenance history table, and tap the trash icon. Confirm by tapping "Yes" in the inline confirmation.
 
 Photos attached to a maintenance record appear as small thumbnails in the history table — tap any thumbnail to open the full-size image.
