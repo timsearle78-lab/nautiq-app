@@ -69,8 +69,7 @@ export async function updateTrip(
         .from("inventory_items")
         .select("id")
         .eq("boat_id", existingTrip.boat_id)
-        .or("name.ilike.%fuel%,name.ilike.%diesel%,name.ilike.%petrol%,name.ilike.%gasoline%")
-        .order("name")
+        .eq("is_fuel_source", true)
         .limit(1);
 
       const fuelItemId = fuelItems?.[0]?.id;
