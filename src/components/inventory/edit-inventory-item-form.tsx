@@ -22,6 +22,7 @@ type Item = {
   storage_location: string | null;
   notes: string | null;
   is_critical: boolean;
+  is_fuel_source: boolean;
   expiry_date: string | null;
   photo_urls: string[] | null;
 };
@@ -161,6 +162,16 @@ export function EditInventoryItemForm({
           <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer">
             <input type="checkbox" name="is_critical" defaultChecked={item.is_critical} className="rounded border-slate-300 text-ocean-600 focus:ring-ocean-500" />
             Mark as critical item
+          </label>
+
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              name="is_fuel_source"
+              defaultChecked={item.is_fuel_source ?? false}
+              className="h-4 w-4 rounded border-slate-300 text-ocean-600 focus:ring-ocean-500"
+            />
+            <span className="text-sm text-slate-700">Primary fuel source (used for fuel gauge)</span>
           </label>
 
           <InventoryPhotoManager

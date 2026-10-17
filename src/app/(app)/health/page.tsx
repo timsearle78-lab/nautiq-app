@@ -77,8 +77,7 @@ export default async function HealthPage() {
       .from("inventory_items")
       .select("quantity, unit")
       .eq("boat_id", boat.id)
-      .or("name.ilike.%fuel%,name.ilike.%diesel%,name.ilike.%petrol%,name.ilike.%gasoline%")
-      .order("name")
+      .eq("is_fuel_source", true)
       .limit(1)
       .maybeSingle(),
   ]);

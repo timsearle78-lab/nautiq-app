@@ -55,7 +55,7 @@ export default async function ChatPage() {
     supabase.from("trips").select("started_at").eq("boat_id", boat.id).not("started_at", "is", null).order("started_at", { ascending: false }).limit(1),
     supabase.from("boat_checkins").select("checked_at").eq("boat_id", boat.id).order("checked_at", { ascending: false }).limit(1),
     supabase.from("boats").select("fuel_tank_litres").eq("id", boat.id).single(),
-    supabase.from("inventory_items").select("quantity").eq("boat_id", boat.id).or("name.ilike.%fuel%,name.ilike.%diesel%,name.ilike.%petrol%,name.ilike.%gasoline%").order("name").limit(1).maybeSingle(),
+    supabase.from("inventory_items").select("quantity").eq("boat_id", boat.id).eq("is_fuel_source", true).limit(1).maybeSingle(),
   ]);
 
   const components = (componentsRes.data ?? []) as { id: string; name: string }[];
