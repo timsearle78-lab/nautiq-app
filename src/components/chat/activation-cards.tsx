@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Package, X, ChevronRight } from "lucide-react";
+import { MapPin, Package, Fuel, X, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 function DismissibleCard({ id, children }: { id: string; children: React.ReactNode }) {
@@ -93,6 +93,40 @@ export function NoInventoryCard() {
             <ChevronRight size={12} />
           </Link>
           <span style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>or scan a product with the camera</span>
+        </div>
+      </div>
+    </DismissibleCard>
+  );
+}
+
+export function NoFuelSourceCard() {
+  return (
+    <DismissibleCard id="no-fuel-source">
+      <div className="card overflow-hidden">
+        <div className="flex items-start gap-3 px-4 py-3.5 pr-10">
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-full shrink-0 mt-0.5"
+            style={{ background: "#D97706" }}
+          >
+            <Fuel size={14} color="#FFFFFF" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p style={{ fontSize: 15, fontWeight: 800, color: "var(--color-navy-700)" }}>Tag your fuel inventory item</p>
+            <p style={{ fontSize: 13, color: "var(--color-navy-mute)", marginTop: 2, lineHeight: 1.5 }}>
+              Mark one inventory item as your primary fuel source so NautIQ can track fuel levels and auto-deduct usage when you log trips.
+            </p>
+          </div>
+        </div>
+        <div className="px-4 py-3 flex items-center gap-3" style={{ borderTop: "1.5px solid #DBE3EA" }}>
+          <Link
+            href="/inventory"
+            className="flex items-center gap-1.5 btn-primary px-4 py-2"
+            style={{ fontSize: 13, minHeight: "auto", borderRadius: 8 }}
+          >
+            Go to inventory
+            <ChevronRight size={12} />
+          </Link>
+          <span style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>edit an item → enable &quot;Primary fuel source&quot;</span>
         </div>
       </div>
     </DismissibleCard>
