@@ -78,6 +78,7 @@ export default async function ChatPage() {
   const hideGreeting = userSettings?.hide_greeting ?? false;
   const hideWhatsNew = userSettings?.hide_whats_new ?? false;
 
+  const hasFuelSource = fuelItemRes.data != null;
   const fuelTankLitres = (boatDetailsRes.data?.fuel_tank_litres as number | null) ?? null;
   const fuelCurrentLitres = fuelItemRes.data ? Number(fuelItemRes.data.quantity) : null;
   const fuelPct = fuelTankLitres && fuelTankLitres > 0 && fuelCurrentLitres != null
@@ -119,6 +120,7 @@ export default async function ChatPage() {
       hideWhatsNew={hideWhatsNew}
       hasTrips={hasTrips}
       hasInventory={hasInventory}
+      hasFuelSource={hasFuelSource}
       lastActivityDate={lastActivityDate}
       fuelPct={fuelPct}
     />

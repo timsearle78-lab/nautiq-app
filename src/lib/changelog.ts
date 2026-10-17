@@ -12,6 +12,7 @@ export const CHANGELOG: Release[] = [
     features: [
       "Email a purchase receipt or parts order to log@nautiq.cloud and NautIQ will prompt you to add or update the items in your inventory",
       "Tag an inventory item as your primary fuel source so the fuel gauge always tracks the right item",
+      "Home screen reminds you to tag a fuel source if you haven't done so yet",
     ],
   },
   {
