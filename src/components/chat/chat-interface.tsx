@@ -19,9 +19,11 @@ import MissingComponentsCard from "@/components/chat/missing-components-card";
 import { NoTripsCard, NoInventoryCard } from "@/components/chat/activation-cards";
 import MaintenanceDraftCard from "@/components/chat/maintenance-draft-card";
 import EmailTripDraftCard from "@/components/chat/email-trip-draft-card";
+import InventoryPurchaseDraftCard from "@/components/chat/inventory-purchase-draft-card";
 import type { SuggestedComponent } from "@/lib/component-suggestions";
 import type { MaintenanceDraft } from "@/lib/maintenance-drafts";
 import type { TripDraftFromEmail } from "@/lib/trip-drafts";
+import type { InventoryPurchaseDraft } from "@/lib/inventory-purchase-drafts";
 
 interface Boat {
   id: string;
@@ -50,6 +52,7 @@ interface ChatInterfaceProps {
   missingSuggestions: SuggestedComponent[];
   pendingDrafts: MaintenanceDraft[];
   pendingTripDrafts: TripDraftFromEmail[];
+  initialPurchaseDrafts: InventoryPurchaseDraft[];
   hideGreeting: boolean;
   hideWhatsNew: boolean;
   hasTrips: boolean;
@@ -261,7 +264,7 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
   );
 }
 
-export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, hideGreeting, hideWhatsNew, hasTrips, hasInventory, lastActivityDate, fuelPct }: ChatInterfaceProps) {
+export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, initialPurchaseDrafts, hideGreeting, hideWhatsNew, hasTrips, hasInventory, lastActivityDate, fuelPct }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [showWatchItemSheet, setShowWatchItemSheet] = useState(false);
@@ -276,6 +279,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const [showScanPicker, setShowScanPicker] = useState(false);
   const [drafts, setDrafts] = useState<MaintenanceDraft[]>(initialDrafts);
   const [tripDrafts, setTripDrafts] = useState<TripDraftFromEmail[]>(initialTripDrafts);
+  const [purchaseDrafts, setPurchaseDrafts] = useState<InventoryPurchaseDraft[]>(initialPurchaseDrafts);
 
   const router = useRouter();
   const onTripSaved = useCallback(() => router.refresh(), [router]);
@@ -509,6 +513,15 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 />
               </div>
             ))}
+            {purchaseDrafts.map((draft) => (
+              <InventoryPurchaseDraftCard
+                key={draft.id}
+                draft={draft}
+                boatId={boat.id}
+                inventoryOptions={inventoryItems.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity, unit: i.unit }))}
+                onDone={() => setPurchaseDrafts((prev) => prev.filter((d) => d.id !== draft.id))}
+              />
+            ))}
             <MissingComponentsCard boatType={boat.type ?? null} suggestions={missingSuggestions} />
             {!hasTrips && <NoTripsCard boatId={boat.id} />}
             {!hasInventory && <NoInventoryCard />}
@@ -695,6 +708,15 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                   onDone={() => setDrafts((prev) => prev.filter((d) => d.id !== draft.id))}
                 />
               </div>
+            ))}
+            {purchaseDrafts.map((draft) => (
+              <InventoryPurchaseDraftCard
+                key={draft.id}
+                draft={draft}
+                boatId={boat.id}
+                inventoryOptions={inventoryItems.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity, unit: i.unit }))}
+                onDone={() => setPurchaseDrafts((prev) => prev.filter((d) => d.id !== draft.id))}
+              />
             ))}
             <div className="px-4 py-3 space-y-3">
               {messages.map((message) => (
