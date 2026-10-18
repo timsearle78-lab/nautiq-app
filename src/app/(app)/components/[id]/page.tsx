@@ -18,9 +18,11 @@ import { EditComponentForm } from "@/components/components/edit-component-form";
 import LogMaintenanceButton from "@/components/components/log-maintenance-button";
 import { DeleteMaintenanceEventButton } from "@/components/components/delete-maintenance-event-button";
 import { EditMaintenanceButton } from "@/components/components/edit-maintenance-button";
+import { SortableTh, sortHref } from "@/components/ui/sortable-th";
 
 type ComponentPageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ sort?: string; dir?: string }>;
 };
 
 function statusLabel(status: "ok" | "due_soon" | "overdue" | "unknown") {
@@ -36,10 +38,13 @@ function statusLabel(status: "ok" | "due_soon" | "overdue" | "unknown") {
   }
 }
 
-export default async function ComponentPage({ params }: ComponentPageProps) {
+export default async function ComponentPage({ params, searchParams }: ComponentPageProps) {
   noStore();
 
   const { id } = await params;
+  const sp = await searchParams;
+  const sort = sp.sort ?? null;
+  const dir = (sp.dir === "asc" || sp.dir === "desc" ? sp.dir : null) as "asc" | "desc" | null;
   const supabase = await createClient();
 
   const {
@@ -83,6 +88,18 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     supabase.from("systems").select("id,name").eq("boat_id", component.boat_id).order("name", { ascending: true }),
   ]);
   const systems = (systemsData ?? []) as { id: string; name: string }[];
+
+  const sortedHistory: typeof history = sort ? [...history].sort((a, b) => {
+    const mul = dir === "desc" ? -1 : 1;
+    switch (sort) {
+      case "date": return mul * ((a.performed_at ?? "").localeCompare(b.performed_at ?? ""));
+      case "work_done": return mul * (a.work_done ?? "").localeCompare(b.work_done ?? "");
+      case "engine_hrs": return mul * ((a.engine_hours_at_service ?? -1) - (b.engine_hours_at_service ?? -1));
+      case "vendor": return mul * (a.vendor ?? "").localeCompare(b.vendor ?? "");
+      case "cost": return mul * (Number(a.cost ?? 0) - Number(b.cost ?? 0));
+      default: return 0;
+    }
+  }) : history;
 
   const health = getComponentHealthSummary(
     component,
@@ -261,7 +278,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       {/* Maintenance history — below the danger zone */}
       <div>
         <h2 className="text-base font-semibold text-slate-800 mb-3">Maintenance history</h2>
-        {history.length === 0 ? (
+        {sortedHistory.length === 0 ? (
           <p className="text-sm text-slate-400">No maintenance history recorded for this component.</p>
         ) : (
           <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -269,16 +286,24 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50">
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</th>
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Work done</th>
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Engine hrs</th>
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Vendor</th>
-                    <th className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Cost</th>
-                    <th className="px-4 py-2.5"></th>
+                    {(() => {
+                      const thCls = "text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide";
+                      const sh = (col: string, label: string, cls = thCls) => (
+                        <SortableTh href={sortHref(`/components/${id}`, {}, col, sort, dir)} label={label} active={sort === col} dir={sort === col ? dir : null} className={cls} />
+                      );
+                      return (<>
+                        {sh("date", "Date")}
+                        {sh("work_done", "Work done")}
+                        {sh("engine_hrs", "Engine hrs", `${thCls} hidden sm:table-cell`)}
+                        {sh("vendor", "Vendor", `${thCls} hidden sm:table-cell`)}
+                        {sh("cost", "Cost", `text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell`)}
+                        <th className="px-4 py-2.5"></th>
+                      </>);
+                    })()}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {history.map((row: MaintenanceHistoryRow) => (
+                  {sortedHistory.map((row: MaintenanceHistoryRow) => (
                     <tr key={row.id} className="hover:bg-slate-50/50 align-top">
                       <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
                         {row.performed_at

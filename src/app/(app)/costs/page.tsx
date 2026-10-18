@@ -6,6 +6,7 @@ import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getUser, getUserBoats } from "@/lib/supabase/cached-queries";
 import { SpendByMonthChart } from "@/components/costs/spend-by-month-chart";
 import { SpendByCategoryChart, type CategorySlice } from "@/components/costs/spend-by-category-chart";
+import { SortableTh, sortHref } from "@/components/ui/sortable-th";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +21,24 @@ type YearRow = {
   total: number;
 };
 
-export default async function CostsPage() {
+type CostsPageProps = {
+  searchParams: Promise<{
+    ysort?: string; ydir?: string;
+    msort?: string; mdir?: string;
+    psort?: string; pdir?: string;
+  }>;
+};
+
+export default async function CostsPage({ searchParams }: CostsPageProps) {
   noStore();
+
+  const sp = await searchParams;
+  const ysort = sp.ysort ?? null;
+  const ydir = (sp.ydir === "asc" || sp.ydir === "desc" ? sp.ydir : null) as "asc" | "desc" | null;
+  const msort = sp.msort ?? null;
+  const mdir = (sp.mdir === "asc" || sp.mdir === "desc" ? sp.mdir : null) as "asc" | "desc" | null;
+  const psort = sp.psort ?? null;
+  const pdir = (sp.pdir === "asc" || sp.pdir === "desc" ? sp.pdir : null) as "asc" | "desc" | null;
 
   const [user, boatsData, selectedBoatId, supabase] = await Promise.all([
     getUser(),
@@ -96,9 +113,20 @@ export default async function CostsPage() {
     yearMap.set(y, entry);
   }
 
-  const years: YearRow[] = Array.from(yearMap.entries())
+  const yearsBase: YearRow[] = Array.from(yearMap.entries())
     .map(([year, { maintenance, parts }]) => ({ year, maintenance, parts, total: maintenance + parts }))
     .sort((a, b) => b.year - a.year);
+
+  const years: YearRow[] = ysort ? [...yearsBase].sort((a, b) => {
+    const mul = ydir === "desc" ? -1 : 1;
+    switch (ysort) {
+      case "year": return mul * (a.year - b.year);
+      case "maintenance": return mul * (a.maintenance - b.maintenance);
+      case "parts": return mul * (a.parts - b.parts);
+      case "total": return mul * (a.total - b.total);
+      default: return 0;
+    }
+  }) : yearsBase;
 
   const totalMaintenance = mRows.reduce((s, r) => s + Number(r.cost ?? 0), 0);
   const totalParts = pRows.reduce((s, r) => s + Number(r.cost ?? 0), 0);
@@ -165,6 +193,26 @@ export default async function CostsPage() {
     return i?.name ?? "Unknown item";
   }
 
+  const sortedMRows: typeof mRows = msort ? [...mRows].sort((a, b) => {
+    const mul = mdir === "desc" ? -1 : 1;
+    switch (msort) {
+      case "date": return mul * ((a.performed_at ?? "").localeCompare(b.performed_at ?? ""));
+      case "component": return mul * getComponentName(a).localeCompare(getComponentName(b));
+      case "cost": return mul * (Number(a.cost ?? 0) - Number(b.cost ?? 0));
+      default: return 0;
+    }
+  }) : mRows;
+
+  const sortedPRows: typeof pRows = psort ? [...pRows].sort((a, b) => {
+    const mul = pdir === "desc" ? -1 : 1;
+    switch (psort) {
+      case "date": return mul * a.created_at.localeCompare(b.created_at);
+      case "item": return mul * getItemName(a).localeCompare(getItemName(b));
+      case "cost": return mul * (Number(a.cost ?? 0) - Number(b.cost ?? 0));
+      default: return 0;
+    }
+  }) : pRows;
+
   return (
     <main className="px-4 py-6 space-y-6 max-w-2xl mx-auto">
       <div>
@@ -216,10 +264,9 @@ export default async function CostsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50">
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Year</th>
-                    <th className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Maintenance</th>
-                    <th className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Parts</th>
-                    <th className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Total</th>
+                    {(["year","maintenance","parts","total"] as const).map((col) => (
+                      <SortableTh key={col} href={sortHref("/costs", {}, col, ysort, ydir, "ysort", "ydir")} label={col.charAt(0).toUpperCase()+col.slice(1)} active={ysort===col} dir={ysort===col?ydir:null} className={col==="year" ? "text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide" : "text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide"} />
+                    ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -245,13 +292,13 @@ export default async function CostsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50">
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</th>
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Component</th>
-                    <th className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Cost</th>
+                    <SortableTh href={sortHref("/costs",{}, "date", msort, mdir, "msort", "mdir")} label="Date" active={msort==="date"} dir={msort==="date"?mdir:null} className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide" />
+                    <SortableTh href={sortHref("/costs",{}, "component", msort, mdir, "msort", "mdir")} label="Component" active={msort==="component"} dir={msort==="component"?mdir:null} className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide" />
+                    <SortableTh href={sortHref("/costs",{}, "cost", msort, mdir, "msort", "mdir")} label="Cost" active={msort==="cost"} dir={msort==="cost"?mdir:null} className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {mRows.map((r, i) => (
+                  {sortedMRows.map((r, i) => (
                     <tr key={i} className="hover:bg-slate-50/50">
                       <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
                         {r.performed_at ? new Date(r.performed_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—"}
@@ -274,13 +321,13 @@ export default async function CostsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50">
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</th>
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Item</th>
-                    <th className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Cost</th>
+                    <SortableTh href={sortHref("/costs",{}, "date", psort, pdir, "psort", "pdir")} label="Date" active={psort==="date"} dir={psort==="date"?pdir:null} className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide" />
+                    <SortableTh href={sortHref("/costs",{}, "item", psort, pdir, "psort", "pdir")} label="Item" active={psort==="item"} dir={psort==="item"?pdir:null} className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide" />
+                    <SortableTh href={sortHref("/costs",{}, "cost", psort, pdir, "psort", "pdir")} label="Cost" active={psort==="cost"} dir={psort==="cost"?pdir:null} className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {pRows.map((r, i) => (
+                  {sortedPRows.map((r, i) => (
                     <tr key={i} className="hover:bg-slate-50/50">
                       <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
                         {new Date(r.created_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
