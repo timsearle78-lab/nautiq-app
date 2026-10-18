@@ -75,36 +75,21 @@ export default async function AdminPage() {
     userByBoat.set(b.id, b.user_id);
   }
 
-  const [tripRows, maintenanceRows, inventoryRows, checkinRows] = await Promise.all([
-    adminClient.from("trips").select("boat_id, created_at"),
-    adminClient.from("maintenance_events").select("boat_id, created_at"),
-    adminClient.from("inventory_items").select("boat_id, created_at"),
-    adminClient.from("boat_checkins").select("boat_id, checked_at"),
+  const [tripRows, auditRows] = await Promise.all([
+    adminClient.from("trips").select("boat_id"),
+    adminClient.from("audit_events").select("user_id, created_at").order("created_at", { ascending: false }),
   ]);
 
   const tripCountByUser = new Map<string, number>();
-  const lastActivityByUser = new Map<string, string>();
-
-  function bumpActivity(userId: string, isoDate: string) {
-    const prev = lastActivityByUser.get(userId);
-    if (!prev || isoDate > prev) lastActivityByUser.set(userId, isoDate);
-  }
-
-  for (const t of (tripRows.data ?? []) as { boat_id: string; created_at: string }[]) {
+  for (const t of (tripRows.data ?? []) as { boat_id: string }[]) {
     const uid = userByBoat.get(t.boat_id);
-    if (uid) { tripCountByUser.set(uid, (tripCountByUser.get(uid) ?? 0) + 1); bumpActivity(uid, t.created_at); }
+    if (uid) tripCountByUser.set(uid, (tripCountByUser.get(uid) ?? 0) + 1);
   }
-  for (const m of (maintenanceRows.data ?? []) as { boat_id: string; created_at: string }[]) {
-    const uid = userByBoat.get(m.boat_id);
-    if (uid) bumpActivity(uid, m.created_at);
-  }
-  for (const i of (inventoryRows.data ?? []) as { boat_id: string; created_at: string }[]) {
-    const uid = userByBoat.get(i.boat_id);
-    if (uid) bumpActivity(uid, i.created_at);
-  }
-  for (const c of (checkinRows.data ?? []) as { boat_id: string; checked_at: string }[]) {
-    const uid = userByBoat.get(c.boat_id);
-    if (uid) bumpActivity(uid, c.checked_at);
+
+  // Take the most recent audit event per user (rows are already desc-ordered)
+  const lastActivityByUser = new Map<string, string>();
+  for (const a of (auditRows.data ?? []) as { user_id: string; created_at: string }[]) {
+    if (!lastActivityByUser.has(a.user_id)) lastActivityByUser.set(a.user_id, a.created_at);
   }
 
   const sorted = [...users].sort(
