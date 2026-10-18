@@ -75,12 +75,21 @@ export default async function AdminPage() {
     userByBoat.set(b.id, b.user_id);
   }
 
-  const { data: tripRows } = await adminClient.from("trips").select("boat_id");
+  const [tripRows, auditRows] = await Promise.all([
+    adminClient.from("trips").select("boat_id"),
+    adminClient.from("audit_events").select("user_id, created_at").order("created_at", { ascending: false }),
+  ]);
 
   const tripCountByUser = new Map<string, number>();
-  for (const t of (tripRows ?? []) as { boat_id: string }[]) {
+  for (const t of (tripRows.data ?? []) as { boat_id: string }[]) {
     const uid = userByBoat.get(t.boat_id);
     if (uid) tripCountByUser.set(uid, (tripCountByUser.get(uid) ?? 0) + 1);
+  }
+
+  // Take the most recent audit event per user (rows are already desc-ordered)
+  const lastActivityByUser = new Map<string, string>();
+  for (const a of (auditRows.data ?? []) as { user_id: string; created_at: string }[]) {
+    if (!lastActivityByUser.has(a.user_id)) lastActivityByUser.set(a.user_id, a.created_at);
   }
 
   const sorted = [...users].sort(
@@ -143,10 +152,15 @@ export default async function AdminPage() {
                   )}
                 </div>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400 mt-1">
-                  <span>{fmtDate(u.created_at)} · {daysSince(u.created_at)}</span>
+                  <span>Joined {fmtDate(u.created_at)}</span>
                   <span>{boats} boat{boats !== 1 ? "s" : ""}</span>
                   <span>{trips} trip{trips !== 1 ? "s" : ""}</span>
                 </div>
+                {lastActivityByUser.has(u.id) && (
+                  <div className="text-xs text-slate-400 mt-0.5">
+                    Active {daysSince(lastActivityByUser.get(u.id)!)}
+                  </div>
+                )}
                 {!isAdmin && (
                   <div className="mt-2">
                     <DeleteUserDialog userId={u.id} userEmail={u.email ?? ""} />
@@ -164,7 +178,8 @@ export default async function AdminPage() {
               <tr className="border-b border-slate-100 bg-slate-50/50">
                 <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Email</th>
                 <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Signed up</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Last sign-in</th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Last activity</th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden xl:table-cell">Last sign-in</th>
                 <th className="text-center px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Boats</th>
                 <th className="text-center px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Trips</th>
                 <th className="px-4 py-2.5"></th>
@@ -187,7 +202,15 @@ export default async function AdminPage() {
                       <div>{fmtDate(u.created_at)}</div>
                       <div className="text-xs text-slate-400">{daysSince(u.created_at)}</div>
                     </td>
-                    <td className="px-4 py-3 text-slate-600 hidden lg:table-cell">{fmtDateTime(u.last_sign_in_at ?? null)}</td>
+                    <td className="px-4 py-3 text-slate-600 hidden lg:table-cell">
+                      {lastActivityByUser.has(u.id) ? (
+                        <>
+                          <div>{fmtDate(lastActivityByUser.get(u.id)!)}</div>
+                          <div className="text-xs text-slate-400">{daysSince(lastActivityByUser.get(u.id)!)}</div>
+                        </>
+                      ) : <span className="text-slate-400">—</span>}
+                    </td>
+                    <td className="px-4 py-3 text-slate-600 hidden xl:table-cell">{fmtDateTime(u.last_sign_in_at ?? null)}</td>
                     <td className="px-4 py-3 text-center">
                       <span className={boats > 0 ? "font-semibold text-slate-800" : "text-slate-400"}>{boats}</span>
                     </td>

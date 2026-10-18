@@ -16,7 +16,7 @@ import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import WhatsNewCard from "@/components/chat/whats-new-card";
 import GreetingCard from "@/components/chat/greeting-card";
 import MissingComponentsCard from "@/components/chat/missing-components-card";
-import { NoTripsCard, NoInventoryCard } from "@/components/chat/activation-cards";
+import { NoTripsCard, NoInventoryCard, NoFuelSourceCard } from "@/components/chat/activation-cards";
 import MaintenanceDraftCard from "@/components/chat/maintenance-draft-card";
 import EmailTripDraftCard from "@/components/chat/email-trip-draft-card";
 import InventoryPurchaseDraftCard from "@/components/chat/inventory-purchase-draft-card";
@@ -57,6 +57,7 @@ interface ChatInterfaceProps {
   hideWhatsNew: boolean;
   hasTrips: boolean;
   hasInventory: boolean;
+  hasFuelSource: boolean;
   lastActivityDate: string | null;
   fuelPct?: number | null;
 }
@@ -264,7 +265,7 @@ function HealthBanner({ healthScore, overdueCount, dueSoonCount, okCount, urgent
   );
 }
 
-export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, initialPurchaseDrafts, hideGreeting, hideWhatsNew, hasTrips, hasInventory, lastActivityDate, fuelPct }: ChatInterfaceProps) {
+export default function ChatInterface({ boat, engineHours, healthScore, overdueCount, dueSoonCount, okCount, urgentItems, components, inventoryItems, missingSuggestions, pendingDrafts: initialDrafts, pendingTripDrafts: initialTripDrafts, initialPurchaseDrafts, hideGreeting, hideWhatsNew, hasTrips, hasInventory, hasFuelSource, lastActivityDate, fuelPct }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [showWatchItemSheet, setShowWatchItemSheet] = useState(false);
@@ -525,6 +526,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             <MissingComponentsCard boatType={boat.type ?? null} suggestions={missingSuggestions} />
             {!hasTrips && <NoTripsCard boatId={boat.id} />}
             {!hasInventory && <NoInventoryCard />}
+            {hasInventory && !hasFuelSource && <NoFuelSourceCard />}
             <WhatsNewCard hidden={hideWhatsNew} />
             <GreetingCard boatId={boat.id} hidden={hideGreeting} />
 
