@@ -7,11 +7,12 @@ import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getBoatHealth } from "@/lib/components/health";
 import { AddComponentSheet } from "@/components/components/add-component-sheet";
 import { type StatusFilter, normalizeStatus } from "@/lib/component-status";
+import { SortableTh, sortHref } from "@/components/ui/sortable-th";
 
 export const dynamic = "force-dynamic";
 
 type ComponentsPageProps = {
-  searchParams: Promise<{ boat?: string; status?: string; system?: string }>;
+  searchParams: Promise<{ boat?: string; status?: string; system?: string; sort?: string; dir?: string }>;
 };
 
 type BoatRow = {
@@ -87,6 +88,8 @@ export default async function ComponentsPage({
   const params = await searchParams;
   const selectedStatus = parseStatusFilter(params.status);
   const selectedSystem = (params.system ?? "").trim();
+  const sort = params.sort ?? null;
+  const dir = (params.dir === "asc" || params.dir === "desc" ? params.dir : null) as "asc" | "desc" | null;
 
   const supabase = await createClient();
 
@@ -138,6 +141,22 @@ export default async function ComponentsPage({
     filteredRows = filteredRows.filter(
       (row) => (row.system_name ?? "") === selectedSystem
     );
+  }
+
+  if (sort) {
+    const mul = dir === "desc" ? -1 : 1;
+    filteredRows = [...filteredRows].sort((a, b) => {
+      switch (sort) {
+        case "name": return mul * a.component_name.localeCompare(b.component_name);
+        case "system": return mul * (a.system_name ?? "").localeCompare(b.system_name ?? "");
+        case "status": return mul * (statusRank(a.status) - statusRank(b.status));
+        case "risk": return mul * (Number(a.risk_score ?? 0) - Number(b.risk_score ?? 0));
+        case "hrs_since": return mul * ((a.hours_since_service ?? -1) - (b.hours_since_service ?? -1));
+        case "hrs_until": return mul * ((a.hours_until_due ?? Infinity) - (b.hours_until_due ?? Infinity));
+        case "months_until": return mul * ((a.months_until_due ?? Infinity) - (b.months_until_due ?? Infinity));
+        default: return 0;
+      }
+    });
   }
 
   const statusLinks: Array<{
@@ -307,16 +326,25 @@ export default async function ComponentsPage({
 
             {/* Desktop: table */}
             <div className="mt-4 hidden lg:block overflow-x-auto">
+              {(() => {
+                const baseParams: Record<string, string> = {};
+                if (selectedStatus !== "all") baseParams.status = selectedStatus;
+                if (selectedSystem) baseParams.system = selectedSystem;
+                const thCls = "py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide";
+                const sh = (col: string, label: string) => (
+                  <SortableTh href={sortHref("/components", baseParams, col, sort, dir)} label={label} active={sort === col} dir={sort === col ? dir : null} className={thCls} />
+                );
+                return (
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 text-left">
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Component</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">System</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Status</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Risk</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Hrs since</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Hrs until due</th>
-                    <th className="py-2 pr-4 text-xs font-medium text-slate-500 uppercase tracking-wide">Months until due</th>
+                    {sh("name", "Component")}
+                    {sh("system", "System")}
+                    {sh("status", "Status")}
+                    {sh("risk", "Risk")}
+                    {sh("hrs_since", "Hrs since")}
+                    {sh("hrs_until", "Hrs until due")}
+                    {sh("months_until", "Months until due")}
                   </tr>
                 </thead>
                 <tbody>
@@ -343,6 +371,7 @@ export default async function ComponentsPage({
                   ))}
                 </tbody>
               </table>
+                ); })()}
             </div>
           </>
         )}

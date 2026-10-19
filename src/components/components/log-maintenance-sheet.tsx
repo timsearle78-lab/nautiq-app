@@ -7,6 +7,8 @@ import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import { logMaintenance } from "@/app/(app)/components/[id]/actions";
 import VoiceTextarea from "@/components/ui/voice-textarea";
 import { todayLocal } from "@/lib/format-date";
+import { uploadWithProgress } from "@/lib/upload-with-progress";
+import { UploadProgressBar } from "@/components/ui/upload-progress-bar";
 
 type InventoryOption = { id: string; name: string; quantity: number; unit: string | null };
 type ComponentOption = { id: string; name: string };
@@ -48,7 +50,7 @@ export default function LogMaintenanceSheet({
   const [notes, setNotes] = useState(prefill?.notes ?? "");
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const [photoUploadPct, setPhotoUploadPct] = useState<number | null>(null);
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -57,22 +59,13 @@ export default function LogMaintenanceSheet({
     async (prev: { error?: string; success?: string; eventId?: string }, fd: FormData) => {
       const result = await logMaintenance(prev, fd);
       if (result.success && result.eventId && photos.length > 0) {
-        setUploadingPhotos(true);
+        setPhotoUploadPct(0);
         try {
-          const photoFormData = new FormData();
-          photos.forEach((f) => photoFormData.append("photos", f));
-          const photoRes = await fetch(`/api/maintenance-events/${result.eventId}/photos`, {
-            method: "POST",
-            body: photoFormData,
-          });
-          if (!photoRes.ok) {
-            const detail = await photoRes.json().catch(() => ({}));
-            console.error("Photo upload failed:", photoRes.status, detail);
-          }
+          await uploadWithProgress(`/api/maintenance-events/${result.eventId}/photos`, photos, "photos", setPhotoUploadPct);
         } catch (e) {
           console.error("Photo upload error:", e);
         } finally {
-          setUploadingPhotos(false);
+          setPhotoUploadPct(null);
         }
       }
       if (result.success) {
@@ -100,7 +93,7 @@ export default function LogMaintenanceSheet({
   }
 
   const effectiveComponentId = initialComponentId !== null ? initialComponentId : selectedComponentId;
-  const isBusy = pending || uploadingPhotos;
+  const isBusy = pending || photoUploadPct !== null;
 
   if (saved) return <SaveSuccessSheet message="Maintenance logged!" />;
 
@@ -275,13 +268,14 @@ export default function LogMaintenanceSheet({
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
                   multiple
                   className="hidden"
                   onChange={(e) => addFiles(e.target.files)}
                 />
               </div>
             )}
+            <UploadProgressBar pct={photoUploadPct} />
           </div>
 
           {/* Consume spare */}
@@ -314,6 +308,7 @@ export default function LogMaintenanceSheet({
           </div>
 
           {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+          <UploadProgressBar pct={photoUploadPct} />
 
           <button
             type="submit"
@@ -321,7 +316,7 @@ export default function LogMaintenanceSheet({
             className="w-full rounded-xl py-3.5 text-base font-semibold text-white transition disabled:opacity-50"
             style={{ background: "#0B7EB8" }}
           >
-            {uploadingPhotos ? "Uploading photos…" : pending ? "Saving…" : "Save maintenance record"}
+            {photoUploadPct !== null ? (photoUploadPct < 100 ? `Uploading… ${photoUploadPct}%` : "Uploading…") : pending ? "Saving…" : "Save maintenance record"}
           </button>
         </form>
       </div>

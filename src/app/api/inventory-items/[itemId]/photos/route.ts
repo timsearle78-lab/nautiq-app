@@ -1,15 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-const ALLOWED_TYPES: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-  "image/heic": "heic",
-  "image/heif": "heif",
-};
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_PHOTOS = 3;
+
+function resolveFileInfo(file: File): { ext: string; contentType: string } | null {
+  const BY_TYPE: Record<string, { ext: string; contentType: string }> = {
+    "image/jpeg": { ext: "jpg", contentType: "image/jpeg" },
+    "image/png":  { ext: "png", contentType: "image/png" },
+    "image/webp": { ext: "webp", contentType: "image/webp" },
+    "image/heic": { ext: "heic", contentType: "image/heic" },
+    "image/heif": { ext: "heif", contentType: "image/heif" },
+  };
+  if (BY_TYPE[file.type]) return BY_TYPE[file.type];
+  const n = file.name.toLowerCase();
+  if (n.endsWith(".heic")) return { ext: "heic", contentType: "image/heic" };
+  if (n.endsWith(".heif")) return { ext: "heif", contentType: "image/heif" };
+  if (n.endsWith(".jpg") || n.endsWith(".jpeg")) return { ext: "jpg", contentType: "image/jpeg" };
+  if (n.endsWith(".png"))  return { ext: "png",  contentType: "image/png" };
+  if (n.endsWith(".webp")) return { ext: "webp", contentType: "image/webp" };
+  return null;
+}
 
 async function getAuthedItem(supabase: Awaited<ReturnType<typeof createClient>>, itemId: string, userId: string) {
   const { data: item } = await supabase
@@ -57,9 +68,10 @@ export async function POST(
   const slots = MAX_PHOTOS - existing.length;
 
   for (const file of files.slice(0, slots)) {
-    const ext = ALLOWED_TYPES[file.type];
-    if (!ext) { console.warn("Rejected file type:", file.type); continue; }
+    const info = resolveFileInfo(file);
+    if (!info) { console.warn("Rejected unrecognised file:", file.name, file.type); continue; }
     if (file.size > MAX_FILE_SIZE) { console.warn("Rejected oversized file:", file.size); continue; }
+    const { ext, contentType } = info;
 
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const path = `${user.id}/${itemId}/${filename}`;
@@ -67,7 +79,7 @@ export async function POST(
 
     const { error: uploadError } = await supabase.storage
       .from("inventory-photos")
-      .upload(path, buffer, { contentType: file.type || "image/jpeg", upsert: false });
+      .upload(path, buffer, { contentType, upsert: false });
 
     if (uploadError) { console.error("Upload error:", uploadError.message); continue; }
 

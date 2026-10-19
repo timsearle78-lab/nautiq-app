@@ -6,6 +6,8 @@ import { createWatchItem } from "@/app/(app)/maintenance/watch-items/actions";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import SaveSuccessSheet from "@/components/ui/save-success-sheet";
 import VoiceTextarea from "@/components/ui/voice-textarea";
+import { uploadWithProgress } from "@/lib/upload-with-progress";
+import { UploadProgressBar } from "@/components/ui/upload-progress-bar";
 
 type ComponentOption = { id: string; name: string };
 
@@ -25,7 +27,7 @@ export default function AddWatchItemSheet({ boatId, components, onClose, onSaved
   const [notes, setNotes] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const [uploadPct, setUploadPct] = useState<number | null>(null);
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -35,19 +37,13 @@ export default function AddWatchItemSheet({ boatId, components, onClose, onSaved
       const result = await createWatchItem(prev, fd);
 
       if (result.success && result.id && photos.length > 0) {
-        setUploadingPhotos(true);
+        setUploadPct(0);
         try {
-          const photoFormData = new FormData();
-          photos.forEach((f) => photoFormData.append("photos", f));
-          const res = await fetch(`/api/watch-items/${result.id}/photos`, {
-            method: "POST",
-            body: photoFormData,
-          });
-          if (!res.ok) console.error("Photo upload failed:", res.status);
+          await uploadWithProgress(`/api/watch-items/${result.id}/photos`, photos, "photos", setUploadPct);
         } catch (e) {
           console.error("Photo upload error:", e);
         } finally {
-          setUploadingPhotos(false);
+          setUploadPct(null);
         }
       }
 
@@ -73,7 +69,7 @@ export default function AddWatchItemSheet({ boatId, components, onClose, onSaved
     setPreviews((p) => p.filter((_, j) => j !== i));
   }
 
-  const isBusy = pending || uploadingPhotos;
+  const isBusy = pending || uploadPct !== null;
   if (saved) return <SaveSuccessSheet message="Watch item added!" />;
 
   return (
@@ -167,12 +163,14 @@ export default function AddWatchItemSheet({ boatId, components, onClose, onSaved
                   <ImagePlus size={15} /> Choose
                 </button>
                 <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => addFiles(e.target.files)} />
-                <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
+                <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
               </div>
             )}
+            <UploadProgressBar pct={photoUploadPct} />
           </div>
 
           {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+          <UploadProgressBar pct={uploadPct} />
 
           <button
             type="submit"
@@ -180,7 +178,7 @@ export default function AddWatchItemSheet({ boatId, components, onClose, onSaved
             className="w-full rounded-xl py-3.5 text-base font-semibold text-white transition disabled:opacity-50"
             style={{ background: "#0B7EB8" }}
           >
-            {uploadingPhotos ? "Uploading photos…" : pending ? "Saving…" : "Add to watch list"}
+            {uploadPct !== null ? (uploadPct < 100 ? `Uploading… ${uploadPct}%` : "Uploading…") : pending ? "Saving…" : "Add to watch list"}
           </button>
         </form>
       </div>

@@ -3,7 +3,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { DeleteUserDialog } from "@/components/admin/delete-user-dialog";
-
+import { SortableTh, sortHref } from "@/components/ui/sortable-th";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +43,9 @@ function daysSince(iso: string | null) {
   return `${days} days ago`;
 }
 
-export default async function AdminPage() {
+type AdminPageProps = { searchParams: Promise<{ sort?: string; dir?: string }> };
+
+export default async function AdminPage({ searchParams }: AdminPageProps) {
   noStore();
 
   const supabase = await createClient();
@@ -54,6 +56,10 @@ export default async function AdminPage() {
   if (!user || !ADMIN_EMAILS.includes(user.email ?? "")) {
     redirect("/");
   }
+
+  const sp = await searchParams;
+  const sort = sp.sort ?? null;
+  const dir = (sp.dir === "asc" || sp.dir === "desc" ? sp.dir : null) as "asc" | "desc" | null;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -92,9 +98,23 @@ export default async function AdminPage() {
     if (!lastActivityByUser.has(a.user_id)) lastActivityByUser.set(a.user_id, a.created_at);
   }
 
-  const sorted = [...users].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
+  const sorted = [...users].sort((a, b) => {
+    if (!sort) return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    const mul = dir === "desc" ? -1 : 1;
+    switch (sort) {
+      case "email": return mul * (a.email ?? "").localeCompare(b.email ?? "");
+      case "signed_up": return mul * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      case "last_activity": {
+        const aa = lastActivityByUser.get(a.id) ?? "";
+        const bb = lastActivityByUser.get(b.id) ?? "";
+        return mul * aa.localeCompare(bb);
+      }
+      case "last_signin": return mul * ((a.last_sign_in_at ?? "").localeCompare(b.last_sign_in_at ?? ""));
+      case "boats": return mul * ((boatCountByUser.get(a.id) ?? 0) - (boatCountByUser.get(b.id) ?? 0));
+      case "trips": return mul * ((tripCountByUser.get(a.id) ?? 0) - (tripCountByUser.get(b.id) ?? 0));
+      default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+  });
 
   const totalUsers = users.length;
   const last7 = users.filter(
@@ -103,6 +123,11 @@ export default async function AdminPage() {
   const last30 = users.filter(
     (u) => Date.now() - new Date(u.created_at).getTime() < 30 * 86400000
   ).length;
+
+  const thCls = "text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide";
+  const sh = (col: string, label: string, cls = thCls) => (
+    <SortableTh href={sortHref("/admin", {}, col, sort, dir)} label={label} active={sort === col} dir={sort === col ? dir : null} className={cls} />
+  );
 
   return (
     <>
@@ -176,12 +201,12 @@ export default async function AdminPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Email</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Signed up</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Last activity</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden xl:table-cell">Last sign-in</th>
-                <th className="text-center px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Boats</th>
-                <th className="text-center px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Trips</th>
+                {sh("email", "Email")}
+                {sh("signed_up", "Signed up")}
+                {sh("last_activity", "Last activity", `${thCls} hidden lg:table-cell`)}
+                {sh("last_signin", "Last sign-in", `${thCls} hidden xl:table-cell`)}
+                {sh("boats", "Boats", `${thCls} text-center`)}
+                {sh("trips", "Trips", `${thCls} text-center`)}
                 <th className="px-4 py-2.5"></th>
               </tr>
             </thead>

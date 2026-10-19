@@ -3,17 +3,21 @@ import { notFound, redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { EditInventoryItemForm } from "@/components/inventory/edit-inventory-item-form";
+import { SortableTh, sortHref } from "@/components/ui/sortable-th";
 
 export const dynamic = "force-dynamic";
 
-type PageProps = { params: Promise<{ id: string }> };
+type PageProps = { params: Promise<{ id: string }>; searchParams: Promise<{ sort?: string; dir?: string }> };
 
 type ComponentOption = { id: string; name: string };
 
-export default async function EditInventoryItemPage({ params }: PageProps) {
+export default async function EditInventoryItemPage({ params, searchParams }: PageProps) {
   noStore();
 
   const { id } = await params;
+  const sp = await searchParams;
+  const sort = sp.sort ?? null;
+  const dir = (sp.dir === "asc" || sp.dir === "desc" ? sp.dir : null) as "asc" | "desc" | null;
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -60,6 +64,17 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
   type TxRow = { id: string; transaction_type: string; quantity_delta: number; cost: number | null; notes: string | null; created_at: string };
   const transactions = (txRes.data ?? []) as TxRow[];
 
+  const sortedTx: TxRow[] = sort ? [...transactions].sort((a, b) => {
+    const mul = dir === "desc" ? -1 : 1;
+    switch (sort) {
+      case "date": return mul * a.created_at.localeCompare(b.created_at);
+      case "type": return mul * a.transaction_type.localeCompare(b.transaction_type);
+      case "qty": return mul * (a.quantity_delta - b.quantity_delta);
+      case "cost": return mul * (Number(a.cost ?? 0) - Number(b.cost ?? 0));
+      default: return 0;
+    }
+  }) : transactions;
+
   return (
     <main className="px-4 py-6 space-y-5">
       <div>
@@ -82,15 +97,20 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</th>
-                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Type</th>
-                  <th className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Qty</th>
-                  <th className="text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Cost</th>
+                  {(["date","type","qty","cost"] as const).map((col) => {
+                    const clsMap: Record<string, string> = {
+                      date: "text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide",
+                      type: "text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide",
+                      qty: "text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide",
+                      cost: "text-right px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell",
+                    };
+                    return <SortableTh key={col} href={sortHref(`/inventory/${id}`, {}, col, sort, dir)} label={col.charAt(0).toUpperCase()+col.slice(1)} active={sort===col} dir={sort===col?dir:null} className={clsMap[col]} />;
+                  })}
                   <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Notes</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {transactions.map((tx) => {
+                {sortedTx.map((tx) => {
                   const isAdd = tx.quantity_delta > 0;
                   const date = new Date(tx.created_at).toLocaleDateString("en-NZ", {
                     day: "numeric", month: "short", year: "numeric",
