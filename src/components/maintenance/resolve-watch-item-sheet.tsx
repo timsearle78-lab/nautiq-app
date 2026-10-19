@@ -7,6 +7,8 @@ import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import SaveSuccessSheet from "@/components/ui/save-success-sheet";
 import VoiceTextarea from "@/components/ui/voice-textarea";
 import { todayLocal } from "@/lib/format-date";
+import { uploadWithProgress } from "@/lib/upload-with-progress";
+import { UploadProgressBar } from "@/components/ui/upload-progress-bar";
 
 type ComponentOption = { id: string; name: string };
 type InventoryOption = { id: string; name: string; quantity: number; unit: string | null };
@@ -40,7 +42,7 @@ export default function ResolveWatchItemSheet({
   const [notes, setNotes] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const [photoUploadPct, setPhotoUploadPct] = useState<number | null>(null);
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -50,19 +52,13 @@ export default function ResolveWatchItemSheet({
       const result = await resolveWatchItem(prev, fd);
 
       if (result.success && result.eventId && photos.length > 0) {
-        setUploadingPhotos(true);
+        setPhotoUploadPct(0);
         try {
-          const photoFormData = new FormData();
-          photos.forEach((f) => photoFormData.append("photos", f));
-          const res = await fetch(`/api/maintenance-events/${result.eventId}/photos`, {
-            method: "POST",
-            body: photoFormData,
-          });
-          if (!res.ok) console.error("Photo upload failed:", res.status);
+          await uploadWithProgress(`/api/maintenance-events/${result.eventId}/photos`, photos, "photos", setPhotoUploadPct);
         } catch (e) {
           console.error("Photo upload error:", e);
         } finally {
-          setUploadingPhotos(false);
+          setPhotoUploadPct(null);
         }
       }
 
@@ -88,7 +84,7 @@ export default function ResolveWatchItemSheet({
     setPreviews((p) => p.filter((_, j) => j !== i));
   }
 
-  const isBusy = pending || uploadingPhotos;
+  const isBusy = pending || photoUploadPct !== null;
   if (saved) return <SaveSuccessSheet message="Maintenance logged!" />;
 
   return (
@@ -241,6 +237,7 @@ export default function ResolveWatchItemSheet({
                 <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
               </div>
             )}
+            <UploadProgressBar pct={photoUploadPct} />
           </div>
 
           {state.error && <p className="text-sm text-red-600">{state.error}</p>}
@@ -250,7 +247,7 @@ export default function ResolveWatchItemSheet({
             disabled={isBusy}
             className="w-full rounded-xl py-3.5 text-base font-semibold text-white transition disabled:opacity-50 btn-primary"
           >
-            {uploadingPhotos ? "Uploading photos…" : pending ? "Saving…" : "Mark done & log maintenance"}
+            {photoUploadPct !== null ? (photoUploadPct < 100 ? `Uploading… ${photoUploadPct}%` : "Uploading…") : pending ? "Saving…" : "Mark done & log maintenance"}
           </button>
         </form>
       </div>

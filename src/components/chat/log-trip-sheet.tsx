@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { X, MapPin, Fuel, Camera, ImagePlus, Trash2 } from "lucide-react";
+import { uploadWithProgress } from "@/lib/upload-with-progress";
+import { UploadProgressBar } from "@/components/ui/upload-progress-bar";
 import type { GpsCoords } from "@/hooks/use-trip-timer";
 import NautiqAnchorIcon from "@/components/ui/nautiq-anchor-icon";
 import VoiceTextarea from "@/components/ui/voice-textarea";
@@ -88,7 +90,7 @@ export default function LogTripSheet({
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const [photoUploadPct, setPhotoUploadPct] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -156,15 +158,13 @@ export default function LogTripSheet({
       if (res.ok) {
         const data = await res.json().catch(() => ({}));
         if (photos.length > 0 && data.id) {
-          setUploadingPhotos(true);
+          setPhotoUploadPct(0);
           try {
-            const photoFormData = new FormData();
-            photos.forEach((f) => photoFormData.append("photos", f));
-            await fetch(`/api/trips/${data.id}/photos`, { method: "POST", body: photoFormData });
+            await uploadWithProgress(`/api/trips/${data.id}/photos`, photos, "photos", setPhotoUploadPct);
           } catch (e) {
             console.error("Photo upload error:", e);
           } finally {
-            setUploadingPhotos(false);
+            setPhotoUploadPct(null);
           }
         }
         setSaved(true);
@@ -180,7 +180,7 @@ export default function LogTripSheet({
     }
   }
 
-  const isBusy = saving || uploadingPhotos;
+  const isBusy = saving || photoUploadPct !== null;
   if (saved) return <SaveSuccessSheet message="Trip saved!" />;
 
   return (
@@ -351,6 +351,7 @@ export default function LogTripSheet({
                 <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
               </div>
             )}
+            <UploadProgressBar pct={photoUploadPct} />
           </div>
 
           {(prefillStartCoords || prefillEndCoords) && (
@@ -391,12 +392,13 @@ export default function LogTripSheet({
         </div>
 
         <div className="px-4 pb-6 pt-2">
+          <UploadProgressBar pct={photoUploadPct} />
           <button
             onClick={handleSave}
             disabled={isBusy}
-            className="w-full rounded-xl btn-primary py-3.5 text-base font-semibold text-white transition disabled:opacity-50"
+            className="w-full rounded-xl btn-primary py-3.5 text-base font-semibold text-white transition disabled:opacity-50 mt-2"
           >
-            {uploadingPhotos ? "Uploading photos…" : saving ? "Saving…" : "Save Trip"}
+            {photoUploadPct !== null ? (photoUploadPct < 100 ? `Uploading… ${photoUploadPct}%` : "Uploading…") : saving ? "Saving…" : "Save Trip"}
           </button>
         </div>
       </div>

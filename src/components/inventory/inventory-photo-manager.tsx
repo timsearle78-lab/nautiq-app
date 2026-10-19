@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import { Camera, ImagePlus, Trash2, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { uploadWithProgress } from "@/lib/upload-with-progress";
+import { UploadProgressBar } from "@/components/ui/upload-progress-bar";
 
 const MAX_PHOTOS = 3;
 
@@ -12,7 +14,7 @@ type Props = {
 
 export function InventoryPhotoManager({ itemId, initialUrls }: Props) {
   const [urls, setUrls] = useState<string[]>(initialUrls);
-  const [uploading, setUploading] = useState(false);
+  const [uploadPct, setUploadPct] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -21,29 +23,23 @@ export function InventoryPhotoManager({ itemId, initialUrls }: Props) {
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
     setError(null);
-    setUploading(true);
+    setUploadPct(0);
 
-    const formData = new FormData();
     const remaining = MAX_PHOTOS - urls.length;
-    Array.from(files)
-      .slice(0, remaining)
-      .forEach((f) => formData.append("photos", f));
+    const filesToUpload = Array.from(files).slice(0, remaining);
 
     try {
-      const res = await fetch(`/api/inventory-items/${itemId}/photos`, {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Upload failed");
-      } else {
-        setUrls((prev) => [...prev, ...(data.urls as string[])]);
-      }
-    } catch {
-      setError("Upload failed — please try again");
+      const data = await uploadWithProgress(
+        `/api/inventory-items/${itemId}/photos`,
+        filesToUpload,
+        "photos",
+        setUploadPct
+      );
+      setUrls((prev) => [...prev, ...data.urls]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload failed — please try again");
     } finally {
-      setUploading(false);
+      setUploadPct(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
       if (cameraInputRef.current) cameraInputRef.current.value = "";
     }
@@ -69,6 +65,7 @@ export function InventoryPhotoManager({ itemId, initialUrls }: Props) {
     }
   }
 
+  const uploading = uploadPct !== null;
   const canAdd = urls.length < MAX_PHOTOS && !uploading;
 
   return (
@@ -121,11 +118,12 @@ export function InventoryPhotoManager({ itemId, initialUrls }: Props) {
           {uploading && (
             <div className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-400">
               <div className="w-4 h-4 border-2 border-ocean-500 border-t-transparent rounded-full animate-spin" />
-              Uploading…
+              {uploadPct != null && uploadPct < 100 ? `${uploadPct}%` : "Uploading…"}
             </div>
           )}
         </div>
       )}
+      <UploadProgressBar pct={uploadPct} />
       {/* Hidden file inputs */}
       <input
         ref={fileInputRef}

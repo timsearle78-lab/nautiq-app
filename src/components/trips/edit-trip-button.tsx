@@ -4,6 +4,8 @@ import { useActionState, useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, X, Fuel, Camera, ImagePlus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { updateTrip } from "@/app/(app)/trips/actions";
+import { uploadWithProgress } from "@/lib/upload-with-progress";
+import { UploadProgressBar } from "@/components/ui/upload-progress-bar";
 
 const inputCls =
   "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100";
@@ -45,7 +47,8 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
   const [fuelVal, setFuelVal] = useState(fuelAddedLitres?.toString() ?? "");
   const [fuelPreview, setFuelPreview] = useState<FuelPreview>(null);
   const [photos, setPhotos] = useState<string[]>(photoUrls);
-  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoUploadPct, setPhotoUploadPct] = useState<number | null>(null);
+  const photoUploading = photoUploadPct !== null;
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -55,17 +58,14 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
   async function handlePhotoFiles(files: FileList | null) {
     if (!files || !files.length) return;
     setPhotoError(null);
-    setPhotoUploading(true);
-    const formData = new FormData();
-    Array.from(files).slice(0, MAX_PHOTOS - photos.length).forEach((f) => formData.append("photos", f));
+    setPhotoUploadPct(0);
+    const filesToUpload = Array.from(files).slice(0, MAX_PHOTOS - photos.length);
     try {
-      const res = await fetch(`/api/trips/${tripId}/photos`, { method: "POST", body: formData });
-      const data = await res.json();
-      if (!res.ok) setPhotoError(data.error ?? "Upload failed");
-      else setPhotos((prev) => [...prev, ...(data.urls as string[])]);
-    } catch { setPhotoError("Upload failed — please try again"); }
+      const data = await uploadWithProgress(`/api/trips/${tripId}/photos`, filesToUpload, "photos", setPhotoUploadPct);
+      setPhotos((prev) => [...prev, ...data.urls]);
+    } catch (e) { setPhotoError(e instanceof Error ? e.message : "Upload failed — please try again"); }
     finally {
-      setPhotoUploading(false);
+      setPhotoUploadPct(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
       if (cameraInputRef.current) cameraInputRef.current.value = "";
     }
@@ -243,7 +243,7 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
                     <button
                       type="button"
                       onClick={() => cameraInputRef.current?.click()}
-                      disabled={photoUploading}
+                      disabled={photoUploadPct !== null}
                       className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 transition hover:border-ocean-300 hover:text-ocean-600 disabled:opacity-50"
                     >
                       <Camera size={15} /> Camera
@@ -251,21 +251,23 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      disabled={photoUploading}
+                      disabled={photoUploadPct !== null}
                       className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 transition hover:border-ocean-300 hover:text-ocean-600 disabled:opacity-50"
                     >
                       <ImagePlus size={15} /> Choose
                     </button>
-                    {photoUploading && (
+                    {photoUploadPct !== null && (
                       <div className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-400">
                         <div className="w-4 h-4 border-2 border-ocean-500 border-t-transparent rounded-full animate-spin" />
-                        Uploading…
+                        {photoUploadPct < 100 ? `${photoUploadPct}%` : "Uploading…"}
                       </div>
                     )}
                   </div>
                 )}
+                <UploadProgressBar pct={photoUploadPct} />
                 <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handlePhotoFiles(e.target.files)} />
                 <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple className="hidden" onChange={(e) => handlePhotoFiles(e.target.files)} />
+                <UploadProgressBar pct={photoUploadPct} />
                 {photoError && <p className="mt-1.5 text-xs text-red-600">{photoError}</p>}
               </div>
 

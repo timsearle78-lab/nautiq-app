@@ -11,6 +11,7 @@ export const CHANGELOG: Release[] = [
     label: "October 2026 update",
     features: [
       "Photos now work when selecting multiple HEIC images from your iPhone gallery",
+      "Photo uploads now show a progress bar — helpful for larger images on slower connections",
     ],
   },
   {
