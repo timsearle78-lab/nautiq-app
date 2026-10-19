@@ -351,7 +351,6 @@ export default function LogTripSheet({
                 <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
               </div>
             )}
-            <UploadProgressBar pct={photoUploadPct} />
           </div>
 
           {(prefillStartCoords || prefillEndCoords) && (

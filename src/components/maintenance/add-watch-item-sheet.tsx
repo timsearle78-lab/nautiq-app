@@ -166,7 +166,6 @@ export default function AddWatchItemSheet({ boatId, components, onClose, onSaved
                 <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
               </div>
             )}
-            <UploadProgressBar pct={photoUploadPct} />
           </div>
 
           {state.error && <p className="text-sm text-red-600">{state.error}</p>}

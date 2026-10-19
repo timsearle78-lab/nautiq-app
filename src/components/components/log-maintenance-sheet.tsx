@@ -308,7 +308,6 @@ export default function LogMaintenanceSheet({
           </div>
 
           {state.error && <p className="text-sm text-red-600">{state.error}</p>}
-          <UploadProgressBar pct={photoUploadPct} />
 
           <button
             type="submit"

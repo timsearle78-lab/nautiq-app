@@ -48,7 +48,7 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
   const [fuelPreview, setFuelPreview] = useState<FuelPreview>(null);
   const [photos, setPhotos] = useState<string[]>(photoUrls);
   const [photoUploadPct, setPhotoUploadPct] = useState<number | null>(null);
-  const photoUploading = photoUploadPct !== null;
+
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -264,7 +264,6 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
                     )}
                   </div>
                 )}
-                <UploadProgressBar pct={photoUploadPct} />
                 <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handlePhotoFiles(e.target.files)} />
                 <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple className="hidden" onChange={(e) => handlePhotoFiles(e.target.files)} />
                 <UploadProgressBar pct={photoUploadPct} />
