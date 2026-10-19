@@ -7,6 +7,13 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-10-19",
+    label: "October 2026 update",
+    features: [
+      "Photos now work when selecting multiple HEIC images from your iPhone gallery",
+    ],
+  },
+  {
     date: "2026-10-18",
     label: "October 2026 update",
     features: [
