@@ -266,6 +266,7 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
                 )}
                 <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handlePhotoFiles(e.target.files)} />
                 <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple className="hidden" onChange={(e) => handlePhotoFiles(e.target.files)} />
+                <UploadProgressBar pct={photoUploadPct} />
                 {photoError && <p className="mt-1.5 text-xs text-red-600">{photoError}</p>}
               </div>
 
