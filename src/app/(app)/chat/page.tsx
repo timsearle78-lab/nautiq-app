@@ -54,7 +54,7 @@ export default async function ChatPage() {
     supabase.from("user_settings").select("hide_greeting, hide_whats_new").eq("user_id", user.id).single(),
     supabase.from("trips").select("started_at").eq("boat_id", boat.id).not("started_at", "is", null).order("started_at", { ascending: false }).limit(1),
     supabase.from("boat_checkins").select("checked_at").eq("boat_id", boat.id).order("checked_at", { ascending: false }).limit(1),
-    supabase.from("boats").select("fuel_tank_litres").eq("id", boat.id).single(),
+    supabase.from("boats").select("fuel_tank_litres, fuel_consumption_lph").eq("id", boat.id).single(),
     supabase.from("inventory_items").select("quantity").eq("boat_id", boat.id).eq("is_fuel_source", true).limit(1).maybeSingle(),
   ]);
 
@@ -80,6 +80,8 @@ export default async function ChatPage() {
 
   const hasFuelSource = fuelItemRes.data != null;
   const fuelTankLitres = (boatDetailsRes.data?.fuel_tank_litres as number | null) ?? null;
+  const fuelConsumptionLph = (boatDetailsRes.data?.fuel_consumption_lph as number | null) ?? null;
+  const hasFuelSetup = !!(fuelTankLitres && fuelConsumptionLph);
   const fuelCurrentLitres = fuelItemRes.data ? Number(fuelItemRes.data.quantity) : null;
   const fuelPct = fuelTankLitres && fuelTankLitres > 0 && fuelCurrentLitres != null
     ? Math.min(1, Math.max(0, fuelCurrentLitres / fuelTankLitres))
@@ -121,6 +123,7 @@ export default async function ChatPage() {
       hasTrips={hasTrips}
       hasInventory={hasInventory}
       hasFuelSource={hasFuelSource}
+      hasFuelSetup={hasFuelSetup}
       lastActivityDate={lastActivityDate}
       fuelPct={fuelPct}
     />
