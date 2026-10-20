@@ -524,11 +524,11 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 onDone={() => setPurchaseDrafts((prev) => prev.filter((d) => d.id !== draft.id))}
               />
             ))}
-            <MissingComponentsCard boatType={boat.type ?? null} suggestions={missingSuggestions} />
-            {!hasTrips && <NoTripsCard boatId={boat.id} />}
-            {!hasInventory && <NoInventoryCard />}
-            {hasInventory && !hasFuelSource && <NoFuelSourceCard />}
-            {hasFuelSource && !hasFuelSetup && <FuelSetupCard />}
+            {!hideGreeting && <MissingComponentsCard boatType={boat.type ?? null} suggestions={missingSuggestions} />}
+            {!hideGreeting && !hasTrips && <NoTripsCard boatId={boat.id} />}
+            {!hideGreeting && !hasInventory && <NoInventoryCard />}
+            {!hideGreeting && hasInventory && !hasFuelSource && <NoFuelSourceCard />}
+            {!hideGreeting && hasFuelSource && !hasFuelSetup && <FuelSetupCard />}
             <WhatsNewCard hidden={hideWhatsNew} />
             <GreetingCard boatId={boat.id} hidden={hideGreeting} />
 
