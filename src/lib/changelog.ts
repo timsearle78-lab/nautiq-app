@@ -7,6 +7,13 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-10-20",
+    label: "October 2026 update",
+    features: [
+      "Home screen now prompts you to set your tank capacity and fuel consumption rate if you've tagged a fuel source but haven't configured them yet",
+    ],
+  },
+  {
     date: "2026-10-19",
     label: "October 2026 update",
     features: [

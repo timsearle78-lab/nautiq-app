@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Package, Fuel, X, ChevronRight } from "lucide-react";
+import { MapPin, Package, Fuel, Settings, X, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 function DismissibleCard({ id, children }: { id: string; children: React.ReactNode }) {
@@ -93,6 +93,39 @@ export function NoInventoryCard() {
             <ChevronRight size={12} />
           </Link>
           <span style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>or scan a product with the camera</span>
+        </div>
+      </div>
+    </DismissibleCard>
+  );
+}
+
+export function FuelSetupCard() {
+  return (
+    <DismissibleCard id="fuel-setup">
+      <div className="card overflow-hidden">
+        <div className="flex items-start gap-3 px-4 py-3.5 pr-10">
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-full shrink-0 mt-0.5"
+            style={{ background: "#0B7EB8" }}
+          >
+            <Fuel size={14} color="#FFFFFF" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p style={{ fontSize: 15, fontWeight: 800, color: "var(--color-navy-700)" }}>Complete your fuel setup</p>
+            <p style={{ fontSize: 13, color: "var(--color-navy-mute)", marginTop: 2, lineHeight: 1.5 }}>
+              Add your tank capacity and fuel consumption rate so NautIQ can show your fuel level as a gauge and auto-estimate usage when you log trips.
+            </p>
+          </div>
+        </div>
+        <div className="px-4 py-3 flex items-center gap-3" style={{ borderTop: "1.5px solid #DBE3EA" }}>
+          <Link
+            href="/settings"
+            className="flex items-center gap-1.5 btn-primary px-4 py-2"
+            style={{ fontSize: 13, minHeight: "auto", borderRadius: 8 }}
+          >
+            <Settings size={12} /> Go to settings
+          </Link>
+          <span style={{ fontSize: 12, color: "var(--color-navy-mute)" }}>set tank size &amp; fuel usage rate</span>
         </div>
       </div>
     </DismissibleCard>
