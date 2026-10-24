@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Image from "next/image";
 import { Eye, CheckCircle, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { deleteWatchItem } from "@/app/(app)/maintenance/watch-items/actions";
 
@@ -91,8 +92,7 @@ export default function WatchItemCard({ item, boatId, onDeleted, onMarkDone }: P
                   className="relative rounded-xl overflow-hidden border border-slate-200 hover:opacity-80 transition-opacity"
                   style={{ width: 72, height: 72 }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt="" className="w-full h-full object-cover" />
+                  <Image src={url} alt="" fill className="object-cover" sizes="72px" />
                 </button>
               ))}
             </div>

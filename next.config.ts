@@ -17,6 +17,15 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
+  },
   async headers() {
     return [
       {
