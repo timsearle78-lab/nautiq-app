@@ -177,8 +177,9 @@ export async function POST(req: NextRequest) {
 
   const isForLogAddress = normalised.includes("log@nautiq.cloud");
   const isForSupportAddress = normalised.some((a) => a === "info@nautiq.cloud" || a === "support@nautiq.cloud");
+  const isForNoreplyAddress = normalised.includes("noreply@nautiq.cloud");
 
-  if (!isForLogAddress && !isForSupportAddress) {
+  if (!isForLogAddress && !isForSupportAddress && !isForNoreplyAddress) {
     return NextResponse.json({ ok: true, skipped: true });
   }
 
@@ -208,6 +209,43 @@ export async function POST(req: NextRequest) {
 
   if (!from) {
     return NextResponse.json({ error: "Missing from" }, { status: 400 });
+  }
+
+  // Handle unsubscribe replies to noreply@ — auto-set flag and notify admins
+  if (isForNoreplyAddress) {
+    const isUnsubscribe = subject.toLowerCase().includes("unsubscribe") || (text ?? "").toLowerCase().includes("unsubscribe");
+
+    if (isUnsubscribe) {
+      const emailMatch = from.match(/<([^>]+)>/) ?? from.match(/([^\s]+@[^\s]+)/);
+      const senderEmail = emailMatch ? emailMatch[1].toLowerCase() : from.toLowerCase();
+      const supabase = adminClient();
+      const { data: usersData } = await supabase.auth.admin.listUsers();
+      const user = usersData?.users.find((u) => u.email?.toLowerCase() === senderEmail);
+      if (user) {
+        await supabase.from("user_settings").upsert(
+          { user_id: user.id, email_unsubscribed: true },
+          { onConflict: "user_id" }
+        );
+      }
+    }
+
+    const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim()).filter(Boolean);
+    if (adminEmails.length > 0) {
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${resendKey}` },
+        body: JSON.stringify({
+          from: "NautIQ <noreply@nautiq.cloud>",
+          to: adminEmails,
+          reply_to: from,
+          subject: isUnsubscribe ? `[UNSUBSCRIBE] ${from} has been automatically opted out` : `[Reply to noreply] ${subject}`,
+          text: isUnsubscribe
+            ? `${from} replied with an unsubscribe request. Their email_unsubscribed flag has been set automatically.\n\nOriginal message:\n${text || subject}`
+            : `From: ${from}\n\n---\n\n${text || subject}`,
+        }),
+      });
+    }
+    return NextResponse.json({ ok: true, forwarded: true });
   }
 
   // Forward info@ / support@ emails to admin list and return early

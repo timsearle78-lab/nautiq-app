@@ -7,6 +7,13 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-10-24",
+    label: "October 2026 update",
+    features: [
+      "Unsubscribe from all NautIQ emails at any time in Settings → Notifications — just tick \"Unsubscribe from all emails\" and save",
+    ],
+  },
+  {
     date: "2026-10-20",
     label: "October 2026 update",
     features: [
@@ -15,6 +22,7 @@ export const CHANGELOG: Release[] = [
       "Settings page simplified — your boats are now a clean list; tap Edit on any boat to update its name, specs, fuel settings, photo, crew, and systems all in one place",
       "New \"Log visit\" shortcut on the Home screen — tap it to quickly record a marina or anchorage visit without typing it into the assistant",
       "Share feedback directly from the app — tap the \"Feedback\" button on the Home screen or Profile → Share feedback to rate NautIQ (1–10) and leave a comment",
+      "Unsubscribe from all NautIQ emails at any time in Settings → Notifications — just tick \"Unsubscribe from all emails\" and save",
     ],
   },
   {

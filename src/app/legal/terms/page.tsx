@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "NautIQ Terms of Service",
 };
 
-const EFFECTIVE_DATE = "7 August 2026";
+const EFFECTIVE_DATE = "24 October 2026";
 
 export default function TermsPage() {
   return (
@@ -41,8 +41,15 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold text-slate-900 mb-2">5. AI-generated content</h2>
-            <p>NautIQ uses AI to assist with maintenance suggestions, email parsing, and health assessments. AI responses may be inaccurate. Always verify safety-critical information with a qualified marine professional. NautIQ is not a substitute for professional marine advice.</p>
+            <h2 className="text-base font-semibold text-slate-900 mb-2">5. AI-generated content and limitations</h2>
+            <p>NautIQ uses AI (Anthropic Claude) to assist with maintenance suggestions, email parsing, trip logging, and health assessments. You acknowledge and agree that:</p>
+            <ul className="list-disc pl-5 space-y-1 mt-2">
+              <li>AI-generated content may be incomplete, incorrect, or outdated. Do not rely on it as the sole basis for any decision.</li>
+              <li>Maintenance intervals, service recommendations, and component assessments provided by the AI are informational only and must be verified against manufacturer specifications and with a qualified marine engineer or mechanic before acting on them.</li>
+              <li>NautIQ is not a substitute for professional marine advice. No information provided through NautIQ constitutes professional marine, safety, or legal advice.</li>
+              <li>You are solely responsible for decisions you make about your vessel, its maintenance, and its safe operation.</li>
+              <li>NautIQ and its operators accept no liability for damage, injury, loss, or expense arising from reliance on AI-generated content.</li>
+            </ul>
           </section>
 
           <section>

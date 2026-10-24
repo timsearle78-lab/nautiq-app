@@ -129,7 +129,7 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
 
                 <button
                   onClick={() => goChat("restock")}
-                  className="flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700 hover:bg-green-100 transition"
+                  className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
                 >
                   <PackagePlus size={16} />
                   Restock item
@@ -145,7 +145,7 @@ export default function GlobalActionsMenu({ boatId }: GlobalActionsMenuProps) {
 
                 <button
                   onClick={act(() => setShowWatchItem(true))}
-                  className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700 hover:bg-amber-100 transition"
+                  className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
                 >
                   <Eye size={16} />
                   Watch item

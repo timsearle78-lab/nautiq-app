@@ -110,17 +110,45 @@ export async function updateNotificationPreferences(_prev: ActionState, formData
   const health_summary = (formData.get("health_summary") as string) || "none";
   const health_summary_day = parseInt(formData.get("health_summary_day") as string ?? "1", 10);
   const overdue_alerts = formData.get("overdue_alerts") === "on";
+  const email_unsubscribed = formData.get("email_unsubscribed") === "on";
+
+  // Check previous value so we can detect a change and notify admins
+  const { data: prev } = await supabase
+    .from("user_settings")
+    .select("email_unsubscribed")
+    .eq("user_id", user.id)
+    .single();
 
   const { error } = await supabase
     .from("user_settings")
     .upsert(
-      { user_id: user.id, email, health_summary, health_summary_day, overdue_alerts },
+      { user_id: user.id, email, health_summary, health_summary_day, overdue_alerts, email_unsubscribed },
       { onConflict: "user_id" }
     );
 
   if (error) return { error: error.message };
 
   revalidatePath("/settings");
+
+  // Notify admins if unsubscribe state changed
+  const prevUnsubscribed = prev?.email_unsubscribed ?? false;
+  if (email_unsubscribed !== prevUnsubscribed) {
+    const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim()).filter(Boolean);
+    if (adminEmails.length > 0 && process.env.RESEND_API_KEY) {
+      const action = email_unsubscribed ? "opted out of all emails" : "re-subscribed to emails";
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.RESEND_API_KEY}` },
+        body: JSON.stringify({
+          from: "NautIQ <noreply@nautiq.cloud>",
+          to: adminEmails,
+          subject: `[Unsubscribe] ${user.email} has ${action}`,
+          text: `User ${user.email} (${user.id}) has ${action} via Settings > Notifications.`,
+        }),
+      });
+    }
+  }
+
   return { success: "Notification preferences saved", savedAt: Date.now() };
 }
 

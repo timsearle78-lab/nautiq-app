@@ -145,12 +145,25 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, sent: 0, message: "No inactive users found" });
   }
 
-  // For each inactive user, calculate days since last audit event
+  // Filter out users who have unsubscribed from all emails
   const userIds = inactiveUsers.map((u) => u.id);
+  const { data: unsubscribedRows } = await adminClient
+    .from("user_settings")
+    .select("user_id")
+    .in("user_id", userIds)
+    .eq("email_unsubscribed", true);
+  const unsubscribedIds = new Set((unsubscribedRows ?? []).map((r: { user_id: string }) => r.user_id));
+  const eligibleUsers = inactiveUsers.filter((u) => !unsubscribedIds.has(u.id));
+
+  if (eligibleUsers.length === 0) {
+    return NextResponse.json({ ok: true, sent: 0, message: "No eligible users (all inactive users have unsubscribed)" });
+  }
+
+  // For each eligible user, calculate days since last audit event
   const { data: lastActivity } = await adminClient
     .from("audit_events")
     .select("user_id, created_at")
-    .in("user_id", userIds)
+    .in("user_id", eligibleUsers.map((u) => u.id))
     .order("created_at", { ascending: false });
 
   const lastSeenMap = new Map<string, Date>();
@@ -163,7 +176,7 @@ export async function GET(req: Request) {
   let sent = 0;
   const results: { email: string; status: string }[] = [];
 
-  for (const user of inactiveUsers) {
+  for (const user of eligibleUsers) {
     const email = user.email;
     if (!email) continue;
 

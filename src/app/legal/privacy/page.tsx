@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "NautIQ Privacy Policy",
 };
 
-const EFFECTIVE_DATE = "7 August 2026";
+const EFFECTIVE_DATE = "24 October 2026";
 
 export default function PrivacyPage() {
   return (
@@ -48,15 +48,19 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold text-slate-900 mb-2">4. Third-party services</h2>
-            <p>We use the following third-party services to operate NautIQ:</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li><strong>Supabase</strong> — database and file storage (EU/US)</li>
-              <li><strong>Vercel</strong> — hosting and serverless functions (global CDN)</li>
-              <li><strong>Anthropic</strong> — AI chat and email parsing</li>
-              <li><strong>Resend</strong> — transactional email delivery</li>
+            <h2 className="text-base font-semibold text-slate-900 mb-2">4. Third-party services (sub-processors)</h2>
+            <p>We use the following third-party services to operate NautIQ. Each is a data sub-processor under GDPR and has their own privacy policy governing their data handling.</p>
+            <ul className="list-disc pl-5 space-y-2 mt-3">
+              <li><strong>Supabase</strong> — database and file storage. Your boat data, maintenance records, photos, and account information are stored on Supabase infrastructure. <a href="https://supabase.com/privacy" className="text-ocean-600 hover:underline" target="_blank" rel="noopener noreferrer">Supabase Privacy Policy</a></li>
+              <li><strong>Vercel</strong> — hosting and serverless functions (global CDN). All app traffic passes through Vercel. <a href="https://vercel.com/legal/privacy-policy" className="text-ocean-600 hover:underline" target="_blank" rel="noopener noreferrer">Vercel Privacy Policy</a></li>
+              <li><strong>Anthropic</strong> — AI assistant, email parsing, and maintenance suggestions. When you use the chat assistant or email log@nautiq.cloud, the content of your messages — including boat details, maintenance notes, and trip information — is sent to Anthropic{"'"}s API for processing. Anthropic does not use API data to train its models by default. <a href="https://www.anthropic.com/privacy" className="text-ocean-600 hover:underline" target="_blank" rel="noopener noreferrer">Anthropic Privacy Policy</a></li>
+              <li><strong>Resend</strong> — transactional and inbound email. Emails you send to or receive from NautIQ addresses pass through Resend. <a href="https://resend.com/legal/privacy-policy" className="text-ocean-600 hover:underline" target="_blank" rel="noopener noreferrer">Resend Privacy Policy</a></li>
             </ul>
-            <p className="mt-3">Each provider has their own privacy policy governing their data handling.</p>
+          </section>
+
+          <section>
+            <h2 className="text-base font-semibold text-slate-900 mb-2">4a. Email communications</h2>
+            <p>We may send you service-related emails including account confirmations, maintenance reminders, and — for users who have been inactive for an extended period — a re-engagement message to check in and ask for feedback. These emails are sent to help you get value from the service. If you no longer wish to receive re-engagement emails, you can unsubscribe at any time in Settings → Notifications, or reply to any such email with "unsubscribe" in the subject line and we will remove you from future sends within 5 business days.</p>
           </section>
 
           <section>

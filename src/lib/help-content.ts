@@ -186,6 +186,8 @@ Note: summary emails are only sent when there are issues to report — if everyt
 
 Overdue maintenance alerts: tick this checkbox to receive an email the moment a component becomes overdue. Each component can trigger at most one alert every 7 days (so you won't be spammed if an overdue item isn't fixed immediately).
 
+Unsubscribe from all emails: tick this checkbox and save to stop all NautIQ emails immediately — health summaries, overdue alerts, and re-engagement messages. You will still receive essential account emails like password resets. You can re-subscribe at any time by unticking the same box and saving.
+
 Tap "Save preferences" to apply any changes.
 
 Send test email: tap this button to immediately send yourself a test email based on your current boat health and notification settings. It bypasses the daily/weekly schedule and any cooldown, so you'll always receive an email — useful for confirming that your address and preferences are set up correctly.`,
@@ -455,7 +457,7 @@ INVENTORY & MAINTENANCE BEST PRACTICES: Use a SEPARATE inventory item for each p
 
 BOAT REPORT / PDF: Say "download a boat report" or "send me a PDF summary" to generate and download a full PDF of health, maintenance schedule, inventory, and recent trips. Also available from Profile tab → "Download Boat Report."
 
-NOTIFICATIONS: Configure in Profile → Settings → Notifications. Options: (1) Notification email — defaults to your login email; enter another address to redirect alerts. (2) Boat health summary — Off / Daily / Weekly; emails only sent while issues exist. Weekly mode shows a day-of-week picker. (3) Overdue maintenance alerts — checkbox; sends an email when a component goes overdue, at most once per component per 7 days. Tap "Save preferences" to save. Use "Check now" to trigger an immediate check (sends emails if issues found).
+NOTIFICATIONS: Configure in Profile → Settings → Notifications. Options: (1) Notification email — defaults to your login email; enter another address to redirect alerts. (2) Boat health summary — Off / Daily / Weekly; emails only sent while issues exist. Weekly mode shows a day-of-week picker. (3) Overdue maintenance alerts — checkbox; sends an email when a component goes overdue, at most once per component per 7 days. (4) Unsubscribe from all emails — tick this to stop all NautIQ emails immediately; untick to re-subscribe at any time. Tap "Save preferences" to save. Use "Check now" to trigger an immediate check (sends emails if issues found).
 
 HEALTH SCORE: 0–100. Drops as components go overdue, inventory items run low, or items expire. Shown on the Home screen and in the header. Tap the score to open the Boat Health page — it explains exactly why the score is what it is, lists overdue maintenance, due-soon items, and inventory issues, and gives a specific recommendation for each item to restore the score to 100. The Home screen shows four tiles: "Maint. overdue" (red), "Due soon" (amber), an inventory tile ("Critical low" in red or "Spares low" in amber when stock is low, else "Healthy" in green), and "Engine hrs". A "Needs attention" list below the gauge shows individual overdue/due-soon maintenance items and low-stock inventory items; tap any row to go to that component or inventory item.
 
