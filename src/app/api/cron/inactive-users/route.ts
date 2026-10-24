@@ -66,17 +66,16 @@ function inactiveEmail(userEmail: string, daysSince: number): string {
               </tr>
             </table>
 
-            <p style="margin:0 0 8px;font-size:15px;color:#334155;line-height:1.6;">
-              We'd also love to hear from you:
+            <p style="margin:0 0 12px;font-size:15px;color:#334155;line-height:1.6;">
+              We'd love to hear from you. Once you're back in the app you can share feedback in two quick ways:
             </p>
             <ul style="margin:0 0 20px;padding-left:20px;font-size:15px;color:#334155;line-height:1.8;">
-              <li>Is there anything getting in the way of using the app?</li>
-              <li>Is there a feature that's missing or not working for you?</li>
-              <li>Is there anything we could do to make NautIQ more useful for your boat?</li>
+              <li><strong>Tell the assistant</strong> — just type or say what's on your mind on the Home screen.</li>
+              <li><strong>Profile menu</strong> — tap your profile icon (top right) and choose <strong>Share feedback</strong> to rate us and leave a comment.</li>
             </ul>
 
             <p style="margin:0 0 20px;font-size:15px;color:#334155;line-height:1.6;">
-              Just hit reply to this email — your feedback goes directly to the NautIQ team and genuinely shapes what we build next.
+              Your feedback goes directly to the NautIQ team and genuinely shapes what we build next.
             </p>
 
             <p style="margin:0;font-size:15px;color:#334155;">

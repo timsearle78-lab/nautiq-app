@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { X, LogOut, Settings, HelpCircle, Sparkles, ChevronLeft, Shield, LayoutDashboard, Anchor } from "lucide-react";
+import { X, LogOut, Settings, HelpCircle, Sparkles, ChevronLeft, Shield, LayoutDashboard, Anchor, MessageSquare } from "lucide-react";
+import FeedbackSheet from "@/components/feedback/feedback-sheet";
 import { selectBoat } from "@/app/(app)/actions";
 import BoatReportButton from "@/components/reports/boat-report-button";
 import { CHANGELOG } from "@/lib/changelog";
@@ -23,6 +24,7 @@ export default function ProfileSheet({ email, initials, isAdmin, boats = [], sel
   const [loading, setLoading] = useState(false);
   const [switchingBoatId, setSwitchingBoatId] = useState<string | null>(null);
   const [showChangelog, setShowChangelog] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   async function handleSignOut() {
     setLoading(true);
@@ -38,7 +40,9 @@ export default function ProfileSheet({ email, initials, isAdmin, boats = [], sel
         onClick={onClose}
       />
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[1040px] z-50 bg-white rounded-t-2xl shadow-xl pb-[env(safe-area-inset-bottom)]">
-        {showChangelog ? (
+        {showFeedback ? (
+          <FeedbackSheet onClose={() => setShowFeedback(false)} inline />
+        ) : showChangelog ? (
           <>
             <div className="flex items-center gap-3 px-5 pt-5 pb-4 border-b border-slate-100">
               <button onClick={() => setShowChangelog(false)} className="text-slate-400 hover:text-slate-600 p-1 -ml-1">
@@ -157,6 +161,13 @@ export default function ProfileSheet({ email, initials, isAdmin, boats = [], sel
               >
                 <Sparkles size={18} className="text-slate-400" />
                 {"What's New"}
+              </button>
+              <button
+                onClick={() => setShowFeedback(true)}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium text-sm hover:bg-slate-50 transition-colors"
+              >
+                <MessageSquare size={18} className="text-slate-400" />
+                Share feedback
               </button>
               <Link
                 href="/help"

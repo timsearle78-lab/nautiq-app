@@ -172,10 +172,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing email_id" }, { status: 400 });
   }
 
-  // Only process emails addressed to log@nautiq.cloud
   const receivedFor = (data.received_for as string[] | undefined) ?? [];
-  const isForLogAddress = receivedFor.some((addr) => addr.toLowerCase() === "log@nautiq.cloud");
-  if (!isForLogAddress) {
+  const normalised = receivedFor.map((a) => a.toLowerCase());
+
+  const isForLogAddress = normalised.includes("log@nautiq.cloud");
+  const isForSupportAddress = normalised.some((a) => a === "info@nautiq.cloud" || a === "support@nautiq.cloud");
+
+  if (!isForLogAddress && !isForSupportAddress) {
     return NextResponse.json({ ok: true, skipped: true });
   }
 
@@ -205,6 +208,28 @@ export async function POST(req: NextRequest) {
 
   if (!from) {
     return NextResponse.json({ error: "Missing from" }, { status: 400 });
+  }
+
+  // Forward info@ / support@ emails to admin list and return early
+  if (isForSupportAddress) {
+    const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim()).filter(Boolean);
+    if (adminEmails.length === 0) {
+      return NextResponse.json({ error: "No ADMIN_EMAILS configured" }, { status: 500 });
+    }
+    const toAddress = receivedFor[0] ?? "support@nautiq.cloud";
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${resendKey}` },
+      body: JSON.stringify({
+        from: "NautIQ <noreply@nautiq.cloud>",
+        to: adminEmails,
+        reply_to: from,
+        subject: `[${toAddress}] ${subject}`,
+        text: `Forwarded from: ${from}\nOriginal to: ${toAddress}\n\n---\n\n${body}`,
+        ...(html ? { html: `<p style="color:#64748b;font-size:13px;margin-bottom:16px;">Forwarded from: <strong>${from}</strong><br>Original to: <strong>${toAddress}</strong></p><hr style="margin:16px 0;border:none;border-top:1px solid #e2e8f0;">${html}` } : {}),
+      }),
+    });
+    return NextResponse.json({ ok: true, forwarded: true });
   }
 
   // Extract sender email from "Name <email>" format
