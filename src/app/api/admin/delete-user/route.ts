@@ -49,6 +49,7 @@ export async function DELETE(req: Request) {
   await adminClient.from("trip_drafts").delete().eq("user_id", userId);
   await adminClient.from("user_settings").delete().eq("user_id", userId);
   await adminClient.from("component_overdue_notifications").delete().eq("user_id", userId);
+  await adminClient.from("audit_events").delete().eq("user_id", userId);
 
   const { error } = await adminClient.auth.admin.deleteUser(userId);
   if (error) {

@@ -4,6 +4,8 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
+export const maxDuration = 60;
+
 const intervalSchema = z.object({
   service_interval_months: z.coerce.number().nullable().default(null),
   service_interval_years: z.coerce.number().nullable().default(null),
