@@ -37,7 +37,7 @@ function inactiveEmail(userEmail: string, daysSince: number): string {
         <!-- Header -->
         <tr>
           <td style="background:#0F2335;padding:24px 32px;text-align:center;">
-            <img src="https://nautiq.cloud/images/logo-email.png" alt="NautIQ" style="height:48px;width:auto;display:block;margin:0 auto;" />
+            <img src="https://nautiq.cloud/images/logo-email.jpg" alt="NautIQ" style="height:48px;width:auto;display:block;margin:0 auto;" />
           </td>
         </tr>
 
