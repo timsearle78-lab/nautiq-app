@@ -17,21 +17,16 @@ const HULL_MATERIALS = ["Fibreglass (GRP)", "Aluminium", "Steel", "Wood", "Carbo
 const inputCls =
   "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100";
 
-<<<<<<< HEAD
 type SystemRow = { id: string; name: string };
 
-=======
->>>>>>> 66c3c54 (feat: simplify settings — boat list with edit/add sheet)
+
 type EditProps = {
   mode: "edit";
   boatId: string;
   boatName: string;
   isOwner: boolean;
   imageUrl: string | null;
-<<<<<<< HEAD
   systems: SystemRow[];
-=======
->>>>>>> 66c3c54 (feat: simplify settings — boat list with edit/add sheet)
   type: string | null;
   propulsion: string | null;
   hull_design: string | null;
@@ -227,7 +222,6 @@ export function BoatFormSheet(props: Props) {
                   <BoatMembersPanel boatId={props.boatId} boatName={props.boatName} isOwner={props.isOwner} />
                 </div>
               )}
-<<<<<<< HEAD
 
               {/* Systems (edit only) */}
               {isEdit && (
@@ -237,8 +231,6 @@ export function BoatFormSheet(props: Props) {
                   <SystemsManager boatId={props.boatId} systems={props.systems} />
                 </div>
               )}
-=======
->>>>>>> 66c3c54 (feat: simplify settings — boat list with edit/add sheet)
             </div>
           </div>
         </>
