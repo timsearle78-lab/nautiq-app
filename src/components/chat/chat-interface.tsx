@@ -532,6 +532,21 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                   <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Record work done on the boat</div>
                 </div>
               </button>
+              <button
+                onClick={() => setShowCheckinSheet(true)}
+                className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-left active:opacity-80 transition-opacity"
+                style={{ background: "var(--color-navy-700)", color: "#FFFFFF" }}
+              >
+                <div className="flex items-center justify-center rounded-xl shrink-0" style={{ width: 44, height: 44, background: "rgba(255,255,255,0.12)" }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700 }}>Log a visit</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Record a trip or time aboard</div>
+                </div>
+              </button>
             </div>
             <p className="mt-8 text-xs" style={{ color: "var(--color-navy-mute)" }}>
               Check back when you&apos;re back online for full access.
