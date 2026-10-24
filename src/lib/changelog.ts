@@ -12,7 +12,7 @@ export const CHANGELOG: Release[] = [
     features: [
       "Home screen now prompts you to set your tank capacity and fuel consumption rate if you've tagged a fuel source but haven't configured them yet",
       "Hiding the Personal Boat Assistant in Settings now also hides the setup reminder cards (missing components, fuel setup, etc.)",
-      "Settings page simplified — your boats are now shown as a clean list; tap Edit to update boat details or crew in a slide-up form",
+      "Settings page simplified — your boats are now a clean list; tap Edit on any boat to update its name, specs, fuel settings, photo, crew, and systems all in one place",
     ],
   },
   {
