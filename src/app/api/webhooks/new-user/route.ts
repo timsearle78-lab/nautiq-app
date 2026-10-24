@@ -8,7 +8,11 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
 export async function POST(req: Request) {
   // Verify shared secret set in the Supabase database webhook header
   const secret = req.headers.get("x-webhook-secret");
-  const validSecret = process.env.WEBHOOK_SECRET ?? "internal";
+  const validSecret = process.env.WEBHOOK_SECRET;
+  if (!validSecret) {
+    console.error("WEBHOOK_SECRET env var is not configured");
+    return NextResponse.json({ error: "Service misconfigured" }, { status: 500 });
+  }
   if (!secret || secret !== validSecret) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

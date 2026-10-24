@@ -10,6 +10,7 @@ type Prefs = {
   health_summary: "none" | "daily" | "weekly" | "daily_always" | "weekly_always";
   health_summary_day: number;
   overdue_alerts: boolean;
+  email_unsubscribed: boolean;
 };
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -25,6 +26,7 @@ export function NotificationPreferencesForm({ prefs, userEmail }: { prefs: Prefs
     health_summary: "none",
     health_summary_day: 1,
     overdue_alerts: false,
+    email_unsubscribed: false,
   };
 
   const [healthSummary, setHealthSummary] = React.useState(defaults.health_summary);
@@ -80,6 +82,21 @@ export function NotificationPreferencesForm({ prefs, userEmail }: { prefs: Prefs
             <p className="text-xs text-slate-400 mt-0.5">Get an email when a component becomes overdue. Each component is alerted at most once every 7 days.</p>
           </div>
         </label>
+
+        <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-4">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              name="email_unsubscribed"
+              defaultChecked={defaults.email_unsubscribed}
+              className="mt-0.5 rounded border-slate-300 text-red-600 focus:ring-red-500"
+            />
+            <div>
+              <span className="text-sm font-medium text-red-700">Unsubscribe from all emails</span>
+              <p className="text-xs text-red-500 mt-0.5">Stop all NautIQ emails including health summaries, overdue alerts, and re-engagement messages. You will still receive essential account emails (password reset, etc.).</p>
+            </div>
+          </label>
+        </div>
 
         {state.error && (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{state.error}</div>

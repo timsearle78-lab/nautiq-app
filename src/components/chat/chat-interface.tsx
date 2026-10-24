@@ -684,7 +684,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 <button
                   onClick={() => setShowWatchItemSheet(true)}
                   className="flex items-center gap-1.5 text-sm font-semibold active:opacity-70 transition-opacity"
-                  style={{ background: "#FFFBEB", border: "1.5px solid #FDE68A", borderRadius: 8, padding: "8px 16px", color: "#92400E" }}
+                  style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA", borderRadius: 8, padding: "8px 16px", color: "var(--color-navy-700)" }}
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -695,7 +695,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 <button
                   onClick={() => setShowCheckinSheet(true)}
                   className="flex items-center gap-1.5 text-sm font-semibold active:opacity-70 transition-opacity"
-                  style={{ background: "#F0FDF4", border: "1.5px solid #BBF7D0", borderRadius: 8, padding: "8px 16px", color: "#166534" }}
+                  style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA", borderRadius: 8, padding: "8px 16px", color: "var(--color-navy-700)" }}
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -705,7 +705,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 <button
                   onClick={() => setShowFeedbackSheet(true)}
                   className="flex items-center gap-1.5 text-sm font-semibold active:opacity-70 transition-opacity"
-                  style={{ background: "#F5F3FF", border: "1.5px solid #DDD6FE", borderRadius: 8, padding: "8px 16px", color: "#5B21B6" }}
+                  style={{ background: "#FFFFFF", border: "1.5px solid #DBE3EA", borderRadius: 8, padding: "8px 16px", color: "var(--color-navy-700)" }}
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
