@@ -12,6 +12,8 @@ import {
   ChevronRight,
   ArrowLeft,
   Sparkles,
+  Fuel,
+  Bell,
 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -145,7 +147,7 @@ function NavButtons({
 
 // ─── Main Wizard ──────────────────────────────────────────────────────────────
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 7;
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -173,6 +175,15 @@ export default function OnboardingPage() {
   const [selectedSpares, setSelectedSpares] = useState<Set<string>>(
     () => new Set(sparePresets.filter((s) => s.is_critical).map((s) => s.name))
   );
+
+  // Fuel & engine hours step
+  const [fuelTankLitres, setFuelTankLitres] = useState("");
+  const [fuelConsumptionLph, setFuelConsumptionLph] = useState("");
+  const [engineHours, setEngineHours] = useState("");
+
+  // Notifications step
+  const [healthSummary, setHealthSummary] = useState<"weekly" | "monthly" | "none">("weekly");
+  const [overdueAlerts, setOverdueAlerts] = useState(true);
 
   // ── Handlers ────────────────────────────────────────────────────
 
@@ -221,7 +232,30 @@ export default function OnboardingPage() {
         setError(data.error ?? "Failed to add inventory items. Please try again.");
         return;
       }
-      setStep(4);
+      setStep(4); // → Fuel & engine hours
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSetup() {
+    if (!boatId) { setStep(6); return; }
+    setLoading(true);
+    setError(null);
+    try {
+      await fetch("/api/onboarding/setup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          boatId,
+          fuel_tank_litres: fuelTankLitres ? parseFloat(fuelTankLitres) : null,
+          fuel_consumption_lph: fuelConsumptionLph ? parseFloat(fuelConsumptionLph) : null,
+          engine_hours: engineHours ? parseFloat(engineHours) : null,
+          health_summary: healthSummary,
+          overdue_alerts: overdueAlerts,
+        }),
+      });
+      setStep(6);
     } finally {
       setLoading(false);
     }
@@ -508,10 +542,151 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* ── Step 4: Feature Tour ────────────────────────────────── */}
+        {/* ── Step 4: Fuel & Engine Hours ──────────────────────────── */}
         {step === 4 && (
           <div>
             <ProgressBar step={4} total={TOTAL_STEPS} />
+            <div className="flex items-center gap-2 mb-1">
+              <Fuel size={20} className="text-amber-300" />
+              <h2 className="text-xl font-bold text-white">Fuel & engine hours</h2>
+            </div>
+            <p className="text-sm text-ocean-200/70 mt-1 mb-5">
+              Optional — helps NautIQ track fuel levels and estimate range. You can update these anytime in Settings.
+            </p>
+
+            <div className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-sm p-5 space-y-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-white/80">
+                  Fuel tank capacity <span className="text-white/40 font-normal">(litres, optional)</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={fuelTankLitres}
+                  onChange={(e) => setFuelTankLitres(e.target.value)}
+                  placeholder="e.g. 200"
+                  className={inputCls}
+                />
+                <p className="mt-1 text-xs text-ocean-200/50">Total capacity of your fuel tank.</p>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-white/80">
+                  Fuel consumption <span className="text-white/40 font-normal">(litres/hour, optional)</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={fuelConsumptionLph}
+                  onChange={(e) => setFuelConsumptionLph(e.target.value)}
+                  placeholder="e.g. 12.5"
+                  className={inputCls}
+                />
+                <p className="mt-1 text-xs text-ocean-200/50">Average fuel burn rate at cruising speed — used to estimate range and remaining fuel.</p>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-white/80">
+                  Current engine hours <span className="text-white/40 font-normal">(optional)</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={engineHours}
+                  onChange={(e) => setEngineHours(e.target.value)}
+                  placeholder="e.g. 340"
+                  className={inputCls}
+                />
+                <p className="mt-1 text-xs text-ocean-200/50">Your engine's current hours. Sets the starting point for maintenance scheduling.</p>
+              </div>
+            </div>
+
+            <NavButtons
+              onBack={() => setStep(3)}
+              onNext={() => setStep(5)}
+              nextLabel="Continue"
+              onSkip={() => setStep(5)}
+            />
+          </div>
+        )}
+
+        {/* ── Step 5: Notifications ────────────────────────────────── */}
+        {step === 5 && (
+          <div>
+            <ProgressBar step={5} total={TOTAL_STEPS} />
+            <div className="flex items-center gap-2 mb-1">
+              <Bell size={20} className="text-ocean-200" />
+              <h2 className="text-xl font-bold text-white">Stay informed</h2>
+            </div>
+            <p className="text-sm text-ocean-200/70 mt-1 mb-5">
+              Choose how NautIQ keeps you up to date. You can change these anytime in Settings → Notifications.
+            </p>
+
+            <div className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-sm p-5 space-y-5">
+              {/* Health summary */}
+              <div>
+                <div className="text-sm font-medium text-white/80 mb-3">Health summary emails</div>
+                <div className="space-y-2">
+                  {([
+                    { value: "weekly",  label: "Weekly",  desc: "A summary every week — great for active boaters" },
+                    { value: "monthly", label: "Monthly", desc: "Once a month — good if you don't go out often" },
+                    { value: "none",    label: "Off",     desc: "No summary emails" },
+                  ] as const).map(({ value, label, desc }) => (
+                    <label
+                      key={value}
+                      className={`flex items-start gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-colors ${
+                        healthSummary === value
+                          ? "border-ocean-400/60 bg-ocean-500/20"
+                          : "border-white/10 bg-white/5 hover:bg-white/10"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="health_summary"
+                        value={value}
+                        checked={healthSummary === value}
+                        onChange={() => setHealthSummary(value)}
+                        className="mt-0.5 h-4 w-4 text-ocean-500 border-white/20 focus:ring-ocean-500 flex-shrink-0"
+                      />
+                      <div>
+                        <div className="text-sm font-medium text-white/90">{label}</div>
+                        <div className="text-xs text-ocean-200/60 mt-0.5">{desc}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Overdue alerts */}
+              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                <input
+                  type="checkbox"
+                  id="overdue_alerts"
+                  checked={overdueAlerts}
+                  onChange={(e) => setOverdueAlerts(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded text-ocean-500 border-white/20 focus:ring-ocean-500 flex-shrink-0"
+                />
+                <label htmlFor="overdue_alerts" className="cursor-pointer">
+                  <div className="text-sm font-medium text-white/90">Overdue maintenance alerts</div>
+                  <div className="text-xs text-ocean-200/60 mt-0.5">Email me when a component becomes overdue for service.</div>
+                </label>
+              </div>
+            </div>
+
+            <NavButtons
+              onBack={() => setStep(4)}
+              onNext={handleSetup}
+              nextLabel="Save & continue"
+              loading={loading}
+            />
+          </div>
+        )}
+
+        {/* ── Step 6: Feature Tour ────────────────────────────────── */}
+        {step === 6 && (
+          <div>
+            <ProgressBar step={6} total={TOTAL_STEPS} />
             <h2 className="text-xl font-bold text-white">Here's what you can do</h2>
             <p className="text-sm text-ocean-200/70 mt-1 mb-5">
               NautIQ keeps everything in one place. Here's a quick look at the key features.
@@ -556,14 +731,14 @@ export default function OnboardingPage() {
               ))}
             </div>
 
-            <NavButtons onBack={() => setStep(3)} onNext={() => setStep(5)} nextLabel="Almost done!" />
+            <NavButtons onBack={() => setStep(5)} onNext={() => setStep(7)} nextLabel="Almost done!" />
           </div>
         )}
 
-        {/* ── Step 5: All Done ────────────────────────────────────── */}
-        {step === 5 && (
+        {/* ── Step 7: All Done ────────────────────────────────────── */}
+        {step === 7 && (
           <div className="text-center">
-            <ProgressBar step={5} total={TOTAL_STEPS} />
+            <ProgressBar step={7} total={TOTAL_STEPS} />
             <div className="w-16 h-16 rounded-2xl bg-green-500/80 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-green-900/40">
               <CheckCircle2 size={32} className="text-white" />
             </div>

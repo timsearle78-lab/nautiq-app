@@ -14,6 +14,7 @@ export const CHANGELOG: Release[] = [
       "NautIQ logo now appears in all system emails",
       "NautIQ works offline — watch items, inventory and maintenance entries are saved locally and sync automatically when you reconnect; AI assistant is paused while offline; previously visited pages load from cache so you stay in the app",
       "When offline, the home screen now shows a clear offline state with quick-tap buttons to add a watch item, log maintenance, log a visit, or log a trip — no guessing what still works",
+      "Onboarding now includes fuel tank capacity, fuel consumption rate, current engine hours, and email notification preferences — so the app is ready to go from day one",
     ],
   },
   {
