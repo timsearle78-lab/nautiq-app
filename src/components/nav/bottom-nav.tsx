@@ -7,6 +7,7 @@ import { Home, Wrench } from "lucide-react";
 import ProfileSheet from "./profile-sheet";
 import NautiqAnchorIcon from "@/components/ui/nautiq-anchor-icon";
 import { Package } from "lucide-react";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 
 interface Tab {
   href: string;
@@ -31,6 +32,7 @@ interface BottomNavProps {
 export default function BottomNav({ userEmail, userInitials, isAdmin, boats = [], selectedBoatId = "" }: BottomNavProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const isOnline = useOnlineStatus();
   const [profileOpen, setProfileOpen] = useState(false);
 
   const tabs = [
@@ -105,6 +107,16 @@ export default function BottomNav({ userEmail, userInitials, isAdmin, boats = []
                 </button>
               );
             }
+            if (!isOnline) {
+              return (
+                <div
+                  key={href}
+                  className="relative flex flex-1 flex-col items-center justify-center gap-1 opacity-30 cursor-not-allowed select-none"
+                >
+                  {sharedContent}
+                </div>
+              );
+            }
             return (
               <Link
                 key={href}
@@ -117,8 +129,8 @@ export default function BottomNav({ userEmail, userInitials, isAdmin, boats = []
           })}
           {/* Profile avatar tab */}
           <button
-            onClick={() => setProfileOpen(true)}
-            className="flex flex-1 flex-col items-center justify-center gap-1 transition-opacity active:opacity-70"
+            onClick={() => isOnline && setProfileOpen(true)}
+            className={`flex flex-1 flex-col items-center justify-center gap-1 transition-opacity ${isOnline ? "active:opacity-70" : "opacity-30 cursor-not-allowed"}`}
           >
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold leading-none"
