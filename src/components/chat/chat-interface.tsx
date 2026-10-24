@@ -5,7 +5,7 @@ import { useOnlineStatus } from "@/hooks/use-online-status";
 import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Mic, Send, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Camera, FolderOpen, X, RotateCcw } from "lucide-react";
+import { Mic, Send, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Camera, FolderOpen, X, RotateCcw, WifiOff, Eye, Package, Wrench } from "lucide-react";
 import { HealthGauge } from "@/components/ui/health-gauge";
 import Link from "next/link";
 import MessageBubble from "./message-bubble";
@@ -275,6 +275,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const [showWatchItemSheet, setShowWatchItemSheet] = useState(false);
   const [showCheckinSheet, setShowCheckinSheet] = useState(false);
   const [showFeedbackSheet, setShowFeedbackSheet] = useState(false);
+  const [showMaintenanceSheet, setShowMaintenanceSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -489,7 +490,54 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
       {scanningInventory && <NautiqSpinner overlay />}
       {/* Messages / health area */}
       <div className="flex-1 overflow-y-auto">
-        {messages.length === 0 ? (
+        {!isOnline ? (
+          /* Offline state — full-area prominent message */
+          <div className="flex flex-col items-center justify-center min-h-full px-6 py-10 text-center">
+            <div
+              className="flex items-center justify-center rounded-full mb-5"
+              style={{ width: 80, height: 80, background: "rgba(28,47,63,0.08)" }}
+            >
+              <WifiOff size={36} style={{ color: "var(--color-navy-500)" }} />
+            </div>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--color-navy-700)", lineHeight: 1.15 }}>
+              You&apos;re offline
+            </h2>
+            <p className="mt-2 mb-8 text-sm" style={{ color: "var(--color-navy-500)", maxWidth: 280 }}>
+              AI assistant and navigation are paused. You can still capture these items — they&apos;ll sync when you reconnect.
+            </p>
+            <div className="w-full space-y-3" style={{ maxWidth: 320 }}>
+              <button
+                onClick={() => setShowWatchItemSheet(true)}
+                className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-left active:opacity-80 transition-opacity"
+                style={{ background: "var(--color-navy-700)", color: "#FFFFFF" }}
+              >
+                <div className="flex items-center justify-center rounded-xl shrink-0" style={{ width: 44, height: 44, background: "rgba(255,255,255,0.12)" }}>
+                  <Eye size={20} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700 }}>Add watch item</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Flag something to keep an eye on</div>
+                </div>
+              </button>
+              <button
+                onClick={() => setShowMaintenanceSheet(true)}
+                className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-left active:opacity-80 transition-opacity"
+                style={{ background: "var(--color-navy-700)", color: "#FFFFFF" }}
+              >
+                <div className="flex items-center justify-center rounded-xl shrink-0" style={{ width: 44, height: 44, background: "rgba(255,255,255,0.12)" }}>
+                  <Wrench size={20} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700 }}>Log maintenance</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Record work done on the boat</div>
+                </div>
+              </button>
+            </div>
+            <p className="mt-8 text-xs" style={{ color: "var(--color-navy-mute)" }}>
+              Check back when you&apos;re back online for full access.
+            </p>
+          </div>
+        ) : messages.length === 0 ? (
           /* Empty state: navy hero + stats + maintenance */
           <div className="pb-4 space-y-4">
             {/* Navy hero section — always first */}
@@ -929,6 +977,17 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
 
       {showFeedbackSheet && (
         <FeedbackSheet onClose={() => setShowFeedbackSheet(false)} />
+      )}
+
+      {showMaintenanceSheet && (
+        <LogMaintenanceSheet
+          boatId={boat.id}
+          componentId={null}
+          components={components}
+          inventoryOptions={inventoryItems.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity, unit: i.unit }))}
+          onClose={() => setShowMaintenanceSheet(false)}
+          onSaved={() => { setShowMaintenanceSheet(false); router.refresh(); }}
+        />
       )}
     </div>
   );
