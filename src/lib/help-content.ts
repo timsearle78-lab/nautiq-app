@@ -424,16 +424,22 @@ Notes:
   {
     id: "offline",
     title: "Using NautIQ offline",
-    content: `NautIQ supports offline use for core data entry. When you lose connectivity, a banner appears at the top of the screen.
+    content: `NautIQ is designed to keep working when you lose connectivity. A banner appears at the top of the screen when you're offline.
 
-While offline you can:
-- Add watch items (maintenance observations)
-- Add inventory items
-- Log maintenance events
+**What works offline:**
+- Browsing previously loaded pages — trips, maintenance records, inventory, components all load from cache
+- Adding watch items (maintenance observations)
+- Adding inventory items
+- Logging maintenance events
 
-These entries are saved locally on your device and synced automatically the next time you have an internet connection. A banner shows how many entries are pending sync.
+Entries added while offline are saved locally on your device and synced automatically the next time you reconnect. The banner shows how many entries are waiting to sync.
 
-While offline, the AI assistant and all AI-powered features (inventory scan, trip draft, component suggestions) are unavailable — they require a live connection. The rest of the app remains usable for browsing your existing data.`,
+**What requires connectivity:**
+- The AI assistant and all AI-powered features (inventory scan, trip draft, component suggestions)
+- Uploading photos
+- Any data you haven't loaded yet on this device
+
+If you navigate to a page you haven't visited before while offline, NautIQ will load the home screen instead — the offline banner tells you what's happening.`,
   },
 ];
 
@@ -505,5 +511,5 @@ HEALTH SCORE BREAKDOWN: The boat health score is 100 minus penalties applied in 
 3. Watch item penalty (direct deduction): Unresolved maintenance watch items left too long reduce the score — 7–29 days old = −5 pts each, 30–59 days old = −10 pts each, 60+ days old = −20 pts each. Capped at −40 pts total. Resolving the watch items removes the penalty.
 To explain "why is my score X?": list overdue components, due-soon components, inventory issues, inactivity penalty, and unresolved watch items. The Health page also shows a "Why X/100?" explanation automatically.
 
-OFFLINE MODE: NautIQ works offline for core data entry. When offline, a banner shows at the top of the screen. Watch items, inventory items, and maintenance events can be added while offline — they are stored locally and sync automatically when connectivity returns. A banner shows the count of pending entries waiting to sync. The AI assistant and all AI features are unavailable offline (require live connection). The rest of the app (viewing trips, inventory, maintenance records) works normally while offline using previously loaded data.
+OFFLINE MODE: NautIQ keeps working offline. Previously visited pages (trips, maintenance, inventory, components) load from the device cache. Watch items, inventory items, and maintenance events can be added while offline — stored locally and synced automatically on reconnect; a banner shows the pending count. Navigating to an uncached page falls back to the home screen with the offline banner. The AI assistant and all AI-powered features (inventory scan, trip draft, component suggestions, photo uploads) are unavailable offline.
 `.trim();
