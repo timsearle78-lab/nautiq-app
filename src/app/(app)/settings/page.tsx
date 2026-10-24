@@ -1,13 +1,9 @@
 import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { EditBoatForm } from "@/components/settings/edit-boat-form";
-import { AddBoatForm } from "@/components/settings/add-boat-form";
-import { SystemsManager } from "@/components/settings/systems-manager";
-import { BoatImageUpload } from "@/components/settings/boat-image-upload";
+import { BoatFormSheet } from "@/components/settings/boat-form-sheet";
 import { DeleteBoatDialog } from "@/components/settings/delete-boat-dialog";
 import { NotificationPreferencesForm } from "@/components/settings/notification-preferences-form";
-import { BoatMembersPanel } from "@/components/settings/boat-members-panel";
 import { ResetPasswordButton } from "@/components/settings/reset-password-button";
 import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog";
 import { ThemeToggle } from "@/components/settings/theme-toggle";
@@ -83,73 +79,52 @@ export default async function SettingsPage() {
       </div>
 
       {/* Boats */}
-      <section className="space-y-4">
-        <h2 className="text-base font-semibold text-slate-700">Your boats</h2>
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between gap-2">
+          <h2 className="text-base font-semibold text-slate-700">Your boats</h2>
+          <BoatFormSheet mode="add" />
+        </div>
 
-        {boats.map((boat) => {
+        {boats.length === 0 && (
+          <p className="px-4 py-6 text-sm text-slate-400 text-center">No boats yet — add one to get started.</p>
+        )}
+
+        {boats.map((boat, i) => {
           const isOwner = boat.user_id === user.id;
           return (
-            <div key={boat.id} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex items-center gap-2">
-                <span className="text-sm font-semibold text-slate-700">{boat.name}</span>
-                {!isOwner && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-ocean-100 text-ocean-600 font-medium">Co-owner</span>
-                )}
-              </div>
-              <div className="px-4 py-4 space-y-4">
-                {isOwner && <BoatImageUpload boatId={boat.id} imageUrl={boat.image_url} />}
-                {isOwner && <EditBoatForm boatId={boat.id} name={boat.name} type={boat.type} propulsion={boat.propulsion} hull_design={boat.hull_design} hull_material={boat.hull_material} length_m={boat.length_m} beam_m={boat.beam_m} draft_m={boat.draft_m} description={boat.description} fuel_consumption_lph={boat.fuel_consumption_lph} fuel_tank_litres={boat.fuel_tank_litres} />}
-                <BoatMembersPanel boatId={boat.id} boatName={boat.name} isOwner={isOwner} />
-              </div>
-              {isOwner && (
-                <div className="px-4 py-3 border-t border-red-100 bg-red-50/40 flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-semibold text-red-700">Danger zone</p>
-                    <p className="text-xs text-red-500 mt-0.5">Permanently delete this boat and all its data</p>
-                  </div>
-                  <DeleteBoatDialog boatId={boat.id} boatName={boat.name} />
+            <div key={boat.id} className={i > 0 ? "border-t border-slate-100" : ""}>
+              <div className="px-4 py-3 flex items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-800 truncate">{boat.name}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">{boat.type ?? "No type set"}{!isOwner && " · Co-owner"}</p>
                 </div>
-              )}
+                <div className="flex items-center gap-2 shrink-0">
+                  {isOwner && (
+                    <BoatFormSheet
+                      mode="edit"
+                      boatId={boat.id}
+                      boatName={boat.name}
+                      isOwner={isOwner}
+                      imageUrl={boat.image_url}
+                      type={boat.type}
+                      propulsion={boat.propulsion}
+                      hull_design={boat.hull_design}
+                      hull_material={boat.hull_material}
+                      length_m={boat.length_m}
+                      beam_m={boat.beam_m}
+                      draft_m={boat.draft_m}
+                      description={boat.description}
+                      fuel_consumption_lph={boat.fuel_consumption_lph}
+                      fuel_tank_litres={boat.fuel_tank_litres}
+                      systems={systemsByBoat.get(boat.id) ?? []}
+                    />
+                  )}
+                  {isOwner && <DeleteBoatDialog boatId={boat.id} boatName={boat.name} />}
+                </div>
+              </div>
             </div>
           );
         })}
-
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-100">
-            <span className="text-sm font-semibold text-slate-700">Add a new boat</span>
-          </div>
-          <div className="px-4 py-4">
-            <AddBoatForm />
-          </div>
-        </div>
-      </section>
-
-      {/* Systems */}
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-base font-semibold text-slate-700">Systems</h2>
-          <p className="mt-0.5 text-sm text-slate-500">
-            Systems group your components — e.g. Engine, Electrical, Safety.
-          </p>
-        </div>
-
-        {boats.length === 0 ? (
-          <p className="text-sm text-slate-500">Add a boat first to manage its systems.</p>
-        ) : (
-          boats.map((boat) => (
-            <div key={boat.id} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-                <span className="text-sm font-semibold text-slate-700">{boat.name}</span>
-              </div>
-              <div className="px-4 py-4">
-                <SystemsManager
-                  boatId={boat.id}
-                  systems={systemsByBoat.get(boat.id) ?? []}
-                />
-              </div>
-            </div>
-          ))
-        )}
       </section>
 
       {/* Appearance */}

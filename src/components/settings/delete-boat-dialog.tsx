@@ -36,10 +36,10 @@ export function DeleteBoatDialog({ boatId, boatName }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100 hover:border-red-300"
+        className="flex items-center justify-center rounded-lg border border-red-200 bg-red-50 p-1.5 text-red-500 transition hover:bg-red-100 hover:border-red-300"
+        aria-label="Delete boat"
       >
         <Trash2 size={15} />
-        Delete boat
       </button>
 
       {open && (
