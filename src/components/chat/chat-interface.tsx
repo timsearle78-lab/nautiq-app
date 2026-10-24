@@ -544,7 +544,23 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                 </div>
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 700 }}>Log a visit</div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Record a trip or time aboard</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Record time aboard</div>
+                </div>
+              </button>
+              <button
+                onClick={() => setShowTripSheet(true)}
+                className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-left active:opacity-80 transition-opacity"
+                style={{ background: "var(--color-navy-700)", color: "#FFFFFF" }}
+              >
+                <div className="flex items-center justify-center rounded-xl shrink-0" style={{ width: 44, height: 44, background: "rgba(255,255,255,0.12)" }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700 }}>Log a trip</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Record engine hours and fuel</div>
                 </div>
               </button>
             </div>

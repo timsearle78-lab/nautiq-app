@@ -1,6 +1,6 @@
 export type OfflineQueueItem = {
   id: string;
-  type: "watch-item" | "inventory-item" | "maintenance" | "checkin";
+  type: "watch-item" | "inventory-item" | "maintenance" | "checkin" | "trip";
   payload: Record<string, string | number | boolean | null>;
   createdAt: string;
 };

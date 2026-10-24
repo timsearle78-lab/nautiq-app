@@ -13,7 +13,7 @@ export const CHANGELOG: Release[] = [
       "Unsubscribe from all NautIQ emails at any time in Settings → Notifications — just tick \"Unsubscribe from all emails\" and save",
       "NautIQ logo now appears in all system emails",
       "NautIQ works offline — watch items, inventory and maintenance entries are saved locally and sync automatically when you reconnect; AI assistant is paused while offline; previously visited pages load from cache so you stay in the app",
-      "When offline, the home screen now shows a clear offline state with quick-tap buttons to add a watch item, log maintenance, or log a visit — no guessing what still works",
+      "When offline, the home screen now shows a clear offline state with quick-tap buttons to add a watch item, log maintenance, log a visit, or log a trip — no guessing what still works",
     ],
   },
   {
