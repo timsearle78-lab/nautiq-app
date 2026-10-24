@@ -8,6 +8,9 @@ import SaveSuccessSheet from "@/components/ui/save-success-sheet";
 import VoiceTextarea from "@/components/ui/voice-textarea";
 import { uploadWithProgress } from "@/lib/upload-with-progress";
 import { UploadProgressBar } from "@/components/ui/upload-progress-bar";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { enqueue } from "@/lib/offline-queue";
+import { useOfflineSync } from "@/components/providers/offline-sync-provider";
 
 type ComponentOption = { id: string; name: string };
 
@@ -31,9 +34,26 @@ export default function AddWatchItemSheet({ boatId, components, onClose, onSaved
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const isOnline = useOnlineStatus();
+  const { refreshPendingCount } = useOfflineSync();
 
   const [state, formAction, pending] = useActionState(
     async (prev: { error?: string; success?: string; id?: string }, fd: FormData) => {
+      if (!isOnline) {
+        enqueue({
+          type: "watch-item",
+          payload: {
+            boat_id: String(fd.get("boat_id") ?? ""),
+            title: String(fd.get("title") ?? ""),
+            notes: String(fd.get("notes") ?? "") || null,
+            component_id: String(fd.get("component_id") ?? "") || null,
+          },
+        });
+        refreshPendingCount();
+        setSaved(true);
+        setTimeout(onSaved, 1400);
+        return { success: "Saved offline — will sync when reconnected" };
+      }
       const result = await createWatchItem(prev, fd);
 
       if (result.success && result.id && photos.length > 0) {

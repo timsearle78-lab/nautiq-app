@@ -1,8 +1,11 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { createInventoryItem } from "@/lib/inventory/actions";
 import SaveSuccessBanner from "@/components/ui/save-success-banner";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { enqueue } from "@/lib/offline-queue";
+import { useOfflineSync } from "@/components/providers/offline-sync-provider";
 
 type ComponentOption = { id: string; name: string };
 type ActionState = { error?: string; success?: string };
@@ -22,7 +25,38 @@ export function AddInventoryItemForm({
   categories?: string[];
   onSuccess?: () => void;
 }) {
-  const [state, formAction, pending] = useActionState(createInventoryItem, initialState);
+  const isOnline = useOnlineStatus();
+  const { refreshPendingCount } = useOfflineSync();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const [state, formAction, pending] = useActionState(
+    async (prev: ActionState, fd: FormData) => {
+      if (!isOnline) {
+        enqueue({
+          type: "inventory-item",
+          payload: {
+            boat_id: String(fd.get("boat_id") ?? ""),
+            name: String(fd.get("name") ?? ""),
+            category: String(fd.get("category") ?? "") || null,
+            component_id: String(fd.get("component_id") ?? "") || null,
+            quantity: String(fd.get("quantity") ?? "0"),
+            minimum_quantity: String(fd.get("minimum_quantity") ?? "") || null,
+            unit: String(fd.get("unit") ?? "") || null,
+            storage_location: String(fd.get("storage_location") ?? "") || null,
+            manufacturer: String(fd.get("manufacturer") ?? "") || null,
+            sku: String(fd.get("sku") ?? "") || null,
+            expiry_date: String(fd.get("expiry_date") ?? "") || null,
+            notes: String(fd.get("notes") ?? "") || null,
+            is_critical: fd.get("is_critical") === "on",
+          },
+        });
+        refreshPendingCount();
+        return { success: "Saved offline — will sync when reconnected" };
+      }
+      return createInventoryItem(prev, fd);
+    },
+    initialState
+  );
 
   useEffect(() => {
     if (state.success) {
@@ -32,7 +66,7 @@ export function AddInventoryItemForm({
   }, [state.success, onSuccess]);
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form ref={formRef} action={formAction} className="space-y-4">
         <input type="hidden" name="boat_id" value={boatId} />
 
         <div>

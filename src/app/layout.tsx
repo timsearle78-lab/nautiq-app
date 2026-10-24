@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { OfflineSyncProvider } from "@/components/providers/offline-sync-provider";
+import OfflineBanner from "@/components/ui/offline-banner";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -50,7 +52,10 @@ export default function RootLayout({
       </head>
       <body className={`antialiased ${plusJakartaSans.className}`}>
         <ThemeProvider>
-        {children}
+          <OfflineSyncProvider>
+            <OfflineBanner />
+            {children}
+          </OfflineSyncProvider>
         </ThemeProvider>
         <script
           dangerouslySetInnerHTML={{

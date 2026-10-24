@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
@@ -314,6 +315,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   });
 
   const isLoading = status === "streaming" || status === "submitted";
+  const isOnline = useOnlineStatus();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -802,8 +804,9 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
             value={input}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
-            placeholder="Ask me anything…"
-            className="flex-1 resize-none rounded-2xl px-4 py-2.5 text-sm focus:outline-none"
+            disabled={!isOnline}
+            placeholder={isOnline ? "Ask me anything…" : "AI assistant unavailable offline"}
+            className="flex-1 resize-none rounded-2xl px-4 py-2.5 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
             style={{
               minHeight: "40px",
               background: "var(--color-app-bg)",
@@ -824,7 +827,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
 
           <button
             onClick={handleSend}
-            disabled={!input.trim() || isLoading}
+            disabled={!input.trim() || isLoading || !isOnline}
             className="flex shrink-0 items-center justify-center rounded-full transition disabled:opacity-40"
             style={{ width: 40, height: 40, background: "var(--color-navy-700)", color: "#FFFFFF" }}
           >
