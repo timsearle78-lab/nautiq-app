@@ -7,6 +7,8 @@ import { getBoatHealth } from "@/lib/components/health";
 import { HELP_SYSTEM_PROMPT } from "@/lib/help-content";
 import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
+export const maxDuration = 60;
+
 async function logChatError(
   supabase: Awaited<ReturnType<typeof createClient>>,
   opts: { userId?: string; boatId?: string; message: string; stack?: string }

@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getBoatHealth } from "@/lib/components/health";
 import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
   // 20 greeting loads per IP per 10 minutes
   if (!rateLimit(`greeting:${getClientIp(req)}`, 20, 10 * 60 * 1000)) {

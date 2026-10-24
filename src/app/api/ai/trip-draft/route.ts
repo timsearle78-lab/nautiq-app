@@ -3,6 +3,8 @@ import { generateTripDraftFromAI } from "@/lib/ai/generateTripDraft";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
+export const maxDuration = 60;
+
 const MAX_INPUT_LENGTH = 2000;
 
 export async function POST(request: NextRequest) {

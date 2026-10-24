@@ -5,6 +5,8 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, getClientIp, tooManyRequests } from "@/lib/rate-limit";
 
+export const maxDuration = 60;
+
 const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const schema = z.object({

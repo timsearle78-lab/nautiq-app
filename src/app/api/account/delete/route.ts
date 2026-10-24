@@ -38,6 +38,7 @@ export async function DELETE(req: Request) {
   await supabase.from("trip_drafts").delete().eq("user_id", userId);
   await supabase.from("user_settings").delete().eq("user_id", userId);
   await supabase.from("component_overdue_notifications").delete().eq("user_id", userId);
+  await supabase.from("audit_events").delete().eq("user_id", userId);
 
   // Delete the auth user using the service role admin client
   const adminClient = createAdminClient(

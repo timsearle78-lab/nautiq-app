@@ -83,8 +83,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   }
 
   const [tripRows, auditRows] = await Promise.all([
-    adminClient.from("trips").select("boat_id"),
-    adminClient.from("audit_events").select("user_id, created_at").order("created_at", { ascending: false }),
+    adminClient.from("trips").select("boat_id").limit(10000),
+    adminClient.from("audit_events").select("user_id, created_at").order("created_at", { ascending: false }).limit(10000),
   ]);
 
   const tripCountByUser = new Map<string, number>();
