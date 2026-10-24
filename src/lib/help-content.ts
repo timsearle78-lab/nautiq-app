@@ -38,24 +38,30 @@ What's New card: The release notes card that appears when the app is updated can
 
 To edit an existing boat:
 1. Go to Profile → Settings.
-2. Find your boat card and edit any of these fields:
+2. Find your boat in the list and tap the "Edit" button next to it.
+3. A slide-up form opens where you can update any of these:
    - Name (required)
    - Type: Motorboat, Keeler Yacht, Trailer Yacht, Catamaran, RIB, Other
    - Propulsion: Inboard diesel, Inboard petrol, Outboard, Sail, Sail + auxiliary, Electric, Hybrid
    - Hull design: Monohull, Catamaran, Trimaran, Pontoon, Semi-displacement, Planing, Displacement
    - Hull material: Fibreglass (GRP), Aluminium, Steel, Wood, Carbon fibre, Ferro-cement, Inflatable (Hypalon/PVC)
    - Dimensions: Length (LOA), Beam, Draft — in metres
-   - Boat photo: tap "Upload photo" to add a circular avatar image (JPG, PNG or WebP).
+   - Consumption rate (L/hr): used to estimate fuel used per trip automatically
+   - Tank capacity (litres): used to show your fuel level gauge
+   - Boat photo: tap "Upload photo" to add a circular avatar image (JPG, PNG or WebP)
    - Boat description (optional): free-text field — describe your boat in plain English (builder, year, engine make/model, sails, electronics, any quirks). The AI reads this in every conversation to give better advice.
-3. Tap "Save changes."
+4. Tap "Save changes."
+
+The edit form also lets you manage crew and systems for that boat — scroll down past the form to find Co-owners and Systems sections.
 
 To add a second boat:
-1. Scroll to the bottom of the Settings page and use the "Add a new boat" section.
-2. Enter a name and type, then tap "Add boat." Default systems and components are created automatically.
-3. Switch between boats using the boat selector in the top-right corner of the app.
+1. Go to Profile → Settings.
+2. Tap "Add boat" in the top-right of the Your boats section.
+3. Fill in the name and type, then tap "Add boat." Default systems and components are created automatically.
+4. Switch between boats using the boat selector in the top-right corner of the app.
 
 To delete a boat:
-1. Scroll to the bottom of that boat's card in Settings and tap "Permanently delete this boat."
+1. Find your boat in Settings → Your boats and tap the red trash icon next to it.
 2. A confirmation dialog appears — type the exact boat name to enable the delete button.
 3. This removes all maintenance records, components, systems, trips, and inventory for that boat. It cannot be undone.`,
   },
@@ -150,9 +156,11 @@ When you set up your boat, NautIQ creates a default set of systems and component
 - Delete a component from the Danger Zone at the bottom of the component page.
 
 To manage systems:
-1. Go to Profile → Settings → Systems section.
-2. Each existing system has a trash icon — tap it and confirm to delete the system.
-3. To add a new system, type its name (e.g. "Engine," "Electrical," "Deck") in the text field and tap "Add."
+1. Go to Profile → Settings → Your boats.
+2. Tap the "Edit" button next to the boat whose systems you want to manage.
+3. Scroll to the bottom of the edit form — the Systems section is there.
+4. Each existing system has a trash icon — tap it and confirm to delete the system.
+5. To add a new system, type its name (e.g. "Engine," "Electrical," "Deck") in the text field and tap "Add."
 
 Each component has a service interval (time-based and/or engine-hour-based). NautIQ uses your trip engine hours to track hours since last service.`,
   },
@@ -415,9 +423,9 @@ OVERVIEW: NautIQ has 5 sections — Home/Chat (AI assistant), Trips (engine hour
 
 GETTING STARTED: After creating your boat, the Home screen shows prompt cards if you haven't logged a trip or added inventory yet. Tap "Log a trip" or "Add items" on those cards to get started, or dismiss them with the X. Once you've completed the action, the card won't appear again.
 
-BOAT SETUP: First-time wizard asks for name, type, propulsion, hull design, hull material, and an optional free-text description — then creates systems and components automatically. Edit boat specs (name, type, propulsion, hull design, hull material, dimensions: length/beam/draft, photo, description) in Profile → Settings → Your boats. Add more boats via the "Add a new boat" section at the bottom of Settings. Switch boats via the top-right selector. To delete a boat, tap "Permanently delete this boat" in its settings card and confirm by typing the boat name — this removes all data and cannot be undone. Boat specs and description refine component suggestions and AI advice.
+BOAT SETUP: First-time wizard asks for name, type, propulsion, hull design, hull material, and an optional free-text description — then creates systems and components automatically. Edit boat specs in Profile → Settings → tap "Edit" on any boat — the slide-up form lets you update name, type, propulsion, hull design, hull material, dimensions (length/beam/draft), photo, fuel consumption rate (L/hr), tank capacity (litres), and description. Crew (co-owners) and systems are also managed from the same edit form, further down the page. Add more boats via the "Add boat" button in the Your boats section header. Switch boats via the top-right selector. To delete a boat, tap the red trash icon next to it in Settings → Your boats, then type the boat name to confirm — removes all data and cannot be undone. Boat specs and description refine component suggestions and AI advice.
 
-SYSTEMS: Manage systems (groups of components) in Profile → Settings → Systems. Add a system by typing its name and tapping "Add." Delete a system using the trash icon next to it.
+SYSTEMS: Manage systems (groups of components) inside the boat edit form. Go to Profile → Settings → Your boats → tap "Edit" on the boat → scroll to the Systems section at the bottom. Add a system by typing its name and tapping "Add." Delete a system using the trash icon next to it.
 
 LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving (GPS location captured), "Stop Trip" when back (GPS location captured again); (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours." If you enter engine hours but leave Fuel blank, NautIQ will estimate fuel used automatically if a fuel consumption rate (litres/hour) is set on your boat in Settings. The estimated fuel is saved with the trip and deducted from your fuel inventory.
 

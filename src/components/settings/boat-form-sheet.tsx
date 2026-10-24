@@ -19,6 +19,7 @@ const inputCls =
 
 type SystemRow = { id: string; name: string };
 
+
 type EditProps = {
   mode: "edit";
   boatId: string;
