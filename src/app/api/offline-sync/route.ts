@@ -60,6 +60,29 @@ export async function POST(req: Request) {
           notes: p.notes ? String(p.notes) : null,
         });
         results.push({ id: item.id, ok: !error, error: error?.message });
+      } else if (item.type === "trip") {
+        const p = item.payload;
+        const { error } = await supabase.from("trips").insert({
+          user_id: user.id,
+          boat_id: String(p.boat_id),
+          started_at: p.started_at ? String(p.started_at) : null,
+          ended_at: p.ended_at ? String(p.ended_at) : null,
+          engine_hours_delta: p.engine_hours_delta != null ? parseOptionalNumber(String(p.engine_hours_delta)) : null,
+          fuel_added_litres: p.fuel_added_litres != null ? parseOptionalNumber(String(p.fuel_added_litres)) : null,
+          notes: p.notes ? String(p.notes) : null,
+          source: p.source ? String(p.source) : "manual",
+        });
+        results.push({ id: item.id, ok: !error, error: error?.message });
+
+      } else if (item.type === "checkin") {
+        const p = item.payload;
+        const { error } = await supabase.from("boat_checkins").insert({
+          user_id: user.id,
+          boat_id: String(p.boat_id),
+          checked_at: String(p.checked_at),
+          notes: p.notes ? String(p.notes) : null,
+        });
+        results.push({ id: item.id, ok: !error, error: error?.message });
       } else {
         results.push({ id: item.id, ok: false, error: "Unknown type" });
       }

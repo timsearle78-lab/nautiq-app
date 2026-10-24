@@ -10,6 +10,9 @@ import VoiceTextarea from "@/components/ui/voice-textarea";
 import SaveSuccessSheet from "@/components/ui/save-success-sheet";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import { todayLocal } from "@/lib/format-date";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { enqueue } from "@/lib/offline-queue";
+import { useOfflineSync } from "@/components/providers/offline-sync-provider";
 
 interface LogTripSheetProps {
   boatId: string;
@@ -96,6 +99,8 @@ export default function LogTripSheet({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
+  const isOnline = useOnlineStatus();
+  const { refreshPendingCount } = useOfflineSync();
   const MAX_PHOTOS = 3;
 
   function addFiles(files: FileList | null) {
@@ -133,6 +138,25 @@ export default function LogTripSheet({
     if (!startDate) { setError("Enter a start date for this trip"); return; }
     const hours = parseFloat(engineHours);
     if (!hours || hours <= 0) { setError("Enter engine hours for this trip"); return; }
+
+    if (!isOnline) {
+      enqueue({
+        type: "trip",
+        payload: {
+          boat_id: boatId,
+          started_at: buildIso(startDate, startTime),
+          ended_at: endTime ? buildIso(endDate, endTime) : null,
+          engine_hours_delta: hours,
+          fuel_added_litres: fuelLitres ? parseFloat(fuelLitres) : null,
+          notes: notes || null,
+          source: prefillSource ?? "manual",
+        },
+      });
+      refreshPendingCount();
+      setSaved(true);
+      setTimeout(() => onSaved(), 1500);
+      return;
+    }
 
     setSaving(true);
     setError("");

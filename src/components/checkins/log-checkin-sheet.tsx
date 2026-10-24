@@ -1,8 +1,11 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { X, Anchor } from "lucide-react";
 import { logCheckin, type CheckinActionState } from "@/app/(app)/checkins/actions";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { enqueue } from "@/lib/offline-queue";
+import { useOfflineSync } from "@/components/providers/offline-sync-provider";
 
 interface LogCheckinSheetProps {
   boatId: string;
@@ -14,12 +17,45 @@ const initial: CheckinActionState = {};
 
 export default function LogCheckinSheet({ boatId, onClose, onSaved }: LogCheckinSheetProps) {
   const [state, action, pending] = useActionState(logCheckin, initial);
+  const isOnline = useOnlineStatus();
+  const { refreshPendingCount } = useOfflineSync();
+  const [offlineSuccess, setOfflineSuccess] = useState(false);
 
   useEffect(() => {
     if (state.success) onSaved();
   }, [state.success, onSaved]);
 
   const today = new Date().toISOString().slice(0, 10);
+
+  function handleOfflineSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (isOnline) return; // let normal action handle it
+    const fd = new FormData(e.currentTarget);
+    enqueue({
+      type: "checkin",
+      payload: {
+        boat_id: boatId,
+        checked_at: String(fd.get("checked_at") ?? today),
+        notes: fd.get("notes") ? String(fd.get("notes")) : null,
+      },
+    });
+    refreshPendingCount();
+    setOfflineSuccess(true);
+    setTimeout(onSaved, 1200);
+  }
+
+  if (offlineSuccess) {
+    return (
+      <>
+        <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose} />
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[1040px] z-50 bg-white rounded-t-2xl shadow-xl pb-[env(safe-area-inset-bottom)] px-5 py-8 flex flex-col items-center gap-3">
+          <Anchor size={28} className="text-ocean-600" />
+          <p className="text-base font-semibold text-slate-800">Saved offline</p>
+          <p className="text-sm text-slate-500 text-center">Visit saved locally — will sync when you reconnect.</p>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -35,7 +71,7 @@ export default function LogCheckinSheet({ boatId, onClose, onSaved }: LogCheckin
           </button>
         </div>
 
-        <form action={action} className="px-5 py-5 space-y-4">
+        <form action={isOnline ? action : undefined} onSubmit={!isOnline ? handleOfflineSubmit : undefined} className="px-5 py-5 space-y-4">
           <input type="hidden" name="boat_id" value={boatId} />
 
           <div>
