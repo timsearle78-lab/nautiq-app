@@ -188,17 +188,21 @@ export default async function ComponentsPage({
   ];
 
   return (
-    <main className="px-4 py-6 space-y-5">
-      <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Components</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Browse and manage all tracked components for the selected boat.
-          </p>
+    <main className="space-y-5">
+      {/* Navy page hero — matches Maintenance page */}
+      <section className="w-full px-4 pt-5 pb-5" style={{ background: "var(--color-navy-700)" }}>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>Components</h1>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>
+              All tracked components for your boat.
+            </p>
+          </div>
+          <AddComponentSheet boatId={boat.id} systems={boatSystems} boatType={boat.type ?? undefined} />
         </div>
-
-        <AddComponentSheet boatId={boat.id} systems={boatSystems} boatType={boat.type ?? undefined} />
       </section>
+
+      <div className="px-4 space-y-5">
 
       <section className="flex flex-wrap gap-2">
         {statusLinks.map((tab) => {
@@ -376,6 +380,7 @@ export default async function ComponentsPage({
           </>
         )}
       </section>
+      </div>
     </main>
   );
 }
