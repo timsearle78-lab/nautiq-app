@@ -94,6 +94,7 @@ export default function BottomNav({ userEmail, userInitials, isAdmin, boats = []
               return (
                 <button
                   key={href}
+                  disabled={!isOnline && pathname === "/chat"}
                   onClick={() => {
                     if (pathname === "/chat") {
                       window.dispatchEvent(new CustomEvent("nautiq:reset-chat"));
@@ -101,7 +102,7 @@ export default function BottomNav({ userEmail, userInitials, isAdmin, boats = []
                       router.push("/chat");
                     }
                   }}
-                  className="relative flex flex-1 flex-col items-center justify-center gap-1 transition-opacity active:opacity-70"
+                  className="relative flex flex-1 flex-col items-center justify-center gap-1 transition-opacity active:opacity-70 disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   {sharedContent}
                 </button>
