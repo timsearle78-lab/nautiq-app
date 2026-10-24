@@ -12,6 +12,7 @@ export const CHANGELOG: Release[] = [
     features: [
       "Unsubscribe from all NautIQ emails at any time in Settings → Notifications — just tick \"Unsubscribe from all emails\" and save",
       "NautIQ logo now appears in all system emails",
+      "NautIQ works offline — watch items, inventory and maintenance entries are saved locally and sync automatically when you reconnect; AI assistant is paused while offline",
     ],
   },
   {

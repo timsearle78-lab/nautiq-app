@@ -421,6 +421,20 @@ Notes:
 - Co-owners can log trips, maintenance, and inventory changes — they have full write access.
 - Deleting a boat is only possible for the original owner.`,
   },
+  {
+    id: "offline",
+    title: "Using NautIQ offline",
+    content: `NautIQ supports offline use for core data entry. When you lose connectivity, a banner appears at the top of the screen.
+
+While offline you can:
+- Add watch items (maintenance observations)
+- Add inventory items
+- Log maintenance events
+
+These entries are saved locally on your device and synced automatically the next time you have an internet connection. A banner shows how many entries are pending sync.
+
+While offline, the AI assistant and all AI-powered features (inventory scan, trip draft, component suggestions) are unavailable — they require a live connection. The rest of the app remains usable for browsing your existing data.`,
+  },
 ];
 
 // Compact version injected into the AI chat system prompt.
@@ -490,4 +504,6 @@ HEALTH SCORE BREAKDOWN: The boat health score is 100 minus penalties applied in 
 2. Inactivity penalty (direct deduction — not diluted): If the boat hasn't had a trip, maintenance event, or check-in in 30+ days, a penalty is subtracted directly: 30–59 days = −15 pts, 60–89 days = −35 pts, 90+ days = −60 pts.
 3. Watch item penalty (direct deduction): Unresolved maintenance watch items left too long reduce the score — 7–29 days old = −5 pts each, 30–59 days old = −10 pts each, 60+ days old = −20 pts each. Capped at −40 pts total. Resolving the watch items removes the penalty.
 To explain "why is my score X?": list overdue components, due-soon components, inventory issues, inactivity penalty, and unresolved watch items. The Health page also shows a "Why X/100?" explanation automatically.
+
+OFFLINE MODE: NautIQ works offline for core data entry. When offline, a banner shows at the top of the screen. Watch items, inventory items, and maintenance events can be added while offline — they are stored locally and sync automatically when connectivity returns. A banner shows the count of pending entries waiting to sync. The AI assistant and all AI features are unavailable offline (require live connection). The rest of the app (viewing trips, inventory, maintenance records) works normally while offline using previously loaded data.
 `.trim();

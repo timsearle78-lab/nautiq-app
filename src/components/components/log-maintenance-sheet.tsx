@@ -8,6 +8,9 @@ import { logMaintenance } from "@/app/(app)/components/[id]/actions";
 import VoiceTextarea from "@/components/ui/voice-textarea";
 import { todayLocal } from "@/lib/format-date";
 import { uploadWithProgress } from "@/lib/upload-with-progress";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { enqueue } from "@/lib/offline-queue";
+import { useOfflineSync } from "@/components/providers/offline-sync-provider";
 import { UploadProgressBar } from "@/components/ui/upload-progress-bar";
 
 type InventoryOption = { id: string; name: string; quantity: number; unit: string | null };
@@ -54,9 +57,30 @@ export default function LogMaintenanceSheet({
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const isOnline = useOnlineStatus();
+  const { refreshPendingCount } = useOfflineSync();
 
   const [state, formAction, pending] = useActionState(
     async (prev: { error?: string; success?: string; eventId?: string }, fd: FormData) => {
+      if (!isOnline) {
+        enqueue({
+          type: "maintenance",
+          payload: {
+            boat_id: String(fd.get("boat_id") ?? ""),
+            component_id: String(fd.get("component_id") ?? "") || null,
+            work_done: String(fd.get("work_done") ?? ""),
+            performed_at: String(fd.get("performed_at") ?? todayLocal()),
+            engine_hours: String(fd.get("engine_hours") ?? "") || null,
+            vendor: String(fd.get("vendor") ?? "") || null,
+            cost: String(fd.get("cost") ?? "") || null,
+            notes: String(fd.get("notes") ?? "") || null,
+          },
+        });
+        refreshPendingCount();
+        setSaved(true);
+        setTimeout(onSaved, 1400);
+        return { success: "Saved offline — will sync when reconnected" };
+      }
       const result = await logMaintenance(prev, fd);
       if (result.success && result.eventId && photos.length > 0) {
         setPhotoUploadPct(0);

@@ -1,4 +1,5 @@
-const CACHE = "nautiq-v3";
+const CACHE = "nautiq-v4";
+const SUPABASE_DATA_CACHE = "nautiq-data-v1";
 const STATIC = ["/", "/offline"];
 
 self.addEventListener("install", (e) => {
@@ -10,7 +11,7 @@ self.addEventListener("install", (e) => {
 self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k !== CACHE && k !== SUPABASE_DATA_CACHE).map((k) => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
@@ -19,12 +20,35 @@ self.addEventListener("fetch", (e) => {
   const { request } = e;
   const url = new URL(request.url);
 
-  // Never intercept: auth, API, Supabase, non-GET
+  // Supabase data reads: network-first, stale-while-revalidate, serve cached on offline
+  // Only cache read queries (GET to /rest/v1/) — skip auth, realtime, storage
+  if (
+    request.method === "GET" &&
+    url.hostname.includes("supabase.co") &&
+    url.pathname.startsWith("/rest/v1/") &&
+    !url.pathname.includes("/auth/")
+  ) {
+    e.respondWith(
+      fetch(request.clone())
+        .then((res) => {
+          if (res.ok) {
+            const clone = res.clone();
+            caches.open(SUPABASE_DATA_CACHE).then((c) => c.put(request, clone));
+          }
+          return res;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
+  // Never intercept: auth, other API, non-Supabase external hosts, non-GET
   if (
     request.method !== "GET" ||
     url.pathname.startsWith("/api/") ||
     url.hostname.includes("supabase.co") ||
-    url.hostname.includes("groq.com")
+    url.hostname.includes("groq.com") ||
+    url.hostname.includes("anthropic.com")
   ) {
     return;
   }
