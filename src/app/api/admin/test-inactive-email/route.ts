@@ -13,12 +13,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Allow overriding recipient via body, default to calling admin
-  let recipient = user.email!;
-  try {
-    const body = await req.json();
-    if (body.email) recipient = body.email;
-  } catch { /* use default */ }
+  if (ADMIN_EMAILS.length === 0) {
+    return NextResponse.json({ error: "No ADMIN_EMAILS configured" }, { status: 500 });
+  }
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -28,9 +25,9 @@ export async function POST(req: Request) {
     },
     body: JSON.stringify({
       from: "NautIQ <noreply@nautiq.cloud>",
-      to: recipient,
+      to: ADMIN_EMAILS,
       subject: "[TEST] We miss you on NautIQ — quick check-in 👋",
-      html: inactiveEmail(recipient, 17),
+      html: inactiveEmail(ADMIN_EMAILS[0], 17),
     }),
   });
 
@@ -39,7 +36,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: err }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true, sentTo: recipient });
+  return NextResponse.json({ ok: true, sentTo: ADMIN_EMAILS });
 }
 
 function inactiveEmail(userEmail: string, daysSince: number): string {

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { DeleteUserDialog } from "@/components/admin/delete-user-dialog";
 import { SortableTh, sortHref } from "@/components/ui/sortable-th";
+import { TestInactiveEmailButton } from "@/components/admin/test-inactive-email-button";
 
 export const dynamic = "force-dynamic";
 
@@ -136,7 +137,10 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           <h1 className="text-xl font-bold text-slate-900">Admin</h1>
           <p className="text-sm text-slate-500 mt-0.5">NautIQ user overview</p>
         </div>
-        <a href="/" className="text-sm text-ocean-600 hover:underline shrink-0">← Back to app</a>
+        <div className="flex items-center gap-3 shrink-0">
+          <TestInactiveEmailButton />
+          <a href="/" className="text-sm text-ocean-600 hover:underline">← Back to app</a>
+        </div>
       </div>
 
       {/* Summary stats */}
