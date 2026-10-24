@@ -12,6 +12,7 @@ import LogTripSheet from "./log-trip-sheet";
 import ScanConfirmSheet, { type ScanResult } from "./scan-confirm-sheet";
 import LogMaintenanceSheet from "@/components/components/log-maintenance-sheet";
 import AddWatchItemSheet from "@/components/maintenance/add-watch-item-sheet";
+import LogCheckinSheet from "@/components/checkins/log-checkin-sheet";
 import NautiqSpinner from "@/components/ui/nautiq-spinner";
 import WhatsNewCard from "@/components/chat/whats-new-card";
 import GreetingCard from "@/components/chat/greeting-card";
@@ -270,6 +271,7 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
   const [input, setInput] = useState("");
   const [showTripSheet, setShowTripSheet] = useState(false);
   const [showWatchItemSheet, setShowWatchItemSheet] = useState(false);
+  const [showCheckinSheet, setShowCheckinSheet] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -688,6 +690,16 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
                   </svg>
                   Watch list
                 </button>
+                <button
+                  onClick={() => setShowCheckinSheet(true)}
+                  className="flex items-center gap-1.5 text-sm font-semibold active:opacity-70 transition-opacity"
+                  style={{ background: "#F0FDF4", border: "1.5px solid #BBF7D0", borderRadius: 8, padding: "8px 16px", color: "#166534" }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                  Log visit
+                </button>
               </div>
             </div>
           </div>
@@ -889,6 +901,14 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
           components={components}
           onClose={() => setShowWatchItemSheet(false)}
           onSaved={() => { setShowWatchItemSheet(false); router.refresh(); }}
+        />
+      )}
+
+      {showCheckinSheet && (
+        <LogCheckinSheet
+          boatId={boat.id}
+          onClose={() => setShowCheckinSheet(false)}
+          onSaved={() => { setShowCheckinSheet(false); router.refresh(); }}
         />
       )}
     </div>
