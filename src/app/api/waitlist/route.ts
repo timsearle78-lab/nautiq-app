@@ -73,8 +73,8 @@ export async function POST(req: Request) {
 
   const confirmationHtml = `
     <div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;">
-      <div style="background:#0B2942;padding:32px 40px;text-align:center;">
-        <span style="font-size:28px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">Naut<span style="color:#FFC730;">IQ</span></span>
+      <div style="background:#0F2335;padding:24px 32px;text-align:center;">
+        <img src="https://nautiq.cloud/images/logo-email.png" alt="NautIQ" style="height:48px;width:auto;display:block;margin:0 auto;" />
       </div>
       <div style="padding:32px 40px;">
         <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#0B2942;">You're on the list!</h1>
