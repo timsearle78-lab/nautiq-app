@@ -1,4 +1,4 @@
-const CACHE = "nautiq-v5";
+const CACHE = "nautiq-v6";
 const SUPABASE_DATA_CACHE = "nautiq-data-v1";
 const STATIC = ["/", "/offline"];
 
@@ -69,9 +69,14 @@ self.addEventListener("fetch", (e) => {
         .catch(async () => {
           const cached = await caches.match(request);
           if (cached) return cached;
-          // Fall back to the app shell so the offline banner shows
-          // and features that work offline remain accessible.
-          return caches.match("/");
+          const shell = await caches.match("/");
+          if (shell) return shell;
+          // Nothing cached at all — return a minimal redirect so the
+          // browser always gets a valid Response (avoids ERR_FAILED).
+          return new Response(
+            '<!doctype html><meta http-equiv="refresh" content="0;url=/"><title>NautIQ</title>',
+            { headers: { "Content-Type": "text/html" } }
+          );
         })
     );
     return;

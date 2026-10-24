@@ -12,7 +12,7 @@ export default function OfflineBanner() {
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-[100] flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white transition-all ${
+      className={`sticky top-0 z-[100] flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white transition-all ${
         isOnline ? "bg-amber-500" : "bg-slate-700"
       }`}
     >
