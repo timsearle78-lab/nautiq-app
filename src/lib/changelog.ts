@@ -11,6 +11,7 @@ export const CHANGELOG: Release[] = [
     label: "October 2026 update",
     features: [
       "Unsubscribe from all NautIQ emails at any time in Settings → Notifications — just tick \"Unsubscribe from all emails\" and save",
+      "NautIQ logo now appears in all system emails",
     ],
   },
   {

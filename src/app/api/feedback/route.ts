@@ -44,8 +44,8 @@ export async function POST(req: Request) {
     <tr><td align="center">
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
         <tr>
-          <td style="background:#0F2335;padding:24px 32px;">
-            <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;">⚓ NautIQ Feedback</p>
+          <td style="background:#0F2335;padding:24px 32px;text-align:center;">
+            <img src="https://nautiq.cloud/images/logo-email.png" alt="NautIQ" style="height:48px;width:auto;display:block;margin:0 auto;" />
           </td>
         </tr>
         <tr>
