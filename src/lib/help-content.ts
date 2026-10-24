@@ -311,6 +311,10 @@ Quick actions menu: tap the ☰ button (top left of the chat screen) to open a m
 - Used item: quickly log that you consumed an inventory item.
 - New chat: clear the conversation and start fresh (appears when there are messages).
 
+Shortcut chips (below the assistant prompt): quick-tap buttons for Watch list, Log visit, and Feedback.
+
+To share feedback: tap the purple "Feedback" chip on the Home screen, or open the Profile menu (your avatar, top right of the Home screen) and tap "Share feedback." Rate NautIQ from 1 to 10 and optionally add a comment — it goes straight to the NautIQ team.
+
 To reset the conversation, open the ☰ menu and tap "New chat". This clears the current chat without deleting any saved data.
 
 The assistant only helps with questions about your boat, maintenance, inventory, trips, and the NautIQ app. Off-topic questions will be politely declined.
@@ -472,6 +476,8 @@ WELCOME GREETING / PBA: Each time you open the Home screen, your personal boat a
 WATCH LIST: The Watch List on the Maintenance page is for tracking things that need attention but aren't a full maintenance job yet — e.g. wear and tear, something to keep an eye on, or a reminder to sort something later. To add a watch item: open the Maintenance page and tap "Add" in the Watch List section, or tap Watch item in the Quick Actions menu (☰, top left), or tap the "Watch list" shortcut on the Home screen. Fill in a title (required), optionally pick a component, add notes, and attach up to 3 photos. When you're ready to resolve a watch item, tap "Mark done" on the card — a log maintenance form opens pre-filled with the watch item's title and component, so you can add details and save it as a proper maintenance log entry. The watch item is then marked resolved and disappears from the list. To remove a watch item without logging maintenance, tap "Delete."
 
 BOAT VISITS / CHECK-INS: Even if you don't take a trip, you should log a visit when you go to check on your boat. Tap the green "Log visit" shortcut button on the Home screen (below the assistant prompt), or open the Quick Actions menu (☰ icon, top left) and tap "Log Visit." Enter the date and an optional note. Regular visits prevent the health score from dropping due to inactivity — the score decreases if your boat hasn't been visited, used, or serviced in 30+ days. The Home screen shows "Last visit: Xd ago" in the health panel so you can see at a glance when you were last aboard.
+
+FEEDBACK: Users can share feedback with the NautIQ team directly from the app. Two ways: (1) tap the purple "Feedback" chip on the Home screen (below the assistant prompt), or (2) tap the profile avatar (top right of the Home screen) → "Share feedback." The feedback form has a 1–10 NPS score and an optional comments box. Submitted feedback is emailed to the NautIQ team.
 
 HOME ICON: Tapping the Home tab in the bottom navigation when you're already on the Home screen resets the chat and returns you to the health overview — useful for starting a fresh conversation without navigating away.
 

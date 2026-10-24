@@ -14,6 +14,7 @@ export const CHANGELOG: Release[] = [
       "Hiding the Personal Boat Assistant in Settings now also hides the setup reminder cards (missing components, fuel setup, etc.)",
       "Settings page simplified — your boats are now a clean list; tap Edit on any boat to update its name, specs, fuel settings, photo, crew, and systems all in one place",
       "New \"Log visit\" shortcut on the Home screen — tap it to quickly record a marina or anchorage visit without typing it into the assistant",
+      "Share feedback directly from the app — tap the \"Feedback\" button on the Home screen or Profile → Share feedback to rate NautIQ (1–10) and leave a comment",
     ],
   },
   {
