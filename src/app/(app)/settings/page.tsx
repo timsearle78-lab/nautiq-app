@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { BoatFormSheet } from "@/components/settings/boat-form-sheet";
-import { SystemsManager } from "@/components/settings/systems-manager";
 import { DeleteBoatDialog } from "@/components/settings/delete-boat-dialog";
 import { NotificationPreferencesForm } from "@/components/settings/notification-preferences-form";
 import { ResetPasswordButton } from "@/components/settings/reset-password-button";
@@ -117,6 +116,7 @@ export default async function SettingsPage() {
                       description={boat.description}
                       fuel_consumption_lph={boat.fuel_consumption_lph}
                       fuel_tank_litres={boat.fuel_tank_litres}
+                      systems={systemsByBoat.get(boat.id) ?? []}
                     />
                   )}
                   {isOwner && <DeleteBoatDialog boatId={boat.id} boatName={boat.name} />}
@@ -125,34 +125,6 @@ export default async function SettingsPage() {
             </div>
           );
         })}
-      </section>
-
-      {/* Systems */}
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-base font-semibold text-slate-700">Systems</h2>
-          <p className="mt-0.5 text-sm text-slate-500">
-            Systems group your components — e.g. Engine, Electrical, Safety.
-          </p>
-        </div>
-
-        {boats.length === 0 ? (
-          <p className="text-sm text-slate-500">Add a boat first to manage its systems.</p>
-        ) : (
-          boats.map((boat) => (
-            <div key={boat.id} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-                <span className="text-sm font-semibold text-slate-700">{boat.name}</span>
-              </div>
-              <div className="px-4 py-4">
-                <SystemsManager
-                  boatId={boat.id}
-                  systems={systemsByBoat.get(boat.id) ?? []}
-                />
-              </div>
-            </div>
-          ))
-        )}
       </section>
 
       {/* Appearance */}

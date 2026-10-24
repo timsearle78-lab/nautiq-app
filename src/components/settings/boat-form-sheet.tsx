@@ -6,6 +6,7 @@ import { X, Pencil, Plus } from "lucide-react";
 import { updateBoat, addBoat } from "@/app/(app)/settings/actions";
 import { BoatImageUpload } from "./boat-image-upload";
 import { BoatMembersPanel } from "./boat-members-panel";
+import { SystemsManager } from "./systems-manager";
 import SaveSuccessBanner from "@/components/ui/save-success-banner";
 
 const BOAT_TYPES = ["Motorboat", "Keeler Yacht", "Trailer Yacht", "Catamaran", "RIB", "Other"];
@@ -16,12 +17,15 @@ const HULL_MATERIALS = ["Fibreglass (GRP)", "Aluminium", "Steel", "Wood", "Carbo
 const inputCls =
   "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100";
 
+type SystemRow = { id: string; name: string };
+
 type EditProps = {
   mode: "edit";
   boatId: string;
   boatName: string;
   isOwner: boolean;
   imageUrl: string | null;
+  systems: SystemRow[];
   type: string | null;
   propulsion: string | null;
   hull_design: string | null;
@@ -215,6 +219,15 @@ export function BoatFormSheet(props: Props) {
               {isEdit && (
                 <div className="border-t border-slate-100 pt-4">
                   <BoatMembersPanel boatId={props.boatId} boatName={props.boatName} isOwner={props.isOwner} />
+                </div>
+              )}
+
+              {/* Systems (edit only) */}
+              {isEdit && (
+                <div className="border-t border-slate-100 pt-4">
+                  <p className="text-sm font-semibold text-slate-700 mb-1">Systems</p>
+                  <p className="text-xs text-slate-400 mb-3">Group your components — e.g. Engine, Electrical, Safety.</p>
+                  <SystemsManager boatId={props.boatId} systems={props.systems} />
                 </div>
               )}
             </div>
