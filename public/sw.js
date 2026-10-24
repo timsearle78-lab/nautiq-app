@@ -1,4 +1,4 @@
-const CACHE = "nautiq-v4";
+const CACHE = "nautiq-v5";
 const SUPABASE_DATA_CACHE = "nautiq-data-v1";
 const STATIC = ["/", "/offline"];
 
@@ -53,7 +53,9 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // Navigation requests: network-first, fall back to offline page
+  // Navigation requests: network-first, cache on success.
+  // On failure: serve the cached version of the requested page if available,
+  // then fall back to the cached app shell ("/") so the user stays in the app.
   if (request.mode === "navigate") {
     e.respondWith(
       fetch(request)
@@ -64,7 +66,13 @@ self.addEventListener("fetch", (e) => {
           }
           return res;
         })
-        .catch(() => caches.match("/offline") ?? caches.match("/"))
+        .catch(async () => {
+          const cached = await caches.match(request);
+          if (cached) return cached;
+          // Fall back to the app shell so the offline banner shows
+          // and features that work offline remain accessible.
+          return caches.match("/");
+        })
     );
     return;
   }
