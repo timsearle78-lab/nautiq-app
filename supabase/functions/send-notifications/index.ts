@@ -112,21 +112,9 @@ function scoreColor(score: number) {
 
 const EMAIL_FONT = `@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');`;
 
-const LOGO_SVG = `<table role="presentation" cellpadding="0" cellspacing="0"><tr>
-  <td style="vertical-align:middle;padding-right:9px;">
-    <svg width="24" height="24" viewBox="0 0 100 100" fill="none" stroke="#5EC6EE" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="50" cy="18" r="9"/>
-      <line x1="50" y1="27" x2="50" y2="84"/>
-      <line x1="26" y1="43" x2="74" y2="43"/>
-      <path d="M16 56 C 16 76, 32 86, 50 86 C 68 86, 84 76, 84 56"/>
-    </svg>
-  </td>
-  <td style="vertical-align:middle;">
-    <span style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:22px;font-weight:800;letter-spacing:-0.5px;line-height:1;"><span style="color:#FFFFFF;">Naut</span><span style="color:#5EC6EE;">IQ</span></span>
-  </td>
-</tr></table>`;
+const LOGO_IMG = `<img src="https://nautiq.cloud/images/logo-email.jpg" alt="NautIQ" style="height:48px;width:auto;display:block;" />`;
 
-const EMAIL_HEADER_STYLE = `background:radial-gradient(120% 140% at 85% 0%,#0D4A73 0%,#0B2942 50%,#061D31 100%);padding:24px 32px;`;
+const EMAIL_HEADER_STYLE = `background:#0F2335;padding:24px 32px;text-align:center;`;
 
 const EMAIL_BODY_FONT = `font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;`;
 
@@ -220,7 +208,7 @@ function buildHealthSummaryEmail(boatName: string, score: number, overdue: Compo
   const body = `
     <!-- Header -->
     <tr><td style="${EMAIL_HEADER_STYLE}">
-      ${LOGO_SVG}
+      ${LOGO_IMG}
       <p style="color:rgba(159,186,206,0.85);font-size:13px;margin:8px 0 0;${EMAIL_BODY_FONT}">${boatName} — Boat Health Summary</p>
     </td></tr>
 
@@ -281,7 +269,7 @@ function buildAllClearEmail(boatName: string, score: number, okCount: number, fu
   const body = `
     <!-- Header -->
     <tr><td style="${EMAIL_HEADER_STYLE}">
-      ${LOGO_SVG}
+      ${LOGO_IMG}
       <p style="color:rgba(159,186,206,0.85);font-size:13px;margin:8px 0 0;${EMAIL_BODY_FONT}">${boatName} — Boat Health Summary</p>
     </td></tr>
 
@@ -319,7 +307,7 @@ function buildOverdueAlertEmail(boatName: string, component: ComponentHealth) {
   const body = `
     <!-- Header -->
     <tr><td style="${EMAIL_HEADER_STYLE}">
-      ${LOGO_SVG}
+      ${LOGO_IMG}
       <p style="color:rgba(159,186,206,0.85);font-size:13px;margin:8px 0 0;${EMAIL_BODY_FONT}">${boatName}</p>
     </td></tr>
 
