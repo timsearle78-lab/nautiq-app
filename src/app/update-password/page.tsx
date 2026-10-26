@@ -22,6 +22,7 @@ function UpdatePasswordForm() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
 
+  const [step, setStep] = useState<"code" | "password">("code");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -29,7 +30,7 @@ function UpdatePasswordForm() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleVerifyCode(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
@@ -37,6 +38,28 @@ function UpdatePasswordForm() {
       setError("Enter the 6-digit code from your email.");
       return;
     }
+
+    setLoading(true);
+    try {
+      const supabase = createClient();
+      const { error: otpError } = await supabase.auth.verifyOtp({
+        email,
+        token: code,
+        type: "email",
+      });
+      if (otpError) throw otpError;
+      setStep("password");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid or expired code.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSetPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+
     if (password.length < 8) {
       setError("Password must be at least 8 characters.");
       return;
@@ -49,19 +72,8 @@ function UpdatePasswordForm() {
     setLoading(true);
     try {
       const supabase = createClient();
-
-      // Verify the OTP — this establishes a session
-      const { error: otpError } = await supabase.auth.verifyOtp({
-        email,
-        token: code,
-        type: "email",
-      });
-      if (otpError) throw otpError;
-
-      // Now update the password
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
-
       setDone(true);
       setTimeout(() => router.push("/"), 2000);
     } catch (err) {
@@ -73,19 +85,76 @@ function UpdatePasswordForm() {
 
   if (done) {
     return (
-      <div className="text-center mt-6">
-        <div
-          className="px-4 py-3 mb-4"
-          style={{ borderRadius: 11, border: "1px solid #B8E2C8", background: "#E7F6EE", color: "var(--color-status-healthy-fg)", fontSize: 13 }}
-        >
-          Password updated — taking you to the app…
-        </div>
+      <div className="mt-6 px-4 py-3" style={{ borderRadius: 11, border: "1px solid #B8E2C8", background: "#E7F6EE", color: "var(--color-status-healthy-fg)", fontSize: 13 }}>
+        Password updated — taking you to the app…
       </div>
     );
   }
 
+  if (step === "password") {
+    return (
+      <form onSubmit={handleSetPassword} className="mt-7 space-y-4">
+        <div
+          className="px-4 py-3"
+          style={{ borderRadius: 11, border: "1px solid #B8E2C8", background: "#E7F6EE", color: "var(--color-status-healthy-fg)", fontSize: 13 }}
+        >
+          Code verified ✓
+        </div>
+
+        <div>
+          <label htmlFor="password" className="mb-2 block" style={{ fontSize: 13, fontWeight: 600, color: "var(--color-navy-700)" }}>
+            New password
+          </label>
+          <input
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={inputStyle}
+            placeholder="At least 8 characters"
+            autoFocus
+            required
+            minLength={8}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="confirm" className="mb-2 block" style={{ fontSize: 13, fontWeight: 600, color: "var(--color-navy-700)" }}>
+            Confirm password
+          </label>
+          <input
+            id="confirm"
+            type="password"
+            autoComplete="new-password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            style={inputStyle}
+            placeholder="Repeat your password"
+            required
+            minLength={8}
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-xl btn-primary px-6 py-3.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? "Updating…" : "Set new password"}
+        </button>
+
+        {error && (
+          <div className="px-4 py-3" style={{ borderRadius: 11, border: "1px solid #F3C4C4", background: "#FDEBEB", color: "var(--color-status-critical-fg)", fontSize: 13 }}>
+            {error}
+          </div>
+        )}
+      </form>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="mt-7 space-y-4">
+    <form onSubmit={handleVerifyCode} className="mt-7 space-y-4">
       <div>
         <label htmlFor="code" className="mb-2 block" style={{ fontSize: 13, fontWeight: 600, color: "var(--color-navy-700)" }}>
           6-digit code
@@ -100,6 +169,7 @@ function UpdatePasswordForm() {
           onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
           style={{ ...inputStyle, letterSpacing: "0.25em", fontSize: 20, textAlign: "center" }}
           placeholder="······"
+          autoFocus
           required
         />
         {email && (
@@ -107,53 +177,16 @@ function UpdatePasswordForm() {
         )}
       </div>
 
-      <div>
-        <label htmlFor="password" className="mb-2 block" style={{ fontSize: 13, fontWeight: 600, color: "var(--color-navy-700)" }}>
-          New password
-        </label>
-        <input
-          id="password"
-          type="password"
-          autoComplete="new-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={inputStyle}
-          placeholder="At least 8 characters"
-          required
-          minLength={8}
-        />
-      </div>
-
-      <div>
-        <label htmlFor="confirm" className="mb-2 block" style={{ fontSize: 13, fontWeight: 600, color: "var(--color-navy-700)" }}>
-          Confirm password
-        </label>
-        <input
-          id="confirm"
-          type="password"
-          autoComplete="new-password"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          style={inputStyle}
-          placeholder="Repeat your password"
-          required
-          minLength={8}
-        />
-      </div>
-
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || code.length !== 6}
         className="w-full rounded-xl btn-primary px-6 py-3.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? "Updating…" : "Update password"}
+        {loading ? "Verifying…" : "Verify code"}
       </button>
 
       {error && (
-        <div
-          className="px-4 py-3"
-          style={{ borderRadius: 11, border: "1px solid #F3C4C4", background: "#FDEBEB", color: "var(--color-status-critical-fg)", fontSize: 13 }}
-        >
+        <div className="px-4 py-3" style={{ borderRadius: 11, border: "1px solid #F3C4C4", background: "#FDEBEB", color: "var(--color-status-critical-fg)", fontSize: 13 }}>
           {error}
         </div>
       )}
@@ -168,7 +201,7 @@ export default function UpdatePasswordPage() {
         <NautiqLogo size={20} />
         <h2 className="mt-6 text-xl font-semibold" style={{ color: "var(--color-navy-700)" }}>Set new password</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Enter the code we emailed you, then choose a new password.
+          Enter the code we emailed you to continue.
         </p>
         <Suspense fallback={<p className="mt-8 text-sm text-slate-500">Loading…</p>}>
           <UpdatePasswordForm />
