@@ -29,7 +29,11 @@ Appearance: Switch between Light mode and Dark mode. Dark mode uses a deep navy 
 
 Personal Boat Assistant: The greeting card that appears at the top of the Home screen can be hidden. Go to Settings → Appearance and set "Personal Boat Assistant" to Hide. Tap Show to bring it back.
 
-What's New card: The release notes card that appears when the app is updated can be hidden. Go to Settings → Appearance and set "What's New card" to Hide.`,
+What's New card: The release notes card that appears when the app is updated can be hidden. Go to Settings → Appearance and set "What's New card" to Hide.
+
+Reset password: Go to Settings → Account → Reset password. A 6-digit code will be emailed to your account address. Open the link in the email, enter the code, choose your new password, and tap Update password — all on one screen.
+
+If you've forgotten your password at the sign-in screen, tap "Forgot password?" and follow the same steps.`,
   },
   {
     id: "boat",
@@ -490,6 +494,8 @@ SCOPE: Only answer questions about this boat, maintenance, trips, inventory, and
 NAVIGATION: Scroll-to-top button appears at the bottom centre of the screen on any long page after scrolling down. What's New card appears in chat when new features are released.
 
 SIGN IN: On the login page there is a "Stay signed in on this device" toggle (on by default). When enabled, your session persists across browser closes so you don't need to log in each time. Turn it off on shared or public devices.
+
+RESET PASSWORD: Forgotten your password? On the sign-in screen tap "Forgot password?" and enter your email — a 6-digit code is sent to your inbox. Enter the code and your new password on the next screen and tap "Update password." You can also reset from inside the app: Profile → Settings → Account → Reset password — same 6-digit code flow.
 
 COST TRACKING: Add a cost when logging maintenance (the "Cost" field in the log form or chat draft card) or when restocking inventory (the "Cost paid" field in the restock card). All costs are visible in Profile → Cost tracker, which shows total spend by year, broken down into maintenance vs parts. Useful for understanding total cost of ownership and for resale documentation.
 
