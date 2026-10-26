@@ -112,7 +112,7 @@ function scoreColor(score: number) {
 
 const EMAIL_FONT = `@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');`;
 
-const LOGO_IMG = `<img src="https://nautiq.cloud/images/logo-email.jpg" alt="NautIQ" style="height:48px;width:auto;display:block;" />`;
+const LOGO_IMG = `<img src="https://app.nautiq.cloud/images/logo-email.jpg" alt="NautIQ" style="height:48px;width:auto;display:block;" />`;
 
 const EMAIL_HEADER_STYLE = `background:#0F2335;padding:24px 32px;text-align:center;`;
 
