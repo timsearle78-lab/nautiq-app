@@ -45,7 +45,7 @@ export async function POST(req: Request) {
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
         <tr>
           <td style="background:#0F2335;padding:24px 32px;text-align:center;">
-            <img src="https://nautiq.cloud/images/logo-email.jpg" alt="NautIQ" style="height:48px;width:auto;display:block;margin:0 auto;" />
+            <img src="https://app.nautiq.cloud/images/logo-email.jpg" alt="NautIQ" style="height:48px;width:auto;display:block;margin:0 auto;" />
           </td>
         </tr>
         <tr>
