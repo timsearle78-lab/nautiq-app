@@ -11,17 +11,22 @@ export function ResetPasswordButton({ email }: { email: string }) {
   async function handleReset() {
     setLoading(true);
     const supabase = createClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false },
     });
     setLoading(false);
-    setStatus(error ? "error" : "sent");
+    if (!error) {
+      window.location.href = `/update-password?email=${encodeURIComponent(email)}`;
+    } else {
+      setStatus("error");
+    }
   }
 
   if (status === "sent") {
     return (
       <p className="text-sm text-green-600 font-medium">
-        Password reset email sent — check your inbox.
+        Code sent — check your inbox.
       </p>
     );
   }

@@ -2,11 +2,24 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import NautiqLogo from "@/components/ui/nautiq-logo";
+
+const inputStyle = {
+  borderRadius: 11,
+  border: "1.5px solid #E0E6EC",
+  background: "#FFFFFF",
+  padding: "13px 15px",
+  fontSize: 14.5,
+  color: "var(--color-navy-700)",
+  width: "100%",
+  outline: "none",
+} as React.CSSProperties;
 
 export default function ForgotPasswordPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -14,45 +27,43 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setStatus(null);
 
     try {
       const supabase = createClient();
-      const appOrigin = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.nautiq.cloud";
-      const redirectTo = `${appOrigin}/update-password`;
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: false },
+      });
       if (error) throw error;
-      setStatus("If that email exists, a password reset link has been sent.");
+      router.push(`/update-password?email=${encodeURIComponent(email)}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to send reset email.");
+      setError(err instanceof Error ? err.message : "Failed to send code.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white shadow-sm p-8">
-        <div className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-ocean-600">
-          NautIQ
-        </div>
-        <h1 className="text-2xl font-semibold text-slate-900">Reset password</h1>
-        <p className="mt-2 text-sm text-slate-500">
-          Enter your email and we'll send you a reset link.
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10" style={{ background: "#EEF1F5" }}>
+      <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl px-8 py-10">
+        <NautiqLogo size={20} />
+        <h2 className="mt-6 text-xl font-semibold" style={{ color: "var(--color-navy-700)" }}>Reset password</h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Enter your email and we'll send you a 6-digit code.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-7 space-y-4">
           <div>
-            <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
+            <label htmlFor="email" className="mb-2 block" style={{ fontSize: 13, fontWeight: 600, color: "var(--color-navy-700)" }}>
               Email
             </label>
             <input
               id="email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
+              style={inputStyle}
               placeholder="you@example.com"
               required
             />
@@ -61,26 +72,24 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl btn-primary px-4 py-2.5 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl btn-primary px-6 py-3.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Sending…" : "Send reset link"}
+            {loading ? "Sending…" : "Send code"}
           </button>
         </form>
 
-        {status && (
-          <div className="mt-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            {status}
-          </div>
-        )}
         {error && (
-          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div
+            className="mt-4 px-4 py-3"
+            style={{ borderRadius: 11, border: "1px solid #F3C4C4", background: "#FDEBEB", color: "var(--color-status-critical-fg)", fontSize: 13 }}
+          >
             {error}
           </div>
         )}
 
         <p className="mt-6 text-sm text-slate-500">
           Remember your password?{" "}
-          <Link href="/login" className="font-medium text-ocean-600 hover:text-ocean-700">
+          <Link href="/login" className="font-medium" style={{ color: "var(--color-ocean-600)" }}>
             Sign in
           </Link>
         </p>
