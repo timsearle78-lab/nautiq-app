@@ -11,6 +11,7 @@ export const CHANGELOG: Release[] = [
     label: "October 2026 update",
     features: [
       "When adding a component, you can now type a new system name — NautIQ will add it to your boat and warn you if it looks similar to one that already exists",
+      "Engine hours on a trip can now be entered two ways — \"Hours on trip\" (how long you ran the engine) or \"Engine meter\" (enter your current meter reading and NautIQ calculates the hours automatically)",
     ],
   },
   {
