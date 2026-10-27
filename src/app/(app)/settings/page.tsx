@@ -73,6 +73,21 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
   const systems = (systemsData ?? []) as SystemRow[];
 
+  const plan = subData?.plan ?? "expired";
+  const planLabel: Record<string, string> = {
+    free_lifetime: "Free lifetime", trialing: "Free trial",
+    active_monthly: "Monthly", active_annual: "Annual",
+    expired: "Expired", cancelled: "Cancelled",
+  };
+  const planStyle: Record<string, React.CSSProperties> = {
+    free_lifetime: { background: "#E6F6EC", color: "#0E7A3D", border: "1.5px solid rgba(14,122,61,0.2)" },
+    trialing:      { background: "#EFF6FF", color: "#1D4ED8", border: "1.5px solid rgba(29,78,216,0.2)" },
+    active_monthly:{ background: "#E6F6EC", color: "#0E7A3D", border: "1.5px solid rgba(14,122,61,0.2)" },
+    active_annual: { background: "#E6F6EC", color: "#0E7A3D", border: "1.5px solid rgba(14,122,61,0.2)" },
+    expired:       { background: "#FEF2F2", color: "#B91C1C", border: "1.5px solid rgba(185,28,28,0.2)" },
+    cancelled:     { background: "#FEF2F2", color: "#B91C1C", border: "1.5px solid rgba(185,28,28,0.2)" },
+  };
+
   const systemsByBoat = new Map<string, SystemRow[]>();
   for (const s of systems) {
     if (!systemsByBoat.has(s.boat_id)) systemsByBoat.set(s.boat_id, []);
@@ -186,7 +201,12 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <span className="text-sm font-semibold text-slate-700">Account</span>
         </div>
         <div className="px-4 py-4 space-y-4">
-          <p className="text-sm text-slate-500">{user.email}</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-sm text-slate-500">{user.email}</p>
+            <span style={{ fontSize: 11, fontWeight: 700, borderRadius: 99, padding: "2px 8px", ...(planStyle[plan] ?? planStyle.expired) }}>
+              {planLabel[plan] ?? plan}
+            </span>
+          </div>
           <ResetPasswordButton email={user.email ?? ""} />
         </div>
         <div className="px-4 py-4 border-t border-red-100 bg-red-50/40">
