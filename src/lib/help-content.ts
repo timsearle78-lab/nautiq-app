@@ -80,7 +80,9 @@ To delete a boat:
 
 3. Talk to the AI: On the Home screen, type or say something like "I went sailing for 3 hours today" or "motored 2.5 hours, added 40 litres of fuel." The AI will parse your description and show a trip card for you to confirm before saving.
 
-Engine hours are required for every trip — they're used to calculate when maintenance is due.
+Engine hours are required for every trip — they're used to calculate when maintenance is due. You can enter engine hours in two ways:
+- "Hours on trip" (default): Enter the number of hours you ran the engine on this trip only (e.g. 2.5).
+- "Engine meter": Enter your current engine meter (odometer) reading. NautIQ will look up your previous total and calculate the hours for this trip automatically. Useful if you record your meter reading at the end of each trip.
 
 Automatic fuel estimation: If you leave the Fuel field blank but enter engine hours, NautIQ can calculate fuel used automatically. Go to Settings → Your boats → edit your boat, and set a "Fuel consumption" rate in litres per hour (e.g. 8.5 for a typical diesel). Once set, any trip saved without manual fuel entry will have fuel estimated from hours × rate, and that amount will be deducted from your fuel inventory automatically.
 
@@ -461,7 +463,7 @@ BOAT SETUP: First-time wizard asks for name, type, propulsion, hull design, hull
 
 SYSTEMS: Manage systems (groups of components) inside the boat edit form. Go to Profile → Settings → Your boats → tap "Edit" on the boat → scroll to the Systems section at the bottom. Add a system by typing its name and tapping "Add." Delete a system using the trash icon next to it.
 
-LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving (GPS location captured), "Stop Trip" when back (GPS location captured again); (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours." If you enter engine hours but leave Fuel blank, NautIQ will estimate fuel used automatically if a fuel consumption rate (litres/hour) is set on your boat in Settings. The estimated fuel is saved with the trip and deducted from your fuel inventory.
+LOGGING A TRIP: (1) Start/Stop timer on Home screen — tap "Start Trip" when leaving (GPS location captured), "Stop Trip" when back (GPS location captured again); (2) "+ Log Trip" button on Home; (3) tell the AI "went sailing for 3 hours." If you enter engine hours but leave Fuel blank, NautIQ will estimate fuel used automatically if a fuel consumption rate (litres/hour) is set on your boat in Settings. The estimated fuel is saved with the trip and deducted from your fuel inventory. ENGINE HOURS INPUT: The Engine hours field has two modes — toggle between them with the "Hours on trip / Engine meter" buttons. "Hours on trip" (default): enter only the hours you ran the engine on this trip (e.g. 2.5h). "Engine meter": enter your current engine meter reading (odometer total); NautIQ looks up your previous cumulative total and calculates the trip hours as new reading minus previous total. Use Engine meter mode if you note down your meter reading at the end of each outing.
 
 FUEL CONSUMPTION RATE: Set in Profile → Settings → Your boats → edit your boat → "Consumption rate (L/hr)". Once set, any trip saved without manual fuel entry will calculate fuel as hours × rate and deduct that amount from inventory automatically. The transaction note will show it was auto-estimated.
 

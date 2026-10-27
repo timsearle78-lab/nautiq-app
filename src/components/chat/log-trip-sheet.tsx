@@ -85,9 +85,12 @@ export default function LogTripSheet({
   const [endTime, setEndTime] = useState(
     prefillEndedAt ? toLocalTime(prefillEndedAt) : hasTimer ? nowLocalTime() : ""
   );
+  const [engineHoursMode, setEngineHoursMode] = useState<"delta" | "meter">("delta");
   const [engineHours, setEngineHours] = useState(
     prefillEngineHours?.toString() ?? ""
   );
+  const [meterReading, setMeterReading] = useState("");
+  const [prevMeterTotal, setPrevMeterTotal] = useState<number | null>(null);
   const [fuelLitres, setFuelLitres] = useState(prefillFuelLitres?.toString() ?? "");
   const [notes, setNotes] = useState(prefillNotes ?? "");
   const [photos, setPhotos] = useState<File[]>([]);
@@ -134,10 +137,32 @@ export default function LogTripSheet({
     return () => { cancelled = true; };
   }, [boatId]);
 
+  useEffect(() => {
+    if (engineHoursMode !== "meter") return;
+    let cancelled = false;
+    fetch(`/api/boats/engine-hours?boatId=${boatId}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (!cancelled && data != null) setPrevMeterTotal(data.total ?? 0); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [boatId, engineHoursMode]);
+
+  const meterDelta = engineHoursMode === "meter" && meterReading && prevMeterTotal != null
+    ? Math.round((parseFloat(meterReading) - prevMeterTotal) * 10) / 10
+    : null;
+
   async function handleSave() {
     if (!startDate) { setError("Enter a start date for this trip"); return; }
-    const hours = parseFloat(engineHours);
-    if (!hours || hours <= 0) { setError("Enter engine hours for this trip"); return; }
+    let hours: number;
+    if (engineHoursMode === "meter") {
+      const reading = parseFloat(meterReading);
+      if (!meterReading || isNaN(reading) || reading <= 0) { setError("Enter your current engine meter reading"); return; }
+      if (prevMeterTotal != null && reading <= prevMeterTotal) { setError(`Engine meter reading must be greater than your previous total (${prevMeterTotal}h)`); return; }
+      hours = meterDelta ?? 0;
+    } else {
+      hours = parseFloat(engineHours);
+      if (!hours || hours <= 0) { setError("Enter engine hours for this trip"); return; }
+    }
 
     if (!isOnline) {
       enqueue({
@@ -276,18 +301,59 @@ export default function LogTripSheet({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              Engine hours <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              min="0"
-              step="0.1"
-              value={engineHours}
-              onChange={(e) => setEngineHours(e.target.value)}
-              placeholder="e.g. 2.5"
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
-            />
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-sm font-medium text-slate-700">
+                Engine hours <span className="text-red-500">*</span>
+              </label>
+              <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs">
+                <button
+                  type="button"
+                  onClick={() => setEngineHoursMode("delta")}
+                  className={`px-2.5 py-1 transition ${engineHoursMode === "delta" ? "bg-ocean-600 text-white font-medium" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                >
+                  Hours on trip
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEngineHoursMode("meter")}
+                  className={`px-2.5 py-1 transition border-l border-slate-200 ${engineHoursMode === "meter" ? "bg-ocean-600 text-white font-medium" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                >
+                  Engine meter
+                </button>
+              </div>
+            </div>
+            {engineHoursMode === "delta" ? (
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={engineHours}
+                onChange={(e) => setEngineHours(e.target.value)}
+                placeholder="e.g. 2.5 — hours you ran the engine on this trip"
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
+              />
+            ) : (
+              <div>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={meterReading}
+                  onChange={(e) => setMeterReading(e.target.value)}
+                  placeholder={prevMeterTotal != null ? `Current reading — previous was ${prevMeterTotal}h` : "Current engine meter reading"}
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
+                />
+                {meterDelta != null && meterDelta > 0 && (
+                  <p className="mt-1.5 text-xs text-ocean-700">
+                    Hours on this trip: <span className="font-semibold">{meterDelta}h</span>
+                    {prevMeterTotal != null && <span className="text-slate-500"> ({prevMeterTotal}h → {parseFloat(meterReading)}h)</span>}
+                  </p>
+                )}
+                {meterDelta != null && meterDelta <= 0 && meterReading && (
+                  <p className="mt-1.5 text-xs text-red-600">Reading must be higher than your previous total ({prevMeterTotal}h)</p>
+                )}
+              </div>
+            )}
           </div>
 
           <div>
@@ -302,7 +368,7 @@ export default function LogTripSheet({
               className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
             />
             {(() => {
-              const hours = parseFloat(engineHours);
+              const hours = engineHoursMode === "meter" ? (meterDelta ?? 0) : parseFloat(engineHours);
               const fp = fuelPreview;
               if (!fp || !hours || hours <= 0 || fuelLitres) return null;
               const estimated = Math.round(hours * fp.rate * 10) / 10;

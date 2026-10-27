@@ -43,7 +43,10 @@ type FuelPreview = { rate: number; fuelItem: { name: string; quantity: number; u
 
 export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHoursDelta, fuelAddedLitres, notes, photoUrls = [] }: Props) {
   const [open, setOpen] = useState(false);
+  const [engineHoursMode, setEngineHoursMode] = useState<"delta" | "meter">("delta");
   const [engineHoursVal, setEngineHoursVal] = useState(engineHoursDelta?.toString() ?? "");
+  const [meterReading, setMeterReading] = useState("");
+  const [prevMeterTotal, setPrevMeterTotal] = useState<number | null>(null);
   const [fuelVal, setFuelVal] = useState(fuelAddedLitres?.toString() ?? "");
   const [fuelPreview, setFuelPreview] = useState<FuelPreview>(null);
   const [photos, setPhotos] = useState<string[]>(photoUrls);
@@ -96,6 +99,16 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
       .catch(() => {});
     return () => { cancelled = true; };
   }, [boatId, open]);
+
+  useEffect(() => {
+    if (!open || engineHoursMode !== "meter") return;
+    let cancelled = false;
+    fetch(`/api/boats/engine-hours?boatId=${boatId}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (!cancelled && data != null) setPrevMeterTotal(data.total ?? 0); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [boatId, open, engineHoursMode]);
 
   const [state, formAction, pending] = useActionState(
     async (prev: { error?: string; success?: string }, fd: FormData) => {
@@ -159,17 +172,59 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Engine hours</label>
-                  <input
-                    name="engine_hours_delta"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    value={engineHoursVal}
-                    onChange={(e) => setEngineHoursVal(e.target.value)}
-                    placeholder="Optional"
-                    className={inputCls}
-                  />
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-sm font-medium text-slate-700">Engine hours</label>
+                    <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setEngineHoursMode("delta")}
+                        className={`px-2 py-0.5 transition ${engineHoursMode === "delta" ? "bg-ocean-600 text-white font-medium" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                      >
+                        Hours
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEngineHoursMode("meter")}
+                        className={`px-2 py-0.5 transition border-l border-slate-200 ${engineHoursMode === "meter" ? "bg-ocean-600 text-white font-medium" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                      >
+                        Meter
+                      </button>
+                    </div>
+                  </div>
+                  {engineHoursMode === "delta" ? (
+                    <input
+                      name="engine_hours_delta"
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={engineHoursVal}
+                      onChange={(e) => setEngineHoursVal(e.target.value)}
+                      placeholder="Hours on this trip"
+                      className={inputCls}
+                    />
+                  ) : (
+                    <>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={meterReading}
+                        onChange={(e) => {
+                          setMeterReading(e.target.value);
+                          const reading = parseFloat(e.target.value);
+                          if (!isNaN(reading) && prevMeterTotal != null && reading > prevMeterTotal) {
+                            setEngineHoursVal(String(Math.round((reading - prevMeterTotal) * 10) / 10));
+                          }
+                        }}
+                        placeholder={prevMeterTotal != null ? `Prev: ${prevMeterTotal}h` : "Current reading"}
+                        className={inputCls}
+                      />
+                      <input type="hidden" name="engine_hours_delta" value={engineHoursVal} />
+                      {engineHoursVal && parseFloat(engineHoursVal) > 0 && (
+                        <p className="mt-1 text-xs text-ocean-700">Trip hours: <span className="font-semibold">{engineHoursVal}h</span></p>
+                      )}
+                    </>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Fuel used (L)</label>
@@ -186,7 +241,7 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
                 </div>
               </div>
               {(() => {
-                const hours = parseFloat(engineHoursVal);
+                const hours = parseFloat(engineHoursVal) || 0;
                 const fp = fuelPreview;
                 if (!fp || !hours || hours <= 0 || fuelVal) return null;
                 const estimated = Math.round(hours * fp.rate * 10) / 10;
