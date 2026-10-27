@@ -33,6 +33,8 @@ type SparePreset = {
   unit: string;
   quantity: number;
   is_critical: boolean;
+  is_fuel_source?: boolean;
+  notes?: string;
 };
 
 // ─── Spare Presets ────────────────────────────────────────────────────────────
@@ -66,9 +68,25 @@ const SAIL_SPARES: SparePreset[] = [
   { name: "Raw water impeller",     category: "Engine",  unit: "ea",   quantity: 1,  is_critical: true  },
 ];
 
-function getSparePresets(boatType: string): SparePreset[] {
+function getFuelPreset(propulsion: string): SparePreset {
+  const isDiesel  = propulsion.toLowerCase().includes("diesel");
+  const isPetrol  = propulsion.toLowerCase().includes("petrol") || propulsion.toLowerCase().includes("outboard");
+  const name = isDiesel ? "Diesel" : isPetrol ? "Petrol" : "Fuel";
+  return {
+    name,
+    category: "Fuel",
+    unit: "L",
+    quantity: 0,
+    is_critical: true,
+    is_fuel_source: true,
+    notes: "Primary fuel source",
+  };
+}
+
+function getSparePresets(boatType: string, propulsion: string): SparePreset[] {
   const isSail = boatType === "Keeler Yacht" || boatType === "Trailer Yacht" || boatType === "Catamaran";
-  return [...UNIVERSAL_SPARES, ...(isSail ? SAIL_SPARES : MOTOR_SPARES)];
+  const fuelPreset = getFuelPreset(propulsion);
+  return [fuelPreset, ...UNIVERSAL_SPARES, ...(isSail ? SAIL_SPARES : MOTOR_SPARES)];
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -171,7 +189,7 @@ export default function OnboardingPage() {
   const [components, setComponents] = useState<ComponentRow[]>([]);
 
   // Inventory step
-  const sparePresets = useMemo(() => getSparePresets(boatType), [boatType]);
+  const sparePresets = useMemo(() => getSparePresets(boatType, propulsion), [boatType, propulsion]);
   const [selectedSpares, setSelectedSpares] = useState<Set<string>>(
     () => new Set(sparePresets.filter((s) => s.is_critical).map((s) => s.name))
   );
@@ -207,8 +225,8 @@ export default function OnboardingPage() {
       setBoatDisplayName(data.boatName);
       setSystems(data.systems);
       setComponents(data.components);
-      // Reset spare selection based on actual boat type
-      setSelectedSpares(new Set(getSparePresets(boatType).filter((s) => s.is_critical).map((s) => s.name)));
+      // Reset spare selection based on actual boat type and propulsion
+      setSelectedSpares(new Set(getSparePresets(boatType, propulsion).filter((s) => s.is_critical).map((s) => s.name)));
       setStep(2);
     } finally {
       setLoading(false);
@@ -225,7 +243,15 @@ export default function OnboardingPage() {
       const res = await fetch("/api/onboarding/seed-inventory", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ boatId, items }),
+        body: JSON.stringify({ boatId, items: items.map((p) => ({
+          name: p.name,
+          category: p.category,
+          unit: p.unit,
+          quantity: p.quantity,
+          is_critical: p.is_critical,
+          is_fuel_source: p.is_fuel_source ?? false,
+          notes: p.notes ?? null,
+        })) }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -501,11 +527,12 @@ export default function OnboardingPage() {
               <ul className="divide-y divide-white/5 max-h-72 overflow-y-auto">
                 {sparePresets.map((preset) => {
                   const checked = selectedSpares.has(preset.name);
+                  const isFuel = preset.is_fuel_source;
                   return (
                     <li
                       key={preset.name}
                       onClick={() => toggleSpare(preset.name)}
-                      className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-white/5 transition-colors"
+                      className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors ${isFuel ? "bg-amber-500/10 hover:bg-amber-500/15" : "hover:bg-white/5"}`}
                     >
                       <input
                         type="checkbox"
@@ -515,13 +542,19 @@ export default function OnboardingPage() {
                         onClick={(e) => e.stopPropagation()}
                       />
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-sm text-white/90">{preset.name}</span>
                           {preset.is_critical && (
                             <span className="text-xs font-medium text-red-300 bg-red-500/20 border border-red-400/20 rounded-full px-1.5 py-0.5">Critical</span>
                           )}
+                          {isFuel && (
+                            <span className="text-xs font-medium text-amber-300 bg-amber-500/20 border border-amber-400/20 rounded-full px-1.5 py-0.5">Primary fuel</span>
+                          )}
                         </div>
-                        <div className="text-xs text-ocean-200/50">{preset.category} · {preset.quantity} {preset.unit}</div>
+                        <div className="text-xs text-ocean-200/50">
+                          {preset.category} · {preset.unit}
+                          {isFuel && <span className="ml-1 text-amber-300/60">· This will be your primary fuel source</span>}
+                        </div>
                       </div>
                     </li>
                   );

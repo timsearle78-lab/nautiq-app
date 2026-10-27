@@ -7,6 +7,8 @@ type InventoryItem = {
   unit: string;
   quantity: number;
   is_critical: boolean;
+  is_fuel_source?: boolean;
+  notes?: string | null;
 };
 
 export async function POST(req: Request) {
@@ -35,8 +37,10 @@ export async function POST(req: Request) {
     category: item.category,
     unit: item.unit || null,
     quantity: item.quantity,
-    minimum_quantity: Math.max(1, Math.floor(item.quantity / 2)),
+    minimum_quantity: item.is_fuel_source ? null : Math.max(1, Math.floor(item.quantity / 2)),
     is_critical: item.is_critical,
+    is_fuel_source: item.is_fuel_source ?? false,
+    notes: item.notes ?? null,
   }));
 
   const { data, error } = await supabase
