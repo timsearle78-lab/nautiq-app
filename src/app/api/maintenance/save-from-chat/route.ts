@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   if (!user) return new Response("Unauthorized", { status: 401 });
 
   const body = await req.json();
-  const { boatId, componentId, performedAt, workDone, notes, engineHoursAtService, cost, vendor, inventoryItemId, inventoryQuantityUsed } = body;
+  const { boatId, componentId, performedAt, workDone, notes, engineHoursAtService, cost, vendor, inventoryItemId, inventoryQuantityUsed, excludeFromServiceInterval } = body;
 
   if (!boatId || !componentId || !performedAt || !workDone) {
     return Response.json({ error: "Missing required fields" }, { status: 400 });
@@ -31,20 +31,23 @@ export async function POST(req: Request) {
       vendor: vendor ?? null,
       engine_hours_at_service: engineHoursAtService ?? null,
       cost: cost != null ? Number(cost) : null,
+      exclude_from_service_interval: !!excludeFromServiceInterval,
     });
 
   if (insertError) {
     return Response.json({ error: insertError.message }, { status: 500 });
   }
 
-  await supabase
-    .from("components")
-    .update({
-      last_serviced_at: performedAt,
-      ...(engineHoursAtService != null ? { last_serviced_hours: engineHoursAtService } : {}),
-    })
-    .eq("id", componentId)
-    .eq("boat_id", boatId);
+  if (!excludeFromServiceInterval) {
+    await supabase
+      .from("components")
+      .update({
+        last_serviced_at: performedAt,
+        ...(engineHoursAtService != null ? { last_serviced_hours: engineHoursAtService } : {}),
+      })
+      .eq("id", componentId)
+      .eq("boat_id", boatId);
+  }
 
   if (inventoryItemId && inventoryQuantityUsed > 0) {
     await supabase.rpc("adjust_inventory_stock", {

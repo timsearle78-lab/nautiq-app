@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SaveSuccessBanner from "@/components/ui/save-success-banner";
 import { Wrench } from "lucide-react";
@@ -28,6 +28,7 @@ export function LogMaintenanceForm({
   inventoryOptions: InventoryOption[];
 }) {
   const [state, formAction, pending] = useActionState(logMaintenance, initialState);
+  const [excludeFromInterval, setExcludeFromInterval] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -130,6 +131,21 @@ export function LogMaintenanceForm({
             </div>
           </div>
         </div>
+
+        <input type="hidden" name="exclude_from_service_interval" value={String(excludeFromInterval)} />
+
+        <label className="flex items-start gap-3 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={excludeFromInterval}
+            onChange={(e) => setExcludeFromInterval(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-ocean-600 focus:ring-ocean-500 flex-shrink-0"
+          />
+          <div>
+            <span className="text-sm font-medium text-slate-700">Do not reset service interval</span>
+            <p className="text-xs text-slate-400 mt-0.5">Tick this for minor or informational records — the next service due date won&apos;t change.</p>
+          </div>
+        </label>
 
         {state.error && (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

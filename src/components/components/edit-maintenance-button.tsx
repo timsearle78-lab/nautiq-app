@@ -17,6 +17,7 @@ interface Props {
   vendor: string | null;
   engineHoursAtService: number | null;
   cost: number | null;
+  excludeFromServiceInterval?: boolean;
 }
 
 export function EditMaintenanceButton({
@@ -28,8 +29,10 @@ export function EditMaintenanceButton({
   vendor,
   engineHoursAtService,
   cost,
+  excludeFromServiceInterval = false,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [excludeFromInterval, setExcludeFromInterval] = useState(excludeFromServiceInterval);
   const router = useRouter();
 
   const [state, formAction, pending] = useActionState(
@@ -69,6 +72,7 @@ export function EditMaintenanceButton({
             <form action={formAction} className="p-4 pb-8 space-y-4">
               <input type="hidden" name="event_id" value={eventId} />
               <input type="hidden" name="component_id" value={componentId} />
+              <input type="hidden" name="exclude_from_service_interval" value={String(excludeFromInterval)} />
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -104,6 +108,19 @@ export function EditMaintenanceButton({
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Notes</label>
                 <textarea name="notes" rows={3} defaultValue={notes ?? ""} placeholder="Optional" className={`${inputCls} resize-none`} />
               </div>
+
+              <label className="flex items-start gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={excludeFromInterval}
+                  onChange={(e) => setExcludeFromInterval(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-ocean-600 focus:ring-ocean-500 flex-shrink-0"
+                />
+                <div>
+                  <span className="text-sm font-medium text-slate-700">Do not reset service interval</span>
+                  <p className="text-xs text-slate-400 mt-0.5">Tick this for minor or informational records — the next service due date won&apos;t change.</p>
+                </div>
+              </label>
 
               {state.error && (
                 <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{state.error}</div>
