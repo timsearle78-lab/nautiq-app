@@ -73,9 +73,9 @@ export default async function AppLayout({
         targetEmail={impersonationInfo?.targetEmail}
         targetId={impersonationInfo?.targetId}
       />
-      <TrialBanner plan={trialPlan} daysLeft={daysLeft} />
       <AppHeader />
       <main className="flex-1 overflow-y-auto pb-16 mx-auto w-full max-w-[1040px]">
+        <TrialBanner plan={trialPlan} daysLeft={daysLeft} />
         {children}
       </main>
       <ScrollToTop />
