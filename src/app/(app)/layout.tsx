@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import AppHeader from "@/components/nav/app-header";
 import BottomNav from "@/components/nav/bottom-nav";
+import { TrialBanner } from "@/components/nav/trial-banner";
+import { createClient } from "@/lib/supabase/server";
 import ScrollToTop from "@/components/ui/scroll-to-top";
 import GlobalActionsMenu from "@/components/nav/global-actions-menu";
 import { ImpersonationBanner } from "@/components/admin/impersonation-banner";
@@ -19,6 +21,23 @@ export default async function AppLayout({
     getUser(),
     getUserBoats(),
   ]);
+
+  // Fetch subscription for trial banner (after user is resolved)
+  let trialPlan = "expired";
+  let daysLeft = 0;
+  if (user) {
+    const supabase = await createClient();
+    const { data: subData } = await supabase
+      .from("subscriptions")
+      .select("plan, trial_ends_at")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    trialPlan = subData?.plan ?? "expired";
+    const trialEndsAt = subData?.trial_ends_at ?? null;
+    daysLeft = trialEndsAt
+      ? Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000)
+      : 0;
+  }
 
   if (!user) redirect("/login");
 
@@ -54,6 +73,7 @@ export default async function AppLayout({
         targetEmail={impersonationInfo?.targetEmail}
         targetId={impersonationInfo?.targetId}
       />
+      <TrialBanner plan={trialPlan} daysLeft={daysLeft} />
       <AppHeader />
       <main className="flex-1 overflow-y-auto pb-16 mx-auto w-full max-w-[1040px]">
         {children}

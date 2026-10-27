@@ -9,6 +9,7 @@ import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog
 import { ThemeToggle } from "@/components/settings/theme-toggle";
 import { GreetingToggle } from "@/components/settings/greeting-toggle";
 import { WhatsNewToggle } from "@/components/settings/whats-new-toggle";
+import { SubscriptionSection } from "@/components/settings/subscription-section";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ data: boatsData, error: boatsErr }, { data: notifPrefsData }] = await Promise.all([
+  const [{ data: boatsData, error: boatsErr }, { data: notifPrefsData }, { data: subData }] = await Promise.all([
     supabase
       .from("boats")
       .select("id,name,type,image_url,propulsion,hull_design,hull_material,length_m,beam_m,draft_m,description,fuel_consumption_lph,fuel_tank_litres,engine_hours_initial,user_id")
@@ -43,6 +44,11 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       .select("email, health_summary, health_summary_day, overdue_alerts, hide_greeting, hide_whats_new, email_unsubscribed")
       .eq("user_id", user.id)
       .single(),
+    supabase
+      .from("subscriptions")
+      .select("plan, early_adopter, trial_ends_at, current_period_ends_at, stripe_customer_id")
+      .eq("user_id", user.id)
+      .maybeSingle(),
   ]);
 
   // image_url column may not exist yet — fall back to query without it
@@ -155,6 +161,22 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         </div>
         <div className="px-4 py-4">
           <NotificationPreferencesForm prefs={notifPrefs} userEmail={user.email ?? ""} />
+        </div>
+      </section>
+
+      {/* Subscription */}
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+          <span className="text-sm font-semibold text-slate-700">Subscription</span>
+        </div>
+        <div className="px-4 py-4">
+          <SubscriptionSection
+            plan={subData?.plan ?? "expired"}
+            earlyAdopter={subData?.early_adopter ?? false}
+            trialEndsAt={subData?.trial_ends_at ?? null}
+            currentPeriodEndsAt={subData?.current_period_ends_at ?? null}
+            hasStripeCustomer={!!subData?.stripe_customer_id}
+          />
         </div>
       </section>
 
