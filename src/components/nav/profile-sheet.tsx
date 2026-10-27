@@ -141,7 +141,7 @@ export default function ProfileSheet({ email, initials, isAdmin, boats = [], sel
                           )}
                         </button>
                         <Link
-                          href="/settings"
+                          href={`/settings?edit=${boat.id}`}
                           onClick={onClose}
                           className="shrink-0 flex items-center justify-center w-8 h-8 mr-1.5 rounded-lg transition-colors"
                           style={{ color: isActive ? "rgba(255,255,255,0.6)" : "var(--color-navy-mute)" }}

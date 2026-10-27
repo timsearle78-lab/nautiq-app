@@ -22,6 +22,7 @@ type SystemRow = { id: string; name: string };
 
 type EditProps = {
   mode: "edit";
+  initialOpen?: boolean;
   boatId: string;
   boatName: string;
   isOwner: boolean;
@@ -45,7 +46,7 @@ type AddProps = { mode: "add" };
 type Props = EditProps | AddProps;
 
 export function BoatFormSheet(props: Props) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(props.mode === "edit" && !!props.initialOpen);
   const router = useRouter();
 
   const [editState, editAction, editPending] = useActionState(updateBoat, {});
