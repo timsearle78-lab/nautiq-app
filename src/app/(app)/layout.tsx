@@ -49,12 +49,12 @@ export default async function AppLayout({
 
   return (
     <div className="flex flex-col h-[100dvh] max-w-[1040px] mx-auto" style={{ background: "#F4F7FA" }}>
+      <AppHeader />
       <ImpersonationBanner
         adminEmail={impersonationInfo?.adminEmail}
         targetEmail={impersonationInfo?.targetEmail}
         targetId={impersonationInfo?.targetId}
       />
-      <AppHeader />
       <main className="flex-1 overflow-y-auto pb-16 w-full">
         {children}
       </main>
