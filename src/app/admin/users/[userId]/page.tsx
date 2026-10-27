@@ -3,6 +3,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { ImpersonateButton } from "@/components/admin/impersonate-button";
+import { SubscriptionManager } from "@/components/admin/subscription-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +61,7 @@ export default async function AdminUserDetailPage({
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
   const adminClient = createAdminClient(supabaseUrl, serviceRoleKey);
 
-  const [{ data: targetUser }, { data: auditRows, error: auditError }] = await Promise.all([
+  const [{ data: targetUser }, { data: auditRows, error: auditError }, { data: subData }] = await Promise.all([
     adminClient.auth.admin.getUserById(userId),
     adminClient
       .from("audit_events")
@@ -68,6 +69,11 @@ export default async function AdminUserDetailPage({
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(200),
+    adminClient
+      .from("subscriptions")
+      .select("plan, early_adopter, trial_ends_at, current_period_ends_at")
+      .eq("user_id", userId)
+      .maybeSingle(),
   ]);
 
   // Fetch boats accessible to this user (owned + member)
@@ -153,6 +159,15 @@ export default async function AdminUserDetailPage({
           </div>
         )}
       </div>
+
+      {/* Subscription */}
+      <SubscriptionManager
+        userId={userId}
+        currentPlan={subData?.plan ?? "expired"}
+        currentEarlyAdopter={subData?.early_adopter ?? false}
+        trialEndsAt={subData?.trial_ends_at ?? null}
+        currentPeriodEndsAt={subData?.current_period_ends_at ?? null}
+      />
 
       {/* Audit log */}
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
