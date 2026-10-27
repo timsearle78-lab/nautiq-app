@@ -7,6 +7,14 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-10-27",
+    label: "October 2026 update",
+    features: [
+      "Subscribe or manage your plan directly from the Settings page",
+      "A trial countdown banner reminds you how many days are left in your free trial",
+    ],
+  },
+  {
     date: "2026-10-28",
     label: "October 2026 update",
     features: [
