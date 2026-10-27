@@ -4,6 +4,19 @@ import type Stripe from "stripe";
 
 export const runtime = "nodejs";
 
+function getPeriodEnd(sub: Stripe.Subscription): string {
+  // In Stripe API 2025+, period end is on the subscription item
+  const item = sub.items?.data?.[0] as (Stripe.SubscriptionItem & { current_period_end?: number }) | undefined;
+  const ts = item?.current_period_end ?? (sub as unknown as { current_period_end?: number }).current_period_end;
+  return ts ? new Date(ts * 1000).toISOString() : new Date().toISOString();
+}
+
+function getInterval(sub: Stripe.Subscription): string | undefined {
+  const item = sub.items?.data?.[0];
+  // price.recurring is the stable way across API versions
+  return item?.price?.recurring?.interval ?? (item as unknown as { plan?: { interval?: string } })?.plan?.interval;
+}
+
 export async function POST(req: Request) {
   const body = await req.text();
   const sig = req.headers.get("stripe-signature");
@@ -28,9 +41,8 @@ export async function POST(req: Request) {
       const stripeSubId = session.subscription as string;
       const stripeCustomerId = session.customer as string;
 
-      // Fetch the full subscription to get period end and interval
       const stripeSub = await stripe.subscriptions.retrieve(stripeSubId);
-      const interval = stripeSub.items.data[0]?.plan.interval;
+      const interval = getInterval(stripeSub);
       const plan = interval === "year" ? "active_annual" : "active_monthly";
 
       await supabase
@@ -39,7 +51,7 @@ export async function POST(req: Request) {
           plan,
           stripe_customer_id: stripeCustomerId,
           stripe_subscription_id: stripeSubId,
-          current_period_ends_at: new Date(stripeSub.current_period_end * 1000).toISOString(),
+          current_period_ends_at: getPeriodEnd(stripeSub),
           trial_ends_at: null,
         })
         .eq("user_id", userId);
@@ -51,7 +63,7 @@ export async function POST(req: Request) {
       const userId = stripeSub.metadata?.user_id;
       if (!userId) break;
 
-      const interval = stripeSub.items.data[0]?.plan.interval;
+      const interval = getInterval(stripeSub);
       let plan: string;
 
       if (stripeSub.status === "active") {
@@ -66,10 +78,7 @@ export async function POST(req: Request) {
 
       await supabase
         .from("subscriptions")
-        .update({
-          plan,
-          current_period_ends_at: new Date(stripeSub.current_period_end * 1000).toISOString(),
-        })
+        .update({ plan, current_period_ends_at: getPeriodEnd(stripeSub) })
         .eq("stripe_subscription_id", stripeSub.id);
       break;
     }
@@ -78,10 +87,7 @@ export async function POST(req: Request) {
       const stripeSub = event.data.object as Stripe.Subscription;
       await supabase
         .from("subscriptions")
-        .update({
-          plan: "cancelled",
-          current_period_ends_at: new Date(stripeSub.current_period_end * 1000).toISOString(),
-        })
+        .update({ plan: "cancelled", current_period_ends_at: getPeriodEnd(stripeSub) })
         .eq("stripe_subscription_id", stripeSub.id);
       break;
     }
