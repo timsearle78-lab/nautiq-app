@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import NautiqLogo from "@/components/ui/nautiq-logo";
 
-export default function LoginForm() {
+export default function LoginForm({ emailConfirmed = false }: { emailConfirmed?: boolean }) {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -108,6 +108,24 @@ export default function LoginForm() {
         {/* White form panel */}
         <div className="flex-1 px-6 py-8 md:p-10" style={{ background: "#FFFFFF" }}>
           <div className="mx-auto max-w-sm">
+            {emailConfirmed && (
+              <div
+                className="mb-5 px-4 py-3 flex items-start gap-3"
+                style={{
+                  borderRadius: 11,
+                  border: "1px solid #B8E2C8",
+                  background: "#E7F6EE",
+                  color: "var(--color-status-healthy-fg)",
+                  fontSize: 13,
+                }}
+              >
+                <span style={{ fontSize: 16, lineHeight: 1.4 }}>✓</span>
+                <div>
+                  <p style={{ fontWeight: 600 }}>Email confirmed!</p>
+                  <p style={{ marginTop: 2, opacity: 0.85 }}>Your account is ready. Sign in below to get started.</p>
+                </div>
+              </div>
+            )}
             <h2 style={{ fontSize: 20, fontWeight: 600, color: "var(--color-navy-700)" }}>Sign in</h2>
             <p className="mt-2" style={{ fontSize: 14, color: "var(--color-navy-mute)" }}>
               Access your boat and maintenance planner.
