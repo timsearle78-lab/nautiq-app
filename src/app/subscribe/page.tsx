@@ -17,7 +17,7 @@ export default async function SubscribePage() {
   const plan = (sub?.plan ?? "expired") as SubscriptionPlan;
   const active = hasActiveAccess(plan, sub?.trial_ends_at ?? null, sub?.current_period_ends_at ?? null);
 
-  if (active) redirect("/");
+  if (active && plan !== "trialing") redirect("/");
 
   const isEarlyAdopter = sub?.early_adopter ?? false;
   const monthlyPrice = isEarlyAdopter ? "$2.99" : "$4.99";
@@ -28,9 +28,13 @@ export default async function SubscribePage() {
     <main className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold text-slate-900">Your trial has ended</h1>
+          <h1 className="text-2xl font-bold text-slate-900">
+            {plan === "trialing" ? "You're on a free trial" : "Your trial has ended"}
+          </h1>
           <p className="text-slate-500 text-sm">
-            Subscribe to keep logging trips, maintenance, and getting AI insights for your boat.
+            {plan === "trialing"
+              ? "Subscribe now to lock in your plan before your trial ends."
+              : "Subscribe to keep logging trips, maintenance, and getting AI insights for your boat."}
           </p>
           {isEarlyAdopter && (
             <div className="inline-flex items-center gap-1.5 rounded-full bg-ocean-50 border border-ocean-200 px-3 py-1 text-xs font-medium text-ocean-700">
