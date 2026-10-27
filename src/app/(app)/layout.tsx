@@ -48,14 +48,14 @@ export default async function AppLayout({
   } catch { /* ignore */ }
 
   return (
-    <div className="flex flex-col h-[100dvh]" style={{ background: "#F4F7FA" }}>
+    <div className="flex flex-col h-[100dvh] max-w-[1040px] mx-auto" style={{ background: "#F4F7FA" }}>
       <ImpersonationBanner
         adminEmail={impersonationInfo?.adminEmail}
         targetEmail={impersonationInfo?.targetEmail}
         targetId={impersonationInfo?.targetId}
       />
       <AppHeader />
-      <main className="flex-1 overflow-y-auto pb-16 mx-auto w-full max-w-[1040px]">
+      <main className="flex-1 overflow-y-auto pb-16 w-full">
         {children}
       </main>
       <ScrollToTop />
