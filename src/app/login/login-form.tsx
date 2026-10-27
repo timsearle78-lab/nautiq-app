@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import NautiqLogo from "@/components/ui/nautiq-logo";
@@ -9,6 +9,13 @@ import NautiqLogo from "@/components/ui/nautiq-logo";
 export default function LoginForm({ emailConfirmed = false }: { emailConfirmed?: boolean }) {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
+
+  // Clear the one-time confirmed cookie after it's been shown
+  useEffect(() => {
+    if (emailConfirmed) {
+      fetch("/api/auth/clear-confirmed-cookie", { method: "POST" }).catch(() => {});
+    }
+  }, [emailConfirmed]);
   const [password, setPassword] = useState("");
   const [staySignedIn, setStaySignedIn] = useState(true);
   const [status, setStatus] = useState("");
