@@ -348,13 +348,18 @@ export default function LogTripSheet({
               />
             ) : (
               <div>
+                {prevMeterTotal != null && (
+                  <p className="mb-1.5 text-xs text-slate-500">
+                    Previous reading: <span className="font-semibold text-slate-700">{prevMeterTotal}h</span>
+                  </p>
+                )}
                 <input
                   type="number"
                   min="0"
                   step="0.1"
                   value={meterReading}
                   onChange={(e) => setMeterReading(e.target.value)}
-                  placeholder={prevMeterTotal != null ? `Current reading — previous was ${prevMeterTotal}h` : "Current engine meter reading"}
+                  placeholder="Enter current meter reading"
                   className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
                 />
                 {meterDelta != null && meterDelta > 0 && (
