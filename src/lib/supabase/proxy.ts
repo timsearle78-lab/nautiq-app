@@ -3,6 +3,9 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const PROTECTED_PREFIXES = ["/chat", "/maintenance", "/inventory", "/components", "/onboarding", "/settings", "/health", "/trips", "/costs", "/help", "/subscribe"];
 
+// Routes that bypass subscription checks entirely (webhooks, public API)
+const SUBSCRIPTION_BYPASS = ["/api/stripe/webhook", "/api/stripe/setup"];
+
 // Routes that require an active subscription (write/AI actions)
 // Expired/cancelled users are redirected to /subscribe instead
 const WRITE_PREFIXES = ["/chat", "/api/trips", "/api/maintenance", "/api/inventory", "/api/boats", "/api/components", "/api/watch"];
@@ -65,7 +68,8 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Check subscription for authenticated users on protected routes
-  if (user && isProtected && pathname !== "/subscribe") {
+  const isBypass = SUBSCRIPTION_BYPASS.some((p) => pathname.startsWith(p));
+  if (user && isProtected && pathname !== "/subscribe" && !isBypass) {
     const { data: sub } = await supabase
       .from("subscriptions")
       .select("plan, trial_ends_at, current_period_ends_at")
