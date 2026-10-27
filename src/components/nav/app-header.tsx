@@ -19,6 +19,17 @@ export default async function AppHeader() {
     const selectedId = await getSelectedBoatId();
     const activeBoat = boats.find((b) => b.id === selectedId) ?? boats[0];
 
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("plan, trial_ends_at")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    const isTrialing = sub?.plan === "trialing" && sub?.trial_ends_at;
+    const trialDaysLeft = isTrialing
+      ? Math.ceil((new Date(sub!.trial_ends_at!).getTime() - Date.now()) / 86400000)
+      : null;
+
     return (
       <header className="h-14 shrink-0 z-30" style={{ background: "var(--color-navy-700)" }}>
         <div
@@ -32,8 +43,15 @@ export default async function AppHeader() {
               Naut<span style={{ color: "var(--color-amber-400)" }}>IQ</span>
             </span>
           </span>
-          <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.6)", textAlign: "right", paddingRight: 16, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {activeBoat.name}
+          <span style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, paddingRight: 16, overflow: "hidden" }}>
+            {trialDaysLeft !== null && (
+              <span style={{ fontSize: 11, fontWeight: 700, color: trialDaysLeft <= 7 ? "var(--color-amber-400)" : "rgba(255,255,255,0.55)", background: "rgba(255,255,255,0.1)", borderRadius: 99, padding: "2px 8px", whiteSpace: "nowrap", letterSpacing: "0.01em" }}>
+                Trial · {trialDaysLeft <= 0 ? "ends today" : `${trialDaysLeft}d left`}
+              </span>
+            )}
+            <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.6)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {activeBoat.name}
+            </span>
           </span>
         </div>
       </header>
