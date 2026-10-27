@@ -20,7 +20,7 @@ export function ImpersonationBanner({ adminEmail, targetEmail, targetId }: Imper
   }
 
   return (
-    <div className="fixed top-14 left-0 right-0 z-[9999] max-w-[1040px] mx-auto bg-amber-400 text-amber-950 px-4 py-2 flex items-center justify-between gap-4 text-sm font-medium shadow-md">
+    <div className="w-full bg-amber-400 text-amber-950 px-4 py-2 flex items-center justify-between gap-4 text-sm font-medium shadow-md">
       <div className="flex items-center gap-2 min-w-0">
         <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
