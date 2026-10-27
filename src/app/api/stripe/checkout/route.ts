@@ -33,7 +33,6 @@ export async function POST(req: Request) {
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
-    payment_method_types: ["card"],
     line_items: [{ price: price.id, quantity: 1 }],
     customer: sub?.stripe_customer_id ?? undefined,
     customer_email: sub?.stripe_customer_id ? undefined : user.email,
