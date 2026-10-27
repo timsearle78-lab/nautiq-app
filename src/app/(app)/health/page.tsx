@@ -10,6 +10,7 @@ import { AlertTriangle, CheckCircle, Clock, HelpCircle, Package, ShieldAlert } f
 import { HealthGauge } from "@/components/ui/health-gauge";
 import { formatDate } from "@/lib/format-date";
 import { normalizeStatus } from "@/lib/component-status";
+import { TrialBanner } from "@/components/nav/trial-banner";
 
 type BoatRow = { id: string; name: string; type: string | null; fuel_tank_litres: number | null };
 
@@ -64,7 +65,7 @@ export default async function HealthPage() {
   if (boats.length === 0) redirect("/onboarding");
   const boat = boats.find((b) => b.id === selectedBoatId) ?? boats[0];
 
-  const [health, engineHoursRes, inventoryRes, componentsRes, boatDetailsRes, fuelItemRes] = await Promise.all([
+  const [health, engineHoursRes, inventoryRes, componentsRes, boatDetailsRes, fuelItemRes, subRes] = await Promise.all([
     getBoatHealth(boat.id, supabase),
     supabase.rpc("get_boat_engine_hours", { p_boat_id: boat.id }),
     supabase
@@ -80,7 +81,14 @@ export default async function HealthPage() {
       .eq("is_fuel_source", true)
       .limit(1)
       .maybeSingle(),
+    supabase.from("subscriptions").select("plan, trial_ends_at").eq("user_id", user.id).maybeSingle(),
   ]);
+
+  const trialPlan = subRes.data?.plan ?? "expired";
+  const trialEndsAt = subRes.data?.trial_ends_at ?? null;
+  const trialDaysLeft = trialEndsAt
+    ? Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000)
+    : 0;
 
   const engineHours = (engineHoursRes.data as number) ?? 0;
   const fuelTankLitres = (boatDetailsRes.data?.fuel_tank_litres as number | null) ?? null;
@@ -181,6 +189,8 @@ export default async function HealthPage() {
           </div>
         </div>
       </div>
+
+      <TrialBanner plan={trialPlan} daysLeft={trialDaysLeft} />
 
       <div className="px-4 space-y-5">
       {/* Score + tiles */}
