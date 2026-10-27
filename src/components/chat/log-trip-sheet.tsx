@@ -92,6 +92,7 @@ export default function LogTripSheet({
   const [meterReading, setMeterReading] = useState("");
   const [prevMeterTotal, setPrevMeterTotal] = useState<number | null>(null);
   const [fuelLitres, setFuelLitres] = useState(prefillFuelLitres?.toString() ?? "");
+  const [fuelAutoCalc, setFuelAutoCalc] = useState(!prefillFuelLitres);
   const [notes, setNotes] = useState(prefillNotes ?? "");
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -150,6 +151,14 @@ export default function LogTripSheet({
   const meterDelta = engineHoursMode === "meter" && meterReading && prevMeterTotal != null
     ? Math.round((parseFloat(meterReading) - prevMeterTotal) * 10) / 10
     : null;
+
+  useEffect(() => {
+    if (!fuelAutoCalc || !fuelPreview?.rate) return;
+    const hours = engineHoursMode === "meter" ? (meterDelta ?? 0) : parseFloat(engineHours);
+    if (!hours || hours <= 0) return;
+    const estimated = Math.round(hours * fuelPreview.rate * 10) / 10;
+    setFuelLitres(estimated.toString());
+  }, [engineHours, meterDelta, engineHoursMode, fuelAutoCalc, fuelPreview]);
 
   async function handleSave() {
     if (!startDate) { setError("Enter a start date for this trip"); return; }
@@ -363,10 +372,22 @@ export default function LogTripSheet({
               min="0"
               step="1"
               value={fuelLitres}
-              onChange={(e) => setFuelLitres(e.target.value)}
+              onChange={(e) => { setFuelAutoCalc(false); setFuelLitres(e.target.value); }}
               placeholder="Optional — leave blank to estimate automatically"
               className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
             />
+            {fuelAutoCalc && fuelLitres && fuelPreview?.rate && (
+              <p className="mt-1 text-xs text-ocean-600">Estimated from engine hours</p>
+            )}
+            {!fuelAutoCalc && fuelPreview?.rate && (
+              <button
+                type="button"
+                onClick={() => setFuelAutoCalc(true)}
+                className="mt-1 text-xs text-ocean-600 underline"
+              >
+                Recalculate from engine hours
+              </button>
+            )}
             {(() => {
               const hours = engineHoursMode === "meter" ? (meterDelta ?? 0) : parseFloat(engineHours);
               const fp = fuelPreview;

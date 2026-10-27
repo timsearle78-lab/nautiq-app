@@ -48,6 +48,7 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
   const [meterReading, setMeterReading] = useState("");
   const [prevMeterTotal, setPrevMeterTotal] = useState<number | null>(null);
   const [fuelVal, setFuelVal] = useState(fuelAddedLitres?.toString() ?? "");
+  const [fuelAutoCalc, setFuelAutoCalc] = useState(!fuelAddedLitres);
   const [fuelPreview, setFuelPreview] = useState<FuelPreview>(null);
   const [photos, setPhotos] = useState<string[]>(photoUrls);
   const [photoUploadPct, setPhotoUploadPct] = useState<number | null>(null);
@@ -109,6 +110,14 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
       .catch(() => {});
     return () => { cancelled = true; };
   }, [boatId, open, engineHoursMode]);
+
+  useEffect(() => {
+    if (!fuelAutoCalc || !fuelPreview?.rate) return;
+    const hours = parseFloat(engineHoursVal) || 0;
+    if (!hours || hours <= 0) return;
+    const estimated = Math.round(hours * fuelPreview.rate * 10) / 10;
+    setFuelVal(estimated.toString());
+  }, [engineHoursVal, fuelAutoCalc, fuelPreview]);
 
   const [state, formAction, pending] = useActionState(
     async (prev: { error?: string; success?: string }, fd: FormData) => {
@@ -234,10 +243,18 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
                     min="0"
                     step="0.1"
                     value={fuelVal}
-                    onChange={(e) => setFuelVal(e.target.value)}
+                    onChange={(e) => { setFuelAutoCalc(false); setFuelVal(e.target.value); }}
                     placeholder="Optional"
                     className={inputCls}
                   />
+                  {fuelAutoCalc && fuelVal && fuelPreview?.rate && (
+                    <p className="mt-1 text-xs text-ocean-600">Estimated from engine hours</p>
+                  )}
+                  {!fuelAutoCalc && fuelPreview?.rate && (
+                    <button type="button" onClick={() => setFuelAutoCalc(true)} className="mt-1 text-xs text-ocean-600 underline">
+                      Recalculate from engine hours
+                    </button>
+                  )}
                 </div>
               </div>
               {(() => {

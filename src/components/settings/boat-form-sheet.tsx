@@ -37,6 +37,7 @@ type EditProps = {
   description: string | null;
   fuel_consumption_lph: number | null;
   fuel_tank_litres: number | null;
+  engine_hours_initial?: number | null;
 };
 
 type AddProps = { mode: "add" };
@@ -184,6 +185,14 @@ export function BoatFormSheet(props: Props) {
                     <input name="fuel_tank_litres" type="number" step="1" min="0" defaultValue={isEdit ? (props.fuel_tank_litres ?? "") : ""} placeholder="e.g. 200" className={inputCls} />
                     <p className="mt-1 text-xs text-slate-400">Used to show your fuel level gauge.</p>
                   </div>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Engine meter reading <span className="font-normal text-slate-400">(hours)</span>
+                  </label>
+                  <input name="engine_hours_initial" type="number" step="0.1" min="0" defaultValue={isEdit ? (props.engine_hours_initial ?? "") : ""} placeholder="e.g. 1381 — enter your current meter reading if you have existing hours" className={inputCls} />
+                  <p className="mt-1 text-xs text-slate-400">Starting point for your engine meter. NautIQ adds trip hours on top of this to track your running total.</p>
                 </div>
 
                 <div>
