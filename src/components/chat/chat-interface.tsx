@@ -481,7 +481,6 @@ export default function ChatInterface({ boat, engineHours, healthScore, overdueC
     { label: "What's due?", text: "What maintenance is coming up?" },
     { label: "Stock check", text: "What inventory items am I low on?" },
     { label: "Boat health", text: "How's the boat doing overall?" },
-    { label: "Boat report", text: "Download a boat report" },
   ];
 
   return (
