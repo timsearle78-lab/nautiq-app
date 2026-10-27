@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import NautiqLogo from "@/components/ui/nautiq-logo";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,8 +52,7 @@ export default function SignupPage() {
         body: JSON.stringify({ record: { email, created_at: new Date().toISOString() } }),
       }).catch(() => {});
 
-      setStatus("Account created. Check your email to confirm your account before signing in.");
-      setName(""); setEmail(""); setPassword(""); setConfirmPassword("");
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Failed to create account.");
     } finally {

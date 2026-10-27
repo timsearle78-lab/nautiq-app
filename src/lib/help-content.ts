@@ -31,6 +31,8 @@ Personal Boat Assistant: The greeting card that appears at the top of the Home s
 
 What's New card: The release notes card that appears when the app is updated can be hidden. Go to Settings → Appearance and set "What's New card" to Hide.
 
+Sign up / email verification: When you create a new account, a 6-digit code is emailed to you. Enter it on the "Check your email" screen to activate your account. If the code doesn't arrive, tap "Resend code". Once verified you'll be taken to the login screen.
+
 Reset password: Go to Settings → Account → Reset password. A 6-digit code will be emailed to your account address. Open the link in the email, enter the code, choose your new password, and tap Update password — all on one screen.
 
 If you've forgotten your password at the sign-in screen, tap "Forgot password?" and follow the same steps.`,

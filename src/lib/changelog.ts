@@ -14,6 +14,7 @@ export const CHANGELOG: Release[] = [
       "A trial countdown banner reminds you how many days are left in your free trial",
       "App layout now uses a centred column on wide screens with a navy surround for a polished desktop experience",
       "Subscription success page now shows the NautIQ logo and on-brand design",
+      "Email verification now uses a 6-digit OTP code instead of a magic link — enter the code on screen to activate your account",
     ],
   },
   {
