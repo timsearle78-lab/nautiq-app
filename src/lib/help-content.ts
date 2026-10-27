@@ -161,6 +161,8 @@ When you set up your boat, NautIQ creates a default set of systems and component
 - Edit a component (name, service intervals, notes) by tapping it and scrolling to the edit form.
 - Delete a component from the Danger Zone at the bottom of the component page.
 
+When adding a component, the System field is a searchable combobox. You can pick an existing system or type a new name and choose "Add as new system." NautIQ checks for similar names (e.g. plurals) and will warn you if one already exists so you don't create a duplicate.
+
 To manage systems:
 1. Go to Profile → Settings → Your boats.
 2. Tap the "Edit" button next to the boat whose systems you want to manage.
@@ -473,7 +475,7 @@ LOGGING MAINTENANCE VIA CHAT: Just tell the AI what you did — "I did an oil ch
 
 MAINTENANCE: Each component has a time/engine-hour service interval. NautIQ uses a predictive timeline to estimate due dates based on average usage. Risk score shows overdue/due soon/healthy. Log maintenance via "Log Maintenance" button on the component page or from the Home screen. Fill in date, work done, engine hours, optional spare consumed. Optionally attach up to 3 photos per record — tap "Camera" to take a photo or "Choose" to pick from your library; thumbnails appear in the history table. To delete a maintenance record, tap the trash icon on the history row and confirm with Yes. The Maintenance Overview shows components sorted by urgency; use "All Components" for the full list. On the Home screen, a yellow card suggests components typical for your boat type that you haven't added yet — tap "Add" on any suggestion to add it.
 
-COMPONENTS & SYSTEMS: Components = individual parts needing service (engine, impeller, life jackets…). Systems = groups (Engine, Safety, Electrical…). Add/edit from Maintain tab. Delete from Danger Zone on component page.
+COMPONENTS & SYSTEMS: Components = individual parts needing service (engine, impeller, life jackets…). Systems = groups (Engine, Safety, Electrical…). Add/edit from Maintain tab. Delete from Danger Zone on component page. When adding a component the System field is a combobox — pick an existing system or type a new name and tap "Add as new system" to create it. NautIQ warns you if a similar name already exists (e.g. plural match) so you don't create a duplicate.
 
 INVENTORY: The inventory is the on-board register — record everything on the boat: spare parts, safety equipment (EPIRB, PLB, VHF, life jackets, flares, fire extinguishers), tools, consumables, and any other gear. Add items via "+ Add item" or camera "Scan item" on Home. Adjust stock by saying "I used X" or "I bought X" to the AI, or via the Restock item / Used item chips, or from the item's page. Link items to components so low stock raises the risk score. Set an expiry date on items like flares, fire extinguishers, first aid supplies, or fuel treatment — items expiring within 90 days show an amber badge; expired items show red. The "Expiring soon" tile on the Inventory page shows the count at a glance. Expired critical items increase the boat health risk score. Photos: Each inventory item can have up to 3 photos. Open the item's edit page (tap the pencil icon) and scroll to Photos — tap "Upload" to choose an image from your device or "Camera" to take a photo. Tap a thumbnail to view full size. Remove a photo with the X on the thumbnail or the Remove button in full-size view.
 

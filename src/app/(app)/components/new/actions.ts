@@ -26,7 +26,8 @@ export async function createComponent(
   }
 
   const boatId = String(formData.get("boat_id") ?? "").trim();
-  const systemId = String(formData.get("system_id") ?? "").trim() || null;
+  let systemId = String(formData.get("system_id") ?? "").trim() || null;
+  const newSystemName = String(formData.get("new_system_name") ?? "").trim() || null;
   const name = String(formData.get("name") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim() || null;
   const installDate = String(formData.get("install_date") ?? "").trim() || null;
@@ -41,6 +42,19 @@ export async function createComponent(
 
   if (!name) {
     return { error: "Component name is required." };
+  }
+
+  // Create a new system if a name was provided instead of an existing ID
+  if (!systemId && newSystemName) {
+    const { data: newSystem, error: sysError } = await supabase
+      .from("systems")
+      .insert({ boat_id: boatId, name: newSystemName, user_id: user.id })
+      .select("id")
+      .single();
+    if (sysError || !newSystem) {
+      return { error: "Couldn't create the new system — please try again." };
+    }
+    systemId = newSystem.id;
   }
 
   if (!systemId) {
