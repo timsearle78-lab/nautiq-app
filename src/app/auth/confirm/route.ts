@@ -37,10 +37,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(error.message)}`, origin));
   }
 
-  // For email confirmation (signup), redirect to login with a success message.
+  // For email confirmation (signup), redirect to login with a one-time cookie.
   // For other flows (password reset etc.) honour the `next` param as before.
   if (type === "signup" || type === "email") {
-    return NextResponse.redirect(new URL("/login?confirmed=1", origin));
+    const response = NextResponse.redirect(new URL("/login", origin));
+    response.cookies.set("__nautiq_email_confirmed", "1", {
+      httpOnly: true,
+      path: "/login",
+      maxAge: 300, // expires in 5 minutes
+      sameSite: "lax",
+    });
+    return response;
   }
 
   return NextResponse.redirect(new URL(next, origin));

@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import NautiqLogo from "@/components/ui/nautiq-logo";
 
-export default function LoginForm() {
+export default function LoginForm({ emailConfirmed = false }: { emailConfirmed?: boolean }) {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -108,7 +108,7 @@ export default function LoginForm() {
         {/* White form panel */}
         <div className="flex-1 px-6 py-8 md:p-10" style={{ background: "#FFFFFF" }}>
           <div className="mx-auto max-w-sm">
-            {searchParams.get("confirmed") === "1" && (
+            {emailConfirmed && (
               <div
                 className="mb-5 px-4 py-3 flex items-start gap-3"
                 style={{
