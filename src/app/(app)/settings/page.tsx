@@ -25,7 +25,8 @@ type NotificationPrefs = {
 type BoatRow = { id: string; name: string; type: string | null; image_url: string | null; propulsion: string | null; hull_design: string | null; hull_material: string | null; length_m: number | null; beam_m: number | null; draft_m: number | null; description: string | null; fuel_consumption_lph: number | null; fuel_tank_litres: number | null; engine_hours_initial: number | null; user_id: string };
 type SystemRow = { id: string; name: string; boat_id: string };
 
-export default async function SettingsPage() {
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
+  const { edit: editBoatId } = await searchParams;
   noStore();
 
   const supabase = await createClient();
@@ -119,6 +120,7 @@ export default async function SettingsPage() {
                       fuel_tank_litres={boat.fuel_tank_litres}
                       engine_hours_initial={boat.engine_hours_initial}
                       systems={systemsByBoat.get(boat.id) ?? []}
+                      initialOpen={editBoatId === boat.id}
                     />
                   )}
                   {isOwner && <DeleteBoatDialog boatId={boat.id} boatName={boat.name} />}
