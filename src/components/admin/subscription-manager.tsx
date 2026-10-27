@@ -21,6 +21,17 @@ const PLAN_COLORS: Record<string, string> = {
   cancelled:      "bg-slate-100 text-slate-600",
 };
 
+function toDateInputValue(iso: string | null): string {
+  if (!iso) return "";
+  return iso.slice(0, 10);
+}
+
+function defaultTrialEnd(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 30);
+  return d.toISOString().slice(0, 10);
+}
+
 type Props = {
   userId: string;
   currentPlan: string;
@@ -32,6 +43,7 @@ type Props = {
 export function SubscriptionManager({ userId, currentPlan, currentEarlyAdopter, trialEndsAt, currentPeriodEndsAt }: Props) {
   const [plan, setPlan] = useState(currentPlan);
   const [earlyAdopter, setEarlyAdopter] = useState(currentEarlyAdopter);
+  const [trialEnd, setTrialEnd] = useState(toDateInputValue(trialEndsAt));
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +56,7 @@ export function SubscriptionManager({ userId, currentPlan, currentEarlyAdopter, 
     const res = await fetch("/api/admin/subscription", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, plan, earlyAdopter }),
+      body: JSON.stringify({ userId, plan, earlyAdopter, trialEndsAt: plan === "trialing" ? trialEnd || null : undefined }),
     });
     const data = await res.json();
     setSaving(false);
@@ -82,7 +94,11 @@ export function SubscriptionManager({ userId, currentPlan, currentEarlyAdopter, 
           <label className="block text-xs font-medium text-slate-600 mb-1.5">Plan</label>
           <select
             value={plan}
-            onChange={(e) => setPlan(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value;
+              setPlan(next);
+              if (next === "trialing" && !trialEnd) setTrialEnd(defaultTrialEnd());
+            }}
             className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
           >
             {Object.entries(PLAN_LABELS).map(([value, label]) => (
@@ -90,6 +106,18 @@ export function SubscriptionManager({ userId, currentPlan, currentEarlyAdopter, 
             ))}
           </select>
         </div>
+
+        {plan === "trialing" && (
+          <div>
+            <label className="block text-xs font-medium text-slate-600 mb-1.5">Trial ends</label>
+            <input
+              type="date"
+              value={trialEnd}
+              onChange={(e) => setTrialEnd(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-ocean-500 focus:ring-2 focus:ring-ocean-100"
+            />
+          </div>
+        )}
 
         <div className="flex items-end">
           <label className="flex items-center gap-2.5 cursor-pointer select-none">

@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const { userId, plan, earlyAdopter } = await req.json();
+  const { userId, plan, earlyAdopter, trialEndsAt } = await req.json();
 
   if (!userId) return Response.json({ error: "userId required" }, { status: 400 });
   if (plan && !VALID_PLANS.includes(plan)) return Response.json({ error: "Invalid plan" }, { status: 400 });
@@ -28,6 +28,7 @@ export async function POST(req: Request) {
   const update: Record<string, unknown> = {};
   if (plan !== undefined) update.plan = plan;
   if (earlyAdopter !== undefined) update.early_adopter = earlyAdopter;
+  if (trialEndsAt !== undefined) update.trial_ends_at = trialEndsAt;
 
   const { error } = await adminClient
     .from("subscriptions")
