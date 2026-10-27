@@ -343,6 +343,7 @@ export default function LogTripSheet({
                 step="0.1"
                 value={engineHours}
                 onChange={(e) => setEngineHours(e.target.value)}
+                onBlur={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) setEngineHours(String(Math.round(v * 10) / 10)); }}
                 placeholder="e.g. 2.5 — hours you ran the engine on this trip"
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
               />
@@ -359,6 +360,7 @@ export default function LogTripSheet({
                   step="0.1"
                   value={meterReading}
                   onChange={(e) => setMeterReading(e.target.value)}
+                  onBlur={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) setMeterReading(String(Math.round(v * 10) / 10)); }}
                   placeholder="Enter current meter reading"
                   className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
                 />
