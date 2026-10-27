@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { Sparkles, X } from "lucide-react";
+import { ChevronDown, Plus, Sparkles, X } from "lucide-react";
 import SaveSuccessBanner from "@/components/ui/save-success-banner";
 import {
   createComponent,
@@ -56,6 +56,16 @@ export function AddComponentForm({
   const [notes, setNotes] = useState("");
   const [componentName, setComponentName] = useState(defaultName ?? "");
   const [systemId, setSystemId] = useState(defaultSystemId ?? "");
+
+  // System combobox state
+  const [systemQuery, setSystemQuery] = useState(() => {
+    const found = systems.find((s) => s.id === defaultSystemId);
+    return found?.name ?? "";
+  });
+  const [newSystemName, setNewSystemName] = useState<string | null>(null);
+  const [systemOpen, setSystemOpen] = useState(false);
+  const [similarWarning, setSimilarWarning] = useState<string | null>(null);
+  const systemRef = useRef<HTMLDivElement>(null);
 
   // AI state
   const [aiStatus, setAiStatus] = useState<"idle" | "loading" | "done" | "error" | "ratelimit">("idle");
@@ -131,6 +141,60 @@ export function AddComponentForm({
     setNotes("");
   }
 
+  // Close combobox on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (systemRef.current && !systemRef.current.contains(e.target as Node)) {
+        setSystemOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  function normalise(s: string) {
+    return s.toLowerCase().trim().replace(/s$/, "");
+  }
+
+  function findSimilar(query: string): SystemOption | null {
+    const q = normalise(query);
+    if (!q) return null;
+    return systems.find((s) => normalise(s.name) === q) ?? null;
+  }
+
+  function filteredSystems(query: string) {
+    const q = query.toLowerCase().trim();
+    if (!q) return systems;
+    return systems.filter((s) => s.name.toLowerCase().includes(q));
+  }
+
+  function handleSystemQuery(value: string) {
+    setSystemQuery(value);
+    setSystemId("");
+    setNewSystemName(null);
+    setSimilarWarning(null);
+    setSystemOpen(true);
+  }
+
+  function selectExistingSystem(s: SystemOption) {
+    setSystemId(s.id);
+    setNewSystemName(null);
+    setSystemQuery(s.name);
+    setSimilarWarning(null);
+    setSystemOpen(false);
+  }
+
+  function confirmNewSystem(name: string) {
+    const similar = findSimilar(name);
+    if (similar) {
+      setSimilarWarning(similar.name);
+      return;
+    }
+    setNewSystemName(name.trim());
+    setSystemId("");
+    setSystemOpen(false);
+  }
+
   const confidenceColors = {
     high:   "text-green-700 bg-green-50 border-green-200",
     medium: "text-amber-700 bg-amber-50 border-amber-200",
@@ -203,23 +267,94 @@ export function AddComponentForm({
         </div>
       )}
 
-      {/* System */}
+      {/* System combobox */}
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">System <span className="text-red-500">*</span></label>
-        <select
-          name="system_id"
-          className="select-field"
-          value={systemId}
-          onChange={(e) => setSystemId(e.target.value)}
-          required
-        >
-          <option value="">Select a system…</option>
-          {systems.map((system) => (
-            <option key={system.id} value={system.id}>
-              {system.name}
-            </option>
-          ))}
-        </select>
+        <input type="hidden" name="system_id" value={systemId} />
+        <input type="hidden" name="new_system_name" value={newSystemName ?? ""} />
+        <div ref={systemRef} className="relative">
+          <div className="relative">
+            <input
+              type="text"
+              className={`${inputCls} pr-8`}
+              placeholder="Select or type a new system…"
+              value={systemQuery}
+              onChange={(e) => handleSystemQuery(e.target.value)}
+              onFocus={() => setSystemOpen(true)}
+              autoComplete="off"
+            />
+            <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          </div>
+          {/* Selected new system badge */}
+          {newSystemName && (
+            <p className="mt-1.5 text-xs text-ocean-700 flex items-center gap-1">
+              <Plus size={11} />
+              Will create new system: <strong>{newSystemName}</strong>
+            </p>
+          )}
+          {/* Similarity warning */}
+          {similarWarning && (
+            <div className="mt-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
+              <strong>"{systemQuery}"</strong> is similar to existing system <strong>"{similarWarning}"</strong>. Did you mean that?{" "}
+              <button
+                type="button"
+                className="underline hover:text-amber-900"
+                onClick={() => {
+                  const match = systems.find((s) => s.name === similarWarning)!;
+                  selectExistingSystem(match);
+                }}
+              >
+                Use "{similarWarning}"
+              </button>{" "}
+              or{" "}
+              <button
+                type="button"
+                className="underline hover:text-amber-900"
+                onClick={() => {
+                  setSimilarWarning(null);
+                  setNewSystemName(systemQuery.trim());
+                  setSystemId("");
+                  setSystemOpen(false);
+                }}
+              >
+                add anyway
+              </button>.
+            </div>
+          )}
+          {/* Dropdown */}
+          {systemOpen && (
+            <div className="absolute z-20 mt-1 w-full rounded-xl border border-slate-200 bg-white shadow-lg overflow-hidden">
+              <ul className="max-h-52 overflow-y-auto py-1">
+                {filteredSystems(systemQuery).map((s) => (
+                  <li key={s.id}>
+                    <button
+                      type="button"
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 text-slate-800"
+                      onMouseDown={(e) => { e.preventDefault(); selectExistingSystem(s); }}
+                    >
+                      {s.name}
+                    </button>
+                  </li>
+                ))}
+                {systemQuery.trim() && !systems.find((s) => s.name.toLowerCase() === systemQuery.trim().toLowerCase()) && (
+                  <li>
+                    <button
+                      type="button"
+                      className="w-full px-3 py-2 text-left text-sm text-ocean-700 hover:bg-ocean-50 flex items-center gap-1.5 border-t border-slate-100"
+                      onMouseDown={(e) => { e.preventDefault(); confirmNewSystem(systemQuery.trim()); }}
+                    >
+                      <Plus size={13} />
+                      Add "{systemQuery.trim()}" as new system
+                    </button>
+                  </li>
+                )}
+                {filteredSystems(systemQuery).length === 0 && !systemQuery.trim() && (
+                  <li className="px-3 py-2 text-xs text-slate-400">No systems yet — type to add one</li>
+                )}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Install date */}

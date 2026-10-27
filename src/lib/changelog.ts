@@ -7,6 +7,13 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-10-27",
+    label: "October 2026 update",
+    features: [
+      "When adding a component, you can now type a new system name — NautIQ will add it to your boat and warn you if it looks similar to one that already exists",
+    ],
+  },
+  {
     date: "2026-10-24",
     label: "October 2026 update",
     features: [
