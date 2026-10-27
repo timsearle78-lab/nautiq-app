@@ -23,21 +23,10 @@ export async function POST(req: Request) {
     const boatUpdate: Record<string, unknown> = {};
     if (fuel_tank_litres != null) boatUpdate.fuel_tank_litres = fuel_tank_litres;
     if (fuel_consumption_lph != null) boatUpdate.fuel_consumption_lph = fuel_consumption_lph;
+    if (engine_hours != null) boatUpdate.engine_hours_initial = engine_hours;
     if (Object.keys(boatUpdate).length > 0) {
       const { error } = await supabase.from("boats").update(boatUpdate).eq("id", boatId).eq("user_id", user.id);
       if (error) errors.push(error.message);
-    }
-
-    // Seed initial engine hours as a trip if provided
-    if (engine_hours && engine_hours > 0) {
-      await supabase.from("trips").insert({
-        user_id: user.id,
-        boat_id: boatId,
-        source: "onboarding",
-        engine_hours_delta: engine_hours,
-        started_at: new Date().toISOString(),
-        notes: "Initial engine hours entered during setup",
-      });
     }
   }
 

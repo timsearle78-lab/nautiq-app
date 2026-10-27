@@ -587,7 +587,7 @@ export default function OnboardingPage() {
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-white/80">
-                  Current engine hours <span className="text-white/40 font-normal">(optional)</span>
+                  Engine meter reading <span className="text-white/40 font-normal">(hours, optional)</span>
                 </label>
                 <input
                   type="number"
@@ -595,10 +595,10 @@ export default function OnboardingPage() {
                   step="0.1"
                   value={engineHours}
                   onChange={(e) => setEngineHours(e.target.value)}
-                  placeholder="e.g. 340"
+                  placeholder="e.g. 1381 — what your engine meter shows right now"
                   className={inputCls}
                 />
-                <p className="mt-1 text-xs text-ocean-200/50">Your engine's current hours. Sets the starting point for maintenance scheduling.</p>
+                <p className="mt-1 text-xs text-ocean-200/50">Enter the current reading on your engine meter (the odometer for your engine). NautIQ adds your trip hours on top of this to keep a running total — so your maintenance schedules stay accurate from day one. You can always update this in Settings.</p>
               </div>
             </div>
 

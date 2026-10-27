@@ -91,6 +91,7 @@ export default function LogTripSheet({
   );
   const [meterReading, setMeterReading] = useState("");
   const [prevMeterTotal, setPrevMeterTotal] = useState<number | null>(null);
+  const [engineInitialSet, setEngineInitialSet] = useState<boolean | null>(null);
   const [fuelLitres, setFuelLitres] = useState(prefillFuelLitres?.toString() ?? "");
   const [fuelAutoCalc, setFuelAutoCalc] = useState(!prefillFuelLitres);
   const [notes, setNotes] = useState(prefillNotes ?? "");
@@ -139,14 +140,18 @@ export default function LogTripSheet({
   }, [boatId]);
 
   useEffect(() => {
-    if (engineHoursMode !== "meter") return;
     let cancelled = false;
     fetch(`/api/boats/engine-hours?boatId=${boatId}`)
       .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (!cancelled && data != null) setPrevMeterTotal(data.total ?? 0); })
+      .then((data) => {
+        if (!cancelled && data != null) {
+          setPrevMeterTotal(data.total ?? 0);
+          setEngineInitialSet(data.initialSet ?? false);
+        }
+      })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [boatId, engineHoursMode]);
+  }, [boatId]);
 
   const meterDelta = engineHoursMode === "meter" && meterReading && prevMeterTotal != null
     ? Math.round((parseFloat(meterReading) - prevMeterTotal) * 10) / 10
@@ -361,6 +366,18 @@ export default function LogTripSheet({
                 {meterDelta != null && meterDelta <= 0 && meterReading && (
                   <p className="mt-1.5 text-xs text-red-600">Reading must be higher than your previous total ({prevMeterTotal}h)</p>
                 )}
+              </div>
+            )}
+            {engineInitialSet === false && (engineHours || meterReading) && (
+              <div className="mt-2 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5">
+                <span className="text-amber-500 mt-0.5 flex-shrink-0 text-base leading-none">⚠</span>
+                <p className="text-xs text-amber-800 leading-snug">
+                  No engine meter starting point set.{" "}
+                  <a href="/settings" className="font-medium underline">
+                    Set it in Settings
+                  </a>{" "}
+                  so your running total and fuel estimates stay accurate.
+                </p>
               </div>
             )}
           </div>
