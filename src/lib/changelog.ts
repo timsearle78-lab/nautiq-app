@@ -13,6 +13,8 @@ export const CHANGELOG: Release[] = [
       "When adding a component, you can now type a new system name — NautIQ will add it to your boat and warn you if it looks similar to one that already exists",
       "Engine hours on a trip can now be entered two ways — \"Hours on trip\" (how long you ran the engine) or \"Engine meter\" (enter your current meter reading and NautIQ calculates the hours automatically)",
       "Set your engine meter reading in boat settings — NautIQ uses it as the starting point for cumulative engine hours so trip hours and fuel estimates are always accurate",
+      "Engine meter reading is now captured during onboarding so new users start tracking from the correct baseline straight away",
+      "A nudge appears when logging a trip if your engine meter starting point hasn't been set yet — so nothing slips through",
     ],
   },
   {

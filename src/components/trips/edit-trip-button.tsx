@@ -208,6 +208,7 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
                       step="0.1"
                       value={engineHoursVal}
                       onChange={(e) => setEngineHoursVal(e.target.value)}
+                      onBlur={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) setEngineHoursVal(String(Math.round(v * 10) / 10)); }}
                       placeholder="Hours on this trip"
                       className={inputCls}
                     />
@@ -225,6 +226,7 @@ export function EditTripButton({ tripId, boatId, startedAt, endedAt, engineHours
                             setEngineHoursVal(String(Math.round((reading - prevMeterTotal) * 10) / 10));
                           }
                         }}
+                        onBlur={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) setMeterReading(String(Math.round(v * 10) / 10)); }}
                         placeholder={prevMeterTotal != null ? `Prev: ${prevMeterTotal}h` : "Current reading"}
                         className={inputCls}
                       />

@@ -91,6 +91,7 @@ export default function LogTripSheet({
   );
   const [meterReading, setMeterReading] = useState("");
   const [prevMeterTotal, setPrevMeterTotal] = useState<number | null>(null);
+  const [engineInitialSet, setEngineInitialSet] = useState<boolean | null>(null);
   const [fuelLitres, setFuelLitres] = useState(prefillFuelLitres?.toString() ?? "");
   const [fuelAutoCalc, setFuelAutoCalc] = useState(!prefillFuelLitres);
   const [notes, setNotes] = useState(prefillNotes ?? "");
@@ -139,14 +140,18 @@ export default function LogTripSheet({
   }, [boatId]);
 
   useEffect(() => {
-    if (engineHoursMode !== "meter") return;
     let cancelled = false;
     fetch(`/api/boats/engine-hours?boatId=${boatId}`)
       .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (!cancelled && data != null) setPrevMeterTotal(data.total ?? 0); })
+      .then((data) => {
+        if (!cancelled && data != null) {
+          setPrevMeterTotal(data.total ?? 0);
+          setEngineInitialSet(data.initialSet ?? false);
+        }
+      })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [boatId, engineHoursMode]);
+  }, [boatId]);
 
   const meterDelta = engineHoursMode === "meter" && meterReading && prevMeterTotal != null
     ? Math.round((parseFloat(meterReading) - prevMeterTotal) * 10) / 10
@@ -338,18 +343,25 @@ export default function LogTripSheet({
                 step="0.1"
                 value={engineHours}
                 onChange={(e) => setEngineHours(e.target.value)}
+                onBlur={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) setEngineHours(String(Math.round(v * 10) / 10)); }}
                 placeholder="e.g. 2.5 — hours you ran the engine on this trip"
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
               />
             ) : (
               <div>
+                {prevMeterTotal != null && (
+                  <p className="mb-1.5 text-xs text-slate-500">
+                    Previous reading: <span className="font-semibold text-slate-700">{prevMeterTotal}h</span>
+                  </p>
+                )}
                 <input
                   type="number"
                   min="0"
                   step="0.1"
                   value={meterReading}
                   onChange={(e) => setMeterReading(e.target.value)}
-                  placeholder={prevMeterTotal != null ? `Current reading — previous was ${prevMeterTotal}h` : "Current engine meter reading"}
+                  onBlur={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) setMeterReading(String(Math.round(v * 10) / 10)); }}
+                  placeholder="Enter current meter reading"
                   className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base focus:border-ocean-500 focus:outline-none"
                 />
                 {meterDelta != null && meterDelta > 0 && (
@@ -361,6 +373,18 @@ export default function LogTripSheet({
                 {meterDelta != null && meterDelta <= 0 && meterReading && (
                   <p className="mt-1.5 text-xs text-red-600">Reading must be higher than your previous total ({prevMeterTotal}h)</p>
                 )}
+              </div>
+            )}
+            {engineInitialSet === false && (engineHours || meterReading) && (
+              <div className="mt-2 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5">
+                <span className="text-amber-500 mt-0.5 flex-shrink-0 text-base leading-none">⚠</span>
+                <p className="text-xs text-amber-800 leading-snug">
+                  No engine meter starting point set.{" "}
+                  <a href="/settings" className="font-medium underline">
+                    Set it in Settings
+                  </a>{" "}
+                  so your running total and fuel estimates stay accurate.
+                </p>
               </div>
             )}
           </div>

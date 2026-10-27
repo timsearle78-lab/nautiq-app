@@ -23,7 +23,8 @@ export async function GET(req: Request) {
   ]);
 
   const tripTotal = (tripsRes.data ?? []).reduce((sum, row) => sum + (Number(row.engine_hours_delta) || 0), 0);
+  const initialSet = boatRes.data?.engine_hours_initial != null;
   const initial = Number(boatRes.data?.engine_hours_initial) || 0;
   const total = Math.round((initial + tripTotal) * 10) / 10;
-  return Response.json({ total, initial });
+  return Response.json({ total, initial, initialSet });
 }
