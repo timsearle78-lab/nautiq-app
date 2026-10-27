@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { hasActiveAccess, type SubscriptionPlan } from "@/lib/supabase/proxy";
+import { SubscribeButtons } from "./subscribe-buttons";
 
 export default async function SubscribePage() {
   const supabase = await createClient();
@@ -16,7 +17,6 @@ export default async function SubscribePage() {
   const plan = (sub?.plan ?? "expired") as SubscriptionPlan;
   const active = hasActiveAccess(plan, sub?.trial_ends_at ?? null, sub?.current_period_ends_at ?? null);
 
-  // Already active — send them home
   if (active) redirect("/");
 
   const isEarlyAdopter = sub?.early_adopter ?? false;
@@ -44,12 +44,12 @@ export default async function SubscribePage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-slate-700">Monthly</span>
-              <span className="text-xl font-bold text-slate-900">{monthlyPrice}<span className="text-sm font-normal text-slate-400">/mo</span></span>
+              <span className="text-xl font-bold text-slate-900">
+                {monthlyPrice}<span className="text-sm font-normal text-slate-400">/mo</span>
+              </span>
             </div>
             <p className="text-xs text-slate-400">Billed monthly. Cancel any time.</p>
-            <button disabled className="w-full rounded-xl btn-primary px-4 py-2.5 text-sm font-medium text-white opacity-60 cursor-not-allowed">
-              Subscribe monthly — coming soon
-            </button>
+            <SubscribeButtons interval="monthly" />
           </div>
 
           {/* Annual */}
@@ -60,14 +60,14 @@ export default async function SubscribePage() {
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-slate-700">Annual</span>
               <div className="text-right">
-                <span className="text-xl font-bold text-slate-900">{annualPrice}<span className="text-sm font-normal text-slate-400">/yr</span></span>
+                <span className="text-xl font-bold text-slate-900">
+                  {annualPrice}<span className="text-sm font-normal text-slate-400">/yr</span>
+                </span>
                 <p className="text-xs text-slate-400">{annualMonthly}/mo — 2 months free</p>
               </div>
             </div>
             <p className="text-xs text-slate-400">Billed once a year.</p>
-            <button disabled className="w-full rounded-xl btn-primary px-4 py-2.5 text-sm font-medium text-white opacity-60 cursor-not-allowed">
-              Subscribe annually — coming soon
-            </button>
+            <SubscribeButtons interval="annual" />
           </div>
         </div>
 
