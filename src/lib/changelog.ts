@@ -7,6 +7,15 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-10-28",
+    label: "October 2026 update",
+    features: [
+      "NautIQ is now a paid app — 30-day free trial for all new signups, then monthly or annual plans",
+      "Early adopters get a special locked-in price for life",
+      "Your data is always safe — if a subscription lapses you can still view all your history",
+    ],
+  },
+  {
     date: "2026-10-27",
     label: "October 2026 update",
     features: [
