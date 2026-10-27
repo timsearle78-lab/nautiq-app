@@ -157,7 +157,7 @@ export default function ProfileSheet({ email, initials, isAdmin, boats = [], sel
               </div>
             )}
 
-            <div className="px-5 pb-6 space-y-3">
+            <div className="px-5 pt-4 pb-6 space-y-3">
               {isAdmin && (
                 <Link
                   href="/admin"
