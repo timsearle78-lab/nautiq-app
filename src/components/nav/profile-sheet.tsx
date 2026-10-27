@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { X, LogOut, Settings, HelpCircle, Sparkles, ChevronLeft, Shield, LayoutDashboard, Anchor, MessageSquare } from "lucide-react";
+import { X, LogOut, Settings, HelpCircle, Sparkles, ChevronLeft, Shield, LayoutDashboard, Anchor, MessageSquare, Pencil } from "lucide-react";
 import FeedbackSheet from "@/components/feedback/feedback-sheet";
 import { selectBoat } from "@/app/(app)/actions";
 import BoatReportButton from "@/components/reports/boat-report-button";
@@ -99,44 +99,58 @@ export default function ProfileSheet({ email, initials, isAdmin, boats = [], sel
                     const isActive = boat.id === selectedBoatId;
                     const isSwitching = switchingBoatId === boat.id;
                     return (
-                      <button
+                      <div
                         key={boat.id}
-                        disabled={!!switchingBoatId}
-                        onClick={async () => {
-                          if (isActive) return;
-                          setSwitchingBoatId(boat.id);
-                          onClose();
-                          const fd = new FormData();
-                          fd.append("boat_id", boat.id);
-                          fd.append("return_to", "/chat");
-                          await selectBoat(fd);
-                        }}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left"
+                        className="flex items-center gap-2 rounded-xl transition-all"
                         style={{
                           background: isActive ? "var(--color-navy-700)" : isSwitching ? "#EBF2F8" : "var(--color-app-bg)",
                           border: `1.5px solid ${isActive ? "var(--color-navy-700)" : isSwitching ? "var(--color-ocean-600)" : "var(--color-border)"}`,
                           opacity: switchingBoatId && !isSwitching ? 0.5 : 1,
                         }}
                       >
-                        {isSwitching ? (
-                          <span style={{
-                            width: 15, height: 15, flexShrink: 0,
-                            border: "2px solid #DBE3EA", borderTopColor: "var(--color-ocean-600)",
-                            borderRadius: "50%", display: "inline-block",
-                            animation: "spin 0.7s linear infinite",
-                          }} />
-                        ) : (
-                          <Anchor size={15} style={{ color: isActive ? "var(--color-amber-400)" : "var(--color-navy-mute)", flexShrink: 0 }} />
-                        )}
-                        <span style={{ fontSize: 14, fontWeight: 700, color: isActive ? "#FFFFFF" : isSwitching ? "var(--color-ocean-600)" : "var(--color-navy-700)" }}>
-                          {isSwitching ? "Switching…" : boat.name}
-                        </span>
-                        {isActive && !isSwitching && (
-                          <span className="ml-auto rounded-full px-2 py-0.5" style={{ fontSize: 11, fontWeight: 700, background: "var(--color-amber-400)", color: "var(--color-amber-ink)" }}>
-                            Active
+                        <button
+                          disabled={!!switchingBoatId}
+                          onClick={async () => {
+                            if (isActive) return;
+                            setSwitchingBoatId(boat.id);
+                            onClose();
+                            const fd = new FormData();
+                            fd.append("boat_id", boat.id);
+                            fd.append("return_to", "/chat");
+                            await selectBoat(fd);
+                          }}
+                          className="flex-1 flex items-center gap-3 px-3 py-2.5 text-left min-w-0"
+                        >
+                          {isSwitching ? (
+                            <span style={{
+                              width: 15, height: 15, flexShrink: 0,
+                              border: "2px solid #DBE3EA", borderTopColor: "var(--color-ocean-600)",
+                              borderRadius: "50%", display: "inline-block",
+                              animation: "spin 0.7s linear infinite",
+                            }} />
+                          ) : (
+                            <Anchor size={15} style={{ color: isActive ? "var(--color-amber-400)" : "var(--color-navy-mute)", flexShrink: 0 }} />
+                          )}
+                          <span style={{ fontSize: 14, fontWeight: 700, color: isActive ? "#FFFFFF" : isSwitching ? "var(--color-ocean-600)" : "var(--color-navy-700)" }} className="truncate">
+                            {isSwitching ? "Switching…" : boat.name}
                           </span>
-                        )}
-                      </button>
+                          {isActive && !isSwitching && (
+                            <span className="ml-auto shrink-0 rounded-full px-2 py-0.5" style={{ fontSize: 11, fontWeight: 700, background: "var(--color-amber-400)", color: "var(--color-amber-ink)" }}>
+                              Active
+                            </span>
+                          )}
+                        </button>
+                        <Link
+                          href="/settings"
+                          onClick={onClose}
+                          className="shrink-0 flex items-center justify-center w-8 h-8 mr-1.5 rounded-lg transition-colors"
+                          style={{ color: isActive ? "rgba(255,255,255,0.6)" : "var(--color-navy-mute)" }}
+                          aria-label={`Edit ${boat.name}`}
+                          title={`Edit ${boat.name}`}
+                        >
+                          <Pencil size={13} />
+                        </Link>
+                      </div>
                     );
                   })}
                 </div>

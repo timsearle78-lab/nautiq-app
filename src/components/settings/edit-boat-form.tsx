@@ -25,9 +25,10 @@ type Props = {
   description?: string | null;
   fuel_consumption_lph?: number | null;
   fuel_tank_litres?: number | null;
+  engine_hours_initial?: number | null;
 };
 
-export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description, fuel_consumption_lph, fuel_tank_litres }: Props) {
+export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull_material, length_m, beam_m, draft_m, description, fuel_consumption_lph, fuel_tank_litres, engine_hours_initial }: Props) {
   const [state, action, pending] = useActionState(updateBoat, {});
 
   return (
@@ -162,6 +163,25 @@ export function EditBoatForm({ boatId, name, type, propulsion, hull_design, hull
             Used to show your fuel level gauge.
           </p>
         </div>
+      </div>
+
+      {/* Engine meter */}
+      <div>
+        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+          Engine meter reading <span className="font-normal text-slate-400">(hours)</span>
+        </label>
+        <input
+          name="engine_hours_initial"
+          type="number"
+          step="0.1"
+          min="0"
+          defaultValue={engine_hours_initial ?? ""}
+          placeholder="e.g. 1381 — enter your current meter reading if you have existing hours"
+          className={inputCls}
+        />
+        <p className="mt-1 text-xs text-slate-400">
+          Starting point for your engine meter. NautIQ adds trip hours on top of this to track your running total.
+        </p>
       </div>
 
       {/* Boat description */}

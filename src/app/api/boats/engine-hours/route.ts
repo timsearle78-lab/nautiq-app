@@ -9,14 +9,21 @@ export async function GET(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return new Response("Unauthorized", { status: 401 });
 
-  const { data, error } = await supabase
-    .from("trips")
-    .select("engine_hours_delta")
-    .eq("boat_id", boatId)
-    .not("engine_hours_delta", "is", null);
+  const [tripsRes, boatRes] = await Promise.all([
+    supabase
+      .from("trips")
+      .select("engine_hours_delta")
+      .eq("boat_id", boatId)
+      .not("engine_hours_delta", "is", null),
+    supabase
+      .from("boats")
+      .select("engine_hours_initial")
+      .eq("id", boatId)
+      .single(),
+  ]);
 
-  if (error) return Response.json({ error: error.message }, { status: 500 });
-
-  const total = (data ?? []).reduce((sum, row) => sum + (Number(row.engine_hours_delta) || 0), 0);
-  return Response.json({ total: Math.round(total * 10) / 10 });
+  const tripTotal = (tripsRes.data ?? []).reduce((sum, row) => sum + (Number(row.engine_hours_delta) || 0), 0);
+  const initial = Number(boatRes.data?.engine_hours_initial) || 0;
+  const total = Math.round((initial + tripTotal) * 10) / 10;
+  return Response.json({ total, initial });
 }
