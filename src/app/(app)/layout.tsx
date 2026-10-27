@@ -9,12 +9,15 @@ import GlobalActionsMenu from "@/components/nav/global-actions-menu";
 import { ImpersonationBanner } from "@/components/admin/impersonation-banner";
 import { getSelectedBoatId } from "@/lib/selected-boat";
 import { getUser, getUserBoats } from "@/lib/supabase/cached-queries";
+import { createClient } from "@/lib/supabase/server";
+import { TrialNoticeBar } from "@/components/nav/trial-notice-bar";
 
 export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
   const [user, allBoatsData] = await Promise.all([
     getUser(),
     getUserBoats(),
@@ -39,6 +42,12 @@ export default async function AppLayout({
   const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim()).filter(Boolean); // empty if env var not set — no fallback
   const isAdmin = adminEmails.includes(email);
 
+  const { data: subData } = await supabase
+    .from("subscriptions")
+    .select("plan, trial_ends_at")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   // Read impersonation cookie server-side
   const cookieStore = await cookies();
   let impersonationInfo: { adminEmail: string; adminId: string; targetEmail: string; targetId: string } | null = null;
@@ -55,6 +64,7 @@ export default async function AppLayout({
         targetEmail={impersonationInfo?.targetEmail}
         targetId={impersonationInfo?.targetId}
       />
+      <TrialNoticeBar plan={subData?.plan ?? "expired"} trialEndsAt={subData?.trial_ends_at ?? null} />
       <main className="flex-1 overflow-y-auto pb-16 w-full">
         {children}
       </main>
