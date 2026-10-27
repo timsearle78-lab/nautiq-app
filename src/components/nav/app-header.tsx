@@ -20,7 +20,7 @@ export default async function AppHeader() {
     const activeBoat = boats.find((b) => b.id === selectedId) ?? boats[0];
 
     return (
-      <header className="h-14 shrink-0 z-30" style={{ background: "var(--color-navy-700)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+      <header className="h-14 shrink-0 z-30" style={{ background: "var(--color-navy-700)" }}>
         <div
           className="h-full mx-auto w-full max-w-[1040px]"
           style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", paddingInline: "4px" }}
@@ -40,7 +40,7 @@ export default async function AppHeader() {
     );
   } catch {
     return (
-      <header className="h-14 shrink-0 z-30" style={{ background: "var(--color-navy-700)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+      <header className="h-14 shrink-0 z-30" style={{ background: "var(--color-navy-700)" }}>
         <div
           className="h-full mx-auto w-full max-w-[1040px]"
           style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", paddingInline: "4px" }}
