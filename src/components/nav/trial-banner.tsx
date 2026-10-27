@@ -22,8 +22,10 @@ export function TrialBanner({ daysLeft, plan }: Props) {
 
   return (
     <div
-      className={`flex items-center justify-between gap-3 px-4 py-2 text-xs font-medium ${
-        urgent ? "bg-amber-500 text-white" : "bg-ocean-600 text-white"
+      className={`mx-4 mt-4 flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium shadow-sm ${
+        urgent
+          ? "bg-amber-500 text-white"
+          : "bg-ocean-600 text-white"
       }`}
     >
       <span>
@@ -35,7 +37,7 @@ export function TrialBanner({ daysLeft, plan }: Props) {
       <button
         onClick={() => setDismissed(true)}
         aria-label="Dismiss"
-        className="shrink-0 opacity-80 hover:opacity-100 transition"
+        className="shrink-0 opacity-80 hover:opacity-100 transition text-base leading-none"
       >
         ✕
       </button>
