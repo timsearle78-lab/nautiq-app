@@ -114,7 +114,9 @@ You can also tap "+ Log Maintenance" on the Home screen to log maintenance witho
 
 To edit a maintenance record: Go to a component's page, scroll to Maintenance history, and tap the pencil icon next to any record. You can update the date, work done, engine hours, vendor, cost, and notes.
 
-After logging, the component's health score resets and the next due date is recalculated.
+"Do not reset service interval" option: When logging or editing a maintenance record, you can tick "Do not reset service interval." This saves the record for reference but does NOT update the component's last-service date or recalculate when the next service is due. Use it for minor checks, inspections, or informational entries where you haven't actually performed the full service.
+
+After logging (without the "Do not reset" option ticked), the component's health score resets and the next due date is recalculated.
 
 Email to log: You can also email your maintenance notes to log@nautiq.cloud from the email address registered to your account. NautIQ reads the email, uses AI to extract the component, work done, date, engine hours, vendor, and notes, then presents a pre-filled maintenance record on your Home screen the next time you open the app. Just tap "Complete maintenance record" to review and save it. The draft can be dismissed with the X button if you don't want to save it.
 
@@ -477,6 +479,8 @@ PRIMARY FUEL SOURCE: Go to Inventory → open an inventory item (e.g. your diese
 EMAIL TO LOG: Email maintenance notes to log@nautiq.cloud from your registered email address. NautIQ parses the email with AI and shows a pre-filled maintenance record card on the Home screen next time you open the app. Tap "Complete maintenance record" to review and save, or X to dismiss.
 
 LOGGING MAINTENANCE VIA CHAT: Just tell the AI what you did — "I did an oil change", "changed the impeller", "serviced the engine", "replaced the bilge pump". The AI creates a pre-filled maintenance draft card that you review and save. You can edit the component, date, work description, notes, and engine hours before saving.
+
+DO NOT RESET SERVICE INTERVAL: When logging or editing a maintenance record, tick "Do not reset service interval" to save the entry without updating the component's last-service date. Useful for minor checks, inspections, or notes where the full service hasn't been done. The record is saved in history but the next-due date and health score remain unchanged.
 
 MAINTENANCE: Each component has a time/engine-hour service interval. NautIQ uses a predictive timeline to estimate due dates based on average usage. Risk score shows overdue/due soon/healthy. Log maintenance via "Log Maintenance" button on the component page or from the Home screen. Fill in date, work done, engine hours, optional spare consumed. Optionally attach up to 3 photos per record — tap "Camera" to take a photo or "Choose" to pick from your library; thumbnails appear in the history table. To delete a maintenance record, tap the trash icon on the history row and confirm with Yes. The Maintenance Overview shows components sorted by urgency; use "All Components" for the full list. On the Home screen, a yellow card suggests components typical for your boat type that you haven't added yet — tap "Add" on any suggestion to add it.
 

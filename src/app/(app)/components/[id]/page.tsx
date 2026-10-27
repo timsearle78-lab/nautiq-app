@@ -339,6 +339,7 @@ export default async function ComponentPage({ params, searchParams }: ComponentP
                             vendor={row.vendor}
                             engineHoursAtService={row.engine_hours_at_service}
                             cost={row.cost}
+                            excludeFromServiceInterval={row.exclude_from_service_interval}
                           />
                           <DeleteMaintenanceEventButton eventId={row.id} componentId={component.id} />
                         </div>

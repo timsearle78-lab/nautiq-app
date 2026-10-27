@@ -39,6 +39,7 @@ export async function logMaintenance(
     );
 
     const cost = parseOptionalNumber(formData.get("cost"));
+    const excludeFromServiceInterval = formData.get("exclude_from_service_interval") === "true";
     const inventoryItemId =
       String(formData.get("inventory_item_id") ?? "").trim() || null;
     const consumeInventory = !!inventoryItemId;
@@ -63,6 +64,7 @@ export async function logMaintenance(
         vendor,
         engine_hours_at_service: engineHoursAtService,
         cost: cost ?? null,
+        exclude_from_service_interval: excludeFromServiceInterval,
       })
       .select("id")
       .single();
@@ -73,27 +75,29 @@ export async function logMaintenance(
 
     const eventId = insertedEvent?.id as string | undefined;
 
-    const componentUpdatePayload: {
-      last_serviced_at: string;
-      last_serviced_hours?: number | null;
-    } = {
-      last_serviced_at: performedAt,
-    };
-
-    if (engineHoursAtService != null) {
-      componentUpdatePayload.last_serviced_hours = engineHoursAtService;
-    }
-
-    const { error: componentUpdateError } = await supabase
-      .from("components")
-      .update(componentUpdatePayload)
-      .eq("id", componentId)
-      .eq("boat_id", boatId);
-
-    if (componentUpdateError) {
-      return {
-        error: `Maintenance logged, but component update failed: ${componentUpdateError.message}`,
+    if (!excludeFromServiceInterval) {
+      const componentUpdatePayload: {
+        last_serviced_at: string;
+        last_serviced_hours?: number | null;
+      } = {
+        last_serviced_at: performedAt,
       };
+
+      if (engineHoursAtService != null) {
+        componentUpdatePayload.last_serviced_hours = engineHoursAtService;
+      }
+
+      const { error: componentUpdateError } = await supabase
+        .from("components")
+        .update(componentUpdatePayload)
+        .eq("id", componentId)
+        .eq("boat_id", boatId);
+
+      if (componentUpdateError) {
+        return {
+          error: `Maintenance logged, but component update failed: ${componentUpdateError.message}`,
+        };
+      }
     }
 
     if (consumeInventory) {
@@ -154,6 +158,7 @@ export async function updateMaintenanceEvent(
     const vendor = String(formData.get("vendor") ?? "").trim() || null;
     const engineHoursAtService = parseOptionalNumber(formData.get("engine_hours_at_service"));
     const cost = parseOptionalNumber(formData.get("cost"));
+    const excludeFromServiceInterval = formData.get("exclude_from_service_interval") === "true";
 
     if (!eventId) return { error: "Event ID is required." };
     if (!performedAt) return { error: "Performed date is required." };
@@ -161,21 +166,21 @@ export async function updateMaintenanceEvent(
 
     const { error: updateError } = await supabase
       .from("maintenance_events")
-      .update({ performed_at: performedAt, work_done: workDone, notes, vendor, engine_hours_at_service: engineHoursAtService, cost })
+      .update({ performed_at: performedAt, work_done: workDone, notes, vendor, engine_hours_at_service: engineHoursAtService, cost, exclude_from_service_interval: excludeFromServiceInterval })
       .eq("id", eventId)
       .eq("user_id", user.id);
 
     if (updateError) return { error: `Failed to update: ${updateError.message}` };
 
-    // Recompute component last_serviced_at from the most recent event
-    const { data: latest } = await supabase
+    // Recompute component last_serviced_at from the most recent event that counts
+    const { data: latestEvents } = await supabase
       .from("maintenance_events")
-      .select("performed_at, engine_hours_at_service")
+      .select("performed_at, engine_hours_at_service, exclude_from_service_interval")
       .eq("component_id", componentId)
       .eq("user_id", user.id)
-      .order("performed_at", { ascending: false, nullsFirst: false })
-      .limit(1)
-      .single();
+      .order("performed_at", { ascending: false, nullsFirst: false });
+
+    const latest = (latestEvents ?? []).find((e) => !e.exclude_from_service_interval) ?? null;
 
     if (latest?.performed_at) {
       await supabase

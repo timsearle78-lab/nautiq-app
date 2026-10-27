@@ -40,7 +40,9 @@ export function getComponentHealthSummary(
   maintenanceHistory: MaintenanceHistoryRow[],
   trips: TripForHealth[]
 ): ComponentHealthSummary {
-  const latestService = maintenanceHistory[0] ?? null;
+  // Only events that count toward the service interval (exclude minor/informational logs)
+  const servicingHistory = maintenanceHistory.filter((e) => !e.exclude_from_service_interval);
+  const latestService = servicingHistory[0] ?? null;
   // Fall back to install_date when no maintenance has been recorded yet,
   // so the service interval counts from when the component was fitted.
   const lastServiceDate = latestService?.performed_at ?? component.install_date ?? null;

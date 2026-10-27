@@ -15,6 +15,7 @@ export const CHANGELOG: Release[] = [
       "Set your engine meter reading in boat settings — NautIQ uses it as the starting point for cumulative engine hours so trip hours and fuel estimates are always accurate",
       "Engine meter reading is now captured during onboarding so new users start tracking from the correct baseline straight away",
       "A nudge appears when logging a trip if your engine meter starting point hasn't been set yet — so nothing slips through",
+      "When logging or editing maintenance, tick \"Do not reset service interval\" to record a minor or informational entry without changing when the next service is due",
     ],
   },
   {
