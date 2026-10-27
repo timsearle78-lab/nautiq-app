@@ -12,6 +12,7 @@ export const CHANGELOG: Release[] = [
     features: [
       "Subscribe or manage your plan directly from the Settings page",
       "A trial countdown banner reminds you how many days are left in your free trial",
+      "App layout now uses a centred column on wide screens with a navy surround for a polished desktop experience",
     ],
   },
   {
