@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { X, Layers, Plus, Trash2 } from "lucide-react";
+import { X, Layers, Plus, Trash2, Package } from "lucide-react";
 
 type BulkRow = {
   id: number;
@@ -30,11 +30,13 @@ export function BulkAddInventorySheet({
   categories,
   onClose,
   onSuccess,
+  onSwitchToSingle,
 }: {
   boatId: string;
   categories: string[];
   onClose: () => void;
   onSuccess: () => void;
+  onSwitchToSingle?: () => void;
 }) {
   const [rows, setRows] = useState<BulkRow[]>([emptyRow(1), emptyRow(2), emptyRow(3)]);
   const [nextId, setNextId] = useState(4);
@@ -117,9 +119,19 @@ export function BulkAddInventorySheet({
         </button>
       </div>
 
-      <p className="px-4 pt-3 text-xs text-slate-500 flex-shrink-0">
-        Fill in as many rows as you need. Only rows with a name are saved.
-      </p>
+      <div className="px-4 pt-3 pb-0 flex items-center justify-between flex-shrink-0">
+        <p className="text-xs text-slate-500">Fill in as many rows as you need. Only rows with a name are saved.</p>
+        {onSwitchToSingle && (
+          <button
+            type="button"
+            onClick={onSwitchToSingle}
+            className="flex items-center gap-1.5 text-sm font-medium text-ocean-600 hover:text-ocean-700 transition-colors ml-4 whitespace-nowrap"
+          >
+            <Package size={14} />
+            Single item
+          </button>
+        )}
+      </div>
 
       {/* Scrollable table area */}
       <div ref={tableRef} className="flex-1 overflow-auto px-4 py-3 min-h-0">
