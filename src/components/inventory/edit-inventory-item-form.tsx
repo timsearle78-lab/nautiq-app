@@ -24,6 +24,7 @@ type Item = {
   is_critical: boolean;
   is_fuel_source: boolean;
   expiry_date: string | null;
+  last_checked: string | null;
   photo_urls: string[] | null;
 };
 
@@ -130,6 +131,14 @@ export function EditInventoryItemForm({
             <div>
               <label className="mb-1.5 block text-sm font-medium text-slate-700">Expiry date</label>
               <input name="expiry_date" type="date" defaultValue={item.expiry_date ?? ""} className={inputCls} />
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Last checked</label>
+              <input name="last_checked" type="date" defaultValue={item.last_checked ?? ""} className={inputCls} />
+              <p className="mt-1 text-xs text-slate-400">When you last physically inspected this item</p>
             </div>
           </div>
 

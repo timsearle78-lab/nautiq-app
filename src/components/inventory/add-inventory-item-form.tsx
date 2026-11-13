@@ -46,6 +46,7 @@ export function AddInventoryItemForm({
             manufacturer: String(fd.get("manufacturer") ?? "") || null,
             sku: String(fd.get("sku") ?? "") || null,
             expiry_date: String(fd.get("expiry_date") ?? "") || null,
+            last_checked: String(fd.get("last_checked") ?? "") || null,
             notes: String(fd.get("notes") ?? "") || null,
             is_critical: fd.get("is_critical") === "on",
           },
@@ -142,6 +143,14 @@ export function AddInventoryItemForm({
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Expiry date</label>
             <input name="expiry_date" type="date" className={inputCls} />
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Last checked</label>
+            <input name="last_checked" type="date" className={inputCls} />
+            <p className="mt-1 text-xs text-slate-400">When you last physically inspected this item</p>
           </div>
         </div>
 

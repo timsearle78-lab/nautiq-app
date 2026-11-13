@@ -17,6 +17,7 @@ export type InventoryItemRow = {
   notes: string | null;
   is_critical: boolean;
   expiry_date: string | null;
+  last_checked: string | null;
   created_at: string;
   updated_at: string;
   component: {
@@ -41,6 +42,7 @@ type InventoryItemQueryRow = {
   notes: string | null;
   is_critical: boolean;
   expiry_date: string | null;
+  last_checked: string | null;
   created_at: string;
   updated_at: string;
   component:
@@ -101,6 +103,7 @@ export async function getInventoryItems(
       notes,
       is_critical,
       expiry_date,
+      last_checked,
       created_at,
       updated_at,
       component:components (
@@ -134,6 +137,7 @@ export async function getInventoryItems(
     notes: row.notes,
     is_critical: row.is_critical,
     expiry_date: row.expiry_date,
+    last_checked: row.last_checked,
     created_at: row.created_at,
     updated_at: row.updated_at,
     component: Array.isArray(row.component)
