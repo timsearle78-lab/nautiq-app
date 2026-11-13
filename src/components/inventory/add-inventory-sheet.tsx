@@ -52,6 +52,7 @@ export function AddInventorySheet({
               categories={categories}
               onClose={handleClose}
               onSuccess={handleSuccess}
+              onSwitchToSingle={() => setMode("single")}
             />
           ) : (
             /* Single-item sheet */
