@@ -30,12 +30,13 @@ export async function updateInventoryItem(
   const is_critical = formData.get("is_critical") === "on";
   const is_fuel_source = formData.get("is_fuel_source") === "on";
   const expiry_date = String(formData.get("expiry_date") ?? "").trim() || null;
+  const last_checked = String(formData.get("last_checked") ?? "").trim() || null;
 
   if (!name) return { error: "Item name is required." };
 
   const { error } = await supabase
     .from("inventory_items")
-    .update({ component_id, name, category, sku, manufacturer, quantity, minimum_quantity, unit, storage_location, notes, is_critical, is_fuel_source, expiry_date })
+    .update({ component_id, name, category, sku, manufacturer, quantity, minimum_quantity, unit, storage_location, notes, is_critical, is_fuel_source, expiry_date, last_checked })
     .eq("id", id)
     .eq("user_id", user.id);
 

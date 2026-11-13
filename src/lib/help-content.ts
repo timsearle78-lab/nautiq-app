@@ -219,12 +219,22 @@ To filter inventory, tap any of the coloured stat tiles at the top of the Invent
 - Use the "All components" dropdown below the tiles to narrow further by boat component.
 - A "Clear filters" link appears when any filter is active.
 
-To add an item manually:
-1. Go to the Inventory tab and tap "+ Add item."
+To add a single item manually:
+1. Go to the Inventory tab and tap "+ Add."
 2. Fill in the name, quantity, unit (ea, L, kg, etc.), category, and optionally link it to a maintenance component.
 3. Add an expiry date if the item has one (e.g. flares, first aid supplies, fire extinguishers).
-4. Add notes for any details like fitting info or service notes.
-5. Mark it as a critical item if it's essential for safety or operation.
+4. Add a "Last checked" date to record when you last physically inspected the item.
+5. Add notes for any details like fitting info or service notes.
+6. Mark it as a critical item if it's essential for safety or operation.
+
+To add multiple items at once (bulk add):
+1. Go to the Inventory tab and tap "+ Add."
+2. Tap "Switch to bulk add" at the top of the sheet.
+3. A spreadsheet-style table appears — fill in as many rows as you need (name, category, qty, unit, expiry, last checked, critical flag).
+4. Tap "+ Add row" to add more rows.
+5. Tap "Save items" when done — only rows with a name are saved.
+
+Last checked date: use this to record when you last physically inspected a safety item (flares, life jackets, fire extinguishers, EPIRBs). A stale badge appears in the inventory list when a critical item hasn't been checked in 90 days, or a non-critical item in 12 months.
 
 To scan an item:
 1. Open the ☰ menu and tap "Scan item."
@@ -488,7 +498,7 @@ MAINTENANCE: Each component has a time/engine-hour service interval. NautIQ uses
 
 COMPONENTS & SYSTEMS: Components = individual parts needing service (engine, impeller, life jackets…). Systems = groups (Engine, Safety, Electrical…). Add/edit from Maintain tab. Delete from Danger Zone on component page. When adding a component the System field is a combobox — pick an existing system or type a new name and tap "Add as new system" to create it. NautIQ warns you if a similar name already exists (e.g. plural match) so you don't create a duplicate.
 
-INVENTORY: The inventory is the on-board register — record everything on the boat: spare parts, safety equipment (EPIRB, PLB, VHF, life jackets, flares, fire extinguishers), tools, consumables, and any other gear. Add items via "+ Add item" or camera "Scan item" on Home. Adjust stock by saying "I used X" or "I bought X" to the AI, or via the Restock item / Used item chips, or from the item's page. Link items to components so low stock raises the risk score. Set an expiry date on items like flares, fire extinguishers, first aid supplies, or fuel treatment — items expiring within 90 days show an amber badge; expired items show red. The "Expiring soon" tile on the Inventory page shows the count at a glance. Expired critical items increase the boat health risk score. Photos: Each inventory item can have up to 3 photos. Open the item's edit page (tap the pencil icon) and scroll to Photos — tap "Upload" to choose an image from your device or "Camera" to take a photo. Tap a thumbnail to view full size. Remove a photo with the X on the thumbnail or the Remove button in full-size view.
+INVENTORY: The inventory is the on-board register — record everything on the boat: spare parts, safety equipment (EPIRB, PLB, VHF, life jackets, flares, fire extinguishers), tools, consumables, and any other gear. Add items via "+ Add item" or camera "Scan item" on Home. BULK ADD: Tap "+ Add" on the Inventory page, then tap "Switch to bulk add" at the top of the sheet — a spreadsheet-style table appears where you can enter multiple items at once (name, category, qty, unit, expiry, last checked, critical flag); only rows with a name are saved. Adjust stock by saying "I used X" or "I bought X" to the AI, or via the Restock item / Used item chips, or from the item's page. Link items to components so low stock raises the risk score. Set an expiry date on items like flares, fire extinguishers, first aid supplies, or fuel treatment — items expiring within 90 days show an amber badge; expired items show red. The "Expiring soon" tile on the Inventory page shows the count at a glance. Expired critical items increase the boat health risk score. LAST CHECKED DATE: Each inventory item has a "Last checked" date field — record when you last physically inspected the item. If a critical item hasn't been checked in 90+ days (or a non-critical item in 365+ days), a stale badge appears in the inventory list as a reminder. Photos: Each inventory item can have up to 3 photos. Open the item's edit page (tap the pencil icon) and scroll to Photos — tap "Upload" to choose an image from your device or "Camera" to take a photo. Tap a thumbnail to view full size. Remove a photo with the X on the thumbnail or the Remove button in full-size view.
 
 INVENTORY & MAINTENANCE BEST PRACTICES: Use a SEPARATE inventory item for each physically distinct item that has its own location or expiry date (e.g. three fire extinguishers in different locations = three records, each with its own expiry). Use a SINGLE item with higher quantity for identical interchangeable parts stored together (e.g. 3 alternator belts in the spares locker = one record, qty 3, min qty 1). Use a consistent category (e.g. "Safety") to group related items. Create a MAINTENANCE COMPONENT for every recurring inspection task, not just physical parts — e.g. "Fire extinguisher check" in the Safety system with a 12-month interval. Link the extinguisher inventory items to that component so low stock raises the risk score automatically. Log a maintenance record every time you carry out the check — fill in date, work done, and notes for a permanent inspection history. Other inspection components to set up: life jacket inspection (annual), EPIRB check (annual), bilge pump test (3 months), flare check (annual — link flare inventory with expiry dates).
 

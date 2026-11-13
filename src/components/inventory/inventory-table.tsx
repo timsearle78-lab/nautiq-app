@@ -13,6 +13,17 @@ function getStatus(item: InventoryItemRow) {
   return { label: "OK", badgeCls: "badge badge-ok", edge: "row-edge-healthy" };
 }
 
+function getLastCheckedBadge(lastChecked: string | null, isCritical: boolean): { label: string; cls: string } | null {
+  if (!lastChecked) return null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const checked = new Date(lastChecked); checked.setHours(0, 0, 0, 0);
+  const daysAgo = Math.floor((today.getTime() - checked.getTime()) / 86400000);
+  const threshold = isCritical ? 90 : 365;
+  if (daysAgo < threshold) return null;
+  if (daysAgo >= 365) return { label: `CHK ${Math.floor(daysAgo / 30)}MO AGO`, cls: "badge badge-low" };
+  return { label: `CHK ${daysAgo}D AGO`, cls: "badge badge-low" };
+}
+
 function getExpiryBadge(expiryDate: string | null): { label: string; cls: string } | null {
   if (!expiryDate) return null;
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -47,6 +58,7 @@ export function InventoryTable({
           {items.map((item) => {
             const status = getStatus(item);
             const expiryBadge = getExpiryBadge(item.expiry_date);
+            const lastCheckedBadge = getLastCheckedBadge(item.last_checked, item.is_critical);
             return (
               <div
                 key={item.id}
@@ -94,6 +106,9 @@ export function InventoryTable({
                     <span className={status.badgeCls}>{status.label}</span>
                     {expiryBadge && (
                       <span className={expiryBadge.cls}>{expiryBadge.label}</span>
+                    )}
+                    {lastCheckedBadge && (
+                      <span className={lastCheckedBadge.cls}>{lastCheckedBadge.label}</span>
                     )}
                   </div>
                 </div>

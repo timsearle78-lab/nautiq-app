@@ -7,6 +7,14 @@ export type Release = {
 // Add new entries at the TOP. The first entry is always treated as the latest.
 export const CHANGELOG: Release[] = [
   {
+    date: "2026-11-13",
+    label: "November 2026 update",
+    features: [
+      "Bulk add inventory — tap 'Add' then 'Switch to bulk add' to enter multiple items at once in a spreadsheet-style table",
+      "Last checked date on inventory items — record when you last physically inspected an item; a stale badge appears in the inventory list when critical items haven't been checked in 90 days (or 12 months for non-critical)",
+    ],
+  },
+  {
     date: "2026-10-27",
     label: "October 2026 update",
     features: [

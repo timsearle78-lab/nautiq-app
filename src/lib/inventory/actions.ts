@@ -38,6 +38,7 @@ export async function createInventoryItem(
     const storage_location = String(formData.get("storage_location") ?? "").trim() || null;
     const notes = String(formData.get("notes") ?? "").trim() || null;
     const expiry_date = String(formData.get("expiry_date") ?? "").trim() || null;
+    const last_checked = String(formData.get("last_checked") ?? "").trim() || null;
     const is_critical = formData.get("is_critical") === "on";
     const is_fuel_source = formData.get("is_fuel_source") === "on";
 
@@ -69,6 +70,7 @@ export async function createInventoryItem(
       storage_location,
       notes,
       expiry_date,
+      last_checked,
       is_critical,
       is_fuel_source,
     });
